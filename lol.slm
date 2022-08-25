@@ -1,0 +1,14 @@
+inc stdlib.slm
+
+proc main
+  255
+  while
+    swap
+    1 - 
+    copy
+    dump
+    swap
+    covr
+  end
+  disc
+end

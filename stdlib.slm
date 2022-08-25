@@ -1,0 +1,26 @@
+proc print
+  swap
+  while
+    swap
+
+    copy
+    
+    read
+    dump
+
+    1 +
+    swap
+    covr
+    read
+  end
+  10
+  dump
+  disc
+  disc
+  disc
+end
+
+proc &
+  swap
+  disc
+end
