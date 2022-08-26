@@ -1,0 +1,53 @@
+{
+args: pointer
+result: 
+
+prints a string
+}
+proc print 1 0
+  while
+    { move the while return back 1 }
+    swap
+
+    { read the current char }
+    copy 
+    read
+    dump
+    
+    { increase the address }
+    1 +
+    swap
+
+    { read the next address }
+    covr
+    read
+    
+    { convert to a byte }
+    255 &&
+  end
+  { print new line }
+  10
+  dump
+end
+
+{
+args: pointer pointer
+result: pointer
+
+concat strings
+TODO
+}
+proc & 2 1
+  disc
+end
+
+{
+args: pointer pointer
+result: int
+
+compares strings
+}
+proc cmp 2 1
+  disc
+end
+

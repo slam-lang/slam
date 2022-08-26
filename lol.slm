@@ -1,14 +1,5 @@
-inc stdlib.slm
+inc lib/stdlib.slm
 
-proc main
-  255
-  while
-    swap
-    1 - 
-    copy
-    dump
-    swap
-    covr
-  end
-  disc
+proc main 0 0
+  "Hello World!" (print)
 end

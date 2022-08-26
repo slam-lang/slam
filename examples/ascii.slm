@@ -1,0 +1,19 @@
+inc stdlib.slm
+
+{
+Prints Ascii characters starting at 255
+goes to 0
+}
+
+proc main
+  255
+  while
+    swap
+    copy
+    dump
+    1 - 
+    swap
+    covr
+  end
+  disc
+end

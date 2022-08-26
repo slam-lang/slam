@@ -1,0 +1,10 @@
+inc stdlib.slm
+
+{
+prints "Hello World!"
+}
+
+proc main
+  "Hello World!" (print)
+end
+
