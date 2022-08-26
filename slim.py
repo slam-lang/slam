@@ -12,8 +12,10 @@ def iota(reset=False):
     iota_counter += 1
     return result
 
-OP_PUSH = iota(True)
+OP_NOP  = iota()
+OP_PUSH = iota()
 OP_SUB  = iota()
+OP_MUL  = iota()
 OP_PLUS = iota()
 OP_SWAP = iota()
 OP_DUMP = iota()
@@ -23,19 +25,29 @@ OP_GPTR = iota()
 OP_READ = iota()
 OP_PUTC = iota()
 OP_DISC = iota()
+OP_ARGV = iota()
+OP_ARGC = iota()
 
 OP_PUSHP = iota()
 OP_CALLS = iota()
+OP_MULTI = iota()
 
-OP_CONST = iota()
+OP_CONST= iota()
 OP_CALL = iota()
 OP_PROC = iota()
-OP_RET = iota()
+OP_RET  = iota()
+OP_QUIT = iota()
 
+OP_LOCX = iota()
+OP_JUMPX= iota()
 OP_JUMP = iota()
+OP_IF   = iota()
 OP_JNZ  = iota()
 OP_GETP = iota()
+OP_CYCL = iota()
 
+
+OP_NQ   = iota()
 OP_EQ   = iota()
 OP_LT   = iota()
 OP_GT   = iota()
@@ -57,7 +69,9 @@ def simulate_program(program):
         op = program[pcntr]
         pcntr += 1
         try:
-            if op[0] == OP_PUSH:
+            if op[0] == OP_NOP:
+                pass
+            elif op[0] == OP_PUSH:
                 stack.append(op[1])
             elif op[0] == OP_PROC:
                 procs[op[1]] = pcntr
@@ -68,6 +82,10 @@ def simulate_program(program):
                 a = stack.pop()
                 b = stack.pop()
                 stack.append(a + b)
+            elif op[0] == OP_MUL:
+                a = stack.pop()
+                b = stack.pop()
+                stack.append(a * b)
             elif op[0] == OP_DUMP:
                 a = stack.pop()
                 print(chr(a), a)
@@ -138,10 +156,192 @@ def simulate_program(program):
     print(stack)
     print(memory)
 
+def compile_inst(out, op, ip, start):
+    global procs
+    global strs
+    global locs
+    global memsize
+    out.write(start + "_%d:\n" % ip)            
+    if op[0] == OP_NOP:
+        pass
+    elif op[0] == OP_PUSH:
+        out.write("    mov qword rax, %d\n" % op[1])
+        out.write("    push rax\n")
+    elif op[0] == OP_SUB:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    sub rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_AND:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    and rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_PLUS:
+        out.write("    pop rax\n")
+        out.write("    pop rbx\n")
+        out.write("    add rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_MUL:
+        out.write("    pop rax\n")
+        out.write("    pop rbx\n")
+        out.write("    imul rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_NQ:
+        out.write("    mov rcx, 0\n")
+        out.write("    mov rdx, 1\n")
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    cmp rax, rbx\n")
+        out.write("    cmovne rcx, rdx\n")
+        out.write("    push rcx\n")
+    elif op[0] == OP_EQ:
+        out.write("    mov rcx, 0\n");
+        out.write("    mov rdx, 1\n");
+        out.write("    pop rax\n");
+        out.write("    pop rbx\n");
+        out.write("    cmp rax, rbx\n");
+        out.write("    cmove rcx, rdx\n");
+        out.write("    push rcx\n")
+    elif op[0] == OP_GT:
+        out.write("    mov rcx, 0\n");
+        out.write("    mov rdx, 1\n");
+        out.write("    pop rbx\n");
+        out.write("    pop rax\n");
+        out.write("    cmp rax, rbx\n");
+        out.write("    cmovg rcx, rdx\n");
+        out.write("    push rcx\n")
+    elif op[0] == OP_LT:
+        out.write("    mov rcx, 0\n");
+        out.write("    mov rdx, 1\n");
+        out.write("    pop rbx\n");
+        out.write("    pop rax\n");
+        out.write("    cmp rax, rbx\n");
+        out.write("    cmovl rcx, rdx\n");
+        out.write("    push rcx\n")
+    elif op[0] == OP_CYCL:
+        out.write("    pop rax\n")
+        out.write("    pop rbx\n")
+        out.write("    pop rcx\n")
+        out.write("    push rbx\n")
+        out.write("    push rax\n")
+        out.write("    push rcx\n")
+    elif op[0] == OP_DUMP:
+        out.write("    pop rax\n")
+        out.write("    call print\n")
+    elif op[0] == OP_COPY:
+        out.write("    pop rax\n")
+        out.write("    push rax\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_GPTR:
+        out.write("    mov rax, mem\n")
+        out.write("    add rax, %d\n" % memsize)
+        out.write("    push rax\n")
+        memsize += op[1]
+    elif op[0] == OP_PUTC:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    mov byte [rax], bl\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_READ:
+        out.write("    pop rax\n")
+        out.write("    xor rbx, rbx\n")
+        out.write("    mov rbx, [rax]\n")
+        out.write("    push rbx\n")
+    elif op[0] == OP_DISC:
+        out.write("    pop rax\n")
+    elif op[0] == OP_GETP:
+        out.write("    mov mem, %s_%d\n" % (start, ip + 1))
+        out.write("    push rax\n")
+    elif op[0] == OP_SWAP:
+        out.write("    pop rax\n")
+        out.write("    pop rbx\n")
+        out.write("    push rax\n")
+        out.write("    push rbx\n")
+    elif op[0] == OP_COVR:
+        out.write("    pop rax\n")
+        out.write("    pop rbx\n")
+        out.write("    push rbx\n")
+        out.write("    push rax\n")
+        out.write("    push rbx\n")
+    elif op[0] == OP_JNZ:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    test rbx, rbx\n")
+        out.write("    push rax\n")
+        out.write("    jz %s_%d\n" % (start, ip + 1))
+        out.write("    jmp rax\n")
+    elif op[0] == OP_PROC:
+        procs[op[1]] = "%s_%d\n" % (start, ip)
+        out.write("    ; %s\n" % op[1])
+    elif op[0] == OP_ARGV:
+        out.write("    mov rax, [args_ptr]\n")
+        out.write("    add rax, 8\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_MULTI:
+        for op_id2 in range(len(op[1])):
+            op2 = op[1][op_id2]
+            compile_inst(out, op2, op_id2,"%s_%d" % (start, ip))
+        out.write("%s_%d_%d:\n" % (start, ip, len(op[1])))          
+    elif op[0] == OP_ARGC:
+        out.write("    mov rax, [args_ptr]\n")
+        out.write("    mov rax, [rax]\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_CALL:
+        out.write("    mov rax, [ret_stack_rsp]\n")
+        out.write("    add rax, 8\n")
+        out.write("    mov qword [ret_stack_rsp], rax\n")
+        out.write("    mov qword [rax], %s_%d\n" % (start, ip + 1))
+        out.write("    jmp %s\n" % (procs[op[1]]))
+    elif op[0] == OP_PUSHP:
+        out.write("    mov rax, %s_%d\n" % (start, procs[op[1]]))
+    elif op[0] == OP_CALLS:
+        out.write("    pop rbx\n")
+        out.write("    mov rax, [ret_stack_rsp]\n")
+        out.write("    add rax, 8\n")
+        out.write("    mov qword [ret_stack_rsp], rax\n")
+        out.write("    mov qword [rax], %s_%d\n" % (start, ip + 1))
+        out.write("    jmp [rbx]\n")
+    elif op[0] == OP_QUIT:
+        out.write("    jmp quit\n")
+    elif op[0] == OP_IF:
+        out.write("    pop rbx\n")
+        out.write("    test rbx, rbx\n")
+        out.write("    jz %s_%d\n" % (start, ip + 2))
+    elif op[0] == OP_CONST:
+        value = op[1].encode('utf-8')
+        for s in range(len(strs)):
+            if strs[s] == value:
+                out.write("    push str_%d\n" % s)
+                break
+        else:        
+            out.write("    push str_%d\n" % len(strs))
+            strs.append(value + b"\x00")
+    elif op[0] == OP_RET:
+        out.write("    mov rax, [ret_stack_rsp]\n")
+        out.write("    sub rax, 8\n")
+        out.write("    mov qword [ret_stack_rsp], rax\n")
+        out.write("    add rax, 8\n")
+        out.write("    jmp [rax]\n")
+    elif op[0] == OP_LOCX:
+        locs[op[1]] = start + "_%d" % ip
+    elif op[0] == OP_JUMPX:
+        out.write("    jmp %s\n" % locs[op[1]])
+    else:
+        assert False, "not implemented" + str(op)
+
+
+
 def compile_program(program):
+    global procs
+    global strs
+    global locs
+    global memsize
     with open("output.asm", "w") as out:
         strs = []
+        locs = {}
         procs = {}
+        memsize = 0 
         
         out.write("BITS 64\n")
         out.write("segment .text\n")
@@ -160,131 +360,7 @@ def compile_program(program):
 
         for ip in range(len(program)):
             op = program[ip]
-            out.write("addr_%d:\n" % ip)            
-            if op[0] == OP_PUSH:
-                out.write("    mov qword rax, %d\n" % op[1])
-                out.write("    push rax\n")
-            elif op[0] == OP_SUB:
-                out.write("    pop rbx\n")
-                out.write("    pop rax\n")
-                out.write("    sub rax, rbx\n")
-                out.write("    push rax\n")
-            elif op[0] == OP_AND:
-                out.write("    pop rbx\n")
-                out.write("    pop rax\n")
-                out.write("    and rax, rbx\n")
-                out.write("    push rax\n")
-            elif op[0] == OP_PLUS:
-                out.write("    pop rax\n")
-                out.write("    pop rbx\n")
-                out.write("    add rax, rbx\n")
-                out.write("    push rax\n")
-            elif op[0] == OP_EQ:
-                out.write("    mov rcx, 0\n");
-                out.write("    mov rdx, 1\n");
-                out.write("    pop rax\n");
-                out.write("    pop rbx\n");
-                out.write("    cmp rax, rbx\n");
-                out.write("    cmove rcx, rdx\n");
-                out.write("    push rcx\n")
-            elif op[0] == OP_GT:
-                out.write("    mov rcx, 0\n");
-                out.write("    mov rdx, 1\n");
-                out.write("    pop rbx\n");
-                out.write("    pop rax\n");
-                out.write("    cmp rax, rbx\n");
-                out.write("    cmovg rcx, rdx\n");
-                out.write("    push rcx\n")
-            elif op[0] == OP_LT:
-                out.write("    mov rcx, 0\n");
-                out.write("    mov rdx, 1\n");
-                out.write("    pop rbx\n");
-                out.write("    pop rax\n");
-                out.write("    cmp rax, rbx\n");
-                out.write("    cmovl rcx, rdx\n");
-                out.write("    push rcx\n")
-            elif op[0] == OP_DUMP:
-                out.write("    pop rax\n")
-                out.write("    call print\n")
-            elif op[0] == OP_COPY:
-                out.write("    pop rax\n")
-                out.write("    push rax\n")
-                out.write("    push rax\n")
-            elif op[0] == OP_GPTR:
-                out.write("    pop rcx\n")
-                out.write("    mov rax, 45\n")
-                out.write("    mov rbx, rsi\n")
-                out.write("    add rbx, rcx\n")
-                out.write("    int 0x80\n")
-                out.write("    push rsi\n")
-            elif op[0] == OP_PUTC:
-                out.write("    pop rbx\n")
-                out.write("    pop rax\n")
-                out.write("    mov byte [rax], bl\n")
-                out.write("    push rax\n")
-            elif op[0] == OP_READ:
-                out.write("    pop rax\n")
-                out.write("    xor rbx, rbx\n")
-                out.write("    mov rbx, [rax]\n")
-                out.write("    push rbx\n")
-            elif op[0] == OP_DISC:
-                out.write("    pop rax\n")
-            elif op[0] == OP_GETP:
-                out.write("    mov rax, addr_%d\n" % (ip + 1))
-                out.write("    push rax\n")
-            elif op[0] == OP_SWAP:
-                out.write("    pop rax\n")
-                out.write("    pop rbx\n")
-                out.write("    push rax\n")
-                out.write("    push rbx\n")
-            elif op[0] == OP_COVR:
-                out.write("    pop rax\n")
-                out.write("    pop rbx\n")
-                out.write("    push rbx\n")
-                out.write("    push rax\n")
-                out.write("    push rbx\n")
-            elif op[0] == OP_JNZ:
-                out.write("    pop rbx\n")
-                out.write("    pop rax\n")
-                out.write("    test rbx, rbx\n")
-                out.write("    push rax\n")
-                out.write("    jz addr_%d\n" % (ip + 1))
-                out.write("    jmp rax\n")
-            elif op[0] == OP_PROC:
-                out.write("    ; %s\n" % op[1])
-                procs[op[1]] = ip
-            elif op[0] == OP_CALL:
-                out.write("    mov rax, [ret_stack_rsp]\n")
-                out.write("    add rax, 8\n")
-                out.write("    mov qword [ret_stack_rsp], rax\n")
-                out.write("    mov qword [rax], addr_%d\n" % (ip + 1))
-                out.write("    jmp addr_%d\n" % (procs[op[1]]))
-            elif op[0] == OP_PUSHP:
-                out.write("    mov rax, addr_%d\n" % (procs[op[1]]))
-            elif op[0] == OP_CALLS:
-                out.write("    pop rbx\n")
-                out.write("    mov rax, [ret_stack_rsp]\n")
-                out.write("    add rax, 8\n")
-                out.write("    mov qword [ret_stack_rsp], rax\n")
-                out.write("    mov qword [rax], addr_%d\n" % (ip + 1))
-                out.write("    jmp [rbx]\n" % (procs[op[1]]))
-            elif op[0] == OP_CONST:
-                value = op[1].encode('utf-8')
-                for s in range(len(strs)):
-                    if strs[s] == value:
-                        out.write("    push str_%d\n" % s)
-                        break
-                else:        
-                    out.write("    push str_%d\n" % len(strs))
-                    strs.append(value)
-            elif op[0] == OP_RET:
-                out.write("    mov rax, [ret_stack_rsp]\n")
-                out.write("    sub rax, 8\n")
-                out.write("    mov qword [ret_stack_rsp], rax\n")
-                out.write("    add rax, 8\n")
-                out.write("    jmp [rax]\n")
-            else:
-                assert False, "not implemented" + str(op)
+            compile_inst(out, op, ip, "addr")
 
         assert "main" in procs, "No Main"
 
@@ -292,32 +368,34 @@ def compile_program(program):
         out.write("    ret\n")
         out.write("global _start\n")
         out.write("_start:\n")
+        out.write("    mov qword [args_ptr], rsp\n")
         out.write("    mov qword [ret_stack_rsp], ret_stack\n")
         out.write("    mov rax, [ret_stack_rsp]\n")
         out.write("    mov qword [rax], quit\n")
-        out.write("    jmp addr_%d\n" % procs["main"])
+        out.write("    jmp %s\n" % procs["main"])
         out.write("quit:\n")
         out.write("    mov rax, 60\n")
         out.write("    mov rdi, 0x0\n")
         out.write("    syscall\n")
         out.write("segment .data\n")
         for index, s in enumerate(strs):
-            out.write("str_%d: db %s, 0\n" % (index, ','.join(map(str, list(s)))))
+            out.write("str_%d: db %s\n" % (index, ','.join(map(str, list(s)))))
         out.write("segment .bss\n")
         out.write("args_ptr: resq 1\n")
         out.write("ret_stack_rsp: resq 1\n")
         out.write("ret_stack: resb %d\n" % (64 * 1024)) 
         out.write("ret_stack_end:\n")
+        out.write("mem: resb %d\n" % memsize)
 
 singles = {
         "dump": [
             (OP_DUMP, )
             ],
-        "ptr": [
-            (OP_GETP, )
-            ],
         "+": [
             (OP_PLUS, )
+            ],
+        "*": [
+            (OP_MUL, )
             ],
         "-": [
             (OP_SUB, )
@@ -325,8 +403,14 @@ singles = {
         "==": [
             (OP_EQ, )
             ],
+        "!=": [
+            (OP_NQ, )
+            ],
         ">": [
             (OP_GT, )
+            ],
+        "cycl": [
+            (OP_CYCL, )
             ],
         "<": [
             (OP_LT, )
@@ -354,15 +438,35 @@ singles = {
             ],
         "()": [
             (OP_CALLS, )
-            ]
+            ],
+        "argv": [
+            (OP_ARGV, )
+            ],
+        "argc": [
+            (OP_ARGC, )
+            ],
+        "nop": [
+            (OP_NOP, )
+            ],
+        "quit": [
+            (OP_QUIT, )
+            ],
+        "ret": [
+            (OP_RET, )
+            ],
+        "putc": [
+            (OP_PUTC, )
+            ],
         }
 
 
 # (remove, add)
 op_values = {
+        OP_NOP:  (0, 0),
         OP_PUSH: (0, 1),
         OP_PUSHP:(0, 1),
         OP_SUB:  (2, 1),
+        OP_MUL:  (2, 1),
         OP_PLUS: (2, 1),
         OP_SWAP: (2, 2),
         OP_DUMP: (1, 0),
@@ -373,43 +477,78 @@ op_values = {
         OP_PUTC: (2, 1),
         OP_DISC: (1, 0),
         OP_CONST:(0, 1),
-
+        OP_ARGV: (0, 1),
+        OP_ARGC: (0, 1),
         OP_CALLS:(0, 0),
-        
         OP_PROC: (0, 0),
         OP_RET:  (0, 0),
         OP_JUMP: (1, 0),
         OP_JNZ:  (2, 1),
         OP_GETP: (0, 1),
+        OP_NQ:   (2, 1),
         OP_EQ:   (2, 1),
         OP_LT:   (2, 1),
         OP_GT:   (2, 1),
         OP_AND:  (2, 1),
+        OP_IF:   (1, 0),
+        OP_JUMPX:(0, 0),
+        OP_LOCX: (0, 0),
+        OP_CYCL: (0, 0),
         }
 
-def check_proc(program, args, values):
-    stackoffset = args
-    idx = 0
-    for op in program:
-        if op[0] == OP_CALL:
+def check_proc(program, args, rets, values):
+    def check_op(idx, stackoffset):
+        op = program[idx]
+        if op[0] == OP_IF:
+            stackoffset -= 1
+            start = stackoffset
+            idx += 1
+            idx, stackoffset, res = check_op(idx, stackoffset)
+            if res[2] != "OK":
+                return idx, stackoffset, res
+            stackoffset = start
+        elif op[0] == OP_QUIT:
+            if stackoffset != 0:
+                return idx, stackoffset, (stackoffset, op, "Quit wrong ammnt")
+        elif op[0] == OP_RET:
+            if stackoffset != rets:
+                return idx, stackoffset, (stackoffset, op, "Return wrong ammnt")
+        elif op[0] == OP_MULTI:
+            bal = check_proc(op[1], stackoffset, rets, values)
+            if bal[2] != "OK":
+                print("internal unbalanced, " + str(bal[0]) + ", " + bal[2])
+                quit()
+            stack_offset = bal[0]
+        elif op[0] == OP_CALL:
             stackoffset -= values[op[1]][0]
             if stackoffset < 0:
-                return (stackoffset, op)
+                return idx, stackoffset, (stackoffset, op, "Stack underflow")
             stackoffset += values[op[1]][1]
         elif op[0] in op_values:
             stackoffset -= op_values[op[0]][0]
             if stackoffset < 0:
-                return (stackoffset, op)
+                return idx, stackoffset, (stackoffset, op, "Stack underflow")
             stackoffset += op_values[op[0]][1]
         else:
-            return (stackoffset, op)
-    return (stackoffset, (0,))
+            return  idx, stackoffset,(stackoffset, op, "Operation missing")
+        return idx, stackoffset, (stackoffset, (0,), "OK")
+    
+    idx = 0
+    stackoffset = args
+    while idx < len(program):
+        idx, stackoffset, res = check_op(idx, stackoffset)
+        if res[2] != "OK":
+            return res
+        idx += 1
+    
+    return (stackoffset, (0,), "OK")
 
-def parse_program(text):
+def parse_program(text, multi = False):
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
         data.extend(i)
+
     tmp_data = data
     data = []
     
@@ -418,8 +557,10 @@ def parse_program(text):
         func = tmp_data[idx]
         idx += 1
         if func == "": continue
-        while func[-1] == "\\" \
+        while func == "\"" \
+           or func[-1] == "\\" \
            or (func[0] == "\"" and func[-1] != "\"") \
+           or (func[0] == "[" and func[-1] != "]") \
            or (func[0] == "{" and func[-1] != "}"):
             if func[-1] == "\\":
                 func = func[0:-1]
@@ -436,7 +577,11 @@ def parse_program(text):
     proc_block = []
     proc_args = 0
     proc_rets = 0
+    last_jumpx = 0
     proc_values = {}
+
+    do_ids = []
+
 
     while idx < len(data):
         func = data[idx]
@@ -456,21 +601,29 @@ def parse_program(text):
                 for key, value in values.items():
                     proc_values[key] = value
             idx += 1
+        
+        elif func == "var":
+            size = int(data[idx])
+            idx += 1
+            proc_block.append((OP_GPTR, size))
 
         elif func == "end":
             if ident_stack[-1] == "proc":
-                proc_block.append((OP_RET, ))
-                bal = check_proc(proc_block, proc_args, proc_values)
+                if proc_block[-1][0] != OP_RET:
+                    assert False, "Proc doesnt return"
+                bal = check_proc(proc_block, proc_args, proc_rets, proc_values)
+                if bal[2] != "OK":
+                    print("proc unbalanced, " + str(bal[0]) + ", " + bal[2])
+                    quit()
                 if bal[0] != proc_rets:
-                    print("proc unbalanced, " + str(bal))
+                    print("proc unbalanced, " + str(bal[0]) + ", " + bal[2])
                     quit()
                 result.extend(proc_block)
                 proc_block = []
                 proc_args = -1
-            elif ident_stack[-1] == "while":
-                proc_block.append((OP_JNZ, ))
-                proc_block.append((OP_DISC, ))
-                proc_block.append((OP_DISC, ))
+            elif ident_stack[-1] == "do":
+                proc_block.append((OP_IF, ))
+                proc_block.append((OP_JUMPX, do_ids.pop()))
             else:
                 assert False, "Unreachable"
             ident_stack.pop()
@@ -489,12 +642,21 @@ def parse_program(text):
             ident_stack.append("proc")
             proc_values[data[idx - 3]] = (proc_args, proc_rets)
 
-        elif func == "while":
-            proc_block.append((OP_GETP, ))
-            ident_stack.append("while")
+        elif func == "do":
+            do_ids.append(last_jumpx)
+            proc_block.append((OP_LOCX, last_jumpx))
+            last_jumpx += 1
+            ident_stack.append("do")
+
+        elif func == "if":
+            proc_block.append((OP_IF, ))
         
         elif func[0] == "(" and func[-1] == ")":
             proc_block.append((OP_CALL, func[1:-1]))
+        
+        elif func[0] == "[" and func[-1] == "]":
+            cont = parse_program(func[1:-1], True)
+            proc_block.append((OP_MULTI, cont[0]))
 
         elif func[0] == "{" and func[-1] == "}":
             pass
@@ -508,7 +670,10 @@ def parse_program(text):
         else:
             print("builtin `%s` not found\n" % func)
             quit()
-    return (result, proc_values)
+    if multi:
+        return (proc_block, proc_values)
+    else:
+        return (result, proc_values)
 
 def cmd_call_echoed(cmd, silent):
     if not silent:
@@ -521,7 +686,7 @@ def main():
     parser.add_argument('file')
     parser.add_argument('-s', '--simulate', type=bool, default=False)
     parser.add_argument('-S', '--silent', type=bool, default=False)
-    parser.add_argument('-o', '--output', type=str, default="output.o", help="The file to write to")
+    parser.add_argument('-o', '--output', type=str, default="output", help="The file to write to")
     args = parser.parse_args()
 
     with open(args.file, "r") as file:

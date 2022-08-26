@@ -1,0 +1,109 @@
+inc lib/stdlib.slm
+
+proc help 1 0
+  1
+  covr 1 == if [
+    disc
+    0
+  ] covr 2 == if [
+    disc
+    0
+    "You must compile exactly 1 file" (println)
+  ] covr 3 == if [
+    disc
+    0
+    "Last argument supplied requires a parameter" (println)
+  ]
+
+  if [ "INVALID HELP ID" (println) ]
+  disc
+  "slim compiler usage:" (println)
+  (endl)
+  "    slim [-h]\ [-s]\ [-S]\ [-o output]\ file" (println)
+  (endl)
+  quit
+
+  ret
+end
+
+proc getoutput 0 1
+  var 128
+  ret
+end
+
+proc getinput 0 1
+  var 128
+  ret
+end
+
+proc getsilent 0 1
+  var 8
+  ret
+end
+
+proc setoutput 1 1
+    copy argc 1 - > if [3 (help)]
+    
+    (getoutput)
+    covr (args)
+    (strcpy)
+
+    disc
+    disc
+    ret
+end
+
+proc applyarg 2 2
+  copy "-h" (streq)
+  if [disc 1 (help) 0 ret]
+  copy "-o" (streq)
+  if [disc 1 + (setoutput) 0 ret]
+  disc
+  1 ret
+end
+
+
+proc main 0 0
+  { only cmd, then show help }
+  1 argc == if [2 (help)]
+  
+  { iterate through args }
+  0
+  do
+    { increment }
+    1 +
+
+    { get argument }
+    copy (args)
+
+    (applyarg) if [
+      (getinput)
+      read 255 && 0 != if [2 (help)]\
+
+      { set input to argument if its not a flag }
+      (getinput)
+      covr (args)
+      (strcpy)
+
+      { clean that }
+      disc
+      disc
+    ]
+    copy argc 1 - <
+  end
+  disc
+
+  (getoutput) 
+  read 255 && 0 ==
+  if [ (getoutput) "output" (strcpy)]
+
+  (getinput)
+  read 255 && 0 ==
+  if [2 (help)]
+
+  (getinput)
+  "Input:  " (print) (println)
+  (getoutput)
+  "Output: " (print) (println)
+  ret
+end

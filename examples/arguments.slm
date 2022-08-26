@@ -6,14 +6,7 @@ goes to 0
 }
 
 proc main
-  255
-  do
-    swap
-    copy
-    dump
-    1 - 
-    swap
-    covr
-  end
-  disc
+  "Arguments: " (print)
+  argc 47 + dump
+  (endl)
 end

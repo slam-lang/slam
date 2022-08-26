@@ -1,2 +1,2 @@
-main: slim.py lol.slm lib/stdlib.slm
-	./slim.py lol.slm -o output.asm
+main: slim.py slim.slm lib/stdlib.slm
+	./slim.py slim.slm -o output.asm

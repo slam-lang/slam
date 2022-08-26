@@ -1,5 +1,0 @@
-inc lib/stdlib.slm
-
-proc main 0 0
-  "Hello World!" (print)
-end

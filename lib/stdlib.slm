@@ -4,11 +4,11 @@ result:
 
 prints a string
 }
-proc print 1 0
-  while
-    { move the while return back 1 }
-    swap
-
+proc print 1 0 
+  copy 
+  read
+  0 == if [disc ret]
+  do
     { read the current char }
     copy 
     read
@@ -16,38 +16,130 @@ proc print 1 0
     
     { increase the address }
     1 +
-    swap
 
     { read the next address }
-    covr
+    copy
     read
     
     { convert to a byte }
     255 &&
+    0 !=
   end
+  disc
+  ret
+end
+
+{
+args:
+result:
+
+prints a new line
+}
+proc endl 0 0
   { print new line }
   10
   dump
+  ret
+end
+
+{
+prints
+}
+proc println 1 0
+  (print)
+  (endl)
+  ret
+end
+
+{
+args: int
+result: pointer
+
+gets the nth arguent from the command line
+}
+proc args 1 1
+  copy argc - 0 > if ["Bad arg" (println) disc quit]
+  8 * 
+  argv +
+
+  read
+  ret
 end
 
 {
 args: pointer pointer
-result: pointer
+result: 
 
-concat strings
-TODO
+copy a string from a pointer to another
 }
-proc & 2 1
+proc strcpy 2 2
+  covr
+  covr
+  do
+    covr
+    covr
+    read 255 &&
+
+    putc
+    disc
+
+    copy read 255 && 0 ==
+    if [disc disc ret]
+
+    swap 1 +
+    swap 1 +
+    1
+  end
   disc
+  disc
+  ret
 end
 
 {
 args: pointer pointer
 result: int
 
-compares strings
+compares strings, returns 1 if they are not equal
 }
-proc cmp 2 1
+proc streq 2 1
+  1 -
+  swap
+  1 -
+  do
+    1 +
+    swap
+    1 +
+    covr
+    read 255 &&
+    covr
+    read 255 &&
+    covr 0 ==
+    covr 0 ==
+    &&
+    if [
+      disc
+      disc
+      disc
+      disc
+      1
+      ret
+      ]
+    covr 0 ==
+    covr 0 ==
+    !=
+    if [
+      disc
+      disc
+      disc
+      disc
+      0
+      ret
+    ]
+    ==
+  end
   disc
+  disc
+  0
+  ret
 end
 
