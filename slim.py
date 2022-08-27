@@ -629,7 +629,7 @@ def check_proc(program, args, rets, values):
     
     return (stackoffset, (0,), "OK")
 
-def parse_program(text, multi = False):
+def parse_program(text, consts = {}, multi = False):
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
@@ -668,14 +668,19 @@ def parse_program(text, multi = False):
 
     do_ids = []
 
-
     while idx < len(data):
         func = data[idx]
         idx += 1
 
         if func == "": continue
 
-        if func in singles:
+        if func == "const":
+            name = data[idx]
+            idx += 1
+            consts[name] = int(data[idx])
+            idx += 1
+
+        elif func in singles:
             proc_block.extend(singles[func])
             if proc_block[-1] == "ARGS":
                 proc_block.pop()
@@ -741,7 +746,7 @@ def parse_program(text, multi = False):
             proc_block.append((OP_CALL, func[1:-1]))
         
         elif func[0] == "[" and func[-1] == "]":
-            cont = parse_program(func[1:-1], True)
+            cont = parse_program(func[1:-1], consts, True)
             proc_block.append((OP_MULTI, cont[0]))
 
         elif func[0] == "{" and func[-1] == "}":
@@ -753,6 +758,9 @@ def parse_program(text, multi = False):
         elif func in proc_values:
             proc_block.append((OP_PUSHP, func))
             
+        elif func in consts:
+            proc_block.append((OP_PUSH, consts[func]))
+        
         else:
             print("builtin `%s` not found\n" % func)
             quit()

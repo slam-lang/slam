@@ -184,3 +184,42 @@ proc write 3 0
   0 < if ["Error writing file" (println) quit]
   ret
 end
+
+{
+args: int ptr
+result: int
+
+writes data to a file
+}
+proc read 3 1
+  0
+  sys3
+
+  1 < 0 == {if ["Error reading file" (println) quit]}
+  ret
+end
+
+{
+args: int
+result: ptr
+
+converts a int to a string
+}
+proc intstr 1 1
+
+  ret
+end
+
+proc strlen 1 1
+  0
+  do
+    1 +
+    covr
+    covr +
+    read 255 &&
+    0 !=
+  end
+
+  swap disc
+  ret
+end
