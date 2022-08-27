@@ -1,12 +1,16 @@
 inc stdlib.slm
 
 {
-Prints Ascii characters starting at 255
-goes to 0
+prints the number of arguments and then the arguments
 }
 
 proc main
   "Arguments: " (print)
   argc 47 + dump
   (endl)
+  0
+  do
+    1 +
+    copy (args) (println)
+  end
 end

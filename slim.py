@@ -53,6 +53,14 @@ OP_LT   = iota()
 OP_GT   = iota()
 OP_AND  = iota()
 
+OP_SYS0 = iota()
+OP_SYS1 = iota()
+OP_SYS2 = iota()
+OP_SYS3 = iota()
+OP_SYS4 = iota()
+OP_SYS5 = iota()
+OP_SYS6 = iota()
+
 COUNT_OPS = iota()
 
 def simulate_program(program):
@@ -327,6 +335,55 @@ def compile_inst(out, op, ip, start):
         locs[op[1]] = start + "_%d" % ip
     elif op[0] == OP_JUMPX:
         out.write("    jmp %s\n" % locs[op[1]])
+    elif op[0] == OP_SYS0:
+        out.write("    pop rax\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS1:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS2:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    pop rsi\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS3:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    pop rsi\n")
+        out.write("    pop rdx\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS4:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    pop rsi\n")
+        out.write("    pop rdx\n")
+        out.write("    pop r10\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS5:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    pop rsi\n")
+        out.write("    pop rdx\n")
+        out.write("    pop r10\n")
+        out.write("    pop r8\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_SYS6:
+        out.write("    pop rax\n")
+        out.write("    pop rdi\n")
+        out.write("    pop rsi\n")
+        out.write("    pop rdx\n")
+        out.write("    pop r10\n")
+        out.write("    pop r8\n")
+        out.write("    pop r9\n")
+        out.write("    syscall\n")
+        out.write("    push rax\n")
     else:
         assert False, "not implemented" + str(op)
 
@@ -457,6 +514,28 @@ singles = {
         "putc": [
             (OP_PUTC, )
             ],
+        
+        "sys0": [
+            (OP_SYS0, )
+            ],
+        "sys1": [
+            (OP_SYS1, )
+            ],
+        "sys2": [
+            (OP_SYS2, )
+            ],
+        "sys3": [
+            (OP_SYS3, )
+            ],
+        "sys4": [
+            (OP_SYS4, )
+            ],
+        "sys5": [
+            (OP_SYS5, )
+            ],
+        "sys6": [
+            (OP_SYS6, )
+            ],
         }
 
 
@@ -494,6 +573,13 @@ op_values = {
         OP_JUMPX:(0, 0),
         OP_LOCX: (0, 0),
         OP_CYCL: (0, 0),
+        OP_SYS0: (1, 1),
+        OP_SYS1: (2, 1),
+        OP_SYS2: (3, 1),
+        OP_SYS3: (4, 1),
+        OP_SYS4: (5, 1),
+        OP_SYS5: (6, 1),
+        OP_SYS6: (7, 1),
         }
 
 def check_proc(program, args, rets, values):
@@ -566,7 +652,7 @@ def parse_program(text, multi = False):
                 func = func[0:-1]
             func += " " + tmp_data[idx]
             idx += 1
-        data.append(func.replace("\\n", "\n"))
+        data.append(func.replace("\\n", "\n").replace("\\t", "\t"))
         
     result = []
     

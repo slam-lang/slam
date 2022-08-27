@@ -143,3 +143,44 @@ proc streq 2 1
   ret
 end
 
+{
+args: pointer int int
+result: int
+
+opens a file
+}
+proc open 3 1
+  2
+  sys3
+  
+  copy 0 < if ["Error opening file" (println) disc quit]
+  ret
+end
+
+{
+args: int
+result:
+
+closes a file
+}
+proc close 1 0
+  3
+  sys1
+
+  0 < if ["Error closing file" (println) quit]
+  ret
+end
+
+{
+args: int ptr
+result: int
+
+writes data to a file
+}
+proc write 3 0
+  1
+  sys3
+
+  0 < if ["Error writing file" (println) quit]
+  ret
+end

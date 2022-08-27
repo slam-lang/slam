@@ -1,33 +1,18 @@
 inc lib/stdlib.slm
-
-proc help 1 0
-  1
-  covr 1 == if [
-    disc
-    0
-  ] covr 2 == if [
-    disc
-    0
-    "You must compile exactly 1 file" (println)
-  ] covr 3 == if [
-    disc
-    0
-    "Last argument supplied requires a parameter" (println)
-  ]
-
-  if [ "INVALID HELP ID" (println) ]
-  disc
-  "slim compiler usage:" (println)
-  (endl)
-  "    slim [-h]\ [-s]\ [-S]\ [-o output]\ file" (println)
-  (endl)
-  quit
-
-  ret
-end
+{The Slim Compiler, written in Slim}
 
 proc getoutput 0 1
   var 128
+  ret
+end
+
+proc getoutputfd 0 1
+  var 8
+  ret
+end
+
+proc getinputfd 0 1
+  var 8
   ret
 end
 
@@ -41,6 +26,69 @@ proc getsilent 0 1
   ret
 end
 
+{
+args: ptr
+result: ptr
+
+parses a file
+}
+proc parsefile 1 1
+  ret
+end
+
+{
+args: int 
+result: 
+
+prints a help string
+}
+proc help 1 0
+  "INVALID HELP ID"
+  covr 1 == if [
+    disc 
+    "Help"
+  ] covr 2 == if [
+    disc
+    "ERROR: You must compile exactly 1 file"
+  ] covr 3 == if [
+    disc
+    "ERROR: Last argument supplied requires a parameter"
+  ]
+  (println)
+  "slim compiler usage:"                       (println)
+  (endl)
+  "    slim [-h]\ [-s]\ [-o output]\ file"     (println)
+  (endl)
+  "    -h, --help\t\tshows this help message." (println)
+  "    -s, --silent\tdisables output text."    (println)
+  "    -o, --output\tselects the output file." (println)
+  (endl)
+  disc
+  quit
+
+  ret
+end
+
+{
+args:
+result:
+
+sets the silent flag
+}
+proc setsilent 0 0
+  (getsilent)
+  1
+  putc
+  disc
+  ret
+end
+
+{
+args: int
+result: int
+
+sets the output flag to the argument
+}
 proc setoutput 1 1
     copy argc 1 - > if [3 (help)]
     
@@ -53,15 +101,36 @@ proc setoutput 1 1
     ret
 end
 
+{
+args: ptr int 
+result: int int
+
+checks the string for a match with an argument
+if so returns 0 and runs argument
+otherwise returns 1
+}
 proc applyarg 2 2
   copy "-h" (streq)
   if [disc 1 (help) 0 ret]
+  copy "--help" (streq)
+  if [disc 1 (help) 0 ret]
   copy "-o" (streq)
   if [disc 1 + (setoutput) 0 ret]
+  copy "--output" (streq) 
+  if [disc 1 + (setoutput) 0 ret]
+  copy "-s" (streq)
+  if [disc (setsilent) 0 ret]
+  copy "--silent" (streq)
+  if [disc (setsilent) 0 ret]
   disc
   1 ret
 end
 
+proc writeout 2 0
+  (getoutputfd) read (write)
+
+  ret
+end
 
 proc main 0 0
   { only cmd, then show help }
@@ -95,15 +164,37 @@ proc main 0 0
 
   (getoutput) 
   read 255 && 0 ==
-  if [ (getoutput) "output" (strcpy)]
+  if [(getoutput) "output" (strcpy)]
 
   (getinput)
   read 255 && 0 ==
   if [2 (help)]
 
+  {
   (getinput)
   "Input:  " (print) (println)
   (getoutput)
   "Output: " (print) (println)
+  (getsilent) read 48 +
+  "Silent: " (print) dump (endl)
+  }
+  
+  {open input}
+  448 0 (getinput) (open)
+  (getinputfd) swap putc disc
+   
+  {open output}
+  448 66 "temp.asm" (open)
+  (getoutputfd) swap putc disc
+  
+  {parse input}
+  (getinputfd) (parsefile) disc 
+
+  {close output}
+  (getoutputfd) read (close)
+  
+  {close input}
+  (getinputfd) read (close)
+
   ret
 end
