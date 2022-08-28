@@ -6,11 +6,12 @@ prints the number of arguments and then the arguments
 
 proc main
   "Arguments: " (print)
-  argc 47 + dump
+  argc (hexstr) dump
   (endl)
   0
   do
     1 +
     copy (args) (println)
+    argc - 0 <
   end
 end

@@ -1,0 +1,28 @@
+inc ./lib/stdlib.slm
+
+proc inputfd 0 1
+  var 8
+
+  ret
+end
+
+proc inputbuffer 0 1
+  var 129
+  
+  ret
+end
+
+proc main 0 0
+  0 0 "temp.asm"
+  0 100 -
+  (open)
+  (inputfd) swap putc disc
+  do
+    127
+    (inputbuffer) (clearbuf)
+    (inputfd) read (read)
+    (inputbuffer) (print)
+    0 !=
+  end
+  ret
+end

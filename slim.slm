@@ -1,4 +1,5 @@
 inc lib/stdlib.slm
+inc lib/tables.slm
 
 {The Slim Compiler, written in Slim}
 
@@ -45,11 +46,37 @@ const OP_SYS3  38
 const OP_SYS4  39
 const OP_SYS5  40
 const OP_SYS6  41
+const OP_PUT   42
+
+const IDENT_INC 42
+const IDENT_PROC 43
+const IDENT_DO 44
+const IDENT_END 45
+
+proc getconstTab 0 1
+  var 8096
+  ret
+end
+
+proc getprocTab 0 1
+  var 10000
+  ret
+end
+
+proc getcmdbuffer 0 1
+  var 10000
+  ret
+end
 
 proc getnameop 1 1
   OP_BAD
   covr read 255 && 123 == if [disc OP_NOP]
+  covr "do"    (streq) if [disc IDENT_DO]  
+  covr "end"    (streq) if [disc IDENT_END]  
+  covr "inc"   (streq) if [disc IDENT_INC]  
+
   covr "nop"   (streq) if [disc OP_NOP]
+  covr "}"     (streq) if [disc OP_NOP]
   covr "-"     (streq) if [disc OP_SUB]  
   covr "*"     (streq) if [disc OP_MUL]  
   covr "+"     (streq) if [disc OP_PLUS]
@@ -60,6 +87,7 @@ proc getnameop 1 1
   covr "var"   (streq) if [disc OP_GPTR] 
   covr "read"  (streq) if [disc OP_READ] 
   covr "putc"  (streq) if [disc OP_PUTC] 
+  covr "put"   (streq) if [disc OP_PUT]  
   covr "disc"  (streq) if [disc OP_DISC] 
   covr "argv"  (streq) if [disc OP_ARGV] 
   covr "argc"  (streq) if [disc OP_ARGC] 
@@ -135,6 +163,40 @@ proc getopname 1 1
   ret
 end
 
+
+proc identstack 0 1
+  var 64
+  ret
+end
+
+proc identstackrsp 0 1
+  var 8
+  ret
+end
+
+proc identstackpush 1 0
+  (identstackrsp) read (identstack) +
+  swap
+  putc disc
+
+  (identstackrsp) read
+  1 +
+  (identstackrsp) swap putc disc
+  ret
+end
+
+proc identstackpop 0 1
+  (identstackrsp) read 0 != "stack underflow" (assert)
+  (identstackrsp) read
+  1 -
+  (identstackrsp) swap putc disc
+
+  (identstackrsp) read (identstack) +
+  read
+
+  ret
+end
+
 proc getoutput 0 1
   var 128
   ret
@@ -145,13 +207,13 @@ proc getoutputfd 0 1
   ret
 end
 
-proc getinputfd 0 1
-  var 8
+proc getinput 0 1
+  var 128
   ret
 end
 
-proc getinput 0 1
-  var 128
+proc getinputfd 0 1
+  var 8
   ret
 end
 
@@ -161,12 +223,12 @@ proc getsilent 0 1
 end
 
 proc getreadbuffer 0 1
-  var 128
+  var 129
   ret
 end
 
-proc getcmdbuffer 0 1
-  var 128
+proc getreadend 0 1
+  var 1
   ret
 end
 
@@ -180,53 +242,197 @@ proc cmdflags 0 1
   ret
 end
 
+proc addr 0 1
+  var 8
+  ret
+end
+
+proc getaddr 0 1
+  (addr) read
+  copy 1 +
+  (addr) swap putc disc
+  ret
+end
+
+proc exit 0 0
+  {close output}
+  (getoutputfd) read
+  copy != 0 if [(close) 0]
+  disc
+  
+  {close input}
+  (getinputfd) read
+  copy != 0 if [(close) 0]
+  disc
+
+  quit
+  ret
+end
+
 proc writeout 1 0
   copy (strlen) swap (getoutputfd) read (write)
 
   ret
 end
 
-proc addproc 0 0
+proc writeoutln 0 0
+  "\n" 1 swap (getoutputfd) read (write)
+
+  ret
+end
+
+proc alphanum 1 1
+  do
+    copy read 255 &&
+    copy 47 <
+    covr 58 >
+    + 0 != if [disc disc 0 ret]
+    disc
+
+    1 +
+    copy read 255 &&
+    0 !=
+  end
+  disc
+  1
+  ret
+end
+
+proc addproc 1 0
+  disc
   " " (writeout)
   (getcmdbuffer) (writeout)
-  (cmdflags) 1 == if [
-    "\n" (writeout)
+  (cmdflags) copy read 255 &&
+  copy 5 == if [
+    (getprocTab) (getcmdbuffer) (addr) read (putTab) disc
   ]
-  (cmdflags)
-  copy read 1 -
+  copy 1 == if [
+    (writeoutln)
+  ]
+  1 -
   putc disc
 
   ret
 end
 
-proc addconst 0 0
+proc constname 0 1
+  var 64
+
+  ret
+end
+
+proc addconst 1 0
+  disc
+
+  (cmdflags)
+  copy read 255 && 1 - copy 3 == if [
+    (getconstTab) (constname) (addr) read (putTab) disc
+    disc 0
+  ] copy 4 == if [
+    (getcmdbuffer) (constname) (clearbuf) swap (strcpy) disc disc
+  ]
+  putc disc
+
+  ret
+end
+
+proc addinc 1 0
+  disc
+  
+  (cmdflags)
+  0
+  putc disc
+
+  ret
+end
+
+
+proc asmheader 0 0
+    "BITS 64\n" (writeout)
+    "segment .text\n" (writeout)
+    "print:\n" (writeout)
+    "    mov r10, rsp\n" (writeout)
+    "    sub rsp, 8\n" (writeout)
+    "    mov [rsp], al\n" (writeout)
+    "    mov edi, 1\n" (writeout)
+    "    mov rsi, rsp\n" (writeout)
+    "    mov edx, 1\n" (writeout)
+    "    mov eax, 1\n" (writeout)
+    "    syscall\n" (writeout)
+    "    mov rsp, r10\n" (writeout)
+    "    ret\n" (writeout)
+    ret
+end
+
+proc asmfooter 0 0
+  "addr_" (writeout)
+  (getaddr) (strint) (writeout)
+  ":\n" (writeout)
+
+  ret
+end
+
+proc endopasm 1 0
+  copy IDENT_DO == if [
+    "    pop rbx\n" (writeout)
+    "    test rbx, rbx\n" (writeout)
+    "    jnz TODO \n" (writeout)
+  ]
+  disc
+  ret
+end
+
+proc writeaddr 0 0
+  "addr_" (writeout)
+  (getaddr) (strint) (writeout)
+  ": ;" (writeout)
   (getcmdbuffer) (writeout)
-  "\n" (writeout)
-  "    push rax\n" (writeout)
+  (writeoutln)
 
   ret
 end
 
 proc getcmdasm 1 0
-  copy OP_BAD == if [
-    "BAD OPERATION: " (println)
-    (getcmdbuffer) (println)
-  
-    {close output}
-    (getoutputfd) read (close)
-  
-    {close input}
-    (getinputfd) read (close)
-
-    disc quit
+  (getcmdbuffer) (alphanum) if [
+    disc
+    OP_PUSH
   ]
-  copy OP_NOP == if [
-    nop
+
+  (writeaddr)
+  copy OP_BAD == if [
+    {
+    "BAD OPERATION: " (println)
+    "`" (print) (getcmdbuffer) (print) "`" (println)
+
+    "chunk" (println)
+    (getreadbuffer) (println)
+    (exit)
+    }
+
+    (getconstTab)
+    (getcmdbuffer) (getTab) swap disc
+    (strint)
+    (getcmdbuffer) (clearbuf) swap (strcpy) disc disc
+    disc
+    OP_PUSH
+  ] copy OP_NOP == if [
+    disc ret
   ] copy OP_PUSH == if [
     "    mov qword rax " (writeout)
-    (cmdflags)
-    1
-    putc disc
+    (getcmdbuffer) (writeout)
+    (writeoutln)
+    "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_COPY == if [
+    "    pop rax\n" (writeout)
+    "    push rax\n" (writeout)
+    "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_SWAP == if [
+    "    pop rax\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    push rax\n" (writeout)
+    "    push rbx\n" (writeout)
     disc ret
   ] copy OP_SUB == if [
     "    pop rbx\n" (writeout)
@@ -238,6 +444,12 @@ proc getcmdasm 1 0
     "    pop rax\n" (writeout)
     "    pop rbx\n" (writeout)
     "    add rax, rbx\n" (writeout)
+    "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_AND == if [
+    "    pop rax\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    and rax, rbx\n" (writeout)
     "    push rax\n" (writeout)
     disc ret
   ] copy OP_MUL == if [
@@ -254,36 +466,137 @@ proc getcmdasm 1 0
     "    push rbx\n" (writeout)
     disc ret
   ] copy OP_PROC == if [
+    IDENT_PROC (identstackpush) 
     "    ; - proc" (writeout)
     (cmdflags)
     3
     putc disc
     disc ret
+  ] copy OP_QUIT == if [
+    "    jmp quit\n" (writeout)
+    disc ret
+  ] copy OP_RET == if [
+    "    mov rax, [ret_stack_rsp]\n" (writeout)
+    "    sub rax, 8\n" (writeout)
+    "    mov qword [ret_stack_rsp], rax\n" (writeout)
+    "    add rax, 8\n" (writeout)
+    "    jmp [rax]\n" (writeout)
+    disc ret
+  ] copy OP_DISC == if [
+    "    pop rax\n" (writeout)
+    disc ret
+  ] copy OP_CONST == if [
+    (cmdflags)
+    5
+    putc disc
+    disc ret
+  ] copy OP_READ == if [
+    "    pop rax\n" (writeout)
+    "    xor rbx, rbx\n" (writeout)
+    "    mov rbx, [rax]\n" (writeout)
+    "    push rbx\n" (writeout)
+    disc ret
+  ] copy OP_PUTC == if [
+    "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
+    "    mov byte [rax], bl\n" (writeout)
+    "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_NQ == if [
+    "    mov rcx, 0\n" (writeout)
+    "    mov rdx, 1\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
+    "    cmp rax, rbx\n" (writeout)
+    "    cmovne rcx, rdx\n" (writeout)
+    "    push rcx\n" (writeout)
+    disc ret
+  ] copy OP_EQ == if [
+    "    mov rcx, 0\n" (writeout)
+    "    mov rdx, 1\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
+    "    cmp rax, rbx\n" (writeout)
+    "    cmove rcx, rdx\n" (writeout)
+    "    push rcx\n" (writeout)
+    disc ret
+  ] copy OP_GT == if [
+    "    mov rcx, 0\n" (writeout)
+    "    mov rdx, 1\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
+    "    cmp rax, rbx\n" (writeout)
+    "    cmovg rcx, rdx\n" (writeout)
+    "    push rcx\n" (writeout)
+    disc ret
+  ] copy OP_LT == if [
+    "    mov rcx, 0\n" (writeout)
+    "    mov rdx, 1\n" (writeout)
+    "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
+    "    cmp rax, rbx\n" (writeout)
+    "    cmovl rcx, rdx\n" (writeout)
+    "    push rcx\n" (writeout)
+    disc ret
+  ] copy OP_IF == if [
+    "    pop rbx\n" (writeout)
+    "    test rbx, rbx\n" (writeout)
+    "    jz addr_" (writeout)
+    (addr) read 1 + (strint) (writeout)
+    (writeoutln)
+    disc ret
+  ] copy OP_DUMP == if [
+    "    pop rax\n" (writeout) 
+    "    call print\n" (writeout)
+    disc ret
+  ] copy IDENT_INC == if [
+    (cmdflags)
+    6
+    putc disc
+    disc ret
+  ] copy IDENT_END == if [
+    (identstackpop)
+    (endopasm)
+    disc ret
+  ] copy IDENT_DO == if [
+    IDENT_DO (identstackpush) 
+    {TODO}  
+    disc ret
   ]
-  "; unimp\n" (writeout)
-  disc
-  ret
-end
-
-proc clearbuf 1 1
-  copy "" (streq) if [ret]
-  copy
-  do
-    copy
-    0
-    putc
-    disc
-
-    1 +
-    copy read
-  end
-  disc
-
+  "; unimp " (writeout)
+  (getopname) (writeout)
+  " " (writeout)
+  (getcmdbuffer) (writeout)
+  (writeoutln)
   ret
 end
 
 proc parsecmd 0 0
-  (getcmdbuffer) "" (streq) 0 == if [
+  (getcmdbuffer) read 255 && 123 == (getcmdbuffer) (last) 125 == && if [
+    (getcmdbuffer) (clearbuf) disc
+    ret
+  ]
+  (getcmdbuffer) read 255 && 34 == (getcmdbuffer) (last) 34 == && if [
+    "String Lit Unimplented" (println)
+    (getcmdbuffer) (clearbuf) disc
+    ret
+  ]
+  (getcmdbuffer) read 255 && 91 == (getcmdbuffer) (last) 93 == && if [
+    "BLOCK UNIMPLEMENTED" (println)
+    (getcmdbuffer) (clearbuf) disc
+    ret
+  ]
+  (getcmdbuffer) read 255 && 40 == (getcmdbuffer) (last) 41 == && if [
+    (writeaddr)
+    "    mov rax, [ret_stack_rsp]\n" (writeout)
+    "    add rax, 8\n" (writeout)
+    "    mov qword [ret_stack_rsp], rax\n" (writeout)
+    "    mov qword [rax], addr_\n" (writeout)
+    "    jmp %s\n" (writeout)
+    (getcmdbuffer) (clearbuf) disc
+    ret
+  ]
+  (getcmdbuffer) read 255 && 0 != if [
     (cmdflags) read
     (getcmdbuffer) (getnameop)
     covr 0 == if (getcmdasm)
@@ -291,34 +604,32 @@ proc parsecmd 0 0
     covr 2 == if (addproc)
     covr 3 == if (addproc)
     covr 4 == if (addconst)
-    disc
+    covr 5 == if (addconst)
+    covr 6 == if (addinc)
     disc
   ]
   (getcmdbuffer) (clearbuf) disc
   ret
 end
 
-
-proc last 1 1
-  do
-    1 +
-    copy read 255 &&
-    0 !=
-  end
-  1 -
-  read 255 &&
-
-  ret
-end
-
 proc checkcmd 0 1
   {""}
-  (getcmdbuffer) read 255 && 34 == (getcmdbuffer) (last) 34 != && 
+  (getcmdbuffer) read 255 && 34 == (getcmdbuffer) (last) 34 != &&
   {[]}
   (getcmdbuffer) read 255 && 91 == (getcmdbuffer) (last) 93 != && +
   {{}}
   (getcmdbuffer) read 255 && 123 == (getcmdbuffer) (last) 125 != && +
   0 ==
+
+  ret
+end
+
+proc checkbuffer 2 2
+  { if the command is complete, get the buffer }
+  (checkcmd) if [(parsecmd) disc disc (getcmdbuffer) 0 ret]
+  
+  { if the command is not complete, append a space }
+  disc 32
   ret
 end
 
@@ -328,53 +639,54 @@ result: ptr
 
 parses a file
 }
-proc parsefile 0 1
-  127 (getreadbuffer)
+proc parsefile 0 0
+  (asmheader)
+  128 (getreadbuffer)
   (getinputfd) read (read) disc
-  (getreadbuffer)
-  (getcmdbuffer)
+  (getinputfd) read 74 sys1 disc
   do
+    (getreadbuffer)
+    (getcmdbuffer)
     do
       covr
       read 255 &&
       copy 9 {tab} ==
-      covr 10 {newline} == +
-      covr 13 {newline} == +
-      covr 32 {space} == +
+      covr 10 {lf} == +
+      covr 13 {cr} == +
+      covr 32 {spc} == +
       0 !=
-      if [
-          { if the command is complete, get the buffer }
-          (checkcmd) 0 == if [(parsecmd) disc disc (getcmdbuffer) 1 - 0]\
-          
-          { if the command is not complete, append a space }
-          (checkcmd) 0 != if [disc 32]\
+      if (checkbuffer)
 
-          { if there are 2 spaces, dont add a space }
-          copy 32 ==
-          (getcmdbuffer) (last) 32 ==
-          && if [disc 1 - 0]\
-      ]
       covr
       swap
-      copy 0 != if [putc 0]
-      disc
-      disc
-
+      putc disc
+      
       swap 1 +
-      swap 1 +
+      swap
+      copy read 255 && 0 != if [
+        1 +
+      ]
 
       covr read 255 && 0 !=
     end
-    swap
     disc
+    disc
+
     (getreadbuffer) (clearbuf)
-    swap
-    31 (getreadbuffer)
-    (getinputfd) read (read)
+
+    (getcmdbuffer) (strcpy) disc disc
+
+    128 (getcmdbuffer) (strlen) -
+
+    (getreadbuffer) (getcmdbuffer) (strlen) +
+
+    (getinputfd) read (read) copy
+    (getreadbuffer) + (getcmdbuffer) (strlen) + 0 putc disc
+    (getinputfd) read 74 sys1 disc
+
+    (getcmdbuffer) (clearbuf) disc
   end
-  disc
-  disc
-  0
+  (asmfooter)
   ret
 end
 
@@ -406,7 +718,7 @@ proc help 1 0
   "-o, --output\tselects the output file." (println)
   (endl)
   disc
-  quit
+  (exit)
 
   ret
 end
@@ -507,15 +819,21 @@ proc main 0 0
   if [2 (help)]
   
   {open input}
-  448 0 (getinput) (open)
+  0 0 (getinput)
+  0 100 -
+  (open)
   (getinputfd) swap putc disc
    
   {open output}
-  448 66 "temp.asm" (open)
+  420 577 "temp.asm"
+  0 100 -
+  (open)
   (getoutputfd) swap putc disc
   
   {parse input}
-  (parsefile) disc 
+  (parsefile) 
+
+  "DONE" (println)
 
   {close output}
   (getoutputfd) read (close)

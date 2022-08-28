@@ -1,3 +1,5 @@
+const NULL 0
+
 {
 args: pointer
 result: 
@@ -52,13 +54,27 @@ proc println 1 0
 end
 
 {
+args: pointer int
+result:
+
+if int is 0 quit and print message
+}
+proc assert 2 0
+  swap
+  if [disc ret]
+  (println)
+  quit
+  ret
+end
+
+{
 args: int
 result: pointer
 
 gets the nth arguent from the command line
 }
 proc args 1 1
-  copy argc - 0 > if ["Bad arg" (println) disc quit]
+  copy argc - 0 < "Bad arg" (assert)
   8 * 
   argv +
 
@@ -83,13 +99,12 @@ proc strcpy 2 2
     putc
     disc
 
-    copy read 255 && 0 ==
-    if [disc disc ret]
-
     swap 1 +
     swap 1 +
-    1
+    copy read 255 && 0 !=
   end
+  0
+  putc
   disc
   disc
   ret
@@ -149,11 +164,11 @@ result: int
 
 opens a file
 }
-proc open 3 1
-  2
-  sys3
-  
-  copy 0 < if ["Error opening file" (println) disc quit]
+proc open 4 1
+  257
+  sys4
+
+  copy 0 < 1 != "Error opening file" (assert)
   ret
 end
 
@@ -167,7 +182,7 @@ proc close 1 0
   3
   sys1
 
-  0 < if ["Error closing file" (println) quit]
+  0 < 1 != "Error closing file" (assert)
   ret
 end
 
@@ -181,7 +196,70 @@ proc write 3 0
   1
   sys3
 
-  0 < if ["Error writing file" (println) quit]
+  0 < 1 != "Error writing file" (assert)
+  ret
+end
+proc tmpidx 0 1
+  var 8
+
+  ret
+end
+
+proc inctmpidx 0 0
+  (tmpidx) 
+  (tmpidx) read
+  1 +
+  putc disc
+
+  ret
+end
+
+proc gettmp 0 1
+  var 32 30 +
+  (tmpidx) read -
+
+  ret
+end
+
+{
+args: ptr int
+result: ptr
+
+converts a int to a string
+}
+proc printint 1 0
+  do
+    10 /
+    48 +
+    (gettmp)
+    swap
+    putc disc
+    (inctmpidx)
+    
+    copy 0 !=
+  end
+  disc
+  (gettmp) 1 + (print) (endl)
+  
+  (tmpidx) 0 putc disc
+  ret
+end
+
+proc strint 1 1
+  do
+    10 /
+    48 +
+    (gettmp)
+    swap
+    putc disc
+    (inctmpidx)
+    
+    copy 0 !=
+  end
+  disc
+  (gettmp) 1 +
+  
+  (tmpidx) 0 putc disc
   ret
 end
 
@@ -194,24 +272,50 @@ writes data to a file
 proc read 3 1
   0
   sys3
-
-  1 < 0 == {if ["Error reading file" (println) quit]}
+  
+  copy 0 < 1 != "Error reading file" (assert)
   ret
 end
 
+
 {
-args: int
+args: ptr int
 result: ptr
 
-converts a int to a string
+converts a int to a hex string
 }
-proc intstr 1 1
+proc printinthex 1 0
+  do
+    16 /
+    copy 9 > if [64 +]
+    copy 10 < if [48 +]
+    (gettmp)
+    swap
+    putc disc
+    (inctmpidx)
+    
+    copy 0 !=
+  end
+  disc
 
+  (gettmp)
+  120 {x}
+  putc disc
+  (inctmpidx)
+
+  (gettmp)
+  48 {0}
+  putc disc
+  (inctmpidx)
+
+  (gettmp) 1 + (print)
+  (tmpidx) 0 putc disc
+  (endl)
   ret
 end
 
 proc strlen 1 1
-  0
+  0 
   do
     1 +
     covr
@@ -221,5 +325,37 @@ proc strlen 1 1
   end
 
   swap disc
+  ret
+end
+
+{
+}
+proc last 1 1
+  1 -
+  do
+    1 +
+    copy read 255 &&
+    0 !=
+  end
+  1 -
+  read 255 &&
+
+  ret
+end
+
+proc clearbuf 1 1
+  copy read 255 && 0 == if [ret]
+  copy
+  do
+    copy
+    0
+    putc
+    disc
+
+    1 +
+    copy read 255 &&
+  end
+  disc
+
   ret
 end

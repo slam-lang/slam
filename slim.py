@@ -16,6 +16,7 @@ OP_NOP  = iota()
 OP_PUSH = iota()
 OP_SUB  = iota()
 OP_MUL  = iota()
+OP_DIV  = iota()
 OP_PLUS = iota()
 OP_SWAP = iota()
 OP_DUMP = iota()
@@ -24,6 +25,7 @@ OP_COVR = iota()
 OP_GPTR = iota()
 OP_READ = iota()
 OP_PUTC = iota()
+OP_PUT = iota()
 OP_DISC = iota()
 OP_ARGV = iota()
 OP_ARGC = iota()
@@ -169,7 +171,7 @@ def compile_inst(out, op, ip, start):
     global strs
     global locs
     global memsize
-    out.write(start + "_%d:\n" % ip)            
+    out.write(start + "_%d: ; %s\n" % (ip, str(op)))            
     if op[0] == OP_NOP:
         pass
     elif op[0] == OP_PUSH:
@@ -195,6 +197,13 @@ def compile_inst(out, op, ip, start):
         out.write("    pop rbx\n")
         out.write("    imul rax, rbx\n")
         out.write("    push rax\n")
+    elif op[0] == OP_DIV:
+        out.write("    xor rdx, rdx\n");
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    idiv rbx\n")
+        out.write("    push rax\n")
+        out.write("    push rdx\n")
     elif op[0] == OP_NQ:
         out.write("    mov rcx, 0\n")
         out.write("    mov rdx, 1\n")
@@ -246,6 +255,11 @@ def compile_inst(out, op, ip, start):
         out.write("    add rax, %d\n" % memsize)
         out.write("    push rax\n")
         memsize += op[1]
+    elif op[0] == OP_PUT:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    mov qword [rax], rbx\n")
+        out.write("    push rax\n")
     elif op[0] == OP_PUTC:
         out.write("    pop rbx\n")
         out.write("    pop rax\n")
@@ -454,6 +468,9 @@ singles = {
         "*": [
             (OP_MUL, )
             ],
+        "/": [
+            (OP_DIV, )
+            ],
         "-": [
             (OP_SUB, )
             ],
@@ -488,7 +505,7 @@ singles = {
             (OP_DISC, )
             ],
         "put": [
-            (OP_PUTC, )
+            (OP_PUT, )
             ],
         "&&": [
             (OP_AND, )
@@ -546,6 +563,7 @@ op_values = {
         OP_PUSHP:(0, 1),
         OP_SUB:  (2, 1),
         OP_MUL:  (2, 1),
+        OP_DIV:  (2, 2),
         OP_PLUS: (2, 1),
         OP_SWAP: (2, 2),
         OP_DUMP: (1, 0),
@@ -554,6 +572,7 @@ op_values = {
         OP_GPTR: (0, 1),
         OP_READ: (1, 1),
         OP_PUTC: (2, 1),
+        OP_PUT: (2, 1),
         OP_DISC: (1, 0),
         OP_CONST:(0, 1),
         OP_ARGV: (0, 1),
@@ -629,7 +648,10 @@ def check_proc(program, args, rets, values):
     
     return (stackoffset, (0,), "OK")
 
+proc_values = {}
+
 def parse_program(text, consts = {}, multi = False):
+    global proc_values
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
@@ -652,7 +674,7 @@ def parse_program(text, consts = {}, multi = False):
                 func = func[0:-1]
             func += " " + tmp_data[idx]
             idx += 1
-        data.append(func.replace("\\n", "\n").replace("\\t", "\t"))
+        data.append(func)
         
     result = []
     
@@ -664,7 +686,6 @@ def parse_program(text, consts = {}, multi = False):
     proc_args = 0
     proc_rets = 0
     last_jumpx = 0
-    proc_values = {}
 
     do_ids = []
 
@@ -689,8 +710,6 @@ def parse_program(text, consts = {}, multi = False):
             with open(data[idx], "r") as file:
                 (program, values) = parse_program(file.read())
                 result.extend(program)
-                for key, value in values.items():
-                    proc_values[key] = value
             idx += 1
         
         elif func == "var":
@@ -720,7 +739,7 @@ def parse_program(text, consts = {}, multi = False):
             ident_stack.pop()
 
         elif func[0] == "\"" and func[-1] == "\"":
-            proc_block.append((OP_CONST, func[1:-1]))
+            proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
         
         elif func == "proc":
             result.append((OP_PROC, data[idx]))
@@ -781,6 +800,7 @@ def main():
     parser.add_argument('-s', '--simulate', type=bool, default=False)
     parser.add_argument('-S', '--silent', type=bool, default=False)
     parser.add_argument('-o', '--output', type=str, default="output", help="The file to write to")
+    parser.add_argument('-i', '--include', type=str, default="output", help="The file to write to")
     args = parser.parse_args()
 
     with open(args.file, "r") as file:
@@ -791,7 +811,7 @@ def main():
     else:
         compile_program(program)
         cmd_call_echoed(["nasm", "-f", "elf64", "output.asm"], args.silent)
-        cmd_call_echoed(["ld", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-o", "main", "-lc", "output.o"], args.silent)
+        cmd_call_echoed(["ld", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-o", args.output, "-lc", "output.o"], args.silent)
 
 if __name__ == "__main__":
     main()

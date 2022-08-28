@@ -1,0 +1,30 @@
+inc lib/stdlib.slm
+inc lib/tables.slm
+
+proc main 0 0
+  var 4096
+  "lol" 32
+  (putTab)
+
+  "=======" (println)
+  copy (printTab)
+  "=======" (println)
+  
+  "lmao" 69
+  (putTab)
+
+  copy (printTab)
+  "=======" (println)
+  
+  "lmao" 42
+  (putTab)
+
+  copy (printTab)
+  "=======" (println)
+
+  "lmao" (getTab)
+  (printint)
+  (printTab)
+
+  ret
+end

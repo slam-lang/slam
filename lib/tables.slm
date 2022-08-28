@@ -6,7 +6,8 @@ tables are a list of sets of data,
 each entry is a 15 char terminated string and then a number
 }
 
-const TABENTRYLEN 24
+const TABENTRYLEN 16
+const TAB_SIZE 100000
 
 proc gettabetemp 0 1
   var 8
@@ -81,36 +82,43 @@ proc defragTab 1 1
 end
 
 {
-args: ptr[value] ptr[table]
+args: ptr[key] ptr[table]
 result: ptr[table]
 
-removes value from a table
+gets a key from the table
 }
 proc getTab 2 2
-  
+  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+
+  (gettabetemp) swap put disc
+
+  0 1 -
+  do
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * copy TAB_SIZE < "TABLE_OVERFLOW" (assert)
+    +
+
+    (gettabetemp) read (streq) 0 ==
+  end
+  TABENTRYLEN 8 + * covr + TABENTRYLEN +
+  read
   ret
 end
 
 {
-args: ptr[value] ptr[table]
+args: size ptr[value] ptr[table]
 result: int
 
 checks if a value is in a table
 }
-proc inTab 2 1
-  disc
-  
-  ret
-end
+proc inTab 3 1
+  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
 
-{
-args: ptr[value] ptr[table]
-result: ptr[value]
+  (gettabetemp) swap put disc
+  do
+    
+  end
 
-gets a value in a table
-}
-proc getTab 2 1
-  swap disc
-  
   ret
 end
