@@ -1,127 +1,3 @@
-{
-TABLES:
-data structure
-
-tables are a list of sets of data,
-each entry is a 15 char terminated string and then a number
-}
-
-const TABENTRYLEN 16
-const TAB_SIZE 100000
-
-proc gettabetemp 0 1
-  var 8
-
-  ret
-end
-
-proc gettabtemp 0 1
-  var 8
-
-  ret
-end
-
-{
-args: int[data] ptr[value] ptr[table]
-result: ptr[table]
-
-puts data into a table
-}
-proc putTab 3 1
-  (gettabtemp) swap put disc
-
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
-
-  (gettabetemp) swap put disc
-
-  0 1 -
-  do
-    1 +
-    covr
-    covr TABENTRYLEN 8 + * +
-    copy read 0 ==
-    swap (gettabetemp) read (streq) +
-    0 ==
-  end
-   
-  TABENTRYLEN 8 + * covr +
-  (gettabetemp) read (strcpy) disc
-  TABENTRYLEN +
-  (gettabtemp) read put disc
-  
-  ret
-end
-
-proc printTab 1 0
-  0
-  do
-    covr
-    covr TABENTRYLEN 8 + * +
-    copy (print) ":" (print)
-    TABENTRYLEN + read (printint)
-
-    1 +
-    covr
-    covr TABENTRYLEN 8 + * +
-    read
-  end
-  disc
-  disc
-  ret
-end
-
-{
-args: ptr[table]
-result: ptr[table]
-
-defragments a table
-}
-proc defragTab 1 1
-
-  ret
-end
-
-{
-args: ptr[key] ptr[table]
-result: ptr[table]
-
-gets a key from the table
-}
-proc getTab 2 2
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
-
-  (gettabetemp) swap put disc
-
-  0 1 -
-  do
-    1 +
-    covr
-    covr TABENTRYLEN 8 + * copy TAB_SIZE < "TABLE_OVERFLOW" (assert)
-    +
-
-    (gettabetemp) read (streq) 0 ==
-  end
-  TABENTRYLEN 8 + * covr + TABENTRYLEN +
-  read
-  ret
-end
-
-{
-args: size ptr[value] ptr[table]
-result: int
-
-checks if a value is in a table
-}
-proc inTab 3 1
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
-
-  (gettabetemp) swap put disc
-  do
-    
-  end
-
-  ret
-end
 const NULL 0
 
 {
@@ -483,6 +359,138 @@ proc clearbuf 1 1
 
   ret
 end
+{
+TABLES:
+data structure
+
+tables are a list of sets of data,
+each entry is a 15 char terminated string and then a number
+}
+
+const TABENTRYLEN 16
+const TAB_SIZE 100000
+
+proc gettabetemp 0 1
+  var 8
+
+  ret
+end
+
+proc gettabtemp 0 1
+  var 8
+
+  ret
+end
+
+{
+args: int[data] ptr[value] ptr[table]
+result: ptr[table]
+
+puts data into a table
+}
+proc putTab 3 1
+  (gettabtemp) swap put disc
+
+  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+
+  (gettabetemp) swap put disc
+
+  0 1 -
+  do
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * +
+    copy read 0 ==
+    swap (gettabetemp) read (streq) +
+    0 ==
+  end
+   
+  TABENTRYLEN 8 + * covr +
+  (gettabetemp) read (strcpy) disc
+  TABENTRYLEN +
+  (gettabtemp) read put disc
+  
+  ret
+end
+
+proc printTab 1 0
+  0
+  do
+    covr
+    covr TABENTRYLEN 8 + * +
+    copy (print) ":" (print)
+    TABENTRYLEN + read (printint)
+
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * +
+    read
+  end
+  disc
+  disc
+  ret
+end
+
+{
+args: ptr[table]
+result: ptr[table]
+
+defragments a table
+}
+proc defragTab 1 1
+
+  ret
+end
+
+{
+args: ptr[key] ptr[table]
+result: ptr[table]
+
+gets a key from the table
+}
+proc getTab 2 2
+  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+
+  (gettabetemp) swap put disc
+
+  0 1 -
+  do
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * copy TAB_SIZE < "TABLE_OVERFLOW" (assert)
+    +
+
+    (gettabetemp) read (streq) 0 ==
+  end
+  TABENTRYLEN 8 + * covr + TABENTRYLEN +
+  read
+  ret
+end
+
+{
+args: size ptr[value] ptr[table]
+result: int
+
+checks if a value is in a table
+}
+proc inTab 2 2
+  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+  (gettabetemp) swap put disc
+
+  0 1 -
+  do
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * copy TAB_SIZE > if [disc disc disc 0 ret]
+    +
+
+    (gettabetemp) read (streq) 0 ==
+  end
+  disc
+
+  1
+  ret
+end
 inc lib/stdlib.slm
 inc lib/tables.slm
 
@@ -539,7 +547,7 @@ const IDENT_DO 44
 const IDENT_END 45
 
 proc getconstTab 0 1
-  var 8096
+  var 10000
   ret
 end
 
@@ -549,9 +557,16 @@ proc getprocTab 0 1
 end
 
 proc getcmdbuffer 0 1
-  var 10000
+  var 1024
   ret
 end
+
+proc getreadbuffer 0 1
+  var 1024
+  ret
+end
+
+const READSIZE 1023
 
 proc getnameop 1 1
   OP_BAD
@@ -648,7 +663,6 @@ proc getopname 1 1
   ret
 end
 
-
 proc identstack 0 1
   var 64
   ret
@@ -682,6 +696,12 @@ proc identstackpop 0 1
   ret
 end
 
+proc inner 1 1
+  1 + copy
+  copy (strlen) 1 - + 0 putc disc
+  ret
+end
+
 proc getoutput 0 1
   var 128
   ret
@@ -704,16 +724,6 @@ end
 
 proc getsilent 0 1
   var 8
-  ret
-end
-
-proc getreadbuffer 0 1
-  var 129
-  ret
-end
-
-proc getreadend 0 1
-  var 1
   ret
 end
 
@@ -788,7 +798,7 @@ proc addproc 1 0
   " " (writeout)
   (getcmdbuffer) (writeout)
   (cmdflags) copy read 255 &&
-  copy 5 == if [
+  copy 3 == if [
     (getprocTab) (getcmdbuffer) (addr) read (putTab) disc
   ]
   copy 1 == if [
@@ -885,16 +895,15 @@ proc getcmdasm 1 0
 
   (writeaddr)
   copy OP_BAD == if [
-    {
-    "BAD OPERATION: " (println)
-    "`" (print) (getcmdbuffer) (print) "`" (println)
+    (getconstTab) (getcmdbuffer) (inTab) 0 == if [ 
+      "BAD OPERATION: " (println)
+      "`" (print) (getcmdbuffer) (print) "`" (println)
 
-    "chunk" (println)
-    (getreadbuffer) (println)
-    (exit)
-    }
+      "chunk" (println)
+      (getreadbuffer) (println)
+      (exit)
+    ]\
 
-    (getconstTab)
     (getcmdbuffer) (getTab) swap disc
     (strint)
     (getcmdbuffer) (clearbuf) swap (strcpy) disc disc
@@ -1062,12 +1071,15 @@ proc parsecmd 0 0
     ret
   ]
   (getcmdbuffer) read 255 && 34 == (getcmdbuffer) (last) 34 == && if [
-    "String Lit Unimplented" (println)
+    "String Lit Unimplented: " (print)
+    "'" (print)
+    (getcmdbuffer) (inner) (print)
+    "'" (println)
     (getcmdbuffer) (clearbuf) disc
     ret
   ]
   (getcmdbuffer) read 255 && 91 == (getcmdbuffer) (last) 93 == && if [
-    "BLOCK UNIMPLEMENTED" (println)
+    "Block Lit Unimplented: " (println)
     (getcmdbuffer) (clearbuf) disc
     ret
   ]
@@ -1076,9 +1088,22 @@ proc parsecmd 0 0
     "    mov rax, [ret_stack_rsp]\n" (writeout)
     "    add rax, 8\n" (writeout)
     "    mov qword [ret_stack_rsp], rax\n" (writeout)
-    "    mov qword [rax], addr_\n" (writeout)
-    "    jmp %s\n" (writeout)
+    "    mov qword [rax], addr_" (writeout)
+    (addr) read (strint) (writeout)
+    (writeoutln)
+    "    jmp addr_" (writeout)
+    (getcmdbuffer) (inner) disc
+    (getprocTab)
+    (getcmdbuffer) 1 + (inTab) 0 == if [
+      "proc not found: " (print)
+      (getcmdbuffer) 1 + (println)
+      (exit)
+    ]\
+    (getcmdbuffer) 1 + (getTab) (strint)
+    (writeout)
+    disc
     (getcmdbuffer) (clearbuf) disc
+    (writeoutln)
     ret
   ]
   (getcmdbuffer) read 255 && 0 != if [
@@ -1100,6 +1125,7 @@ end
 proc checkcmd 0 1
   {""}
   (getcmdbuffer) read 255 && 34 == (getcmdbuffer) (last) 34 != &&
+  (getcmdbuffer) """ (streq) +
   {[]}
   (getcmdbuffer) read 255 && 91 == (getcmdbuffer) (last) 93 != && +
   {{}}
@@ -1126,7 +1152,7 @@ parses a file
 }
 proc parsefile 0 0
   (asmheader)
-  128 (getreadbuffer)
+  READSIZE (getreadbuffer)
   (getinputfd) read (read) disc
   (getinputfd) read 74 sys1 disc
   do
@@ -1139,14 +1165,15 @@ proc parsefile 0 0
       covr 10 {lf} == +
       covr 13 {cr} == +
       covr 32 {spc} == +
-      0 !=
+      0 != 
       if (checkbuffer)
 
       covr
       swap
       putc disc
       
-      swap 1 +
+      swap
+      1 +
       swap
       copy read 255 && 0 != if [
         1 +
@@ -1161,12 +1188,12 @@ proc parsefile 0 0
 
     (getcmdbuffer) (strcpy) disc disc
 
-    128 (getcmdbuffer) (strlen) -
+    READSIZE (getcmdbuffer) (strlen) -
 
     (getreadbuffer) (getcmdbuffer) (strlen) +
 
     (getinputfd) read (read) copy
-    (getreadbuffer) + (getcmdbuffer) (strlen) + 0 putc disc
+    (getreadbuffer) + (getcmdbuffer) (strlen) + 1 + 0 putc disc
     (getinputfd) read 74 sys1 disc
 
     (getcmdbuffer) (clearbuf) disc

@@ -112,13 +112,21 @@ result: int
 
 checks if a value is in a table
 }
-proc inTab 3 1
+proc inTab 2 2
   copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
-
   (gettabetemp) swap put disc
-  do
-    
-  end
 
+  0 1 -
+  do
+    1 +
+    covr
+    covr TABENTRYLEN 8 + * copy TAB_SIZE > if [disc disc disc 0 ret]
+    +
+
+    (gettabetemp) read (streq) 0 ==
+  end
+  disc
+
+  1
   ret
 end
