@@ -1,4 +1,4 @@
+*.nasm
 *.asm
 *.o
-main
-temp.asm
+slim

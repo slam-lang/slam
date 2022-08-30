@@ -6,5 +6,6 @@ prints "Hello World!"
 
 proc main
   "Hello World!" (print)
-end
 
+  ret
+end

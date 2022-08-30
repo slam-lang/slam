@@ -351,6 +351,7 @@ proc addproc 1 0
   (getcmdbuffer) (writeout)
   (cmdflags) copy read 255 &&
   copy 3 == if [
+    "[SLM]\ " (print)
     (getcmdbuffer) (println)
     (getprocTab) (getcmdbuffer) (addr) read (putTab) disc
   ]
@@ -506,7 +507,7 @@ end
 proc writeaddr 0 0
   "addr_" (writeout)
   (getaddr) (strint) (writeout)
-  ": ;" (writeout)
+  ":" (writeout)
   (writeoutln)
 
   ret
@@ -517,7 +518,7 @@ proc writesubaddr 0 0
   (addr) read 1 - (strint) (writeout)
   "_" (writeout)
   (getsubaddr) (strint) (writeout)
-  ": ;" (writeout)
+  ":" (writeout)
   (writeoutln)
 
   ret
@@ -1396,7 +1397,7 @@ proc parsefile 0 0
         disc
         swap 1 +
         swap
-        covr read 255 && dump
+
         covr read 255 && (getescape)
       ]
 
@@ -1457,10 +1458,9 @@ proc help 1 0
   (endl)
   "slim [-h]\ [-s]\ [-o output]\ file" (println)
   (endl)
-  "-h, --help\t\tshows this help message." (println)
-  "-s, --silent\tdisables output text." (println)
-  "-o, --output\tselects the output file." (println)
-  (endl)
+  "-h, --help    shows this help message." (println)
+  "-s, --silent  disables output text." (println)
+  "-o, --output  selects the output file." (println)
   disc
   (exit)
 
@@ -1621,8 +1621,6 @@ proc main 0 0
   
   {parse input}
   (parsefile) 
-
-  "DONE" (println)
 
   {close output}
   (getoutputfd) read (close)
