@@ -4,10 +4,13 @@ data structure
 
 tables are a list of sets of data,
 each entry is a 15 char terminated string and then a number
+
+TODO: removeTab
+TODO: defragTab
 }
 
-const TABENTRYLEN 16
-const TAB_SIZE 100000
+const TABENTRYLEN 20
+const TAB_SIZE 300000
 
 proc gettabetemp 0 1
   var 8
@@ -30,7 +33,12 @@ puts data into a table
 proc putTab 3 1
   (gettabtemp) swap put disc
 
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+  copy (strlen) TABENTRYLEN > if [
+    "STRING TOO LONG FOR TABLE" (println)
+    copy (println)
+    disc disc
+    quit
+  ]
 
   (gettabetemp) swap put disc
 
@@ -52,6 +60,12 @@ proc putTab 3 1
   ret
 end
 
+{
+args: ptr[table]
+result:
+
+prints a table
+}
 proc printTab 1 0
   0
   do
@@ -71,24 +85,18 @@ proc printTab 1 0
 end
 
 {
-args: ptr[table]
-result: ptr[table]
-
-defragments a table
-}
-proc defragTab 1 1
-
-  ret
-end
-
-{
 args: ptr[key] ptr[table]
 result: ptr[table]
 
 gets a key from the table
 }
 proc getTab 2 2
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+  copy (strlen) TABENTRYLEN > if [
+    "STRING TOO LONG FOR TABLE" (println)
+    copy (println)
+    disc disc
+    quit
+  ]
 
   (gettabetemp) swap put disc
 
@@ -113,7 +121,12 @@ result: int
 checks if a value is in a table
 }
 proc inTab 2 2
-  copy (strlen) TABENTRYLEN < "STRING TOO LONG FOR TABLE" (assert)
+  copy (strlen) TABENTRYLEN > if [
+    disc
+    0
+    ret
+  ]
+
   (gettabetemp) swap put disc
 
   0 1 -
@@ -130,3 +143,11 @@ proc inTab 2 2
   1
   ret
 end
+
+{
+args: ptr[table]
+result: ptr[table]
+
+defragments a table
+}
+{TODO}

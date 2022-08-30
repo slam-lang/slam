@@ -1,13 +1,18 @@
-main: slim.py slim.slm lib/stdlib.slm lib/tables.slm
-	./slim.py slim.slm -o main
+default: slim
+run: slimNative
 
-run: main
+slim: slim.py slim.slm lib/stdlib.slm lib/tables.slm
+	./slim.py slim.slm -o slim
+	
+slim2.slm:
 	cat lib/stdlib.slm lib/tables.slm slim.slm > slim2.slm
-	./main slim2.slm
 
-tests/test1: tests/test1.slm lib/stdlib.slm slim.py
-	./slim.py -o $@ $<
+slimNative: slim slim2.slm
+	./slim slim2.slm -o slimNative
 
-tests/test2: tests/test2.slm lib/tables.slm slim.py
+slimNativeRun: slimNative
+	./slimNative
+
+tests/test%: tests/test%.slm lib/stdlib.slm slim.py
 	./slim.py -o $@ $<
-	tests/test2
+	$@

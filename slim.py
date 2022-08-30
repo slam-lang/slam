@@ -29,6 +29,7 @@ OP_PUT = iota()
 OP_DISC = iota()
 OP_ARGV = iota()
 OP_ARGC = iota()
+OP_ENVP = iota()
 
 OP_PUSHP = iota()
 OP_CALLS = iota()
@@ -309,6 +310,14 @@ def compile_inst(out, op, ip, start):
         out.write("    mov rax, [args_ptr]\n")
         out.write("    mov rax, [rax]\n")
         out.write("    push rax\n")
+    elif op[0] == OP_ENVP:
+        out.write("    mov rax, [args_ptr]\n" )
+        out.write("    mov rax, [rax]\n"      )
+        out.write("    add rax, 2\n"          )
+        out.write("    shl rax, 3\n"          )
+        out.write("    mov rbx, [args_ptr]\n" )
+        out.write("    add rbx, rax\n"        )
+        out.write("    push rbx\n"            )
     elif op[0] == OP_CALL:
         out.write("    mov rax, [ret_stack_rsp]\n")
         out.write("    add rax, 8\n")
@@ -519,6 +528,9 @@ singles = {
         "argc": [
             (OP_ARGC, )
             ],
+        "envp": [
+            (OP_ENVP, )
+            ],
         "nop": [
             (OP_NOP, )
             ],
@@ -577,6 +589,7 @@ op_values = {
         OP_CONST:(0, 1),
         OP_ARGV: (0, 1),
         OP_ARGC: (0, 1),
+        OP_ENVP: (0, 1),
         OP_CALLS:(0, 0),
         OP_PROC: (0, 0),
         OP_RET:  (0, 0),
