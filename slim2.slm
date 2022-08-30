@@ -741,7 +741,18 @@ proc getstringbuffer 0 1
   ret
 end
 
+proc getinputfd 0 1
+  var 8
+  ret
+end
+
 const READSIZE 1023
+
+proc getescape 1 1
+  copy 110 == if [ disc 10 ret ]
+  copy 164 == if [ disc 9 ret ]
+  ret
+end
 
 proc getnameop 1 1
   OP_BAD
@@ -810,6 +821,7 @@ proc getopname 1 1
   covr OP_DISC  == if [disc "disc"]
   covr OP_ARGV  == if [disc "argv"]
   covr OP_ARGC  == if [disc "argc"]
+  covr OP_ENVP  == if [disc "envp"]
   covr OP_PUSHP == if [disc "push"]
   covr OP_CALLS == if [disc "call"]
   covr OP_MULTI == if [disc "[]"]
@@ -854,11 +866,11 @@ end
 proc identstackpush 1 0
   (identstackrsp) read (identstack) +
   swap
-  putc disc
+  put disc
 
   (identstackrsp) read
   8 +
-  (identstackrsp) swap putc disc
+  (identstackrsp) swap put disc
   ret
 end
 
@@ -866,7 +878,7 @@ proc identstackpop 0 1
   (identstackrsp) read 0 != "stack underflow" (assert)
   (identstackrsp) read
   8 -
-  (identstackrsp) swap putc disc
+  (identstackrsp) swap put disc
 
   (identstackrsp) read (identstack) +
   read
@@ -892,11 +904,6 @@ end
 
 proc getinput 0 1
   var 128
-  ret
-end
-
-proc getinputfd 0 1
-  var 8
   ret
 end
 
@@ -983,8 +990,7 @@ proc noproc 0 0
 end
 
 proc writeout 1 0
-  copy (strlen) copy (println) swap (getoutputfd) read (write)
-
+  copy (strlen) swap (getoutputfd) read (write)
   ret
 end
 
@@ -1023,7 +1029,7 @@ proc addconst 1 0
 
   (cmdflags)
   copy read 255 && 1 - copy 3 == if [
-    (getconstTab) (constname) (addr) read (putTab) disc
+    (getconstTab) (constname) (getcmdbuffer) (tonum) (putTab) disc
     disc 0
   ] copy 4 == if [
     (getcmdbuffer) (constname) (clearbuf) swap (strcpy) disc disc
@@ -1085,6 +1091,7 @@ proc asmfooter 0 0
   "addr_" (writeout)
   (getaddr) (strint) (writeout)
   ":\n" (writeout)
+  "    ret\n" (writeout)
   "global _start\n" (writeout)
   "_start:\n" (writeout)
   "    mov qword [args_ptr], rsp\n" (writeout)
@@ -1101,7 +1108,7 @@ proc asmfooter 0 0
   (writeoutln)
   "quit:\n" (writeout)
   "    mov rax, 60\n" (writeout)
-  "    mov rdi, 0\n" (writeout)
+  "    mov rdi, 0x0\n" (writeout)
   "    syscall\n" (writeout)
   "segment .data\n" (writeout)
   (getstringbuffer) 1 + (writeout)
@@ -1121,7 +1128,29 @@ proc endopasm 1 0
   copy IDENT_DO == if [
     "    pop rbx\n" (writeout)
     "    test rbx, rbx\n" (writeout)
-    "    jnz addr_" (writeout)
+    "    jz addr_" (writeout)
+    (addr) read (strint) (writeout)
+    (writeoutln)
+    "    jmp addr_" (writeout)
+    (identstackpop) (strint) (writeout)
+    (writeoutln)
+  ]
+  disc
+  ret
+end
+
+proc endopblockasm 1 0
+  copy IDENT_DO == if [
+    "    pop rbx\n" (writeout)
+    "    test rbx, rbx\n" (writeout)
+    "    jz addr_" (writeout)
+    (addr) read 1 - (strint) (writeout)
+    "_" (writeout)
+    (subaddr) read (strint) (writeout)
+    (writeoutln)
+    "    jmp addr_" (writeout)
+    (identstackpop) (strint) (writeout)
+    "_" (writeout)
     (identstackpop) (strint) (writeout)
     (writeoutln)
   ]
@@ -1133,7 +1162,6 @@ proc writeaddr 0 0
   "addr_" (writeout)
   (getaddr) (strint) (writeout)
   ": ;" (writeout)
-  (getcmdbuffer) (writeout)
   (writeoutln)
 
   ret
@@ -1145,7 +1173,6 @@ proc writesubaddr 0 0
   "_" (writeout)
   (getsubaddr) (strint) (writeout)
   ": ;" (writeout)
-  (getblockbuffer) (writeout)
   (writeoutln)
 
   ret
@@ -1212,8 +1239,8 @@ proc getblockasm 1 0
     "    push rax\n" (writeout)
     disc ret
   ] copy OP_AND == if [
-    "    pop rax\n" (writeout)
     "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
     "    and rax, rbx\n" (writeout)
     "    push rax\n" (writeout)
     disc ret
@@ -1252,6 +1279,15 @@ proc getblockasm 1 0
     "    mov rax, [args_ptr]\n" (writeout)
     "    add rax, 8\n" (writeout)
     "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_ENVP == if [
+    "    mov rax, [args_ptr]\n" (writeout)
+    "    mov rax, [rax]\n" (writeout)
+    "    add rax, 2\n" (writeout)
+    "    shl rax, 3\n" (writeout)
+    "    mov rbx, [args_ptr]\n" (writeout)
+    "    add rbx, rax\n" (writeout)
+    "    push rbx\n" (writeout)
     disc ret
   ] copy OP_QUIT == if [
     "    jmp quit\n" (writeout)
@@ -1292,8 +1328,8 @@ proc getblockasm 1 0
   ] copy OP_NQ == if [
     "    mov rcx, 0\n" (writeout)
     "    mov rdx, 1\n" (writeout)
-    "    pop rbx\n" (writeout)
     "    pop rax\n" (writeout)
+    "    pop rbx\n" (writeout)
     "    cmp rax, rbx\n" (writeout)
     "    cmovne rcx, rdx\n" (writeout)
     "    push rcx\n" (writeout)
@@ -1301,8 +1337,8 @@ proc getblockasm 1 0
   ] copy OP_EQ == if [
     "    mov rcx, 0\n" (writeout)
     "    mov rdx, 1\n" (writeout)
-    "    pop rbx\n" (writeout)
     "    pop rax\n" (writeout)
+    "    pop rbx\n" (writeout)
     "    cmp rax, rbx\n" (writeout)
     "    cmove rcx, rdx\n" (writeout)
     "    push rcx\n" (writeout)
@@ -1401,9 +1437,10 @@ proc getblockasm 1 0
     disc ret
   ] copy IDENT_END == if [
     (identstackpop)
-    (endopasm)
+    (endopblockasm)
     disc ret
   ] copy IDENT_DO == if [
+    (subaddr) read 1 - (identstackpush)
     (addr) read 1 - (identstackpush)
     IDENT_DO (identstackpush) 
     disc ret
@@ -1479,7 +1516,9 @@ proc parseblockcmd 0 0
     "    add rax, 8\n" (writeout)
     "    mov qword [ret_stack_rsp], rax\n" (writeout)
     "    mov qword [rax], addr_" (writeout)
-    (addr) read (strint) (writeout)
+    (addr) read 1 - (strint) (writeout)
+    "_" (writeout)
+    (subaddr) read (strint) (writeout)
     (writeoutln)
     "    jmp addr_" (writeout)
     (getblockbuffer) (inner) disc
@@ -1567,8 +1606,8 @@ proc getcmdasm 1 0
     "    push rax\n" (writeout)
     disc ret
   ] copy OP_AND == if [
-    "    pop rax\n" (writeout)
     "    pop rbx\n" (writeout)
+    "    pop rax\n" (writeout)
     "    and rax, rbx\n" (writeout)
     "    push rax\n" (writeout)
     disc ret
@@ -1614,6 +1653,15 @@ proc getcmdasm 1 0
     "    mov rax, [args_ptr]\n" (writeout)
     "    add rax, 8\n" (writeout)
     "    push rax\n" (writeout)
+    disc ret
+  ] copy OP_ENVP == if [
+    "    mov rax, [args_ptr]\n" (writeout)
+    "    mov rax, [rax]\n" (writeout)
+    "    add rax, 2\n" (writeout)
+    "    shl rax, 3\n" (writeout)
+    "    mov rbx, [args_ptr]\n" (writeout)
+    "    add rbx, rax\n" (writeout)
+    "    push rbx\n" (writeout)
     disc ret
   ] copy OP_QUIT == if [
     "    jmp quit\n" (writeout)
@@ -1663,8 +1711,8 @@ proc getcmdasm 1 0
   ] copy OP_EQ == if [
     "    mov rcx, 0\n" (writeout)
     "    mov rdx, 1\n" (writeout)
-    "    pop rbx\n" (writeout)
     "    pop rax\n" (writeout)
+    "    pop rbx\n" (writeout)
     "    cmp rax, rbx\n" (writeout)
     "    cmove rcx, rdx\n" (writeout)
     "    push rcx\n" (writeout)
@@ -1824,6 +1872,18 @@ proc parseblock 0 0
     covr 32 {spc} == +
     0 != 
     if (checkbufferblock)
+      
+    (getblockbuffer) read 255 &&
+
+    34 ==
+    covr 92 == &&
+    if [
+      disc
+      swap 1 +
+      swap
+
+      covr read 255 && (getescape)
+    ]
 
     covr
     swap
@@ -1974,14 +2034,26 @@ proc parsefile 0 0
     (getreadbuffer)
     (getcmdbuffer)
     do
-      covr
-      read 255 &&
+      covr read 255 &&
+
       copy 9 {tab} ==
       covr 10 {lf} == +
       covr 13 {cr} == +
       covr 32 {spc} == +
       0 != 
       if (checkbuffer)
+      
+      (getcmdbuffer) read 255 &&
+
+      34 ==
+      covr 92 == &&
+      if [
+        disc
+        swap 1 +
+        swap
+        covr read 255 && dump
+        covr read 255 && (getescape)
+      ]
 
       covr
       swap
