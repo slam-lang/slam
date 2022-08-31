@@ -24,6 +24,7 @@ OP_COPY = iota()
 OP_COVR = iota()
 OP_GPTR = iota()
 OP_READ = iota()
+OP_READC = iota()
 OP_PUTC = iota()
 OP_PUT = iota()
 OP_DISC = iota()
@@ -55,6 +56,8 @@ OP_EQ   = iota()
 OP_LT   = iota()
 OP_GT   = iota()
 OP_AND  = iota()
+OP_OR  = iota()
+OP_NOT  = iota()
 
 OP_SYS0 = iota()
 OP_SYS1 = iota()
@@ -124,6 +127,10 @@ def simulate_program(program):
                 location = stack.pop()
                 a = memory[location]
                 stack.append(a)
+            elif op[0] == OP_READC:
+                location = stack.pop()
+                a = memory[location]
+                stack.append(a)
             elif op[0] == OP_PUTC:
                 data = stack.pop()
                 location = stack.pop()
@@ -175,6 +182,10 @@ def compile_inst(out, op, ip, start):
     out.write(start + "_%d: ; %s\n" % (ip, str(op)))            
     if op[0] == OP_NOP:
         pass
+    elif op[0] == OP_NOT:
+        out.write("    pop rax\n")
+        out.write("    xor rax, 0x1\n")
+        out.write("    push rax\n")
     elif op[0] == OP_PUSH:
         out.write("    mov qword rax, %d\n" % op[1])
         out.write("    push rax\n")
@@ -187,6 +198,11 @@ def compile_inst(out, op, ip, start):
         out.write("    pop rbx\n")
         out.write("    pop rax\n")
         out.write("    and rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_OR:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    or rax, rbx\n")
         out.write("    push rax\n")
     elif op[0] == OP_PLUS:
         out.write("    pop rax\n")
@@ -266,9 +282,13 @@ def compile_inst(out, op, ip, start):
         out.write("    pop rax\n")
         out.write("    mov byte [rax], bl\n")
         out.write("    push rax\n")
-    elif op[0] == OP_READ:
+    elif op[0] == OP_READC:
         out.write("    pop rax\n")
         out.write("    xor rbx, rbx\n")
+        out.write("    mov bl, [rax]\n")
+        out.write("    push rbx\n")
+    elif op[0] == OP_READ:
+        out.write("    pop rax\n")
         out.write("    mov rbx, [rax]\n")
         out.write("    push rbx\n")
     elif op[0] == OP_DISC:
@@ -510,6 +530,9 @@ singles = {
         "read": [
             (OP_READ, )
             ],
+        "readc": [
+            (OP_READC, )
+            ],
         "disc": [
             (OP_DISC, )
             ],
@@ -518,6 +541,12 @@ singles = {
             ],
         "&&": [
             (OP_AND, )
+            ],
+        "||": [
+            (OP_OR, )
+            ],
+        "!": [
+            (OP_NOT, )
             ],
         "()": [
             (OP_CALLS, )
@@ -583,6 +612,7 @@ op_values = {
         OP_COVR: (2, 3),
         OP_GPTR: (0, 1),
         OP_READ: (1, 1),
+        OP_READC: (1, 1),
         OP_PUTC: (2, 1),
         OP_PUT: (2, 1),
         OP_DISC: (1, 0),
@@ -601,6 +631,8 @@ op_values = {
         OP_LT:   (2, 1),
         OP_GT:   (2, 1),
         OP_AND:  (2, 1),
+        OP_OR:   (2, 1),
+        OP_NOT:  (1, 1),
         OP_IF:   (1, 0),
         OP_JUMPX:(0, 0),
         OP_LOCX: (0, 0),
@@ -712,6 +744,20 @@ def parse_program(text, consts = {}, multi = False):
             name = data[idx]
             idx += 1
             consts[name] = int(data[idx])
+            idx += 1
+        
+        elif func == "enum":
+            enumval = int(data[idx])
+            idx += 1
+            while data[idx] != "end": 
+                if data[idx].isnumeric():
+                    enumval = int(data[idx])
+                    idx += 1
+                else:
+                    name = data[idx]
+                    idx += 1
+                    consts[name] = enumval
+                    enumval += 1
             idx += 1
 
         elif func in singles:
