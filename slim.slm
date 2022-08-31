@@ -252,6 +252,11 @@ proc getinput 0 1
   ret
 end
 
+proc getinclude 0 1
+  var 128
+  ret
+end
+
 proc getsilent 0 1
   var 8
   ret
@@ -387,7 +392,7 @@ end
 
 proc addinc 1 0
   disc
-  
+
   (cmdflags)
   0
   putc disc
@@ -1372,7 +1377,6 @@ result: ptr
 parses a file
 }
 proc parsefile 0 0
-  (asmheader)
   READSIZE (getreadbuffer)
   (getinputfd) read (read) disc
   (getinputfd) read 74 sys1 disc
@@ -1431,7 +1435,6 @@ proc parsefile 0 0
 
     (getcmdbuffer) (clearbuf) disc
   end
-  (asmfooter)
   ret
 end
 
@@ -1456,9 +1459,10 @@ proc help 1 0
   (println)
   "slim compiler usage:" (println)
   (endl)
-  "slim [-h]\ [-s]\ [-o output]\ file" (println)
+  "slim [-h]\ [-s]\ [-i include]\ [-o output]\ file" (println)
   (endl)
   "-h, --help    shows this help message." (println)
+  "-i, --include includes a library." (println)
   "-s, --silent  disables output text." (println)
   "-o, --output  selects the output file." (println)
   disc
@@ -1499,6 +1503,75 @@ proc setoutput 1 1
     ret
 end
 
+proc getincludetmp 0 1
+  var 128
+
+  ret
+end
+
+proc openinput 1 0
+  (getinputfd) read
+  copy != 0 if [(close) 0]
+  disc
+
+  {open input}
+  0 swap 0 swap
+  0 100 -
+  (open)
+  (getinputfd) swap put disc
+
+  ret
+end
+
+proc parseinc 0 0
+  (getinclude)
+  (getincludetmp)
+  do
+    covr read 255 &&
+
+    copy 44 ==
+    if [
+      (getincludetmp) (openinput)
+      (parsefile)
+      (getincludetmp) (clearbuf) disc
+      disc disc
+      (getincludetmp) 0
+    ]
+
+    covr
+    swap
+    putc disc
+    
+    swap
+    1 +
+    swap
+    copy read 255 && 0 != if [
+      1 +
+    ]
+
+    covr read 255 && 0 !=
+  end
+  disc
+  disc
+  (getincludetmp) (openinput)
+  (parsefile)
+  (getincludetmp) (clearbuf) disc
+
+  ret
+end
+
+proc setinclude 1 1
+    copy argc 1 - > if [3 (help)]
+    
+    (getinclude)
+    covr (args)
+    (strcpy)
+
+    disc
+    disc
+    ret
+end
+
 proc setinput 1 0
   (getinput)
   read 255 && 0 != if [2 (help)]
@@ -1527,6 +1600,8 @@ otherwise returns 1
 proc applyarg 2 2
   copy "-h" (streq)
   if [disc 1 (help) 0 ret]
+  copy "-i" (streq)
+  if [disc 1 + (setinclude) 0 ret]
   copy "--help" (streq)
   if [disc 1 (help) 0 ret]
   copy "-o" (streq)
@@ -1606,12 +1681,6 @@ proc main 0 0
   (getinput)
   read 255 && 0 ==
   if [2 (help)]
-  
-  {open input}
-  0 0 (getinput)
-  0 100 -
-  (open)
-  (getinputfd) swap put disc
    
   {open output}
   420 577 "temp.nasm"
@@ -1620,7 +1689,14 @@ proc main 0 0
   (getoutputfd) swap put disc
   
   {parse input}
+  (asmheader)
+  (parseinc)
+
+  (getinput)
+  (openinput)
+
   (parsefile) 
+  (asmfooter)
 
   {close output}
   (getoutputfd) read (close)
