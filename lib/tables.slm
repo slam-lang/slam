@@ -107,6 +107,8 @@ proc getTab 2 2
     covr TABENTRYLEN 8 + * copy TAB_SIZE < "TABLE_OVERFLOW" (assert)
     +
 
+    copy read 255 && 0 == if [disc disc NULL ret]
+
     (gettabetemp) read (streq) 0 ==
   end
   TABENTRYLEN 8 + * covr + TABENTRYLEN +
@@ -136,6 +138,8 @@ proc inTab 2 2
     covr TABENTRYLEN 8 + * copy TAB_SIZE > if [disc disc disc 0 ret]
     +
 
+    copy read 255 && 0 == if [disc disc 0 ret]
+
     (gettabetemp) read (streq) 0 ==
   end
   disc
@@ -150,4 +154,4 @@ result: ptr[table]
 
 defragments a table
 }
-{TODO}
+{TODO} 

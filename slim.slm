@@ -8,52 +8,51 @@ const OP_NOP   0
 const OP_PUSH  1
 const OP_SUB   2
 const OP_MUL   3
-const OP_PLUS  4
-const OP_SWAP  5
-const OP_DUMP  6
-const OP_COPY  7 
-const OP_COVR  8
-const OP_GPTR  9 
-const OP_READ  10
-const OP_PUTC  11
-const OP_DISC  12
-const OP_ARGV  13
-const OP_ARGC  14
-const OP_PUSHP 15
-const OP_CALLS 16
-const OP_MULTI 17
-const OP_CONST 18
-const OP_CALL  19
-const OP_PROC  20
-const OP_RET   21
-const OP_QUIT  22
-const OP_LOCX  23
-const OP_JUMPX 24
-const OP_JUMP  25
-const OP_IF    26
-const OP_JNZ   27
-const OP_GETP  28
-const OP_CYCL  29
-const OP_NQ    30
-const OP_EQ    31
-const OP_LT    32
-const OP_GT    33
-const OP_AND   34
-const OP_SYS0  35
-const OP_SYS1  36
-const OP_SYS2  37
-const OP_SYS3  38
-const OP_SYS4  39
-const OP_SYS5  40
-const OP_SYS6  41
-const OP_PUT   42
-const OP_DIV   43
-const OP_ENVP  44
+const OP_DIV   4
+const OP_PLUS  5
+const OP_SWAP  6
+const OP_DUMP  7
+const OP_COPY  8 
+const OP_COVR  9
+const OP_GPTR  10 
+const OP_READ  11
+const OP_PUTC  12
+const OP_PUT   13
+const OP_DISC  14
+const OP_ARGV  15
+const OP_ARGC  16
+const OP_ENVP  17
+const OP_PUSHP 18
+const OP_CALLS 19
+const OP_MULTI 20
+const OP_CONST 21
+const OP_PROC  22
+const OP_RET   23
+const OP_QUIT  24
+const OP_LOCX  25
+const OP_JUMPX 26
+const OP_JUMP  27
+const OP_IF    28
+const OP_JNZ   29
+const OP_GETP  30
+const OP_CYCL  31
+const OP_NQ    32
+const OP_EQ    33
+const OP_LT    34
+const OP_GT    35
+const OP_AND   36
+const OP_SYS0  37
+const OP_SYS1  38
+const OP_SYS2  39
+const OP_SYS3  40
+const OP_SYS4  41
+const OP_SYS5  42
+const OP_SYS6  43
 
-const IDENT_INC 45
-const IDENT_PROC 46
-const IDENT_DO 47
-const IDENT_END 48
+const IDENT_INC 44
+const IDENT_PROC 45
+const IDENT_DO 46
+const IDENT_END 47
 
 proc getconstTab 0 1
   var 300000
@@ -66,17 +65,17 @@ proc getprocTab 0 1
 end
 
 proc getcmdbuffer 0 1
-  var 1024
+  var 2048
   ret
 end
 
 proc getblockbuffer 0 1
-  var 1024
+  var 2048
   ret
 end
 
 proc getreadbuffer 0 1
-  var 1024
+  var 2048
   ret
 end
 
@@ -91,7 +90,7 @@ proc getinputfd 0 1
   ret
 end
 
-const READSIZE 1023
+const READSIZE 2047
 
 proc getescape 1 1
   copy 110 == if [ disc 10 ret ]
@@ -171,7 +170,6 @@ proc getopname 1 1
   covr OP_CALLS == if [disc "call"]
   covr OP_MULTI == if [disc "[]"]
   covr OP_CONST == if [disc "const"]
-  covr OP_CALL  == if [disc "call"]
   covr OP_PROC  == if [disc "proc"]
   covr OP_RET   == if [disc "ret"]
   covr OP_QUIT  == if [disc "quit"]
@@ -267,7 +265,7 @@ proc getcmdidx 0 1
   ret
 end
 
-proc cmdflags 0 1
+proc getcmdflags 0 1
   var 8
   ret
 end
@@ -354,10 +352,8 @@ proc addproc 1 0
   disc
   " " (writeout)
   (getcmdbuffer) (writeout)
-  (cmdflags) copy read 255 &&
+  (getcmdflags) copy read 255 &&
   copy 3 == if [
-    "[SLM]\ " (print)
-    (getcmdbuffer) (println)
     (getprocTab) (getcmdbuffer) (addr) read (putTab) disc
   ]
   copy 1 == if [
@@ -378,7 +374,7 @@ end
 proc addconst 1 0
   disc
 
-  (cmdflags)
+  (getcmdflags)
   copy read 255 && 1 - copy 3 == if [
     (getconstTab) (constname) (getcmdbuffer) (tonum) (putTab) disc
     disc 0
@@ -393,7 +389,7 @@ end
 proc addinc 1 0
   disc
 
-  (cmdflags)
+  (getcmdflags)
   0
   putc disc
 
@@ -414,7 +410,7 @@ proc addvar 1 0
   (progmemory) swap put
   disc
   
-  (cmdflags)
+  (getcmdflags)
   0
   putc disc
 
@@ -617,7 +613,7 @@ proc getblockasm 1 0
     "    push rbx\n" (writeout)
     disc ret
   ] copy OP_GPTR == if [
-    (cmdflags)
+    (getcmdflags)
     7
     putc disc
     disc ret
@@ -654,7 +650,7 @@ proc getblockasm 1 0
     "    pop rax\n" (writeout)
     disc ret
   ] copy OP_CONST == if [
-    (cmdflags)
+    (getcmdflags)
     5
     putc disc
     disc ret
@@ -782,7 +778,7 @@ proc getblockasm 1 0
     "    call print\n" (writeout)
     disc ret
   ] copy IDENT_INC == if [
-    (cmdflags)
+    (getcmdflags)
     6
     putc disc
     disc ret
@@ -882,7 +878,7 @@ proc parseblockcmd 0 0
     (writeoutln)
     ret
   ] (getblockbuffer) read 255 && 0 != if [
-    (cmdflags) read
+    (getcmdflags) read
     (getblockbuffer) (getnameop)
     covr 0 == if (getblockasm)
     covr 1 == if (addproc)
@@ -986,12 +982,12 @@ proc getcmdasm 1 0
   ] copy OP_PROC == if [
     IDENT_PROC (identstackpush) 
     "    ; - proc" (writeout)
-    (cmdflags)
+    (getcmdflags)
     3
     putc disc
     disc ret
   ] copy OP_GPTR == if [
-    (cmdflags)
+    (getcmdflags)
     7
     putc disc
     disc ret
@@ -1028,7 +1024,7 @@ proc getcmdasm 1 0
     "    pop rax\n" (writeout)
     disc ret
   ] copy OP_CONST == if [
-    (cmdflags)
+    (getcmdflags)
     5
     putc disc
     disc ret
@@ -1154,7 +1150,7 @@ proc getcmdasm 1 0
     "    call print\n" (writeout)
     disc ret
   ] copy IDENT_INC == if [
-    (cmdflags)
+    (getcmdflags)
     6
     putc disc
     disc ret
@@ -1345,7 +1341,7 @@ proc parsecmd 0 0
     ret
   ]
   (getcmdbuffer) read 255 && 0 != if [
-    (cmdflags) read
+    (getcmdflags) read
     (getcmdbuffer) (getnameop)
     covr 0 == if (getcmdasm)
     covr 1 == if (addproc)
@@ -1514,6 +1510,9 @@ proc openinput 1 0
   copy != 0 if [(close) 0]
   disc
 
+  "[SLM] " (print)
+  copy (println)
+
   {open input}
   0 swap 0 swap
   0 100 -
@@ -1647,6 +1646,15 @@ proc ld 0 0
   (getoutput) put 8 +
   "-lc" put 8 +
   "temp.o" put 8 +
+  NULL put
+
+  disc
+  (cmdtmp) (execcmdecho) 
+
+  (cmdtmp)
+  "/usr/bin/rm" put 8 +
+  "temp.o" put 8 +
+  "temp.nasm" put 8 +
   NULL put
 
   disc

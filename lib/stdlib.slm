@@ -53,7 +53,7 @@ proc print 1 0
   0 == if [disc ret]
   do
     { read the current char }
-    copy 
+    copy
     read
     dump
     
@@ -183,6 +183,9 @@ result: int
 compares strings, returns 1 if they are not equal
 }
 proc streq 2 1
+  covr read 255 &&
+  covr read 255 &&
+  != if [disc disc 0 ret]
   1 -
   swap
   1 -
@@ -190,10 +193,8 @@ proc streq 2 1
     1 +
     swap
     1 +
-    covr
-    read 255 &&
-    covr
-    read 255 &&
+    covr read 255 && 
+    covr read 255 &&
     covr 0 ==
     covr 0 ==
     &&
@@ -318,15 +319,13 @@ proc printinthex 1 0
 end
 
 proc strlen 1 1
-  0 
+  copy
   do
     1 +
-    covr
-    covr +
-    read 255 &&
-    0 !=
-  end
 
+    copy read 255 &&
+  end
+  covr -
   swap disc
   ret
 end

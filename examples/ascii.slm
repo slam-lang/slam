@@ -5,7 +5,7 @@ Prints Ascii characters starting at 255
 goes to 0
 }
 
-proc main
+proc main 0 0 
   255
   do
     swap
@@ -16,4 +16,6 @@ proc main
     covr
   end
   disc
+
+  ret
 end

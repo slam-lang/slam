@@ -13,16 +13,22 @@ proc inputbuffer 0 1
 end
 
 proc main 0 0
-  0 0 "temp.asm"
-  0 100 -
-  (open)
-  (inputfd) swap putc disc
+  0
   do
-    127
-    (inputbuffer) (clearbuf)
-    (inputfd) read (read)
-    (inputbuffer) (print)
-    0 !=
+    1 +
+    copy (args)
+    0 swap 0 swap
+    0 100 -
+    (open)
+    (inputfd) swap put disc
+    do
+      127
+      (inputbuffer) (clearbuf)
+      (inputfd) read (read)
+      (inputbuffer) (print)
+      0 !=
+    end
+    (inputfd) read (close)
   end
   ret
 end

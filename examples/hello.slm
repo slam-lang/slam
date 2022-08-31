@@ -4,8 +4,8 @@ inc stdlib.slm
 prints "Hello World!"
 }
 
-proc main
-  "Hello World!" (print)
+proc main 0 0
+  "Hello World!" (println)
 
   ret
 end
