@@ -47,9 +47,9 @@ proc putTab 3 1
     1 +
     covr
     covr TABENTRYLEN 8 + * +
-    copy read 0 ==
-    swap (gettabetemp) read (streq) +
-    0 ==
+    copy read NULL ==
+    swap (gettabetemp) read (streq) ||
+    !
   end
    
   TABENTRYLEN 8 + * covr +
@@ -107,9 +107,9 @@ proc getTab 2 2
     covr TABENTRYLEN 8 + * copy TAB_SIZE < "TABLE_OVERFLOW" (assert)
     +
 
-    copy read 255 && 0 == if [disc disc NULL ret]
+    copy readc NULL == if [disc disc NULL ret]
 
-    (gettabetemp) read (streq) 0 ==
+    (gettabetemp) read (streq) !
   end
   TABENTRYLEN 8 + * covr + TABENTRYLEN +
   read
@@ -138,9 +138,9 @@ proc inTab 2 2
     covr TABENTRYLEN 8 + * copy TAB_SIZE > if [disc disc disc 0 ret]
     +
 
-    copy read 255 && 0 == if [disc disc 0 ret]
+    copy readc NULL == if [disc disc 0 ret]
 
-    (gettabetemp) read (streq) 0 ==
+    (gettabetemp) read (streq) !
   end
   disc
 

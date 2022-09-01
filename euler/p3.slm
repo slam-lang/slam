@@ -1,0 +1,34 @@
+inc lib/stdlib.slm
+
+const num 600851475143
+const sqrt 775147
+
+proc checkprime 1 1
+  copy 
+  do
+    1 -
+    covr covr / swap disc 0 == if [disc ret]
+
+    copy 2 !=
+  end
+  disc
+  (printint)
+
+  quit
+  0
+
+  ret
+end
+
+proc main 0 0
+  sqrt
+  do
+    1 -
+    num covr / swap disc 0 == if (checkprime)
+
+    copy 1 !=
+  end
+  disc
+
+  ret
+end

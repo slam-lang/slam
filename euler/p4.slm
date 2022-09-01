@@ -1,0 +1,70 @@
+inc lib/stdlib.slm
+
+proc max 0 1
+  var 8
+
+  ret
+end
+
+proc checkpal 1 0
+  copy (max) read < if [disc ret]
+  
+  copy (strint)
+  copy
+  copy (strlen) + 1 -
+  swap 1 -
+  swap 1 +
+  
+  do
+    swap 1 +
+    swap 1 -
+
+    covr readc
+    covr readc
+    != if [disc disc disc ret]
+
+    covr covr <
+  end
+  disc
+  disc
+
+  (max) swap put disc
+
+  ret
+end
+
+proc getc 0 1
+  var 8
+  
+  ret
+end
+
+proc checks 0 0
+  (getc) read 1 +
+  (getc) swap put disc
+
+  ret
+end
+
+proc main 0 0
+  99
+  do
+    1 +
+    99
+    do
+      1 +
+      covr covr *
+
+      (checkpal)
+      (checks)
+
+      copy 999 <
+    end
+    disc
+    copy 999 <
+  end
+  disc
+  (max) read (printint)
+
+  ret
+end

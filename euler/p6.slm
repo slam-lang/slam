@@ -1,0 +1,32 @@
+inc lib/stdlib.slm
+
+proc sq 1 1
+  copy *
+
+  ret
+end
+
+const max 100
+
+proc main 0 0
+
+  max max 1 + * 2 / disc (sq)
+  
+  0
+  0
+  do
+    1 +
+    swap
+    covr (sq) +
+    swap
+    
+    copy max <
+  end
+  disc
+
+  -
+
+  (printint)
+
+  ret
+end

@@ -1,0 +1,24 @@
+inc lib/stdlib.slm
+
+proc temp 0 0
+  var 8
+  
+  ret
+end
+
+proc main 0 0
+  0
+  do
+    copy 3 / swap disc 0 ==
+    covr 5 / swap disc 0 == ||
+    covr *
+    (temp) read + (temp) swap
+    put disc
+    1 +
+    copy 1000 !=
+  end
+
+  (temp) read (printint)
+  
+  ret
+end

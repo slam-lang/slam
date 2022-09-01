@@ -1,0 +1,41 @@
+inc lib/stdlib.slm
+
+proc temp 0 0
+  var 8
+  
+  ret
+end
+
+proc otemp 0 0
+  var 8
+  
+  ret
+end
+
+const max 20
+
+proc main 0 0
+  (temp) 1 put disc
+  (otemp) 1 put disc
+  1
+  do
+    1 +
+    
+    copy (temp) read swap / swap disc 0 != if [
+      do
+        (temp)
+        (temp) read (otemp) read +
+        put disc
+
+        copy (temp) read swap / swap disc 0 !=
+      end
+    ]
+    (otemp) (temp) read put disc
+    
+    copy max <
+  end
+  
+  (temp) read (printint)
+
+  ret
+end

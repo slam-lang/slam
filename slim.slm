@@ -114,6 +114,7 @@ const READSIZE 2047
 proc getescape 1 1
   copy 110 == if [ disc 10 ret ]
   copy 164 == if [ disc 9 ret ]
+  copy 101 == if [ disc 27 ret ]
   ret
 end
 
@@ -510,7 +511,6 @@ proc asmheader 0 0
 end
 
 proc asmfooter 0 0
-  "lol" (println)
   "addr_" (writeout)
   (getaddr) (strint) (writeout)
   ":\n" (writeout)
@@ -1639,7 +1639,7 @@ proc openinput 1 0
 end
 
 proc parseinc 0 0
-  (getinclude) NULL == if ret
+  (getinclude) read NULL == if ret
   (getinclude)
   (getincludetmp)
   do
