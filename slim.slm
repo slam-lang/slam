@@ -3,69 +3,79 @@ inc lib/tables.slm
 
 {The Slim Compiler, written in Slim}
 
+{TODO: fix ld}
 {TODO: fix inc}
 {TODO: Track stack}
-{TODO: Reimp vars}
+{TODO: const string}
+{TODO: track last reg}
+
+proc version 0 1
+  "0.1.1" ret
+end
 
 enum
-0
-  OP_NOP
-  OP_PUSH
-  OP_SUB
-  OP_MUL
-  OP_DIV
-  OP_PLUS
-  OP_SWAP
-  OP_DUMP
-  OP_COPY
-  OP_COVR
-  OP_VAR
-  OP_READ
-  OP_READC
-  OP_PUTC
-  OP_PUT
-  OP_DISC
-  OP_ARGV
-  OP_ARGC
-  OP_ENVP
-  OP_PUSHP
-  OP_CALLS
-  OP_MULTI
-  OP_CONST
-  OP_RET
-  OP_QUIT
-  OP_LOCX
-  OP_JUMPX
-  OP_JUMP
-  OP_IF
-  OP_JNZ
-  OP_GETP
-  OP_CYCL
-  OP_NQ
-  OP_EQ
-  OP_LT
-  OP_GT
-  OP_AND
-  OP_OR
-  OP_NOT
-  OP_SYS0
-  OP_SYS1
-  OP_SYS2
-  OP_SYS3
-  OP_SYS4
-  OP_SYS5
-  OP_SYS6
+0   OP_NOP
+    OP_PUSH
+    OP_SUB
+    OP_MUL
+    OP_DIV
+    OP_PLUS
+    OP_SWAP
+    OP_DUMP
+    OP_COPY
+    OP_COVR
+    OP_READ
+    OP_READC
+    OP_PUTC
+    OP_PUT
+    OP_DISC
+    OP_ARGV
+    OP_ARGC
+    OP_ENVP
+    OP_PUSHP
+    OP_CALLS
+    OP_MULTI
+    OP_CONST
+    OP_RET
+    OP_QUIT
+    OP_LOCX
+    OP_JUMPX
+    OP_JUMP
+    OP_IF
+    OP_JNZ
+    OP_GETP
+    OP_CYCL
+    OP_NQ
+    OP_EQ
+    OP_LT
+    OP_GT
+    OP_AND
+    OP_OR
+    OP_NOT
+    OP_SYS0
+    OP_SYS1
+    OP_SYS2
+    OP_SYS3
+    OP_SYS4
+    OP_SYS5
+    OP_SYS6
 
-100
-  IDENT_INC
-  IDENT_ENUM
-  IDENT_PROC
-  IDENT_DO
-  IDENT_END
+100 IDENT_INC 
+    {TODO: IDENT_GVAR}
+    IDENT_ENUM
+    IDENT_PROC
+    IDENT_DO
+    IDENT_VAR
+    IDENT_END
 
-255
-  OP_BAD
+255 OP_BAD
 
+end
+
+enum
+{this is for optimization}
+0   REG_A
+    REG_B
 end
 
 proc getconstTab 0 1
@@ -109,6 +119,11 @@ proc getflags 0 1
   ret
 end
 
+proc getlastreg 0 1
+  var 8
+  ret
+end
+
 const READSIZE 2047
 
 proc getescape 1 1
@@ -125,6 +140,7 @@ proc getnameop 1 1
   covr "end"   (streq) if [disc IDENT_END]
   covr "inc"   (streq) if [disc IDENT_INC]
   covr "enum"  (streq) if [disc IDENT_ENUM]
+  covr "var"   (streq) if [disc IDENT_VAR]
 
   covr "nop"   (streq) if [disc OP_NOP]
   covr "}"     (streq) if [disc OP_NOP]
@@ -136,7 +152,6 @@ proc getnameop 1 1
   covr "dump"  (streq) if [disc OP_DUMP]
   covr "copy"  (streq) if [disc OP_COPY]
   covr "covr"  (streq) if [disc OP_COVR]
-  covr "var"   (streq) if [disc OP_VAR]
   covr "readc" (streq) if [disc OP_READC]
   covr "read"  (streq) if [disc OP_READ]
   covr "putc"  (streq) if [disc OP_PUTC]
@@ -699,11 +714,6 @@ proc getblockasm 1 0
     "    push rax\n" (writeout)
     "    push rbx\n" (writeout)
     disc ret
-  ] copy OP_VAR == if [
-    (getcmdflags)
-    7
-    putc disc
-    disc ret
   ] copy OP_ARGC == if [
     "    mov rax, [args_ptr]\n" (writeout)
     "    mov rax, [rax]\n" (writeout)
@@ -872,6 +882,11 @@ proc getblockasm 1 0
     (subaddr) read 1 - (identstackpush)
     (addr) read 1 - (identstackpush)
     IDENT_DO (identstackpush)
+    disc ret
+  ] copy IDENT_VAR == if [
+    (getcmdflags)
+    7
+    putc disc
     disc ret
   ]
   "; unimp " (writeout)
@@ -1086,11 +1101,6 @@ proc getcmdasm 1 0
     9
     putc disc
     disc ret
-  ] copy OP_VAR == if [
-    (getcmdflags)
-    7
-    putc disc
-    disc ret
   ] copy OP_ARGC == if [
     "    mov rax, [args_ptr]\n" (writeout)
     "    mov rax, [rax]\n" (writeout)
@@ -1267,6 +1277,11 @@ proc getcmdasm 1 0
   ] copy IDENT_DO == if [
     (addr) read 1 - (identstackpush)
     IDENT_DO (identstackpush)
+    disc ret
+  ] copy IDENT_VAR == if [
+    (getcmdflags)
+    7
+    putc disc
     disc ret
   ]
   "; unimp " (writeout)
@@ -1546,6 +1561,10 @@ result:
 prints a help string
 }
 proc help 1 0
+  copy 100 == if [
+    "slim compiler v" (print) (version) (println)
+    (exit)
+  ]
   "INVALID HELP ID"
   covr 1 == if [
     disc
@@ -1558,10 +1577,11 @@ proc help 1 0
     "ERROR: Last argument supplied requires a parameter"
   ]
   (println)
-  "slim compiler usage:" (println)
+  "slim compiler v" (print) (version) (print) " usage:" (println)
   (endl)
   "slim [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (println)
   (endl)
+  "-v            shows the version and exits." (println)
   "-h, --help    shows this help message." (println)
   "-i, --include includes a library." (println)
   "-s, --silent  disables output text." (println)
@@ -1716,6 +1736,8 @@ otherwise returns 1
 proc applyarg 2 2
   copy "-h" (streq)
   if [disc 1 (help) 0 ret]
+  copy "-v" (streq)
+  if [disc 100 (help) 0 ret]
   copy "-i" (streq)
   if [disc 1 + (setinclude) 0 ret]
   copy "--include" (streq)
@@ -1747,6 +1769,7 @@ end
 proc nasm 0 0
   (cmdtmp)
   "/usr/bin/nasm" put 8 +
+  "-gdwarf" put 8 +
   "-f" put 8 +
   "elf64" put 8 +
   "-o" put 8 +
@@ -1756,8 +1779,8 @@ proc nasm 0 0
   disc
 
   (cmdtmp)
-  (getflags) read 1 && ! if [(execcmdecho)]
-  (getflags) read 1 && if [(execcmd)]
+  (getflags) read 1 && ! if [(execcmdecho) 0]
+  (getflags) read 1 && if [(execcmd) 0]
   disc
 
   ret
@@ -1778,23 +1801,23 @@ proc ld 0 0
   disc
 
   (cmdtmp)
-  (getflags) read 1 && ! if [(execcmdecho)]
-  (getflags) read 1 && if [(execcmd)]
+  (getflags) read 1 && ! if [(execcmdecho) 0]
+  (getflags) read 1 && if [(execcmd) 0]
   disc
 
-{
   (cmdtmp)
   "/usr/bin/rm" put 8 +
   "temp.o" put 8 +
-  "temp.nasm" put 8 +
+  (getflags) read 2 && 0 == if [
+    "temp.nasm" put 8 +
+  ]
   NULL put 8 +
   disc
 
   (cmdtmp)
-  (getflags) read 1 && ! if [(execcmdecho)]
-  (getflags) read 1 && if [(execcmd)]
+  (getflags) read 1 && ! if [(execcmdecho) 0]
+  (getflags) read 1 && if [(execcmd) 0]
   disc
-}
 
   ret
 end

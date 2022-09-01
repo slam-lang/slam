@@ -448,6 +448,7 @@ proc execcmd 1 0
   
     59 sys3 disc
     disc disc
+    quit
   ]
   copy 0 > if [
     {parent}
@@ -459,7 +460,9 @@ proc execcmd 1 0
 
     0 1 -
     61
-    sys4 disc
+    sys4 0 < if (deverr)
+    disc disc
+    ret
   ]
   0 < if [
     "ERROR" (println)
