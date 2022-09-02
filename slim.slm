@@ -3,10 +3,8 @@ inc lib/tables.slm
 
 {The Slim Compiler, written in Slim}
 
-{TODO: fix ld}
 {TODO: fix inc}
 {TODO: Track stack}
-{TODO: const string}
 {TODO: track last reg}
 
 proc version 0 1
