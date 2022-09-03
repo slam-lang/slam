@@ -1,0 +1,43 @@
+inc lib/stdlib.slm
+
+gvar testing 8
+
+proc getfac 1 1
+  testing swap put disc
+  0
+  1
+  do
+    testing read covr / swap disc
+    0 == if [
+      swap 2 +
+      swap
+    ] 
+
+    1 +
+    copy copy * testing read <
+  end
+  copy copy * testing read == if [
+    swap 1 -
+    swap
+  ]
+  disc
+
+  ret
+end
+
+proc main 0 0
+  0
+  do
+    1 +
+    copy copy 1 + * 2 / disc
+  
+    copy (strint) (print)
+    ":" (print)
+    (getfac) copy (printint)
+
+    501 <
+  end
+  disc
+
+  ret
+end

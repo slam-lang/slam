@@ -37,6 +37,7 @@ proc putTab 3 1
     "STRING TOO LONG FOR TABLE" (println)
     copy (println)
     disc disc
+    0 1 -
     quit
   ]
 
@@ -95,6 +96,7 @@ proc getTab 2 2
     "STRING TOO LONG FOR TABLE" (println)
     copy (println)
     disc disc
+    0 1 -
     quit
   ]
 

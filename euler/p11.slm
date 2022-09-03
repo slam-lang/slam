@@ -1,0 +1,116 @@
+inc lib/stdlib.slm
+
+const SIZE_W 20
+const SIZE_H 20
+
+gvar table 400
+gvar inputfd 8
+gvar num 3
+gvar max 0
+
+proc checkint 1 0
+  copy max read > if [
+    copy (printint)
+    max
+    swap
+    put
+  ]
+  disc
+  ret
+end
+
+proc readfile 0 1
+  0
+  do
+    3 num
+    inputfd read (read) 3 != if [
+      disc disc ret
+    ]
+    num 2 + 0 putc disc
+    copy table +
+    num (tonum)
+    putc disc
+    1 + 
+    
+    1
+  end
+
+  ret
+end
+
+proc checkdir 2 0
+  covr SIZE_W 3 * - 0 < !
+  covr 1 == && 
+  if [
+    covr table +
+    1
+    covr SIZE_W 0 * - readc *
+    covr SIZE_W 1 * - readc *
+    covr SIZE_W 2 * - readc *
+    covr SIZE_W 3 * - readc *
+    (checkint)
+  ]
+  covr SIZE_W / swap disc 4 >
+  covr 2 == && 
+  if [
+    covr table +
+    1
+    covr 1 0 * - readc *
+    covr 1 1 * - readc *
+    covr 1 2 * - readc *
+    covr 1 3 * - readc *
+    (checkint)
+  ]
+  covr copy SIZE_W / swap disc 4 >
+  swap SIZE_W 3 * - 0 < ! &&
+  covr 3 == && 
+  if [
+    covr table +
+    1
+    covr 1 SIZE_W + 0 * - readc *
+    covr 1 SIZE_W + 1 * - readc *
+    covr 1 SIZE_W + 2 * - readc *
+    covr 1 SIZE_W + 3 * - readc *
+    (checkint)
+  ]
+  
+  covr copy SIZE_W / swap disc 16 <
+  swap SIZE_W 3 * + 400 > ! &&
+  covr 4 == && 
+  if [
+    covr table +
+    1
+    covr SIZE_W 1 - 0 * + readc *
+    covr SIZE_W 1 - 1 * + readc *
+    covr SIZE_W 1 - 2 * + readc *
+    covr SIZE_W 1 - 3 * + readc *
+    (checkint)
+  ]
+
+  disc disc
+
+  ret
+end
+
+proc main 0 0
+  0 0 "p11.txt"
+  0 100 -
+  (open)
+  inputfd swap put disc
+
+  (readfile)
+  
+  0
+  do
+    1 +
+
+    copy 1 (checkdir)
+    copy 2 (checkdir)
+    copy 3 (checkdir)
+    copy 4 (checkdir)
+    
+    copy SIZE_W SIZE_H * <
+  end
+
+  ret
+end

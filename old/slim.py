@@ -354,7 +354,9 @@ def compile_inst(out, op, ip, start):
         out.write("    mov qword [rax], %s_%d\n" % (start, ip + 1))
         out.write("    jmp [rbx]\n")
     elif op[0] == OP_QUIT:
-        out.write("    jmp quit\n")
+        out.write("    mov rax, 60\n")
+        out.write("    pop rdi\n")
+        out.write("    syscall\n")
     elif op[0] == OP_IF:
         out.write("    pop rbx\n")
         out.write("    test rbx, rbx\n")
@@ -661,7 +663,7 @@ def check_proc(program, args, rets, values):
                 print(program[idx])
                 quit()
         elif op[0] == OP_QUIT:
-            if stackoffset != 0:
+            if stackoffset != 1:
                 return idx, stackoffset, (stackoffset, op, "Quit wrong ammnt")
         elif op[0] == OP_RET:
             if stackoffset != rets:

@@ -122,7 +122,9 @@ proc assert 2 0
   swap
   if [disc ret]
   (println)
+  0 1 -
   quit
+  disc
   ret
 end
 
@@ -410,7 +412,8 @@ end
 proc deverr 0 0
   "ERROR: cant open /dev/null" (println)
 
-  quit
+  0 1 - quit
+  disc
   ret
 end
 
@@ -447,6 +450,7 @@ proc execcmd 1 0
   
     59 sys3 disc
     disc disc
+    0 1 -
     quit
   ]
   copy 0 > if [

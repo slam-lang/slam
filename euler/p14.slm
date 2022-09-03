@@ -1,0 +1,57 @@
+inc lib/stdlib.slm
+
+gvar vals 10000000
+gvar max 8
+
+proc collatz 1 1
+  0
+  do
+    swap
+    2 / 1 ==
+    if [
+      2 *
+      1 +
+      3 * 1 +
+    ]
+      
+    copy vals +
+
+    readc 0 != if [
+      copy vals + readc +
+      swap dis_c
+      ret
+    ]
+
+    swap
+    1 +
+
+    covr 1 !=
+  end
+  disc
+
+  ret
+end
+
+proc main 0 0
+  2
+  do
+    1 +
+
+    copy (collatz)
+    covr (strint) (print)
+    ":" (print)
+    copy (strint) (println)
+    copy max read > if [
+      covr max swap put disc
+    ]
+    covr vals + covr
+    putc disc disc
+
+    copy 1000000 <
+  end
+  disc
+
+  max read (printint)
+
+  ret
+end

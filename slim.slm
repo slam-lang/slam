@@ -302,7 +302,8 @@ proc exit 0 0
   copy != 0 if [(close) 0]
   disc
 
-  quit
+  0 1 - quit
+  disc
   ret
 end
 
@@ -692,6 +693,9 @@ proc getblockasm 1 1
     '    push rbx\n' (writeout)
     ret
   ] copy OP_QUIT == if [
+    '    mov rax, 60\n' (writeout)
+    '    pop rdi\n' (writeout)
+    '    syscall\n' (writeout)
     '    jmp quit\n' (writeout)
     ret
   ] copy OP_RET == if [
@@ -1132,6 +1136,9 @@ proc getcmdasm 1 1
     '    push rbx\n' (writeout)
     ret
   ] copy OP_QUIT == if [
+    '    mov rax, 60\n' (writeout)
+    '    pop rdi\n' (writeout)
+    '    syscall\n' (writeout)
     '    jmp quit\n' (writeout)
     ret
   ] copy OP_RET == if [
