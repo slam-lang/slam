@@ -1,0 +1,36 @@
+inc lib/stdlib.slm
+
+proc checkprime 1 1
+  copy 
+  do
+    1 -
+    covr covr / swap disc 0 == if [disc disc 0 ret]
+
+    copy 2 !=
+  end
+  disc
+  disc
+  1
+
+  ret
+end
+
+proc main 0 0
+  0
+  1
+  do
+    1 +
+    copy (checkprime) if [
+      swap covr +
+      copy (printint)
+      swap
+    ]
+
+    copy 2000000 <
+  end
+  disc
+
+  (printint)
+
+  ret
+end

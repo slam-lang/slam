@@ -653,10 +653,13 @@ def check_proc(program, args, rets, values):
             stackoffset -= 1
             start = stackoffset
             idx += 1
-            idx, stackoffset, res = check_op(idx, stackoffset)
+            idx, stackoffset2, res = check_op(idx, stackoffset)
             if res[2] != "OK":
                 return idx, stackoffset, res
-            stackoffset = start
+            if stackoffset != stackoffset2: 
+                print("internal unbalanced, " + str(stackoffset2) + ", " + str(stackoffset))
+                print(program[idx])
+                quit()
         elif op[0] == OP_QUIT:
             if stackoffset != 0:
                 return idx, stackoffset, (stackoffset, op, "Quit wrong ammnt")
@@ -668,7 +671,9 @@ def check_proc(program, args, rets, values):
             if bal[2] != "OK":
                 print("internal unbalanced, " + str(bal[0]) + ", " + bal[2])
                 quit()
-            stack_offset = bal[0]
+            if bal[0] != stackoffset and not(op[1][-1][0] in [OP_RET, OP_QUIT]):
+                print("internal unbalanced, " + str(bal[0]) + ", " + str(stackoffset))
+                quit()
         elif op[0] == OP_CALL:
             stackoffset -= values[op[1]][0]
             if stackoffset < 0:
@@ -694,9 +699,11 @@ def check_proc(program, args, rets, values):
     return (stackoffset, (0,), "OK")
 
 proc_values = {}
+gvars = []
 
 def parse_program(text, consts = {}, multi = False):
     global proc_values
+    global gvars
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
@@ -777,6 +784,16 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
             proc_block.append((OP_GPTR, size))
 
+        elif func == "gvar":
+            name = data[idx]
+            idx += 1
+            result.append((OP_PROC, name))
+            result.append((OP_GPTR, int(data[idx])))
+            result.append((OP_RET, name))
+            idx += 1
+            proc_values[name] = (0, 1)
+            gvars.append(name)
+
         elif func == "end":
             if ident_stack[-1] == "proc":
                 if proc_block[-1][0] != OP_RET:
@@ -839,7 +856,10 @@ def parse_program(text, consts = {}, multi = False):
             proc_block.append((OP_PUSH, int(func)))
 
         elif func in proc_values:
-            proc_block.append((OP_PUSHP, func))
+            if func in gvars:
+                proc_block.append((OP_CALL, func))
+            else:
+                proc_block.append((OP_PUSHP, func))
             
         elif func in consts:
             proc_block.append((OP_PUSH, consts[func]))

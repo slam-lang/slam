@@ -2,7 +2,6 @@ const NULL 0
 
 proc tmpidx 0 1
   var 8
-
   ret
 end
 

@@ -1,0 +1,39 @@
+inc lib/stdlib.slm
+
+{
+  a + b + c = 1000
+  a^2 + b^2 - c^2 = 0
+}
+proc sq 1 1
+  copy *
+
+  ret
+end
+
+proc main 0 0
+  0
+  do
+    1 +
+    copy
+    do
+      1 -
+      covr
+      covr 
+      covr + 1000 swap - (sq) swap (sq) swap -
+      covr (sq)
+
+      == if [
+        covr covr (printint) (printint)
+        covr covr + 1000 swap - (printint)
+        covr covr + 1000 swap - * * (printint) quit ]
+
+      copy 0 > 
+    end
+    disc
+  
+    copy 1000 <
+  end
+  disc
+
+  ret
+end
