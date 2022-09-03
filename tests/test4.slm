@@ -1,0 +1,15 @@
+inc lib/arrays.slm
+
+gvar array 4096
+
+proc main 0 0
+  array 4096 1 (arr.new)
+
+  (arr.len) (str.printint)
+
+  44 (arr.push)
+
+  (arr.print)
+
+  ret
+end

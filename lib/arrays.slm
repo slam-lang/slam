@@ -1,0 +1,102 @@
+class arr
+  prop Size 0
+  prop Max  8
+  prop Elem 16
+  prop Data 24
+
+  gvar curtemp 8
+  gvar elemtemp 8
+  
+  {
+  args: int[maxSize] int[elemSize] ptr[array]
+  returns: ptr[array]
+  }
+  proc new 3 1
+    swap arr.elemtemp swap put disc
+    swap arr.curtemp swap put disc
+    
+    arr.curtemp read
+    arr.Elem .
+    swap
+    put disc
+    
+    arr.curtemp read
+    arr.Size .
+    0
+    put disc
+    
+    arr.curtemp read
+    arr.Max .
+    arr.elemtemp read
+    arr.Data -
+    put disc
+  
+    arr.curtemp read
+    ret
+  end
+  
+  {
+  args: ptr[array]
+  returns: int[size] ptr[array]
+  }
+  proc len 1 2
+    copy
+    arr.Size . read
+  
+    ret
+  end
+  
+  {
+  args: ptr[data] ptr[array]
+  returs: ptr[array]
+  }
+  proc push 2 1
+    arr.elemtemp swap put disc
+    arr.curtemp swap put disc
+    
+    arr.curtemp read
+    arr.Elem . read
+    
+    arr.curtemp read
+    arr.Size . read
+  
+    1 + *
+    
+    arr.curtemp read
+    arr.Max . read
+    > if ["ARRAY OVERFLOW" (str.println) 0 1 - quit]
+    
+    arr.curtemp read
+    arr.Elem . read
+    
+    arr.curtemp read
+    arr.Size . read
+    
+    *
+    
+    arr.curtemp read
+    arr.Data .
+
+    +
+    arr.elemtemp read put disc
+    
+    arr.curtemp read
+    arr.Size .
+
+    copy read
+    1 +
+    put
+  
+    ret
+  end
+  
+  proc print 1 0
+    arr.curtemp swap put disc
+    do
+
+    end
+    
+    ret
+  end
+end
+

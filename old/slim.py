@@ -496,6 +496,9 @@ singles = {
         "+": [
             (OP_PLUS, )
             ],
+        ".": [
+            (OP_PLUS, )
+            ],
         "*": [
             (OP_MUL, )
             ],
@@ -743,17 +746,24 @@ def parse_program(text, consts = {}, multi = False):
     last_jumpx = 0
 
     do_ids = []
+    prefix = ""
 
     while idx < len(data):
         func = data[idx]
         idx += 1
 
         if func == "": continue
-
-        if func == "const":
+        
+        if func == "class":
+            ident_stack.append("class")
             name = data[idx]
             idx += 1
-            consts[name] = int(data[idx])
+            prefix = name + "."
+
+        elif func == "const" or func == "prop":
+            name = data[idx]
+            idx += 1
+            consts[prefix + name] = int(data[idx])
             idx += 1
         
         elif func == "enum":
@@ -789,12 +799,12 @@ def parse_program(text, consts = {}, multi = False):
         elif func == "gvar":
             name = data[idx]
             idx += 1
-            result.append((OP_PROC, name))
+            result.append((OP_PROC, prefix + name))
             result.append((OP_GPTR, int(data[idx])))
-            result.append((OP_RET, name))
+            result.append((OP_RET, ))
             idx += 1
-            proc_values[name] = (0, 1)
-            gvars.append(name)
+            proc_values[prefix + name] = (0, 1)
+            gvars.append(prefix + name)
 
         elif func == "end":
             if ident_stack[-1] == "proc":
@@ -813,6 +823,8 @@ def parse_program(text, consts = {}, multi = False):
             elif ident_stack[-1] == "do":
                 proc_block.append((OP_IF, ))
                 proc_block.append((OP_JUMPX, do_ids.pop()))
+            elif ident_stack[-1] == "class":
+                prefix = ""
             else:
                 assert False, "Unreachable"
             ident_stack.pop()
@@ -825,7 +837,7 @@ def parse_program(text, consts = {}, multi = False):
             proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
         
         elif func == "proc":
-            result.append((OP_PROC, data[idx]))
+            result.append((OP_PROC, prefix + data[idx]))
             idx += 1
             proc_args = int(data[idx])
             idx += 1
@@ -833,7 +845,7 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
             print(f"proc `{data[idx - 3]}`, {proc_args} => {proc_rets}")
             ident_stack.append("proc")
-            proc_values[data[idx - 3]] = (proc_args, proc_rets)
+            proc_values[prefix + data[idx - 3]] = (proc_args, proc_rets)
 
         elif func == "do":
             do_ids.append(last_jumpx)

@@ -1,115 +1,256 @@
 const NULL 0
 
-proc tmpidx 0 1
-  var 8
-  ret
-end
+class str
+  gvar tmpidx 8
 
-proc gettmp 0 1
-  var 32 30 +
-  (tmpidx) read -
+  proc gettmp 0 1
+    var 32 30 +
+    str.tmpidx read -
 
-  ret
-end
-
-proc inctmpidx 0 0
-  (tmpidx) 
-  (tmpidx) read 1 +
-  putc disc
-
-  ret
-end
-
-proc strint 1 1
-  do
-    10 /
-    48 +
-    (gettmp)
-    swap
-    putc disc
-    (inctmpidx)
-    
-    copy 0 !=
+    ret
   end
-  disc
-  (gettmp) 1 +
+
+  proc inctmpidx 0 0
+    str.tmpidx 
+    str.tmpidx read 1 +
+    putc disc
+
+    ret
+  end
+
+  proc int 1 1
+    do
+      10 /
+      48 +
+      (str.gettmp)
+      swap
+      putc disc
+      (str.inctmpidx)
+      
+      copy 0 !=
+    end
+    disc
+    (str.gettmp) 1 +
+    
+    str.tmpidx 0 putc disc
+    ret
+  end
+
+  {
+  args: pointer
+  result: 
   
-  (tmpidx) 0 putc disc
-  ret
-end
+  prints a string
+  }
+  proc print 1 0 
+    copy read NULL == if [disc ret]
+    do
+      { read the current char }
+      copy
+      read
+      dump
+  
+      { increase the address }
+      1 +
+  
+      { read the next address }
+      copy
+      readc
+      
+      0 !=
+    end
+    disc
+    ret
+  end
 
-
-{
-args: pointer
-result: 
-
-prints a string
-}
-proc print 1 0 
-  copy read NULL == if [disc ret]
-  do
-    { read the current char }
-    copy
-    read
+  {
+  args:
+  result:
+  
+  prints a new line
+  }
+  proc cr 0 0
+    { print new line }
+    10
     dump
-
-    { increase the address }
-    1 +
-
-    { read the next address }
-    copy
-    readc
-    
-    0 !=
+    ret
   end
-  disc
-  ret
-end
 
-{
-args:
-result:
-
-prints a new line
-}
-proc endl 0 0
-  { print new line }
-  10
-  dump
-  ret
-end
-
-{
-prints
-}
-proc println 1 0
-  (print)
-  (endl)
-  ret
-end
-
-{
-args: ptr int
-result: ptr
-
-converts a int to a string
-}
-proc printint 1 0
-  do
-    10 /
-    48 +
-    (gettmp)
-    swap
-    putc disc
-    (inctmpidx)
-    
-    copy 0 !=
+  {
+  prints
+  }
+  proc println 1 0
+    (str.print)
+    (str.cr)
+    ret
   end
-  disc
-  (gettmp) 1 + (print) (endl)
+
+  {
+  args: ptr int
+  result: ptr
   
-  (tmpidx) 0 putc disc
-  ret
+  converts a int to a string
+  }
+  proc printint 1 0
+    (str.int) (str.print) (str.cr)
+    
+    str.tmpidx 0 putc disc
+    ret
+  end
+
+  {
+  args: ptr int
+  result: ptr
+  
+  converts a int to a hex string
+  }
+  proc printinthex 1 0
+    do
+      16 /
+      copy 9 > if [64 +]
+      copy 10 < if [48 +]
+      (str.gettmp)
+      swap
+      putc disc
+      (str.inctmpidx)
+      
+      copy 0 !=
+    end
+    disc
+  
+    (str.gettmp)
+    120 {x}
+    putc disc
+    (str.inctmpidx)
+  
+    (str.gettmp)
+    48 {0}
+    putc disc
+    (str.inctmpidx)
+  
+    (str.gettmp) 1 + (str.print)
+    str.tmpidx 0 putc disc
+    (str.cr)
+    ret
+  end
+
+  proc len 1 1
+    copy readc 0 == if [disc 0 ret]
+    copy
+    do
+      1 +
+  
+      copy readc
+    end
+    covr -
+    swap disc
+    ret
+  end
+  
+  {
+  args: pointer pointer
+  result: int
+  
+  compares strings, returns 1 if they are not equal
+  }
+  proc == 2 1
+    covr readc
+    covr readc
+    != if [disc disc 0 ret]
+    1 -
+    swap
+    1 -
+    do
+      1 +
+      swap
+      1 +
+      covr readc
+      covr readc
+      covr 0 == covr 0 == &&
+      if [
+        disc
+        disc
+        disc
+        disc
+        1
+        ret
+        ]
+      covr 0 == covr 0 == ||
+      if [
+        disc
+        disc
+        disc
+        disc
+        0
+        ret
+      ]
+      ==
+    end
+    disc
+    disc
+    0
+    ret
+  end
+
+  {
+  args: pointer pointer
+  result: 
+  
+  copy a string from a pointer to another
+  }
+  proc copy 2 2
+    covr
+    covr
+    do
+      covr
+      covr
+      readc
+  
+      putc
+      disc
+  
+      swap 1 +
+      swap 1 +
+      copy readc 0 !=
+    end
+    0
+    putc
+    disc
+    disc
+    ret
+  end
+  
+  {
+  }
+  proc last 1 1
+    1 -
+    do
+      1 +
+      copy readc
+      0 !=
+    end
+    1 -
+    readc
+  
+    ret
+  end
+
+  proc clear 1 1
+    copy readc 0 == if [ret]
+    copy
+    do
+      copy
+      0
+      putc
+      disc
+  
+      1 +
+      copy readc
+    end
+    disc
+  
+    ret
+  end
 end
 
 {
@@ -121,7 +262,7 @@ if int is 0 quit and print message
 proc assert 2 0
   swap
   if [disc ret]
-  (println)
+  (str.println)
   0 1 -
   quit
   disc
@@ -135,85 +276,12 @@ result: pointer
 gets the nth arguent from the command line
 }
 proc args 1 1
-  copy argc - 0 < ! if [copy (strint) (print)]
+  copy argc - 0 < ! if [copy (str.printint)]
   copy argc - 0 < "Bad arg" (assert)
   8 * 
   argv +
 
   read
-  ret
-end
-
-{
-args: pointer pointer
-result: 
-
-copy a string from a pointer to another
-}
-proc strcpy 2 2
-  covr
-  covr
-  do
-    covr
-    covr
-    readc
-
-    putc
-    disc
-
-    swap 1 +
-    swap 1 +
-    copy readc 0 !=
-  end
-  0
-  putc
-  disc
-  disc
-  ret
-end
-
-{
-args: pointer pointer
-result: int
-
-compares strings, returns 1 if they are not equal
-}
-proc streq 2 1
-  covr readc
-  covr readc
-  != if [disc disc 0 ret]
-  1 -
-  swap
-  1 -
-  do
-    1 +
-    swap
-    1 +
-    covr readc
-    covr readc
-    covr 0 == covr 0 == &&
-    if [
-      disc
-      disc
-      disc
-      disc
-      1
-      ret
-      ]
-    covr 0 == covr 0 == ||
-    if [
-      disc
-      disc
-      disc
-      disc
-      0
-      ret
-    ]
-    ==
-  end
-  disc
-  disc
-  0
   ret
 end
 
@@ -273,87 +341,6 @@ proc read 3 1
   ret
 end
 
-
-{
-args: ptr int
-result: ptr
-
-converts a int to a hex string
-}
-proc printinthex 1 0
-  do
-    16 /
-    copy 9 > if [64 +]
-    copy 10 < if [48 +]
-    (gettmp)
-    swap
-    putc disc
-    (inctmpidx)
-    
-    copy 0 !=
-  end
-  disc
-
-  (gettmp)
-  120 {x}
-  putc disc
-  (inctmpidx)
-
-  (gettmp)
-  48 {0}
-  putc disc
-  (inctmpidx)
-
-  (gettmp) 1 + (print)
-  (tmpidx) 0 putc disc
-  (endl)
-  ret
-end
-
-proc strlen 1 1
-  copy
-  do
-    1 +
-
-    copy readc
-  end
-  covr -
-  swap disc
-  ret
-end
-
-{
-}
-proc last 1 1
-  1 -
-  do
-    1 +
-    copy readc
-    0 !=
-  end
-  1 -
-  readc
-
-  ret
-end
-
-proc clearbuf 1 1
-  copy readc 0 == if [ret]
-  copy
-  do
-    copy
-    0
-    putc
-    disc
-
-    1 +
-    copy readc
-  end
-  disc
-
-  ret
-end
-
 {
 args: ptr[string]
 returns: int[val]
@@ -384,7 +371,7 @@ returns: int[value]
 returns the value of a int
 }
 proc tonum 1 1
-  copy (alphanum) ! if [copy (println)]
+  copy (alphanum) ! if [copy (str.println)]
   copy (alphanum) "String is not a number" (assert)
   
   0
@@ -410,18 +397,14 @@ proc fork 0 1
 end
 
 proc deverr 0 0
-  "ERROR: cant open /dev/null" (println)
+  "ERROR: cant open /dev/null" (str.println)
 
   0 1 - quit
   disc
   ret
 end
 
-proc waitsig 0 1
-  var 8
-
-  ret
-end
+gvar waitsig 8
 
 {
 args: ptr[stringList]
@@ -459,7 +442,7 @@ proc execcmd 1 0
     NULL
     0
 
-    (waitsig)
+    waitsig
 
     0 1 -
     61
@@ -468,7 +451,7 @@ proc execcmd 1 0
     ret
   ]
   0 < if [
-    "ERROR" (println)
+    "ERROR" (str.println)
   ]
   disc
   ret
@@ -481,19 +464,41 @@ returns:
 prints a command then runs it
 }
 proc execcmdecho 1 0
-  "[CMD] " (print)
+  "[CMD] " (str.print)
   copy
   do
-    copy read (print)
+    copy read (str.print)
     8 +
      
     copy read NULL !=
-    copy if [" " (print)]
+    copy if [" " (str.print)]
   end
   disc
-  (endl)
+  (str.cr)
 
   (execcmd)
+
+  ret
+end
+
+gvar memcpytmp 8
+
+proc memcpy 3 0
+  memcpytmp swap put disc
+  do
+    covr
+    covr readc
+    putc disc
+    
+    swap 1 +
+    swap 1 +
+  
+    memcpytmp 
+    memcpytmp read
+    copy 1 - put disc
+  end
+  disc
+  disc
 
   ret
 end
