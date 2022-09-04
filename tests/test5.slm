@@ -1,0 +1,14 @@
+inc lib/stdlib.slm
+
+gvar string 128
+
+proc main 0 0
+  string
+
+  "foo\n" (str.concat)  
+  "bar\n" (str.concat)  
+  
+  (str.print)
+
+  ret
+end

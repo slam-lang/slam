@@ -9,27 +9,27 @@ proc main 0 0
   "lol" 32
   (tab.put)
 
-  "=======" (println)
+  "=======" (str.println)
   copy (tab.print)
-  "=======" (println)
+  "=======" (str.println)
   
   "lmao" 69
   (tab.put)
 
   copy (tab.print)
-  "=======" (println)
+  "=======" (str.println)
   
   "lmao" 42
   (tab.put)
 
   copy (tab.print)
-  "=======" (println)
+  "=======" (str.println)
 
   "lmao" (tab.in)
-  (printint)
+  (str.printint)
 
   "lmao" (tab.get)
-  (printint)
+  (str.printint)
   (tab.print)
 
   ret

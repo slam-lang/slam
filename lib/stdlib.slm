@@ -1,8 +1,11 @@
 const NULL 0
 
 class str
-  gvar tmpidx 8
+  prop Size 0
+  prop Data 8
 
+  gvar tmpidx 8
+ 
   proc gettmp 0 1
     var 32 30 +
     str.tmpidx read -
@@ -133,7 +136,7 @@ class str
     (str.cr)
     ret
   end
-
+  
   proc len 1 1
     copy readc 0 == if [disc 0 ret]
     copy
@@ -153,7 +156,7 @@ class str
   
   compares strings, returns 1 if they are not equal
   }
-  proc == 2 1
+  proc eq 2 1
     covr readc
     covr readc
     != if [disc disc 0 ret]
@@ -249,6 +252,13 @@ class str
     end
     disc
   
+    ret
+  end
+  
+  proc concat 2 1
+    covr copy (str.len) +
+    swap (str.copy) disc disc
+
     ret
   end
 end
@@ -481,24 +491,47 @@ proc execcmdecho 1 0
   ret
 end
 
-gvar memcpytmp 8
-
-proc memcpy 3 0
-  memcpytmp swap put disc
-  do
-    covr
-    covr readc
-    putc disc
-    
-    swap 1 +
-    swap 1 +
+class mem
+  gvar tmp 8
   
-    memcpytmp 
-    memcpytmp read
-    copy 1 - put disc
+  proc copy 3 0
+    mem.tmp swap put disc
+    do
+      covr
+      covr readc
+      putc disc
+  
+      swap 1 +
+      swap 1 +
+  
+      mem.tmp
+      mem.tmp read
+      1 - put disc
+      mem.tmp read 0 >
+    end
+    disc
+    disc
+  
+    ret
   end
-  disc
-  disc
-
-  ret
+  
+  proc zero 2 0
+    mem.tmp swap put disc
+    do
+      copy
+      0
+      putc disc
+  
+      1 +
+  
+      mem.tmp
+      mem.tmp read
+      1 - put disc
+      mem.tmp read 0 >
+    end
+    disc
+  
+    ret
+  end
 end
+

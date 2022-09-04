@@ -1,9 +1,9 @@
 inc lib/stdlib.slm
 
 proc main 0 0
-  55 (printinthex) 
-  5 (printinthex) 
-  55 (printint) 
-  5 (printint) 
+  55 (str.printinthex) 
+  5 (str.printinthex) 
+  55 (str.printint) 
+  5 (str.printint) 
   ret
 end

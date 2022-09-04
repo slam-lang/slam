@@ -4,14 +4,15 @@ inc stdlib.slm
 prints the number of arguments and then the arguments
 }
 
-proc main
-  "Arguments: " (print)
-  argc (hexstr) dump
-  (endl)
-  0
+proc main 0 0
+  "Arguments: " (str.print)
+  argc (str.printint)
+  0 1 -
   do
     1 +
-    copy (args) (println)
-    argc - 0 <
+    copy (args) (str.println)
+    copy argc 1 - <
   end
+
+  ret
 end

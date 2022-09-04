@@ -5,32 +5,52 @@ class arr
   prop Data 24
 
   gvar curtemp 8
-  gvar elemtemp 8
+  gvar elemtemp 32
   
   {
   args: int[maxSize] int[elemSize] ptr[array]
   returns: ptr[array]
+
+  Creates an array
   }
   proc new 3 1
-    swap arr.elemtemp swap put disc
+    arr.elemtemp swap put disc
     swap arr.curtemp swap put disc
-    
+   
     arr.curtemp read
     arr.Elem .
     swap
     put disc
     
     arr.curtemp read
-    arr.Size .
-    0
+    arr.Max .
+
+    arr.elemtemp read
+    arr.Data -
+
     put disc
     
     arr.curtemp read
-    arr.Max .
-    arr.elemtemp read
-    arr.Data -
+    arr.Size .
+    0
     put disc
   
+    arr.curtemp read
+    ret
+  end
+  
+  {
+  args: int[size] ptr[array]
+  returns: ptr[array]
+  }
+  proc setlen 2 1
+    swap arr.curtemp swap put disc
+
+    arr.curtemp read
+    arr.Size .
+
+    swap put disc
+    
     arr.curtemp read
     ret
   end
@@ -42,6 +62,50 @@ class arr
   proc len 1 2
     copy
     arr.Size . read
+  
+    ret
+  end
+  
+  {
+  args: ptr[data] ptr[array]
+  returs: ptr[array]
+  }
+  proc pushint 2 1
+    arr.elemtemp swap put disc
+    arr.curtemp swap put disc
+    
+    arr.curtemp read
+    arr.Elem . read
+    
+    arr.curtemp read
+    arr.Size . read
+  
+    1 + *
+    
+    arr.curtemp read
+    arr.Max . read
+    > if ["ARRAY OVERFLOW" (str.println) 0 1 - quit]
+    
+    arr.curtemp read
+    arr.Elem . read
+    
+    arr.curtemp read
+    arr.Size . read
+    *
+    
+    arr.curtemp read
+    arr.Data .
+    +
+    
+    arr.elemtemp read
+    put disc
+    
+    arr.curtemp read
+    arr.Size .
+
+    copy read
+    1 +
+    put
   
     ret
   end
@@ -71,14 +135,17 @@ class arr
     
     arr.curtemp read
     arr.Size . read
-    
     *
     
     arr.curtemp read
     arr.Data .
-
     +
-    arr.elemtemp read put disc
+    
+    arr.elemtemp read
+    
+    arr.curtemp read
+    arr.Elem . read
+    (mem.copy)
     
     arr.curtemp read
     arr.Size .
@@ -89,14 +156,153 @@ class arr
   
     ret
   end
+
+  proc extend 2 1
+    swap arr.curtemp swap put disc
+
+    arr.curtemp read
+    arr.Size . read +
+    
+    arr.curtemp read
+    arr.Size . swap
+
+    put disc
+  
+    arr.curtemp read
+
+    ret
+  end
+  
+  proc getaddr 2 2 
+    swap arr.curtemp swap put disc
+  
+    copy
+    arr.curtemp read
+    arr.Size . read
+    > if [ "INDEX ERROR" (str.println) quit ]
+    
+    arr.curtemp read
+    arr.Elem . read
+    *
+
+    arr.curtemp read
+    arr.Data .
+    +
+
+    arr.curtemp read
+    swap
+
+    ret
+  end
   
   proc print 1 0
     arr.curtemp swap put disc
-    do
+    "[" (str.print)
+    arr.curtemp read
+    arr.Data . (str.print)
+    
+    arr.curtemp read
+    arr.Size . read
 
+    1 == if [
+      "]" (str.println)
+      ret
+    ]
+
+    0
+    do
+      ", " (str.print)
+
+      1 +
+      copy
+      arr.curtemp read
+      arr.Elem . read
+      *
+    
+      arr.curtemp read
+      arr.Data .
+      + (str.print)
+ 
+      copy
+      arr.curtemp read
+      arr.Size . read
+      1 - <
     end
+    disc
+
+    "]" (str.println)
     
     ret
   end
-end
 
+  proc popaddr 1 2
+    arr.curtemp swap put disc
+    
+    arr.curtemp read
+    arr.Size . read
+
+    1 -
+
+    arr.curtemp read
+    arr.Elem . read
+    *
+    
+    arr.curtemp read
+    arr.Data . +
+
+    arr.elemtemp
+    
+    swap put disc
+
+    arr.curtemp read
+    arr.Size .
+
+    copy read
+    1 -
+    put disc
+
+    arr.curtemp read
+    arr.elemtemp read
+    ret
+  end
+
+  proc pop 1 2
+    arr.curtemp swap put disc
+    
+    arr.curtemp read
+    arr.Size . read
+
+    1 -
+
+    arr.curtemp read
+    arr.Elem . read
+    *
+    
+    arr.curtemp read
+    arr.Data . + copy
+
+    arr.elemtemp
+
+    swap
+
+    arr.curtemp read
+    arr.Elem . read
+    (mem.copy) 
+
+    
+    arr.curtemp read
+    arr.Elem . read
+    (mem.zero)
+
+    arr.curtemp read
+    arr.Size .
+
+    copy read
+    1 -
+    put disc
+
+    arr.curtemp read
+    arr.elemtemp
+    ret
+  end
+end

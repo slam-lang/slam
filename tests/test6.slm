@@ -1,0 +1,13 @@
+inc lib/errors.slm
+
+proc main 0 0
+  0 1 (log.level)
+  "WRN" "oops" (log.msg)
+  (log.log)
+
+  1 100 (log.level)
+  "ERR" "Lol" (log.msg)
+  (log.log)
+
+  ret
+end

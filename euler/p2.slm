@@ -12,7 +12,6 @@ proc main 0 0
     swap covr +
     copy 2 / swap disc 0 ==
     covr *
-    copy (printint)
 
     (temp) read + (temp) swap
     put disc
@@ -20,7 +19,7 @@ proc main 0 0
     covr covr + 4000000 <
   end
 
-  (temp) read (printint)
+  (temp) read (str.printint)
 
   ret
 end

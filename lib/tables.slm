@@ -22,7 +22,7 @@ class tab
   args: int[size] int[entrysize] ptr[table]
   result: ptr[table]
   
-  setup a table
+  construct a table
   }
   proc new 3 1
     swap tab.entrytmp swap put disc
@@ -86,7 +86,7 @@ class tab
       (tab.curentryaddr)
   
       copy read NULL ==
-      swap tab.entrytmp read (str.==) ||
+      swap tab.entrytmp read (str.eq) ||
       !
     end
   
@@ -156,7 +156,7 @@ class tab
   
       copy readc NULL == if [disc NULL ret]
   
-      tab.entrytmp read (str.==) !
+      tab.entrytmp read (str.eq) !
     end
     (tab.curentryaddr)
     tab.curtmp read
@@ -190,7 +190,7 @@ class tab
   
       copy readc NULL == if [disc disc 0 ret]
   
-      tab.entrytmp read (str.==) !
+      tab.entrytmp read (str.eq) !
     end
     disc
     disc

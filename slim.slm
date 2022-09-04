@@ -1,11 +1,13 @@
 inc lib/stdlib.slm
 inc lib/tables.slm
+inc lib/arrays.slm
 
 {The Slim Compiler, written in Slim}
 
-{TODO: fix inc}
+{TODO: Fix inc}
 {TODO: Track stack}
-{TODO: track last reg}
+{TODO: Local variables}
+{TODO: rewrite props}
 
 proc version 0 1
   "0.2.2" ret
@@ -92,12 +94,6 @@ enum
     CF_CLASS
 end
 
-{this is for optimization}
-enum
-0   REG_A
-    REG_B
-end
-
 gvar gvarTab 300000
 gvar constTab 300000
 gvar procTab 300000
@@ -113,15 +109,15 @@ gvar outputfd 8
 
 gvar cmdlineflags 8
 
-gvar identstack 64
-gvar identstackrsp 8
+gvar identstack 128
 
+gvar classname 64
 gvar outputbuffer 128
 gvar inputbuffer 128
 gvar cmdtmpbuffer 128
 gvar includebuffer 128
 gvar includetmpbuffer 128
-gvar classname 64
+gvar tmpprocbuffer 128
 
 gvar parseflags 8
 
@@ -136,63 +132,63 @@ gvar enumvalue 8
 const READSIZE 2047
 
 proc getescape 1 1
-  copy 110 == if [ disc 10 ret ]
-  copy 164 == if [ disc 9 ret ]
   copy 101 == if [ disc 27 ret ]
+  copy 110 == if [ disc 10 ret ]
+  copy 164 == if [ disc 9  ret ]
   ret
 end
 
 proc getnameop 1 1
   OP_BAD
-  covr "proc"  (str.==) if [disc IDENT_PROC]
-  covr "do"    (str.==) if [disc IDENT_DO]
-  covr "end"   (str.==) if [disc IDENT_END]
-  covr "inc"   (str.==) if [disc IDENT_INC]
-  covr "enum"  (str.==) if [disc IDENT_ENUM]
-  covr "var"   (str.==) if [disc IDENT_VAR]
-  covr "gvar"  (str.==) if [disc IDENT_GVAR]
-  covr "class" (str.==) if [disc IDENT_CLASS]
+  covr "proc"  (str.eq) if [disc IDENT_PROC]
+  covr "do"    (str.eq) if [disc IDENT_DO]
+  covr "end"   (str.eq) if [disc IDENT_END]
+  covr "inc"   (str.eq) if [disc IDENT_INC]
+  covr "enum"  (str.eq) if [disc IDENT_ENUM]
+  covr "var"   (str.eq) if [disc IDENT_VAR]
+  covr "gvar"  (str.eq) if [disc IDENT_GVAR]
+  covr "class" (str.eq) if [disc IDENT_CLASS]
   
-  covr "nop"   (str.==) if [disc OP_NOP]
-  covr "}"     (str.==) if [disc OP_NOP]
-  covr "-"     (str.==) if [disc OP_SUB]
-  covr "*"     (str.==) if [disc OP_MUL]
-  covr "/"     (str.==) if [disc OP_DIV]
-  covr "+"     (str.==) if [disc OP_PLUS]
-  covr "."     (str.==) if [disc OP_PLUS]
-  covr "swap"  (str.==) if [disc OP_SWAP]
-  covr "dump"  (str.==) if [disc OP_DUMP]
-  covr "copy"  (str.==) if [disc OP_COPY]
-  covr "covr"  (str.==) if [disc OP_COVR]
-  covr "readc" (str.==) if [disc OP_READC]
-  covr "read"  (str.==) if [disc OP_READ]
-  covr "putc"  (str.==) if [disc OP_PUTC]
-  covr "put"   (str.==) if [disc OP_PUT]
-  covr "disc"  (str.==) if [disc OP_DISC]
-  covr "argv"  (str.==) if [disc OP_ARGV]
-  covr "argc"  (str.==) if [disc OP_ARGC]
-  covr "envp"  (str.==) if [disc OP_ENVP]
-  covr "()"    (str.==) if [disc OP_CALLS]
-  covr "const" (str.==) if [disc OP_CONST]
-  covr "prop" (str.==) if [disc OP_CONST]
-  covr "ret"   (str.==) if [disc OP_RET]
-  covr "quit"  (str.==) if [disc OP_QUIT]
-  covr "if"    (str.==) if [disc OP_IF]
-  covr "cycl"  (str.==) if [disc OP_CYCL]
-  covr "!="    (str.==) if [disc OP_NQ]
-  covr "=="    (str.==) if [disc OP_EQ]
-  covr "<"     (str.==) if [disc OP_LT]
-  covr ">"     (str.==) if [disc OP_GT]
-  covr "&&"    (str.==) if [disc OP_AND]
-  covr "||"    (str.==) if [disc OP_OR]
-  covr "!"     (str.==) if [disc OP_NOT]
-  covr "sys0"  (str.==) if [disc OP_SYS0]
-  covr "sys1"  (str.==) if [disc OP_SYS1]
-  covr "sys2"  (str.==) if [disc OP_SYS2]
-  covr "sys3"  (str.==) if [disc OP_SYS3]
-  covr "sys4"  (str.==) if [disc OP_SYS4]
-  covr "sys5"  (str.==) if [disc OP_SYS5]
-  covr "sys6"  (str.==) if [disc OP_SYS6]
+  covr "nop"   (str.eq) if [disc OP_NOP]
+  covr "}"     (str.eq) if [disc OP_NOP]
+  covr "-"     (str.eq) if [disc OP_SUB]
+  covr "*"     (str.eq) if [disc OP_MUL]
+  covr "/"     (str.eq) if [disc OP_DIV]
+  covr "+"     (str.eq) if [disc OP_PLUS]
+  covr "."     (str.eq) if [disc OP_PLUS]
+  covr "swap"  (str.eq) if [disc OP_SWAP]
+  covr "dump"  (str.eq) if [disc OP_DUMP]
+  covr "copy"  (str.eq) if [disc OP_COPY]
+  covr "covr"  (str.eq) if [disc OP_COVR]
+  covr "readc" (str.eq) if [disc OP_READC]
+  covr "read"  (str.eq) if [disc OP_READ]
+  covr "putc"  (str.eq) if [disc OP_PUTC]
+  covr "put"   (str.eq) if [disc OP_PUT]
+  covr "disc"  (str.eq) if [disc OP_DISC]
+  covr "argv"  (str.eq) if [disc OP_ARGV]
+  covr "argc"  (str.eq) if [disc OP_ARGC]
+  covr "envp"  (str.eq) if [disc OP_ENVP]
+  covr "()"    (str.eq) if [disc OP_CALLS]
+  covr "const" (str.eq) if [disc OP_CONST]
+  covr "prop"  (str.eq) if [disc OP_CONST]
+  covr "ret"   (str.eq) if [disc OP_RET]
+  covr "quit"  (str.eq) if [disc OP_QUIT]
+  covr "if"    (str.eq) if [disc OP_IF]
+  covr "cycl"  (str.eq) if [disc OP_CYCL]
+  covr "!="    (str.eq) if [disc OP_NQ]
+  covr "=="    (str.eq) if [disc OP_EQ]
+  covr "<"     (str.eq) if [disc OP_LT]
+  covr ">"     (str.eq) if [disc OP_GT]
+  covr "&&"    (str.eq) if [disc OP_AND]
+  covr "||"    (str.eq) if [disc OP_OR]
+  covr "!"     (str.eq) if [disc OP_NOT]
+  covr "sys0"  (str.eq) if [disc OP_SYS0]
+  covr "sys1"  (str.eq) if [disc OP_SYS1]
+  covr "sys2"  (str.eq) if [disc OP_SYS2]
+  covr "sys3"  (str.eq) if [disc OP_SYS3]
+  covr "sys4"  (str.eq) if [disc OP_SYS4]
+  covr "sys5"  (str.eq) if [disc OP_SYS5]
+  covr "sys6"  (str.eq) if [disc OP_SYS6]
   swap disc
   
   ret
@@ -200,30 +196,21 @@ end
 
 proc getopname 1 1
   (str.int)
+  {TODO: reimplement}
 
   ret
 end
 
 proc identstackpush 1 0
-  identstackrsp read identstack +
-  swap
-  put disc
-  
-  identstackrsp read
-  8 +
-  identstackrsp swap put disc
+  identstack swap (arr.pushint)
+  disc
+
   ret
 end
 
 proc identstackpop 0 1
-  identstackrsp read 0 !=
-    "stack underflow" (assert)
-  
-  identstackrsp read 8 -
-  identstackrsp swap put disc
-  identstackrsp read identstack +
-  read
-  
+  identstack (arr.popaddr) read swap disc
+
   ret
 end
 
@@ -315,8 +302,6 @@ proc setclassname 0 0
   ret
 end
 
-gvar tmpprocbuffer 128
-
 proc getexpandedname 1 1
   tmpprocbuffer (str.clear) disc
   classname (str.len) 0 != if [
@@ -402,7 +387,7 @@ proc addenum 0 0
     ret
   ]
 
-  cmdbuffer "end" (str.==) if [
+  cmdbuffer "end" (str.eq) if [
     parseflags
     CF_NONE
     put disc
@@ -1323,10 +1308,10 @@ end
 proc checkcmd 0 1
   {""}
   cmdbuffer readc 34 == cmdbuffer (str.last) 34 != &&
-  cmdbuffer """ (str.==) ||
+  cmdbuffer """ (str.eq) ||
   {'  '}
   cmdbuffer readc 39 == cmdbuffer (str.last) 39 != && ||
-  cmdbuffer "'" (str.==) ||
+  cmdbuffer "'" (str.eq) ||
   {[]}
   cmdbuffer readc 91 == cmdbuffer (str.last) 93 != && ||
   {{}}
@@ -1339,10 +1324,10 @@ end
 proc checkblockcmd 0 1
   {""}
   blockbuffer readc 34 == blockbuffer (str.last) 34 != &&
-  blockbuffer """ (str.==) ||
+  blockbuffer """ (str.eq) ||
   {''}
   blockbuffer readc 39 == blockbuffer (str.last) 39 != && ||
-  blockbuffer "'" (str.==) ||
+  blockbuffer "'" (str.eq) ||
   {[]}
   blockbuffer readc 91 == blockbuffer (str.last) 93 != && ||
   {{}}
@@ -1805,27 +1790,27 @@ if so returns 0 and runs argument
 otherwise returns 1
 }
 proc applyarg 2 2
-  copy "-h" (str.==)
+  copy "-h" (str.eq)
   if [disc 1 (help) 0 ret]
-  copy "-v" (str.==)
+  copy "-v" (str.eq)
   if [disc 100 (help) 0 ret]
-  copy "-i" (str.==)
+  copy "-i" (str.eq)
   if [disc 1 + (setinclude) 0 ret]
-  copy "--include" (str.==)
+  copy "--include" (str.eq)
   if [disc 1 + (setinclude) 0 ret]
-  copy "--help" (str.==)
+  copy "--help" (str.eq)
   if [disc 1 (help) 0 ret]
-  copy "-o" (str.==)
+  copy "-o" (str.eq)
   if [disc 1 + (setoutput) 0 ret]
-  copy "--output" (str.==)
+  copy "--output" (str.eq)
   if [disc 1 + (setoutput) 0 ret]
-  copy "-s" (str.==)
+  copy "-s" (str.eq)
   if [disc (setsilent) 0 ret]
-  copy "--silent" (str.==)
+  copy "--silent" (str.eq)
   if [disc (setsilent) 0 ret]
-  copy "-a" (str.==)
+  copy "-a" (str.eq)
   if [disc (setasm) 0 ret]
-  copy "--asm" (str.==)
+  copy "--asm" (str.eq)
   if [disc (setasm) 0 ret]
   disc
   1 ret
@@ -1891,6 +1876,7 @@ proc initobjs 0 0
   gvarTab  20 300000 (tab.new) disc
   constTab 20 300000 (tab.new) disc
   procTab  20 300000 (tab.new) disc
+  identstack 8 4096  (arr.new) disc
   
   ret
 end
