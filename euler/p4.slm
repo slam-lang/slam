@@ -9,9 +9,9 @@ end
 proc checkpal 1 0
   copy (max) read < if [disc ret]
   
-  copy (strint)
+  copy (str.int)
   copy
-  copy (strlen) + 1 -
+  copy (str.len) + 1 -
   swap 1 -
   swap 1 +
   
@@ -64,7 +64,7 @@ proc main 0 0
     copy 999 <
   end
   disc
-  (max) read (printint)
+  (max) read (str.printint)
 
   ret
 end

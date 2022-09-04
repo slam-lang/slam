@@ -18,7 +18,7 @@ proc collatz 1 1
 
     readc 0 != if [
       copy vals + readc +
-      swap dis_c
+      swap disc
       ret
     ]
 
@@ -38,9 +38,9 @@ proc main 0 0
     1 +
 
     copy (collatz)
-    covr (strint) (print)
-    ":" (print)
-    copy (strint) (println)
+    covr (str.int) (str.print)
+    ":" (str.print)
+    copy (str.int) (str.println)
     copy max read > if [
       covr max swap put disc
     ]
@@ -51,7 +51,7 @@ proc main 0 0
   end
   disc
 
-  max read (printint)
+  max read (str.printint)
 
   ret
 end

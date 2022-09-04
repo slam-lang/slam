@@ -26,7 +26,7 @@ proc main 0 0
 
   -
 
-  (printint)
+  (str.printint)
 
   ret
 end

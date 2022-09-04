@@ -31,6 +31,7 @@ OP_DISC = iota()
 OP_ARGV = iota()
 OP_ARGC = iota()
 OP_ENVP = iota()
+OP_LMEM = iota()
 
 OP_PUSHP = iota()
 OP_CALLS = iota()
@@ -372,6 +373,10 @@ def compile_inst(out, op, ip, start):
             strs.append(value + b"\x00")
     elif op[0] == OP_RET:
         out.write("    mov rax, [ret_stack_rsp]\n")
+        out.write("    sub rax, %d\n" % op[1])
+        out.write("    mov qword [ret_stack_rsp], rax\n")
+
+        out.write("    mov rax, [ret_stack_rsp]\n")
         out.write("    sub rax, 8\n")
         out.write("    mov qword [ret_stack_rsp], rax\n")
         out.write("    add rax, 8\n")
@@ -380,6 +385,13 @@ def compile_inst(out, op, ip, start):
         locs[op[1]] = start + "_%d" % ip
     elif op[0] == OP_JUMPX:
         out.write("    jmp %s\n" % locs[op[1]])
+    elif op[0] == OP_LMEM:
+        out.write("    mov rax, [ret_stack_rsp]\n")
+        out.write("    add rax, 8\n")
+        out.write("    push rax\n")
+        out.write("    add rax, 8\n")
+        out.write("    add rax, %d\n" % op[1])
+        out.write("    mov qword [ret_stack_rsp], rax\n")
     elif op[0] == OP_SYS0:
         out.write("    pop rax\n")
         out.write("    syscall\n")
@@ -639,6 +651,7 @@ op_values = {
         OP_OR:   (2, 1),
         OP_NOT:  (1, 1),
         OP_IF:   (1, 0),
+        OP_LMEM: (0, 1),
         OP_JUMPX:(0, 0),
         OP_LOCX: (0, 0),
         OP_CYCL: (0, 0),
@@ -705,10 +718,12 @@ def check_proc(program, args, rets, values):
 
 proc_values = {}
 gvars = []
+lvars = {}
 
 def parse_program(text, consts = {}, multi = False):
     global proc_values
     global gvars
+    global lvars
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
@@ -747,18 +762,22 @@ def parse_program(text, consts = {}, multi = False):
 
     do_ids = []
     prefix = ""
+    lmem = 0
 
     while idx < len(data):
         func = data[idx]
         idx += 1
 
         if func == "": continue
-        
+
         if func == "class":
             ident_stack.append("class")
             name = data[idx]
             idx += 1
             prefix = name + "."
+
+        elif func == "ret":
+            proc_block.append((OP_RET, lmem))
 
         elif func == "const" or func == "prop":
             name = data[idx]
@@ -801,10 +820,17 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
             result.append((OP_PROC, prefix + name))
             result.append((OP_GPTR, int(data[idx])))
-            result.append((OP_RET, ))
+            result.append((OP_RET, 0))
             idx += 1
             proc_values[prefix + name] = (0, 1)
             gvars.append(prefix + name)
+        
+        elif func == "lvar":
+            name = data[idx]
+            idx += 1
+            lvars[name] = int(data[idx])
+            lmem += int(data[idx])
+            idx += 1
 
         elif func == "end":
             if ident_stack[-1] == "proc":
@@ -820,6 +846,8 @@ def parse_program(text, consts = {}, multi = False):
                 result.extend(proc_block)
                 proc_block = []
                 proc_args = -1
+                lvars = {}
+                lmem = 0
             elif ident_stack[-1] == "do":
                 proc_block.append((OP_IF, ))
                 proc_block.append((OP_JUMPX, do_ids.pop()))
@@ -830,10 +858,10 @@ def parse_program(text, consts = {}, multi = False):
             ident_stack.pop()
 
         elif func[0] == "\"" and func[-1] == "\"":
-            proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
+            proc_block.append((OP_CONST, func[1:-1].replace("\\e", "\033").replace("\\n", "\n").replace("\\t", "\t")))
         
         elif func[0] == "\'" and func[-1] == "\'":
-            proc_block.append((OP_PUSH, len(func[1:-1].replace("\\n", "\n").replace("\\t", "\t"))))
+            proc_block.append((OP_PUSH, len(func[1:-1].replace("\\e", "\033").replace("\\n", "\n").replace("\\t", "\t"))))
             proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
         
         elif func == "proc":
@@ -846,6 +874,7 @@ def parse_program(text, consts = {}, multi = False):
             print(f"proc `{data[idx - 3]}`, {proc_args} => {proc_rets}")
             ident_stack.append("proc")
             proc_values[prefix + data[idx - 3]] = (proc_args, proc_rets)
+            lmem = 0
 
         elif func == "do":
             do_ids.append(last_jumpx)
@@ -874,6 +903,9 @@ def parse_program(text, consts = {}, multi = False):
                 proc_block.append((OP_CALL, func))
             else:
                 proc_block.append((OP_PUSHP, func))
+
+        elif func in lvars:
+            proc_block.append((OP_LMEM, lvars[func]))
             
         elif func in consts:
             proc_block.append((OP_PUSH, consts[func]))

@@ -1,6 +1,8 @@
 inc lib/stdlib.slm
 inc lib/tables.slm
 inc lib/arrays.slm
+inc lib/log.slm
+inc lib/os.slm
 
 {The Slim Compiler, written in Slim}
 
@@ -63,6 +65,7 @@ enum
 
     IDENT_INC 
     IDENT_GVAR
+    IDENT_LVAR
     IDENT_CLASS
     IDENT_ENUM
     IDENT_PROC
@@ -88,6 +91,9 @@ enum
     CF_GVAR_VALUE
     CF_GVAR_NAME
 
+    CF_LVAR_VALUE
+    CF_LVAR_NAME
+
     CF_ENUM_CONTENT
     CF_ENUM_START
 
@@ -95,9 +101,11 @@ enum
 end
 
 gvar gvarTab 300000
+gvar lvarTab 100000
 gvar constTab 300000
 gvar procTab 300000
 
+const READSIZE 2047
 gvar cmdbuffer 2048
 gvar blockbuffer 2048
 gvar readbuffer 2048
@@ -126,10 +134,11 @@ gvar parsesubaddr 8
 gvar parsestringidx 8
 gvar parsememory 8
 
+const LOCAL_CAP 1024
+gvar parsememorylocal 8
+
 gvar constname 64
 gvar enumvalue 8
-
-const READSIZE 2047
 
 proc getescape 1 1
   copy 101 == if [ disc 27 ret ]
@@ -147,6 +156,7 @@ proc getnameop 1 1
   covr "enum"  (str.eq) if [disc IDENT_ENUM]
   covr "var"   (str.eq) if [disc IDENT_VAR]
   covr "gvar"  (str.eq) if [disc IDENT_GVAR]
+  {covr "lvar"  (str.eq) if [disc IDENT_LVAR]}
   covr "class" (str.eq) if [disc IDENT_CLASS]
   
   covr "nop"   (str.eq) if [disc OP_NOP]
@@ -261,9 +271,10 @@ proc exit 0 0
 end
 
 proc noprocblock 0 0
-  procTab (tab.print)
-  "proc not found: " (str.print)
-  blockbuffer 1 + (str.println)
+  0 1 (log.level)
+  "ERR" "Proc not found: " (log.msg)
+  blockbuffer 1 + (log.cat)
+  (log.log)
   (exit)
 
   ret
@@ -271,11 +282,12 @@ end
 
 
 proc noproc 0 0
-  procTab (tab.print)
-  "proc not found: " (str.print)
-  cmdbuffer 1 + (str.println)
+  0 1 (log.level)
+  "ERR" "Proc not found: " (log.msg)
+  cmdbuffer 1 + (log.cat)
+  (log.log)
   (exit)
-
+  
   ret
 end
 
@@ -366,6 +378,23 @@ proc addgvar 0 0
   ret
 end
 
+proc addlvar 0 0
+  parseflags
+  copy read 1 -
+  copy CF_LVAR_VALUE 1 - == if [
+    lvarTab constname parsememorylocal read (tab.put) disc
+    cmdbuffer (tonum)
+    parsememorylocal read +
+    parsememorylocal swap put disc
+    disc CF_NONE
+  ] copy CF_LVAR_NAME 1 - == if [
+    cmdbuffer constname (str.clear) swap (str.copy) disc disc
+  ]
+  put disc
+
+  ret
+end
+
 proc addenumstart 0 0
   enumvalue
   cmdbuffer (tonum)
@@ -412,11 +441,9 @@ proc addinc 0 0
 end
 
 proc addvar 0 0
-  '    mov rax, mem\n' (writeout)
-  '    add rax, ' (writeout)
+  '    push mem+' (writeout)
   parsememory read (str.int) copy (str.len) swap (writeout)
   (writeoutln)
-  '    push rax\n' (writeout)
 
   cmdbuffer (tonum)
   parsememory read +
@@ -432,8 +459,8 @@ end
 
 proc asmheader 0 0
     stringbufferlen 1 put disc
-    'BITS 64\n' (writeout)
-    'segment .text\n' (writeout)
+    'format ELF64 executable 3\n' (writeout)
+    'segment readable executable\n' (writeout)
     'print:\n' (writeout)
     '    mov r10, rsp\n' (writeout)
     '    sub rsp, 8\n' (writeout)
@@ -453,8 +480,8 @@ proc asmfooter 0 0
   (getaddr) (str.int) copy (str.len) swap (writeout)
   ':\n' (writeout)
   '    ret\n' (writeout)
-  'global _start\n' (writeout)
-  '_start:\n' (writeout)
+  'entry start\n' (writeout)
+  'start:\n' (writeout)
   '    mov qword [args_ptr], rsp\n' (writeout)
   '    mov qword [ret_stack_rsp], ret_stack\n' (writeout)
   '    mov rax, [ret_stack_rsp]\n' (writeout)
@@ -471,13 +498,13 @@ proc asmfooter 0 0
   '    mov rax, 60\n' (writeout)
   '    mov rdi, 0\n' (writeout)
   '    syscall\n' (writeout)
-  'segment .data\n' (writeout)
-  stringbuffer stringbufferlen read swap (writeout)
-  'segment .bss\n' (writeout)
-  'args_ptr: resq 1\n' (writeout)
-  'ret_stack_rsp: resq 1\n' (writeout)
-  'ret_stack: resb 65536\n' (writeout)
-  'mem: resb ' (writeout)
+  'segment readable writeable\n' (writeout)
+  stringbuffer 1 + stringbufferlen read 1 - swap (writeout)
+  'args_ptr: rq 1\n' (writeout)
+  'ret_stack_rsp: rq 1\n' (writeout)
+  'ret_stack: rb 65536\n' (writeout)
+  (writeoutln)
+  'mem: rb ' (writeout)
   parsememory read (str.int) copy (str.len) swap (writeout)
   (writeoutln)
   disc
@@ -497,6 +524,10 @@ proc endopasm 1 0
   ]
   copy IDENT_CLASS == if [
     classname (str.clear) disc
+  ]
+  copy IDENT_PROC == if [
+    lvarTab 50 (mem.zero)
+    lvarTab 20 100000 (tab.new) disc
   ]
   disc
   ret
@@ -564,12 +595,18 @@ proc checkbadblock 1 1
     disc OP_PUSH
     ret
   ] disc
+  lvarTab blockbuffer (tab.in) if [
+    '    push lmem+' (writeout)
+    lvarTab blockbuffer (tab.get) swap disc (str.int) copy (str.len) swap (writeout)
+    (writeoutln) disc
+    
+    disc OP_NOP
+    ret
+  ] disc
   gvarTab blockbuffer (tab.in) if [
-    '    mov rax, mem\n' (writeout)
-    '    add rax, ' (writeout)
+    '    push mem+' (writeout)
     gvarTab blockbuffer (tab.get) swap disc (str.int) copy (str.len) swap (writeout)
     (writeoutln) disc
-    '    push rax\n' (writeout)
     
     disc OP_NOP
     ret
@@ -686,7 +723,8 @@ proc getblockasm 1 1
     '    mov rax, [ret_stack_rsp]\n' (writeout)
     '    sub rax, 8\n' (writeout)
     '    mov qword [ret_stack_rsp], rax\n' (writeout)
-    '    jmp [rax + 8]\n' (writeout)
+    '    add rax, 8\n' (writeout)
+    '    jmp qword [rax]\n' (writeout)
     ret
   ] copy OP_DISC == if [
     '    pop rax\n' (writeout)
@@ -834,6 +872,11 @@ proc getblockasm 1 1
     CF_GVAR_NAME
     put disc
     ret
+  ] copy IDENT_LVAR == if [
+    parseflags
+    CF_LVAR_NAME
+    put disc
+    ret
   ] copy IDENT_VAR == if [
     parseflags
     CF_VAR
@@ -969,6 +1012,8 @@ proc parseblockcmd 0 0
     blockbuffer (getnameop)
     covr CF_NONE == if (getblockasm)
     covr CF_VAR == if (addvar)
+    covr CF_LVAR_VALUE == if (addlvar)
+    covr CF_LVAR_NAME == if (addlvar)
     disc disc
   ]
   blockbuffer (str.clear) disc
@@ -996,12 +1041,18 @@ proc checkbad 1 1
     disc OP_PUSH
     ret
   ] disc
+  lvarTab cmdbuffer (tab.in) if [
+    '    push lmem+' (writeout)
+    lvarTab cmdbuffer (tab.get) swap disc (str.int) copy (str.len) swap (writeout)
+    (writeoutln) disc
+    
+    disc OP_NOP
+    ret
+  ] disc
   gvarTab cmdbuffer (tab.in) if [
-    '    mov rax, mem\n' (writeout)
-    '    add rax, ' (writeout)
+    '    push mem+' (writeout)
     gvarTab cmdbuffer (tab.get) swap disc (str.int) copy (str.len) swap (writeout)
     (writeoutln) disc
-    '    push rax\n' (writeout)
     
     disc OP_NOP
     ret
@@ -1135,7 +1186,7 @@ proc getcmdasm 1 1
     '    sub rax, 8\n' (writeout)
     '    mov qword [ret_stack_rsp], rax\n' (writeout)
     '    add rax, 8\n' (writeout)
-    '    jmp [rax]\n' (writeout)
+    '    jmp qword [rax]\n' (writeout)
     ret
   ] copy OP_DISC == if [
     '    pop rax\n' (writeout)
@@ -1284,6 +1335,11 @@ proc getcmdasm 1 1
   ] copy IDENT_DO == if [
     parseaddr read 1 - (identstackpush)
     IDENT_DO (identstackpush)
+    ret
+  ] copy IDENT_LVAR == if [
+    parseflags
+    CF_LVAR_NAME
+    put disc
     ret
   ] copy IDENT_GVAR == if [
     parseflags
@@ -1527,6 +1583,8 @@ proc parsecmd 0 0
     covr CF_CONST_NAME == if (addconst)
     covr CF_INC == if (addinc)
     covr CF_VAR == if (addvar)
+    covr CF_LVAR_NAME == if (addlvar)
+    covr CF_LVAR_VALUE == if (addlvar)
     covr CF_GVAR_NAME == if (addgvar)
     covr CF_GVAR_VALUE == if (addgvar)
     covr CF_ENUM_CONTENT == if (addenum)
@@ -1687,7 +1745,7 @@ proc setoutput 1 1
     copy argc 1 - > if [3 (help)]
 
     outputbuffer
-    covr (args)
+    covr (os.args)
     (str.copy)
 
     disc
@@ -1701,8 +1759,9 @@ proc openinput 1 0
   disc
 
   cmdlineflags read ! if [
-    "[SLM]\ " (str.print)
-    copy (str.println)
+    0 1 (log.level)
+    "SLM" covr (log.msg)
+    (log.log)
   ]
 
   {open input}
@@ -1756,7 +1815,7 @@ proc setinclude 1 1
     copy argc 1 - > if [3 (help)]
 
     includebuffer
-    covr (args)
+    covr (os.args)
     (str.copy)
 
     disc
@@ -1770,7 +1829,7 @@ proc setinput 1 0
 
   { set input to argument if its not a flag }
   inputbuffer
-  covr (args)
+  covr (os.args)
   (str.copy)
 
   { clean that }
@@ -1818,19 +1877,18 @@ end
 
 proc nasm 0 0
   cmdtmpbuffer
-  "/usr/bin/nasm" put 8 +
-  "-gdwarf" put 8 +
-  "-f" put 8 +
-  "elf64" put 8 +
-  "-o" put 8 +
-  "temp.o" put 8 +
+  "/usr/bin/fasm" put 8 +
+  "-m" put 8 +
+  "524288" put 8 + 
   "temp.nasm" put 8 +
+  "temp.tmp" put 8 +
+
   NULL put
   disc
 
   cmdtmpbuffer
-  cmdlineflags read 1 && ! if [(execcmdecho) 0]
-  cmdlineflags read 1 && if [(execcmd) 0]
+  cmdlineflags read 1 && ! if [(os.execcmdecho) 0]
+  cmdlineflags read 1 && if [(os.execcmd) 0]
   disc
 
   ret
@@ -1840,24 +1898,19 @@ proc ld 0 0
   162 sys0 disc
 
   cmdtmpbuffer
-  "/usr/bin/ld" put 8 +
-  "-dynamic-linker" put 8 +
-  "/lib64/ld-linux-x86-64.so.2" put 8 +
-  "-o" put 8 +
+  "/usr/bin/mv" put 8 +
+  "temp.tmp" put 8 +
   outputbuffer put 8 +
-  "-lc" put 8 +
-  "temp.o" put 8 +
   NULL put
   disc
 
   cmdtmpbuffer
-  cmdlineflags read 1 && ! if [(execcmdecho) 0]
-  cmdlineflags read 1 && if [(execcmd) 0]
+  cmdlineflags read 1 && ! if [(os.execcmdecho) 0]
+  cmdlineflags read 1 && if [(os.execcmd) 0]
   disc
 
   cmdtmpbuffer
   "/usr/bin/rm" put 8 +
-  "temp.o" put 8 +
   cmdlineflags read 2 && 0 == if [
     "temp.nasm" put 8 +
   ]
@@ -1865,8 +1918,8 @@ proc ld 0 0
   disc
 
   cmdtmpbuffer
-  cmdlineflags read 1 && ! if [(execcmdecho) 0]
-  cmdlineflags read 1 && if [(execcmd) 0]
+  cmdlineflags read 1 && ! if [(os.execcmdecho) 0]
+  cmdlineflags read 1 && if [(os.execcmd) 0]
   disc
 
   ret
@@ -1874,6 +1927,7 @@ end
 
 proc initobjs 0 0
   gvarTab  20 300000 (tab.new) disc
+  lvarTab  20 100000 (tab.new) disc
   constTab 20 300000 (tab.new) disc
   procTab  20 300000 (tab.new) disc
   identstack 8 4096  (arr.new) disc
@@ -1894,7 +1948,7 @@ proc main 0 0
     1 +
 
     { get argument }
-    copy (args)
+    copy (os.args)
 
     (applyarg) if [copy (setinput)]
 

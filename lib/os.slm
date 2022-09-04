@@ -1,0 +1,109 @@
+class os
+  gvar waitsig 8
+  
+  proc fork 0 1
+    57 sys0
+  
+    ret
+  end
+  
+  proc deverr 0 0
+    "ERROR: cant open /dev/null" (str.println)
+  
+    0 1 - quit
+    disc
+    ret
+  end
+  
+  {
+  args: ptr[stringList]
+  returns:
+  
+  runs a command
+  }
+  proc execcmd 1 0
+    (os.fork)
+    copy 0 == if [
+      {child}
+  
+      1
+  
+      0
+      0
+      "/dev/null"
+      0 100 -
+      257 sys4
+      
+      copy 0 < if (os.deverr)
+     
+      33 sys2 0 < if (os.deverr)
+  
+      covr envp swap copy read
+    
+      59 sys3 disc
+      disc disc
+      0 1 -
+      quit
+    ]
+    copy 0 > if [
+      {parent}
+  
+      NULL
+      0
+  
+      os.waitsig
+  
+      0 1 -
+      61
+      sys4 0 < if (os.deverr)
+      disc disc
+      ret
+    ]
+    0 < if [
+      "ERROR" (str.println)
+    ]
+    disc
+    ret
+  end
+
+  {
+  args: ptr[stringList]
+  returns: 
+  
+  prints a command then runs it
+  }
+  proc execcmdecho 1 0
+    0 1 (log.level)
+    "CMD" "" (log.msg)
+    copy
+    do
+      copy read (log.cat)
+      8 +
+       
+      copy read NULL !=
+      copy if [" " (log.cat)]
+    end
+    disc
+    (log.log)  
+
+    (os.execcmd)
+  
+    ret
+  end
+
+  {
+  args: int
+  result: pointer
+  
+  gets the nth arguent from the command line
+  }
+  proc args 1 1
+    copy argc - 0 < ! if [copy (str.printint)]
+    copy argc - 0 < "Bad arg" (assert)
+    8 * 
+    argv +
+  
+    read
+    ret
+  end
+end
