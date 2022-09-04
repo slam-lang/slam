@@ -1,15 +1,19 @@
+{
+The Slim Compiler, written in Slim
+
+Preston Precourt (prestosilver) 2022
+
+TODO: Fix inc        
+TODO: Track stack    
+TODO: Local variables
+TODO: rewrite props  
+}
+
 inc lib/stdlib.slm
 inc lib/tables.slm
 inc lib/arrays.slm
 inc lib/log.slm
 inc lib/os.slm
-
-{The Slim Compiler, written in Slim}
-
-{TODO: Fix inc}
-{TODO: Track stack}
-{TODO: Local variables}
-{TODO: rewrite props}
 
 proc version 0 1
   "0.2.2" ret
