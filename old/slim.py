@@ -737,10 +737,11 @@ def parse_program(text, consts = {}, multi = False):
         func = tmp_data[idx]
         idx += 1
         if func == "": continue
-        while func == "\"" or func == "\'" \
+        while func == "\"" or func == "`" or func == "'" \
            or func[-1] == "\\" \
            or (func[0] == "\"" and func[-1] != "\"") \
-           or (func[0] == "\'" and func[-1] != "\'") \
+           or (func[0] == "`" and func[-1] != "`") \
+           or (func[0] == "'" and func[-1] != "'") \
            or (func[0] == "[" and func[-1] != "]") \
            or (func[0] == "{" and func[-1] != "}"):
             if func[-1] == "\\":
@@ -860,7 +861,10 @@ def parse_program(text, consts = {}, multi = False):
         elif func[0] == "\"" and func[-1] == "\"":
             proc_block.append((OP_CONST, func[1:-1].replace("\\e", "\033").replace("\\n", "\n").replace("\\t", "\t")))
         
-        elif func[0] == "\'" and func[-1] == "\'":
+        elif func[0] == "'" and func[-1] == "'" and len(func) == 3:
+            proc_block.append((OP_PUSH, ord(func[1])))
+        
+        elif func[0] == "`" and func[-1] == "`":
             proc_block.append((OP_PUSH, len(func[1:-1].replace("\\e", "\033").replace("\\n", "\n").replace("\\t", "\t"))))
             proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
         

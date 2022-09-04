@@ -110,13 +110,13 @@ class str
   proc printinthex 1 0
     do
       16 /
-      copy 9 > if [64 +]
+      copy 9 > if [87 +]
       copy 10 < if [48 +]
       (str.gettmp)
       swap
       putc disc
       (str.inctmpidx)
-      
+
       copy 0 !=
     end
     disc
@@ -335,18 +335,40 @@ proc read 3 1
   ret
 end
 
+gvar tempmin 1
+gvar tempmax 1
+
 {
 args: ptr[string]
 returns: int[val]
 
 returns 1 if the string is a number
 }
-proc alphanum 1 1
+proc isnum 1 1
+  tempmin 48 putc disc
+  tempmax 58 putc disc
+
+  copy copy (str.len) + 1 -
+  readc 
+  copy 98 == if [
+    tempmax 49 putc disc
+  ]
+  copy 104 == if [
+    tempmax 70 putc disc
+  ]
+  disc
   do
     copy readc
-    copy 48 <
-    covr 58 >
-    + 0 != if [disc disc 0 ret]
+    copy tempmin readc <
+    covr tempmax readc >
+    || if [
+      disc
+      copy readc 98 ==  
+      covr readc 104 == ||
+      covr (str.len) 1 == &&
+      swap disc
+      ret
+    ]
     disc
 
     1 +
@@ -358,6 +380,8 @@ proc alphanum 1 1
   ret
 end
 
+gvar tempmul 1
+
 {
 args: ptr[string]
 returns: int[value]
@@ -365,12 +389,20 @@ returns: int[value]
 returns the value of a int
 }
 proc tonum 1 1
-  copy (alphanum) ! if [copy (str.println)]
-  copy (alphanum) "String is not a number" (assert)
+  copy (isnum) ! if [copy (str.println)]
+  copy (isnum) "String is not a number" (assert)
+    
+  tempmul 10 putc disc
+  
+  copy copy (str.len) +
+  copy readc 98 == if [
+    tempmul 2 putc disc
+  ]
+  disc
   
   0
   do
-    10 *
+    tempmul readc *
     covr readc
     48 - +
     

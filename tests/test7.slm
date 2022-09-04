@@ -1,0 +1,8 @@
+inc lib/math.slm
+
+proc main 0 0
+  10000 (float.fromint)
+  (float.print)
+
+  ret
+end

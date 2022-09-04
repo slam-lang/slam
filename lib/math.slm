@@ -1,0 +1,135 @@
+class math
+  gvar temp 8
+
+  {
+  args: int[a] int[b]
+  result: int
+  
+  returns a ^ b
+  }
+  proc pow 2 1
+    math.temp swap put disc
+    copy
+    do
+      covr *
+
+      math.temp
+      math.temp read 1 -
+      put disc
+      math.temp read
+      0 >
+    end
+    swap disc
+
+    ret
+  end
+  
+  proc log2 1 1
+    0 1 -
+    do
+      swap 2 / disc
+      swap 1 +
+
+      covr 0 !=
+    end
+    swap disc
+
+    ret
+  end
+end
+
+class float
+  proc sign 1 1
+    4294967296 &&
+    0 !=
+
+    ret
+  end
+
+  proc exp 1 1
+    8388608 / disc
+    511 {2^9 - 1}
+    &&
+
+    ret
+  end
+
+  proc mant 1 1
+    16777215 {2 ^ 24 - 1}
+    &&
+
+    ret
+  end
+
+  gvar temp 8
+  gvar working 8
+
+  proc print 1 0
+    float.working swap put disc
+
+    float.working read (float.sign) (str.printint)
+    float.working read (float.mant) (str.int) (str.print)
+    "*2^" (str.print)
+    float.working read (float.exp) 127 - (str.printint)
+    float.working read (str.printint) 
+    ret
+  end
+
+  proc fromint 1 1
+    copy 0 == if [ret 0]
+    float.temp swap put disc
+    float.working 0 put disc
+    
+    {sign}
+    float.temp read
+    4294967296 &&
+    float.working read ||
+    float.working swap
+    put disc
+    
+    {exponent}
+    float.temp read (math.log2)
+    127 +
+    8388608 * {2 ^ 23}
+    float.working read ||
+    float.working swap
+    put disc
+
+    {mantissa}
+    float.working read (float.exp) 128 -
+    2 swap (math.pow)
+    float.temp read ^
+
+    float.working read (float.exp) 127 - 23 < !
+    if [
+      float.working read (float.exp) 127 - 23 -
+      do 
+        swap 2 / disc
+        swap 1 -
+        copy
+        0 >
+      end
+      disc
+    ]
+    float.working read (float.exp) 127 - 23 <
+    if [
+      float.working read (float.exp) 127 - 23 swap -
+      do 
+        swap 2 *
+        swap 1 -
+        copy
+        0 >
+      end
+      disc
+    ]
+    16777215 {2 ^ 24 - 1}
+    &&
+
+    float.working read ||
+    float.working swap
+    put disc
+
+    float.working read
+    ret
+  end
+end
