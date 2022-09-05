@@ -1,0 +1,17 @@
+class str
+  prop Size 8
+  prop Data -1
+
+  {
+  args: ptr[size] ptr[cstr] ptr[str]
+  result: ptr[str]
+
+  creats a string from a ` string
+  }
+  proc new 3 1
+    disc
+    disc
+
+    ret
+  end
+end

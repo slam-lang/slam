@@ -67,11 +67,11 @@ class float
   proc print 1 0
     float.working swap put disc
 
-    float.working read (float.sign) (str.printint)
-    float.working read (float.mant) (str.int) (str.print)
-    "*2^" (str.print)
-    float.working read (float.exp) 127 - (str.printint)
-    float.working read (str.printint) 
+    float.working read (float.sign) (cstr.printint)
+    float.working read (float.mant) (cstr.int) (cstr.print)
+    "*2^" (cstr.print)
+    float.working read (float.exp) 127 - (cstr.printint)
+    float.working read (cstr.printint) 
     ret
   end
 

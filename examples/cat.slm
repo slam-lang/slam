@@ -18,7 +18,7 @@ proc main 0 0
     1 +
     copy (args)
     0 swap 0 swap
-    0 100 -
+    -100
     (open)
     (inputfd) swap put disc
     do

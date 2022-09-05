@@ -11,25 +11,25 @@ proc main 0 0
 
   disc array
 
-  "len: " (str.print)
-  (arr.len) (str.printint)
+  "len: " (cstr.print)
+  (arr.len) (cstr.printint)
 
   "44" (arr.push)
   "45" (arr.push)
   "46" (arr.push)
   "47" (arr.push)
 
-  "len: " (str.print)
-  (arr.len) (str.printint)
+  "len: " (cstr.print)
+  (arr.len) (cstr.printint)
 
   array (arr.print)
 
-  "poped: " (str.print)
+  "poped: " (cstr.print)
 
-  (arr.pop) (str.println)
+  (arr.pop) (cstr.println)
 
-  "len: " (str.print)
-  (arr.len) (str.printint)
+  "len: " (cstr.print)
+  (arr.len) (cstr.printint)
   
   array (arr.print)
 

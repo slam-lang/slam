@@ -5,10 +5,10 @@ gvar string 128
 proc main 0 0
   string
 
-  "foo\n" (str.concat)  
-  "bar\n" (str.concat)  
+  "foo\n" (cstr.concat)  
+  "bar\n" (cstr.concat)  
   
-  (str.print)
+  (cstr.print)
 
   ret
 end

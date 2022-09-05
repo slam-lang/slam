@@ -84,7 +84,7 @@ class arr
     
     arr.curtemp read
     arr.Max . read
-    > if ["ARRAY OVERFLOW" (str.println) -1 quit]
+    > if ["ARRAY OVERFLOW" (cstr.println) -1 quit]
     
     arr.curtemp read
     arr.Elem . read
@@ -128,7 +128,7 @@ class arr
     
     arr.curtemp read
     arr.Max . read
-    > if ["ARRAY OVERFLOW" (str.println) -1 quit]
+    > if ["ARRAY OVERFLOW" (cstr.println) -1 quit]
     
     arr.curtemp read
     arr.Elem . read
@@ -179,7 +179,7 @@ class arr
     copy
     arr.curtemp read
     arr.Size . read
-    > if [ "INDEX ERROR" (str.println) quit ]
+    > if [ "INDEX ERROR" (cstr.println) quit ]
     
     arr.curtemp read
     arr.Elem . read
@@ -197,21 +197,21 @@ class arr
   
   proc print 1 0
     arr.curtemp swap put disc
-    "[" (str.print)
+    "[" (cstr.print)
     arr.curtemp read
-    arr.Data . (str.print)
+    arr.Data . (cstr.print)
     
     arr.curtemp read
     arr.Size . read
 
     1 == if [
-      "]" (str.println)
+      "]" (cstr.println)
       ret
     ]
 
     0
     do
-      ", " (str.print)
+      ", " (cstr.print)
 
       1 +
       copy
@@ -221,7 +221,7 @@ class arr
     
       arr.curtemp read
       arr.Data .
-      + (str.print)
+      + (cstr.print)
  
       copy
       arr.curtemp read
@@ -230,7 +230,7 @@ class arr
     end
     disc
 
-    "]" (str.println)
+    "]" (cstr.println)
     
     ret
   end
@@ -305,4 +305,6 @@ class arr
     arr.elemtemp
     ret
   end
+
+  {TODO: proc in 2 2}
 end

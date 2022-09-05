@@ -51,7 +51,7 @@ class tab
     copy tab.curtmp
     read tab.Max .
     > if [
-      "TABLE OVERFLOW" (str.println)
+      "TABLE OVERFLOW" (cstr.println)
       disc disc disc -1 quit
     ]
     +
@@ -73,9 +73,9 @@ class tab
     tab.curtmp read
     tab.Entry . read
     
-    tab.entrytmp read (str.len) < if [
-      "STRING TOO LONG FOR TABLE" (str.println)
-      tab.entrytmp read (str.println)
+    tab.entrytmp read (cstr.len) < if [
+      "STRING TOO LONG FOR TABLE" (cstr.println)
+      tab.entrytmp read (cstr.println)
       -1
       quit
     ]
@@ -86,7 +86,7 @@ class tab
       (tab.curentryaddr)
   
       copy read NULL ==
-      swap tab.entrytmp read (str.eq) ||
+      swap tab.entrytmp read (cstr.eq) ||
       !
     end
   
@@ -94,7 +94,7 @@ class tab
     
     swap disc
   
-    tab.entrytmp read (str.copy) disc
+    tab.entrytmp read (cstr.copy) disc
     tab.curtmp read
     tab.Entry . read +
     tab.valuetmp read put disc
@@ -116,10 +116,10 @@ class tab
     do
       (tab.curentryaddr)
   
-      copy (str.print) ":" (str.print)
+      copy (cstr.print) ":" (cstr.print)
       tab.curtmp read
       tab.Entry . read +
-      read (str.printint)
+      read (cstr.printint)
   
       1 +
       (tab.curentryaddr)
@@ -141,13 +141,12 @@ class tab
     
     tab.curtmp read
     tab.Entry . read
-    tab.entrytmp read (str.len) < if [
-      "STRING TOO LONG FOR TABLE" (str.println)
-      tab.entrytmp read (str.println)
+    tab.entrytmp read (cstr.len) < if [
+      "STRING TOO LONG FOR TABLE" (cstr.println)
+      tab.entrytmp read (cstr.println)
       -1
       quit
     ]
-  
   
     -1
     do
@@ -156,7 +155,7 @@ class tab
   
       copy readc NULL == if [disc NULL ret]
   
-      tab.entrytmp read (str.eq) !
+      tab.entrytmp read (cstr.eq) !
     end
     (tab.curentryaddr)
     tab.curtmp read
@@ -188,16 +187,16 @@ class tab
       1 +
       (tab.curentryaddr)
   
-      copy readc NULL == if [disc disc 0 ret]
+      copy readc NULL == if [disc disc false ret]
   
-      tab.entrytmp read (str.eq) !
+      tab.entrytmp read (cstr.eq) !
     end
     disc
     disc
     
     tab.curtmp read
   
-    1
+    true
     ret
   end
   

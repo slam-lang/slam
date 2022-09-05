@@ -1,6 +1,6 @@
 inc lib/stdlib.slm
 
-proc temp 0 0
+proc temp 0 1
   var 8
   
   ret
@@ -19,7 +19,7 @@ proc main 0 0
     covr covr + 4000000 <
   end
 
-  (temp) read (str.printint)
+  (temp) read (cstr.printint)
 
   ret
 end

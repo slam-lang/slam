@@ -7,7 +7,7 @@ prints the number of arguments and then the arguments
 proc main 0 0
   "Arguments: " (str.print)
   argc (str.printint)
-  0 1 -
+  -1
   do
     1 +
     copy (args) (str.println)

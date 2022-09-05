@@ -1,0 +1,198 @@
+class sockaddr
+  prop family 2
+  prop port 2
+  prop addr 4
+  prop misc 8
+  
+  const FAMI_MASK 65535
+  const PORT_MASK 65535
+  const ADDR_MASK 4294967295
+
+  gvar temp 8
+
+  proc reset 1 1
+    copy 16 (mem.zero)
+
+    ret
+  end
+
+  proc setfamily 2 1
+    swap sockaddr.temp swap put disc
+
+    sockaddr.FAMI_MASK &&
+
+    sockaddr.temp read
+    sockaddr.family .
+    swap put disc
+
+    sockaddr.temp read
+    ret
+  end
+  
+  proc setaddr 2 1
+    swap sockaddr.temp swap put disc
+
+    sockaddr.ADDR_MASK &&
+
+    sockaddr.temp read
+    sockaddr.addr .
+    swap put disc
+
+    sockaddr.temp read
+    ret
+  end
+
+  proc setport 2 1
+    swap sockaddr.temp swap put disc
+    
+    copy 255 && 256 *
+    swap 256 / disc 255 &&
+    ||
+
+    sockaddr.PORT_MASK &&
+
+    sockaddr.temp read
+    sockaddr.port .
+    swap put disc
+
+    sockaddr.temp read
+    ret
+  end
+end
+
+class net
+  prop fd 8
+  prop connfd 8
+  prop servaddr 16
+  prop cliaddr 16
+  prop clilen 4
+  
+  const AF_INET 2
+  const SOCK_STREAM 1
+  const INADDR_ANY 0
+
+  gvar temp 8
+  gvar buff 8
+  gvar port 8
+  
+  {
+  args: ptr[data] int[port]
+  }
+  proc open 2 1
+    net.port swap put disc
+    net.temp swap put disc
+
+    0 net.SOCK_STREAM net.AF_INET sysc.SOCKET sys3
+
+    copy 0 < if [
+      "ERROR creating socket" (cstr.println)
+      -1 quit
+      {TODO: Log}
+    ]
+    
+    net.temp read net.fd .
+    swap
+    put disc
+    
+    net.temp read net.servaddr .
+    (sockaddr.reset)
+    
+    net.AF_INET
+    (sockaddr.setfamily)
+    
+    net.INADDR_ANY
+    (sockaddr.setaddr)
+    
+    net.port read
+    (sockaddr.setport)
+    disc
+
+    sockaddr.SIZE
+    net.temp read net.servaddr .
+    net.temp read net.fd . read
+    sysc.BIND sys3
+    0 < if [
+      "ERROR binding" (cstr.println)
+      -1 quit
+      {TODO: Log}
+    ]
+
+    5
+    net.temp read net.fd . read
+    sysc.LISTEN sys2
+    0 < if [
+      "ERROR starting listening" (cstr.println)
+      -1 quit
+      {TODO: Log}
+    ]
+
+    net.temp read
+    ret
+  end
+  
+  proc poll 1 1
+    net.temp swap put disc
+    
+    net.temp read net.clilen .
+    net.temp read net.cliaddr .
+    net.temp read net.fd . read
+    sysc.ACCEPT sys3
+    copy 0 < if [
+      "ERROR accepting client" (cstr.println)
+      -1 quit
+      {TODO: Log}
+    ]
+    net.temp read net.connfd .
+    swap
+    put disc
+
+    net.temp read
+    ret
+  end
+  
+  {
+  args: int[bufsize] ptr[buffer] ptr[inet]
+  result: int[read] ptr[inet]
+
+  }
+  proc read 3 2
+    net.buff swap put disc
+    swap net.temp swap put disc
+    
+    net.buff read
+    net.temp read net.connfd . read
+    (os.read)
+    copy (cstr.printint)
+
+    net.temp read
+    swap
+
+    ret
+  end
+
+  {
+  args: ptr[buffer] ptr[inet]
+  result: int[read] ptr[inet]
+
+  }
+  proc write 2 1
+    swap net.temp swap put disc
+
+    copy (cstr.len) swap
+    net.temp read net.connfd . read
+    (os.write)
+  
+    net.temp read
+    ret
+  end
+
+  proc finish 1 1
+    copy
+    net.connfd .
+    copy read (os.close)
+    0
+    put disc
+
+    ret
+  end
+end

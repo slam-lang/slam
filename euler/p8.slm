@@ -1,42 +1,29 @@
 inc lib/stdlib.slm
 
-proc thirteen 0 1
-  var 14
-
-  ret
-end
-
-proc getinputfd 0 1
-  var 8
-
-  ret
-end
-
-proc max 0 1
-  var 8
-
-  ret
-end
+gvar thirteen 14
+gvar inputfd 8
+gvar maxval 8
 
 proc main 0 0
   0 0 "p8.txt"
-  0 100 -
-  (open)
-  (getinputfd) swap put disc
+  -100
+  (os.open)
+  inputfd swap put disc
 
-  0 1 -
+  -1
   do
     1 +
     copy 13 == if [disc 0]
     do
-      1 covr (thirteen) +
-      (getinputfd) read (read) 0 == if [
-        (max) read (printint)
+      1
+      covr thirteen +
+      inputfd read (os.read) 0 == if [
+        maxval read (cstr.printint)
         quit
       ]
-      (thirteen) (alphanum) !
+      thirteen (cstr.isnum) !
     end
-    (thirteen)
+    thirteen
     1
     do
       covr readc
@@ -48,8 +35,8 @@ proc main 0 0
       covr readc
       0 !=
     end
-    copy (max) read > if [
-      copy (max) swap put disc
+    copy maxval read > if [
+      copy maxval swap put disc
     ]
     disc
     disc
@@ -58,6 +45,6 @@ proc main 0 0
   disc
 
 
-  (getinputfd) read (close)
+  inputfd read (os.close)
   ret
 end

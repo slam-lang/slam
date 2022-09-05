@@ -815,7 +815,7 @@ def parse_program(text, consts = {}, multi = False):
                 else:
                     name = data[idx]
                     idx += 1
-                    consts[name] = enumval
+                    consts[prefix + name] = enumval
                     enumval += 1
             idx += 1
 

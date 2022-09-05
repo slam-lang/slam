@@ -3,12 +3,12 @@ inc lib/stdlib.slm
 proc main 0 0
   {prints 15 3 times}
 
-  1111b (str.printint) 
-  0015  (str.printint) 
-  000fh (str.printint) 
+  1111b (cstr.printint) 
+  0015  (cstr.printint) 
+  000fh (cstr.printint) 
 
-  1111b (str.printinthex) 
-  0015  (str.printinthex) 
-  000fh (str.printinthex) 
+  1111b (cstr.printinthex) 
+  0015  (cstr.printinthex) 
+  000fh (cstr.printinthex) 
   ret
 end

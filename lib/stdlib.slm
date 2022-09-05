@@ -1,21 +1,20 @@
 const NULL 0
+const true 1
+const false 0
 
-class str
-  prop Size 0
-  prop Data 8
-
+class cstr
   gvar tmpidx 8
  
   proc gettmp 0 1
     var 32 30 +
-    str.tmpidx read -
+    cstr.tmpidx read -
 
     ret
   end
 
   proc inctmpidx 0 0
-    str.tmpidx 
-    str.tmpidx read 1 +
+    cstr.tmpidx 
+    cstr.tmpidx read 1 +
     putc disc
 
     ret
@@ -25,17 +24,17 @@ class str
     do
       10 /
       '0' +
-      (str.gettmp)
+      (cstr.gettmp)
       swap
       putc disc
-      (str.inctmpidx)
+      (cstr.inctmpidx)
       
       copy 0 !=
     end
     disc
-    (str.gettmp) 1 +
+    (cstr.gettmp) 1 +
     
-    str.tmpidx 0 putc disc
+    cstr.tmpidx 0 putc disc
     ret
   end
 
@@ -83,8 +82,8 @@ class str
   prints
   }
   proc println 1 0
-    (str.print)
-    (str.cr)
+    (cstr.print)
+    (cstr.cr)
     ret
   end
 
@@ -95,9 +94,9 @@ class str
   converts a int to a string
   }
   proc printint 1 0
-    (str.int) (str.print) (str.cr)
+    (cstr.int) (cstr.print) (cstr.cr)
     
-    str.tmpidx 0 putc disc
+    cstr.tmpidx 0 putc disc
     ret
   end
 
@@ -112,28 +111,28 @@ class str
       16 /
       copy 9 > if ['a' 10 - +]
       copy 10 < if ['0' +]
-      (str.gettmp)
+      (cstr.gettmp)
       swap
       putc disc
-      (str.inctmpidx)
+      (cstr.inctmpidx)
 
       copy 0 !=
     end
     disc
   
-    (str.gettmp)
+    (cstr.gettmp)
     'x'
     putc disc
-    (str.inctmpidx)
+    (cstr.inctmpidx)
   
-    (str.gettmp)
+    (cstr.gettmp)
     '0'
     putc disc
-    (str.inctmpidx)
+    (cstr.inctmpidx)
   
-    (str.gettmp) 1 + (str.print)
-    str.tmpidx 0 putc disc
-    (str.cr)
+    (cstr.gettmp) 1 + (cstr.print)
+    cstr.tmpidx 0 putc disc
+    (cstr.cr)
     ret
   end
   
@@ -159,7 +158,7 @@ class str
   proc eq 2 1
     covr readc
     covr readc
-    != if [disc disc 0 ret]
+    != if [disc disc false ret]
     1 -
     swap
     1 -
@@ -169,29 +168,31 @@ class str
       1 +
       covr readc
       covr readc
-      covr 0 == covr 0 == &&
+      covr 0 ==
+      covr 0 == &&
       if [
         disc
         disc
         disc
         disc
-        1
+        true
         ret
         ]
-      covr 0 == covr 0 == ||
+      covr 0 ==
+      covr 0 == ||
       if [
         disc
         disc
         disc
         disc
-        0
+        false
         ret
       ]
       ==
     end
     disc
     disc
-    0
+    false
     ret
   end
 
@@ -256,8 +257,8 @@ class str
   end
   
   proc concat 2 1
-    covr copy (str.len) +
-    swap (str.copy) disc disc
+    covr copy (cstr.len) +
+    swap (cstr.copy) disc disc
 
     ret
   end
@@ -272,29 +273,29 @@ class str
   returns 1 if the string is a number
   }
   proc isnum 1 1
-    str.tempmin '0' putc disc
-    str.tempmax '9' putc disc
+    cstr.tempmin '0' putc disc
+    cstr.tempmax '9' putc disc
   
-    copy copy (str.len) + 1 -
+    copy copy (cstr.len) + 1 -
     readc 
     copy 'b' == if [
-      str.tempmax '1' putc disc
+      cstr.tempmax '1' putc disc
     ]
     copy 'h' == if [
-      str.tempmax 'f' putc disc
+      cstr.tempmax 'f' putc disc
     ]
     disc
     copy readc
     '-' == if [1 +]
     do
       copy readc
-      copy str.tempmin readc <
-      covr str.tempmax readc >
+      copy cstr.tempmin readc <
+      covr cstr.tempmax readc >
       || if [
         disc
         copy readc 'b' ==  
         covr readc 'h' == ||
-        covr (str.len) 1 == &&
+        covr (cstr.len) 1 == &&
         swap disc
         ret
       ]
@@ -318,24 +319,24 @@ class str
   returns the value of a int
   }
   proc tonum 1 1
-    copy (str.isnum) ! if [
-      copy (str.println)
-      "String is not a number" (str.println)
+    copy (cstr.isnum) ! if [
+      copy (cstr.println)
+      "String is not a number" (cstr.println)
       disc
       -1 quit
     ]
       
-    str.tempmul 10 putc disc
+    cstr.tempmul 10 putc disc
     
-    copy copy (str.len) +
+    copy copy (cstr.len) +
     copy readc 'b' == if [
-      str.tempmul 2 putc disc
+      cstr.tempmul 2 putc disc
     ]
     disc
     
     0
     do
-      str.tempmul readc *
+      cstr.tempmul readc *
       covr readc
       '0' - +
       
@@ -393,4 +394,3 @@ class mem
     ret
   end
 end
-

@@ -1,8 +1,8 @@
 class log
-  prop Id   0
-  prop Crit 8
-  prop Hint 9
-  prop Mes  13
+  prop Id   8
+  prop Crit 1
+  prop Hint 4
+  prop Mes  -1
  
   gvar idtemp  8
   gvar curlog 64
@@ -25,9 +25,9 @@ class log
 
   proc msg 2 0
     log.curlog
-    log.Mes . (str.clear)
+    log.Mes . (cstr.clear)
     swap
-    (str.copy) disc disc
+    (cstr.copy) disc disc
     
     log.curlog
     log.Hint . swap
@@ -39,7 +39,7 @@ class log
 
   proc cat 1 0
     log.curlog
-    log.Mes . swap (str.concat) disc
+    log.Mes . swap (cstr.concat) disc
 
     ret
   end
@@ -48,24 +48,24 @@ class log
     log.curlog
     log.Crit . readc
     if [
-      "\e[1;31m" (str.print)
-      "[" (str.print)
+      "\e[1;31m" (cstr.print)
+      "[" (cstr.print)
       log.curlog
-      log.Hint . (str.print)
-      "]\ " (str.print)
+      log.Hint . (cstr.print)
+      "]\ " (cstr.print)
       log.curlog
-      log.Mes . (str.print)
-      "\e[0;0m" (str.println)
+      log.Mes . (cstr.print)
+      "\e[0;0m" (cstr.println)
 
       0 log.Id - quit
     ]
-    "[" (str.print)
+    "[" (cstr.print)
     log.curlog
-    log.Hint . (str.print)
-    "]\ " (str.print)
+    log.Hint . (cstr.print)
+    "]\ " (cstr.print)
     log.curlog
 
-    log.Mes . (str.println)
+    log.Mes . (cstr.println)
 
     ret
   end

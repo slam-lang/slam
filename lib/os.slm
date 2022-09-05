@@ -1,14 +1,41 @@
+class sysc
+  enum
+  0   READ
+      WRITE
+      OPEN
+      CLOSE
+
+  33  DUP2
+
+  41  SOCKET
+      CONNECT
+      ACCEPT
+
+  49  BIND
+      LISTEN
+    
+  57  FORK
+      VFORK
+      EXECVE
+      EXIT
+      WAIT4
+      KILL
+
+  257 OPENAT
+  end
+end
+
 class os
   gvar waitsig 8
   
   proc fork 0 1
-    57 sys0
+    sysc.FORK sys0
   
     ret
   end
   
   proc deverr 0 0
-    "ERROR: cant open /dev/null" (str.println)
+    "ERROR: cant open /dev/null" (cstr.println)
   
     -1 quit
     ret
@@ -31,15 +58,15 @@ class os
       0
       "/dev/null"
       -100
-      257 sys4
+      sysc.OPENAT sys4
       
       copy 0 < if (os.deverr)
      
-      33 sys2 0 < if (os.deverr)
+      sysc.DUP2 sys2 0 < if (os.deverr)
   
       covr envp swap copy read
     
-      59 sys3 disc
+      sysc.EXECVE sys3 disc
       disc disc
       -1
       quit
@@ -53,13 +80,12 @@ class os
       os.waitsig
   
       -1
-      61
-      sys4 0 < if (os.deverr)
+      sysc.WAIT4 sys4 0 < if (os.deverr)
       disc disc
       ret
     ]
     0 < if [
-      "ERROR" (str.println)
+      "ERROR" (cstr.println)
     ]
     disc
     ret
@@ -98,8 +124,8 @@ class os
   }
   proc args 1 1
     copy argc - 0 < ! if [
-      copy (str.printint)
-      "Bad arg" (str.printint)
+      copy (cstr.printint)
+      "Bad arg" (cstr.printint)
       disc -1 quit
     ]
     8 * 
@@ -116,8 +142,7 @@ class os
   opens a file
   }
   proc open 4 1
-    257
-    sys4
+    sysc.OPENAT sys4
   
     copy 0 < if [
       "Error opening file"
@@ -133,8 +158,7 @@ class os
   writes data to a file
   }
   proc write 3 0
-    1
-    sys3
+    sysc.WRITE sys3
   
     0 < if [
       "Error writing file"
@@ -150,8 +174,7 @@ class os
   writes data to a file
   }
   proc read 3 1
-    0
-    sys3
+    sysc.READ sys3
     
     copy 0 < if [
       "Error reading file"
@@ -167,8 +190,7 @@ class os
   closes a file
   }
   proc close 1 0
-    3
-    sys1
+    sysc.CLOSE sys1
   
     0 < if [
       "Error closing file"

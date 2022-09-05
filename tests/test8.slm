@@ -1,0 +1,37 @@
+inc lib/inet.slm
+
+gvar inet 52
+
+const CBUFSIZE 10000
+gvar cbuf 10000
+gvar cbuflen 8
+
+proc main 0 0
+  inet 6969 (net.open) disc
+
+  inet
+  do
+    (net.poll)
+    "Server accepted the client" (cstr.println)
+
+    CBUFSIZE cbuf (net.read)
+    cbuflen swap put disc
+
+    cbuf (cstr.print)
+
+    "HTTP/1.1 200 OK\r\n" (net.write)
+    "Server: Slim-lang\r\n" (net.write)
+    "Content-Type: text/html\r\n" (net.write)
+    "Conection: Closed\r\n" (net.write)
+    "\r\n" (net.write)
+    "<h1>Hello, World!</h1>\n" (net.write)
+
+    (net.finish)
+
+    1
+  end
+  disc
+
+  ret
+end
+
