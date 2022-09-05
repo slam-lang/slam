@@ -10,9 +10,9 @@ TODO: defrag
 }
 
 class tab
-  prop Max 0
+  prop Max 8
   prop Entry 8
-  prop Data 16
+  prop Data -1
   
   gvar entrytmp 8
   gvar valuetmp 8
@@ -52,7 +52,7 @@ class tab
     read tab.Max .
     > if [
       "TABLE OVERFLOW" (str.println)
-      disc disc disc 0 1 - quit
+      disc disc disc -1 quit
     ]
     +
   
@@ -76,11 +76,11 @@ class tab
     tab.entrytmp read (str.len) < if [
       "STRING TOO LONG FOR TABLE" (str.println)
       tab.entrytmp read (str.println)
-      0 1 -
+      -1
       quit
     ]
   
-    0 1 -
+    -1
     do
       1 +
       (tab.curentryaddr)
@@ -144,12 +144,12 @@ class tab
     tab.entrytmp read (str.len) < if [
       "STRING TOO LONG FOR TABLE" (str.println)
       tab.entrytmp read (str.println)
-      0 1 -
+      -1
       quit
     ]
   
   
-    0 1 -
+    -1
     do
       1 +
       (tab.curentryaddr)
@@ -183,7 +183,7 @@ class tab
     tab.curtmp swap put disc
   
     tab.curtmp read tab.Data .
-    0 1 -
+    -1
     do
       1 +
       (tab.curentryaddr)

@@ -51,13 +51,13 @@ OP_JNZ  = iota()
 OP_GETP = iota()
 OP_CYCL = iota()
 
-
 OP_NQ   = iota()
 OP_EQ   = iota()
 OP_LT   = iota()
 OP_GT   = iota()
 OP_AND  = iota()
-OP_OR  = iota()
+OP_XOR  = iota()
+OP_OR   = iota()
 OP_NOT  = iota()
 
 OP_SYS0 = iota()
@@ -199,6 +199,11 @@ def compile_inst(out, op, ip, start):
         out.write("    pop rbx\n")
         out.write("    pop rax\n")
         out.write("    and rax, rbx\n")
+        out.write("    push rax\n")
+    elif op[0] == OP_XOR:
+        out.write("    pop rbx\n")
+        out.write("    pop rax\n")
+        out.write("    xor rax, rbx\n")
         out.write("    push rax\n")
     elif op[0] == OP_OR:
         out.write("    pop rbx\n")
@@ -559,6 +564,9 @@ singles = {
         "&&": [
             (OP_AND, )
             ],
+        "^": [
+            (OP_XOR, )
+            ],
         "||": [
             (OP_OR, )
             ],
@@ -648,6 +656,7 @@ op_values = {
         OP_LT:   (2, 1),
         OP_GT:   (2, 1),
         OP_AND:  (2, 1),
+        OP_XOR:  (2, 1),
         OP_OR:   (2, 1),
         OP_NOT:  (1, 1),
         OP_IF:   (1, 0),
@@ -681,6 +690,7 @@ def check_proc(program, args, rets, values):
         elif op[0] == OP_QUIT:
             if stackoffset != 1:
                 return idx, stackoffset, (stackoffset, op, "Quit wrong ammnt")
+            stackoffset -= 1
         elif op[0] == OP_RET:
             if stackoffset != rets:
                 return idx, stackoffset, (stackoffset, op, "Return wrong ammnt")
@@ -764,6 +774,7 @@ def parse_program(text, consts = {}, multi = False):
     do_ids = []
     prefix = ""
     lmem = 0
+    propsize = 0
 
     while idx < len(data):
         func = data[idx]
@@ -776,21 +787,29 @@ def parse_program(text, consts = {}, multi = False):
             name = data[idx]
             idx += 1
             prefix = name + "."
+            propsize = 0
 
         elif func == "ret":
             proc_block.append((OP_RET, lmem))
 
-        elif func == "const" or func == "prop":
+        elif func == "const":
             name = data[idx]
             idx += 1
             consts[prefix + name] = int(data[idx])
             idx += 1
-        
+
+        elif func == "prop":
+            name = data[idx]
+            idx += 1
+            consts[prefix + name] = propsize
+            propsize += int(data[idx])
+            idx += 1
+
         elif func == "enum":
             enumval = int(data[idx])
             idx += 1
             while data[idx] != "end": 
-                if data[idx].isnumeric():
+                if data[idx].lstrip('-').isnumeric():
                     enumval = int(data[idx])
                     idx += 1
                 else:
@@ -899,7 +918,7 @@ def parse_program(text, consts = {}, multi = False):
         elif func[0] == "{" and func[-1] == "}":
             pass
 
-        elif func.isnumeric():
+        elif func.lstrip('-').isnumeric():
             proc_block.append((OP_PUSH, int(func)))
 
         elif func in proc_values:

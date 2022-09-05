@@ -5,6 +5,10 @@ proc main 0 0
 
   1111b (str.printint) 
   0015  (str.printint) 
-  000Fh (str.printint) 
+  000fh (str.printint) 
+
+  1111b (str.printinthex) 
+  0015  (str.printinthex) 
+  000fh (str.printinthex) 
   ret
 end

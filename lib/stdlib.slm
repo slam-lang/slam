@@ -24,7 +24,7 @@ class str
   proc int 1 1
     do
       10 /
-      48 +
+      '0' +
       (str.gettmp)
       swap
       putc disc
@@ -110,8 +110,8 @@ class str
   proc printinthex 1 0
     do
       16 /
-      copy 9 > if [87 +]
-      copy 10 < if [48 +]
+      copy 9 > if ['a' 10 - +]
+      copy 10 < if ['0' +]
       (str.gettmp)
       swap
       putc disc
@@ -122,12 +122,12 @@ class str
     disc
   
     (str.gettmp)
-    120 {x}
+    'x'
     putc disc
     (str.inctmpidx)
   
     (str.gettmp)
-    48 {0}
+    '0'
     putc disc
     (str.inctmpidx)
   
@@ -261,159 +261,93 @@ class str
 
     ret
   end
-end
 
-{
-args: pointer int
-result:
-
-if int is 0 quit and print message
-}
-proc assert 2 0
-  swap
-  if [disc ret]
-  (str.println)
-  0 1 -
-  quit
-  disc
-  ret
-end
-
-{
-args: pointer int int
-result: int
-
-opens a file
-}
-proc open 4 1
-  257
-  sys4
-
-  copy 0 < 1 != "Error opening file" (assert)
-  ret
-end
-
-{
-args: int
-result:
-
-closes a file
-}
-proc close 1 0
-  3
-  sys1
-
-  0 < 1 != "Error closing file" (assert)
-  ret
-end
-
-{
-args: int ptr
-result: int
-
-writes data to a file
-}
-proc write 3 0
-  1
-  sys3
-
-  0 < 1 != "Error writing file" (assert)
-  ret
-end
-
-{
-args: int ptr
-result: int
-
-writes data to a file
-}
-proc read 3 1
-  0
-  sys3
+  gvar tempmin 1
+  gvar tempmax 1
   
-  copy 0 < 1 != "Error reading file" (assert)
-  ret
-end
-
-gvar tempmin 1
-gvar tempmax 1
-
-{
-args: ptr[string]
-returns: int[val]
-
-returns 1 if the string is a number
-}
-proc isnum 1 1
-  tempmin 48 putc disc
-  tempmax 58 putc disc
-
-  copy copy (str.len) + 1 -
-  readc 
-  copy 98 == if [
-    tempmax 49 putc disc
-  ]
-  copy 104 == if [
-    tempmax 70 putc disc
-  ]
-  disc
-  do
-    copy readc
-    copy tempmin readc <
-    covr tempmax readc >
-    || if [
-      disc
-      copy readc 98 ==  
-      covr readc 104 == ||
-      covr (str.len) 1 == &&
-      swap disc
-      ret
+  {
+  args: ptr[string]
+  returns: int[val]
+  
+  returns 1 if the string is a number
+  }
+  proc isnum 1 1
+    str.tempmin '0' putc disc
+    str.tempmax '9' putc disc
+  
+    copy copy (str.len) + 1 -
+    readc 
+    copy 'b' == if [
+      str.tempmax '1' putc disc
+    ]
+    copy 'h' == if [
+      str.tempmax 'f' putc disc
     ]
     disc
-
-    1 +
     copy readc
-    0 !=
-  end
-  disc
-  1
-  ret
-end
-
-gvar tempmul 1
-
-{
-args: ptr[string]
-returns: int[value]
-
-returns the value of a int
-}
-proc tonum 1 1
-  copy (isnum) ! if [copy (str.println)]
-  copy (isnum) "String is not a number" (assert)
-    
-  tempmul 10 putc disc
+    '-' == if [1 +]
+    do
+      copy readc
+      copy str.tempmin readc <
+      covr str.tempmax readc >
+      || if [
+        disc
+        copy readc 'b' ==  
+        covr readc 'h' == ||
+        covr (str.len) 1 == &&
+        swap disc
+        ret
+      ]
+      disc
   
-  copy copy (str.len) +
-  copy readc 98 == if [
-    tempmul 2 putc disc
-  ]
-  disc
-  
-  0
-  do
-    tempmul readc *
-    covr readc
-    48 - +
-    
-    swap 1 +
-    swap
-
-    covr readc
+      1 +
+      copy readc
+      0 !=
+    end
+    disc
+    1
+    ret
   end
-  swap disc
-
-  ret
+  
+  gvar tempmul 1
+  
+  {
+  args: ptr[string]
+  returns: int[value]
+  
+  returns the value of a int
+  }
+  proc tonum 1 1
+    copy (str.isnum) ! if [
+      copy (str.println)
+      "String is not a number" (str.println)
+      disc
+      -1 quit
+    ]
+      
+    str.tempmul 10 putc disc
+    
+    copy copy (str.len) +
+    copy readc 'b' == if [
+      str.tempmul 2 putc disc
+    ]
+    disc
+    
+    0
+    do
+      str.tempmul readc *
+      covr readc
+      '0' - +
+      
+      swap 1 +
+      swap
+  
+      covr readc
+    end
+    swap disc
+  
+    ret
+  end
 end
 
 class mem

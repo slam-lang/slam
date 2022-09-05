@@ -1,8 +1,8 @@
 class arr
-  prop Size 0
+  prop Size 8
   prop Max  8
-  prop Elem 16
-  prop Data 24
+  prop Elem 8
+  prop Data -1
 
   gvar curtemp 8
   gvar elemtemp 32
@@ -84,7 +84,7 @@ class arr
     
     arr.curtemp read
     arr.Max . read
-    > if ["ARRAY OVERFLOW" (str.println) 0 1 - quit]
+    > if ["ARRAY OVERFLOW" (str.println) -1 quit]
     
     arr.curtemp read
     arr.Elem . read
@@ -128,7 +128,7 @@ class arr
     
     arr.curtemp read
     arr.Max . read
-    > if ["ARRAY OVERFLOW" (str.println) 0 1 - quit]
+    > if ["ARRAY OVERFLOW" (str.println) -1 quit]
     
     arr.curtemp read
     arr.Elem . read

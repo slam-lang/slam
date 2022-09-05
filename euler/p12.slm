@@ -31,9 +31,9 @@ proc main 0 0
     1 +
     copy copy 1 + * 2 / disc
   
-    copy (strint) (print)
-    ":" (print)
-    (getfac) copy (printint)
+    copy (str.int) (str.print)
+    ":" (str.print)
+    (getfac) copy (str.printint)
 
     501 <
   end

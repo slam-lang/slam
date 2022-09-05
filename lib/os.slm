@@ -10,8 +10,7 @@ class os
   proc deverr 0 0
     "ERROR: cant open /dev/null" (str.println)
   
-    0 1 - quit
-    disc
+    -1 quit
     ret
   end
   
@@ -31,7 +30,7 @@ class os
       0
       0
       "/dev/null"
-      0 100 -
+      -100
       257 sys4
       
       copy 0 < if (os.deverr)
@@ -42,7 +41,7 @@ class os
     
       59 sys3 disc
       disc disc
-      0 1 -
+      -1
       quit
     ]
     copy 0 > if [
@@ -53,7 +52,7 @@ class os
   
       os.waitsig
   
-      0 1 -
+      -1
       61
       sys4 0 < if (os.deverr)
       disc disc
@@ -98,12 +97,83 @@ class os
   gets the nth arguent from the command line
   }
   proc args 1 1
-    copy argc - 0 < ! if [copy (str.printint)]
-    copy argc - 0 < "Bad arg" (assert)
+    copy argc - 0 < ! if [
+      copy (str.printint)
+      "Bad arg" (str.printint)
+      disc -1 quit
+    ]
     8 * 
     argv +
   
     read
+    ret
+  end
+
+  {
+  args: pointer int int
+  result: int
+  
+  opens a file
+  }
+  proc open 4 1
+    257
+    sys4
+  
+    copy 0 < if [
+      "Error opening file"
+      disc disc -1 quit
+    ]
+    ret
+  end
+
+  {
+  args: int ptr
+  result: int
+  
+  writes data to a file
+  }
+  proc write 3 0
+    1
+    sys3
+  
+    0 < if [
+      "Error writing file"
+      disc -1 quit
+    ]
+    ret
+  end
+  
+  {
+  args: int ptr
+  result: int
+  
+  writes data to a file
+  }
+  proc read 3 1
+    0
+    sys3
+    
+    copy 0 < if [
+      "Error reading file"
+      disc disc -1 quit
+    ]
+    ret
+  end
+  
+  {
+  args: int
+  result:
+  
+  closes a file
+  }
+  proc close 1 0
+    3
+    sys1
+  
+    0 < if [
+      "Error closing file"
+      disc -1 quit
+    ]
     ret
   end
 end

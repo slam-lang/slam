@@ -10,7 +10,7 @@ gvar max 0
 
 proc checkint 1 0
   copy max read > if [
-    copy (printint)
+    copy (str.printint)
     max
     swap
     put
@@ -94,7 +94,7 @@ end
 
 proc main 0 0
   0 0 "p11.txt"
-  0 100 -
+  -100
   (open)
   inputfd swap put disc
 

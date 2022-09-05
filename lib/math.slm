@@ -25,7 +25,7 @@ class math
   end
   
   proc log2 1 1
-    0 1 -
+    -1
     do
       swap 2 / disc
       swap 1 +
