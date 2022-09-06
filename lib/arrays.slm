@@ -1,10 +1,10 @@
 class arr
-  prop Size 8
-  prop Max  8
-  prop Elem 8
+  prop Size int.SIZE
+  prop Max  int.SIZE
+  prop Elem int.SIZE
   prop Data 0
 
-  gvar curtemp 8
+  gvar curtemp int.SIZE
   gvar elemtemp 32
   
   {

@@ -4,11 +4,11 @@ class sockaddr
   prop addr 4
   prop misc 8
   
-  const FAMI_MASK 65535
-  const PORT_MASK 65535
-  const ADDR_MASK 4294967295
+  const FAMI_MASK FFFFFFFFh
+  const PORT_MASK FFFFFFFFh
+  const ADDR_MASK FFFFFFFFFFFFFFFFh
 
-  gvar temp 8
+  gvar temp int.SIZE
 
   proc reset 1 1
     copy 16 (mem.zero)
@@ -45,8 +45,8 @@ class sockaddr
   proc setport 2 1
     swap sockaddr.temp swap put disc
     
-    copy 255 && 256 *
-    swap 256 / disc 255 &&
+    copy 00ffh &&     00ffh *
+    swap 0100h / disc 00ffh &&
     ||
 
     sockaddr.PORT_MASK &&
@@ -61,19 +61,19 @@ class sockaddr
 end
 
 class net
-  prop fd 8
-  prop connfd 8
-  prop servaddr 16
-  prop cliaddr 16
-  prop clilen 4
+  prop fd int.SIZE
+  prop connfd int.SIZE
+  prop servaddr sockaddr.SIZE
+  prop cliaddr sockaddr.SIZE
+  prop clilen int.SIZE
   
   const AF_INET 2
   const SOCK_STREAM 1
   const INADDR_ANY 0
 
-  gvar temp 8
-  gvar buff 8
-  gvar port 8
+  gvar temp int.SIZE
+  gvar buff int.SIZE
+  gvar port int.SIZE
   
   {
   args: ptr[data] int[port]

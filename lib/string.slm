@@ -1,11 +1,11 @@
 class str
-  prop Max 8
-  prop Size 8
+  prop Max int.SIZE
+  prop Size int.SIZE
   prop Data 0
   
-  gvar workingtemp 8
-  gvar rawtemp 8
-  gvar maxtemp 8
+  gvar workingtemp int.SIZE
+  gvar rawtemp int.SIZE
+  gvar maxtemp int.SIZE
 
 
   {
@@ -20,7 +20,7 @@ class str
     swap str.workingtemp swap put disc
     
     str.workingtemp read str.Max .
-    str.maxtemp read
+    covr str.maxtemp read swap -
     put disc
 
     str.workingtemp read str.Size .

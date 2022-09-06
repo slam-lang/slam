@@ -1,10 +1,10 @@
 class log
-  prop Id   8
+  prop Id   int.SIZE
   prop Crit 1
   prop Hint 4
-  prop Mes  -1
+  prop Mes  0
  
-  gvar idtemp  8
+  gvar idtemp int.SIZE
   gvar curlog 64
 
   {
@@ -15,7 +15,7 @@ class log
   }
   proc level 2 0
     log.curlog
-    log.Id . 
+    log.Id .
     swap put disc
 
     log.curlog

@@ -1,5 +1,5 @@
 class math
-  gvar temp 8
+  gvar temp int.SIZE
 
   {
   args: int[a] int[b]

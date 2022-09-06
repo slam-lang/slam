@@ -44,7 +44,6 @@ enum
     OP_PUSHP
     OP_CALLS
     OP_MULTI
-    OP_CONST
     OP_RET
     OP_QUIT
     OP_LOCX
@@ -74,6 +73,7 @@ enum
     IDENT_GVAR
     IDENT_LVAR
     IDENT_CLASS
+    IDENT_CONST
     IDENT_ENUM
     IDENT_PROP
     IDENT_PROC
@@ -193,6 +193,7 @@ proc getnameop 1 1
   covr "var"   (cstr.eq) if [disc IDENT_VAR]
   covr "gvar"  (cstr.eq) if [disc IDENT_GVAR]
   {covr "lvar"  (cstr.eq) if [disc IDENT_LVAR]}
+  covr "const" (cstr.eq) if [disc IDENT_CONST]
   covr "class" (cstr.eq) if [disc IDENT_CLASS]
   covr "prop"  (cstr.eq) if [disc IDENT_PROP]
   
@@ -218,7 +219,6 @@ proc getnameop 1 1
   covr "argc"  (cstr.eq) if [disc OP_ARGC]
   covr "envp"  (cstr.eq) if [disc OP_ENVP]
   covr "()"    (cstr.eq) if [disc OP_CALLS]
-  covr "const" (cstr.eq) if [disc OP_CONST]
   covr "ret"   (cstr.eq) if [disc OP_RET]
   covr "quit"  (cstr.eq) if [disc OP_QUIT]
   covr "if"    (cstr.eq) if [disc OP_IF]
@@ -1524,7 +1524,7 @@ proc getcmdasm 1 1
     CF_PROP_NAME
     put disc
     ret
-  ] copy OP_CONST == if [
+  ] copy IDENT_CONST == if [
     "const" 0 (checkpop)
     0 (addstack)
     parseflags
