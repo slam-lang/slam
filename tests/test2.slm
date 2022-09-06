@@ -4,7 +4,7 @@ inc lib/tables.slm
 gvar table 4096
 
 proc main 0 0
-  table 8 4096 (tab.new)
+  table int.SIZE 4096 (tab.new)
 
   "lol" 32
   (tab.put)
@@ -26,10 +26,10 @@ proc main 0 0
   "=======" (cstr.println)
 
   "lmao" (tab.in)
-  (cstr.printint)
+  (int.print)
 
   "lmao" (tab.get)
-  (cstr.printint)
+  (int.print)
   (tab.print)
 
   ret

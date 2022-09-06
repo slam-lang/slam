@@ -5,8 +5,8 @@ gvar string 128
 proc main 0 0
   string
 
-  "foo\n" (cstr.concat)  
-  "bar\n" (cstr.concat)  
+  "foo\n" (cstr.cat)  
+  "bar\n" (cstr.cat)  
   
   (cstr.print)
 

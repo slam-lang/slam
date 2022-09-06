@@ -1,16 +1,167 @@
 class str
+  prop Max 8
   prop Size 8
-  prop Data -1
+  prop Data 0
+  
+  gvar workingtemp 8
+  gvar rawtemp 8
+  gvar maxtemp 8
+
 
   {
-  args: ptr[size] ptr[cstr] ptr[str]
+  args: ptr[str] ptr[size] ptr[max] ptr[cstr]
   result: ptr[str]
 
   creats a string from a ` string
   }
-  proc new 3 1
+  proc new 4 1
+    str.rawtemp swap put disc
+    swap str.maxtemp swap put disc
+    swap str.workingtemp swap put disc
+    
+    str.workingtemp read str.Max .
+    str.maxtemp read
+    put disc
+
+    str.workingtemp read str.Size .
+    covr
+    put disc
+
+    str.workingtemp read str.Data . swap
+    str.rawtemp read swap
+    (mem.copy)
+    
+    str.workingtemp read
+
+    ret
+  end
+
+  {
+  args: ptr[str]
+  result:
+
+  prints a string
+  }
+  proc print 1 0
+    str.workingtemp swap put disc
+    
+    -1
+    do
+      1 +
+
+      copy
+      str.workingtemp read
+      str.Data . +
+      readc dump
+      
+      
+      copy
+      str.workingtemp read
+      str.Size . read
+      <
+    end
     disc
-    disc
+    ret
+  end
+  
+  {
+  args: ptr[str]
+  result:
+
+  prints a string followed by a new line
+  }
+  proc println 1 0
+    (str.print)
+    (cstr.cr)
+
+    ret
+  end
+
+  {
+  args: ptr[str]
+  result: int[length]
+  
+  gets the length of a string
+  }
+  proc len 1 1
+    str.Size . read
+
+    ret
+  end
+
+  {
+  args: ptr[str]
+  result: int[length]
+  
+  gets the length of a string
+  }
+  proc endaddr 1 1
+    str.workingtemp swap put disc
+    
+    str.workingtemp read str.Data .
+    str.workingtemp read (str.len) +
+
+    ret
+  end
+
+  {
+  args: ptr[cstr1] ptr[cstr2]
+  result: ptr[cstr1]
+  
+  concatinates 2 strings
+  }
+  proc cat 2 1
+    swap str.workingtemp swap put disc
+
+    copy (str.len)
+    str.workingtemp read (str.len) +
+    str.workingtemp read str.Max . read
+    > if [
+      "String overflow" (cstr.println)
+      -1 quit
+    ]
+    
+    copy
+    str.workingtemp read (str.endaddr)
+    swap
+    copy (str.len)
+    swap str.Data .
+    swap
+    (mem.copy)
+    
+    (str.len)
+    str.workingtemp read (str.len) +
+    str.workingtemp read str.Size .
+    swap put disc
+
+    str.workingtemp read
+
+    ret
+  end
+  
+  proc catc 2 1
+    swap str.workingtemp swap put disc
+
+    copy (cstr.len)
+    str.workingtemp read (str.len) +
+    str.workingtemp read str.Max . read
+    > if [
+      "String overflow" (cstr.println)
+      -1 quit
+    ]
+    
+    copy
+    str.workingtemp read (str.endaddr)
+    swap
+    copy (cstr.len)
+    (mem.copy)
+    
+    (cstr.len)
+    str.workingtemp read (str.len) +
+    str.workingtemp read str.Size .
+    swap put disc
+
+    str.workingtemp read
 
     ret
   end

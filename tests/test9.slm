@@ -1,0 +1,44 @@
+gvar temp 32
+gvar str1 64
+gvar str2 64
+
+proc main 0 0
+  (cstr.cr)
+  "cstr.split" (cstr.println)
+  "=============" (cstr.println)
+
+  "lol1 lol2" ' ' temp (cstr.split)
+  (cstr.println)
+  (cstr.println)
+  temp (cstr.println)
+  
+  (cstr.cr)
+  "str.new" (cstr.println)
+  "=============" (cstr.println)
+
+  str1 64 `lol ` (str.new)
+  copy (str.println)
+  str2 64 `nope ` (str.new)
+  copy (str.println)
+  
+  (cstr.cr)
+  "str.cat" (cstr.println)
+  "=============" (cstr.println)
+  (str.cat)
+  copy (str.println)
+
+  copy (str.len) (int.print)
+  
+  (cstr.cr)
+  "str.catc" (cstr.println)
+  "=============" (cstr.println)
+  
+  "boi" (str.catc)
+  copy (str.println)
+
+  copy (str.len) (int.print)
+
+  disc
+
+  ret
+end

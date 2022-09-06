@@ -159,7 +159,7 @@ class net
     net.buff swap put disc
     swap net.temp swap put disc
     
-    net.buff read
+    net.buff read (cstr.clear)
     net.temp read net.connfd . read
     (os.read)
 
@@ -191,6 +191,75 @@ class net
     copy read (os.close)
     0
     put disc
+
+    ret
+  end
+  
+  proc close 1 0
+    net.fd .
+    read (os.close)
+
+    ret
+  end
+end
+
+class http
+  prop server 32
+  
+  gvar resp 8
+  gvar temp 8
+
+  gvar getline 32
+  gvar gettemp 32
+  gvar geturl 32
+
+  {
+  args: ptr[server] ptr[http]
+  result: ptr[http]
+
+  }
+  proc setserver 2 1
+    swap http.temp swap put disc
+
+    http.temp read http.server .
+    swap
+    (cstr.copy) swap disc disc
+
+    http.temp read
+    ret
+  end
+
+  {
+  args: ptr[buffer] int[resp] ptr[http]
+  result: ptr[buffer] ptr[http]
+
+  }
+  proc getheader 3 2
+    swap (cstr.clear)
+    swap http.resp swap put disc
+    swap http.temp swap put disc
+    
+    "HTTP/1.1 " (cstr.cat)
+    http.resp read (int.cstr) (cstr.cat)
+    " OK\r\n" (cstr.cat)
+    "Server: " (cstr.cat)
+    http.temp read http.server . (cstr.cat)
+    "\r\n" (cstr.cat)
+    "Content-Type: text/html\r\n" (cstr.cat)
+    "Conection: Closed\r\n" (cstr.cat)
+    "\r\n" (cstr.cat)
+
+    http.temp read swap
+    ret
+  end
+
+  {
+  args 
+  }
+  proc parseurl 2 2
+    13 {\r} http.getline (cstr.split) swap disc
+    ' ' http.gettemp (cstr.split) disc
+    ' ' http.geturl (cstr.split) swap disc
 
     ret
   end

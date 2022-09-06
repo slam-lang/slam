@@ -3,40 +3,6 @@ const true 1
 const false 0
 
 class cstr
-  gvar tmpidx 8
- 
-  proc gettmp 0 1
-    var 32 30 +
-    cstr.tmpidx read -
-
-    ret
-  end
-
-  proc inctmpidx 0 0
-    cstr.tmpidx 
-    cstr.tmpidx read 1 +
-    putc disc
-
-    ret
-  end
-
-  proc int 1 1
-    do
-      10 /
-      '0' +
-      (cstr.gettmp)
-      swap
-      putc disc
-      (cstr.inctmpidx)
-      
-      copy 0 !=
-    end
-    disc
-    (cstr.gettmp) 1 +
-    
-    cstr.tmpidx 0 putc disc
-    ret
-  end
 
   {
   args: pointer
@@ -87,54 +53,6 @@ class cstr
     ret
   end
 
-  {
-  args: ptr int
-  result: ptr
-  
-  converts a int to a string
-  }
-  proc printint 1 0
-    (cstr.int) (cstr.print) (cstr.cr)
-    
-    cstr.tmpidx 0 putc disc
-    ret
-  end
-
-  {
-  args: ptr int
-  result: ptr
-  
-  converts a int to a hex string
-  }
-  proc printinthex 1 0
-    do
-      16 /
-      copy 9 > if ['a' 10 - +]
-      copy 10 < if ['0' +]
-      (cstr.gettmp)
-      swap
-      putc disc
-      (cstr.inctmpidx)
-
-      copy 0 !=
-    end
-    disc
-  
-    (cstr.gettmp)
-    'x'
-    putc disc
-    (cstr.inctmpidx)
-  
-    (cstr.gettmp)
-    '0'
-    putc disc
-    (cstr.inctmpidx)
-  
-    (cstr.gettmp) 1 + (cstr.print)
-    cstr.tmpidx 0 putc disc
-    (cstr.cr)
-    ret
-  end
   
   proc len 1 1
     copy readc 0 == if [disc 0 ret]
@@ -256,7 +174,7 @@ class cstr
     ret
   end
   
-  proc concat 2 1
+  proc cat 2 1
     covr copy (cstr.len) +
     swap (cstr.copy) disc disc
 
@@ -350,6 +268,9 @@ class cstr
     ret
   end
 
+  gvar delim 1
+  gvar tempstore 8
+
   {
   args: ptr[store] int[delim] ptr[cstr]
   result: ptr[store] ptr[cstr]
@@ -357,9 +278,29 @@ class cstr
   splits a string on the delim
   }
   proc split 3 2
-    {TODO: implement}
-    disc
+    swap cstr.delim swap putc disc
+    cstr.tempstore swap put disc
+  
+    cstr.tempstore read (cstr.clear)
 
+    {cstr}
+    do
+      covr readc
+      cstr.delim readc ==
+      if [
+        disc 1 + cstr.tempstore read
+        ret
+      ]
+      covr readc
+      covr swap
+      putc disc
+      
+      swap 1 +
+      swap 1 +
+
+      covr read 0 !=
+    end
+    
     ret
   end
 end
@@ -407,3 +348,92 @@ class mem
     ret
   end
 end
+
+class int
+  prop data 8
+
+  gvar tmpidx 8
+ 
+  proc gettmp 0 1
+    var 32 30 +
+    int.tmpidx read -
+
+    ret
+  end
+
+  proc inctmpidx 0 0
+    int.tmpidx 
+    int.tmpidx read 1 +
+    putc disc
+
+    ret
+  end
+
+  proc cstr 1 1
+    do
+      10 /
+      '0' +
+      (int.gettmp)
+      swap
+      putc disc
+      (int.inctmpidx)
+      
+      copy 0 !=
+    end
+    disc
+    (int.gettmp) 1 +
+    
+    int.tmpidx 0 putc disc
+    ret
+  end
+
+  {
+  args: ptr int
+  result: ptr
+  
+  converts a int to a string
+  }
+  proc print 1 0
+    (int.cstr) (cstr.print) (cstr.cr)
+    
+    int.tmpidx 0 putc disc
+    ret
+  end
+
+  {
+  args: ptr int
+  result: ptr
+  
+  converts a int to a hex string
+  }
+  proc printhex 1 0
+    do
+      16 /
+      copy 9 > if ['a' 10 - +]
+      copy 10 < if ['0' +]
+      (int.gettmp)
+      swap
+      putc disc
+      (int.inctmpidx)
+
+      copy 0 !=
+    end
+    disc
+  
+    (int.gettmp)
+    'x'
+    putc disc
+    (int.inctmpidx)
+  
+    (int.gettmp)
+    '0'
+    putc disc
+    (int.inctmpidx)
+  
+    (int.gettmp) 1 + (cstr.print)
+    int.tmpidx 0 putc disc
+    (cstr.cr)
+    ret
+  end
+end
+

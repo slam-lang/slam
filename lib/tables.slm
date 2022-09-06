@@ -10,13 +10,13 @@ TODO: defrag
 }
 
 class tab
-  prop Max 8
-  prop Entry 8
+  prop Max int.SIZE
+  prop Entry int.SIZE
   prop Data 0
   
-  gvar entrytmp 8
-  gvar valuetmp 8
-  gvar curtmp 8
+  gvar entrytmp int.SIZE
+  gvar valuetmp int.SIZE
+  gvar curtmp int.SIZE
   
   {
   args: int[size] int[entrysize] ptr[table]
@@ -119,7 +119,7 @@ class tab
       copy (cstr.print) ":" (cstr.print)
       tab.curtmp read
       tab.Entry . read +
-      read (cstr.printint)
+      read (int.print)
   
       1 +
       (tab.curentryaddr)

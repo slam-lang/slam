@@ -110,7 +110,9 @@ class os
       8 +
        
       copy read NULL !=
-      copy if [" " (log.cat)]
+      copy if [
+        " " (log.cat)
+      ]
     end
     disc
     (log.log)  
@@ -128,8 +130,8 @@ class os
   }
   proc args 1 1
     copy argc - 0 < ! if [
-      copy (cstr.printint)
-      "Bad arg" (cstr.printint)
+      copy (int.print)
+      "Bad arg" (int.print)
       disc -1 quit
     ]
     8 * 

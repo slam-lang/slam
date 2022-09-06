@@ -41,7 +41,7 @@ class log
 
   proc cat 1 0
     log.curlog
-    log.Mes . swap (cstr.concat) disc
+    log.Mes . swap (cstr.cat) disc
 
     ret
   end

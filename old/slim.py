@@ -802,7 +802,10 @@ def parse_program(text, consts = {}, multi = False):
             name = data[idx]
             idx += 1
             consts[prefix + name] = propsize
-            propsize += int(data[idx])
+            if data[idx] in consts:
+                propsize += consts[data[idx]]
+            else:
+                propsize += int(data[idx])
             idx += 1
 
         elif func == "enum":
@@ -839,7 +842,10 @@ def parse_program(text, consts = {}, multi = False):
             name = data[idx]
             idx += 1
             result.append((OP_PROC, prefix + name))
-            result.append((OP_GPTR, int(data[idx])))
+            if data[idx] in consts:
+                result.append((OP_GPTR, consts[data[idx]]))
+            else:
+                result.append((OP_GPTR, int(data[idx])))
             result.append((OP_RET, 0))
             idx += 1
             proc_values[prefix + name] = (0, 1)
@@ -872,7 +878,9 @@ def parse_program(text, consts = {}, multi = False):
                 proc_block.append((OP_IF, ))
                 proc_block.append((OP_JUMPX, do_ids.pop()))
             elif ident_stack[-1] == "class":
+                consts[prefix + "SIZE"] = propsize
                 prefix = ""
+                propsize = 0
             else:
                 assert False, "Unreachable"
             ident_stack.pop()

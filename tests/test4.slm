@@ -3,7 +3,7 @@ inc lib/arrays.slm
 gvar array 4096
 
 proc main 0 0
-  array 4096 8 (arr.new)
+  array int.SIZE 4096 (arr.new)
   1 (arr.setlen)
 
   0 (arr.getaddr)
@@ -12,7 +12,7 @@ proc main 0 0
   disc array
 
   "len: " (cstr.print)
-  (arr.len) (cstr.printint)
+  (arr.len) (int.print)
 
   "44" (arr.push)
   "45" (arr.push)
@@ -20,7 +20,7 @@ proc main 0 0
   "47" (arr.push)
 
   "len: " (cstr.print)
-  (arr.len) (cstr.printint)
+  (arr.len) (int.print)
 
   array (arr.print)
 
@@ -29,7 +29,7 @@ proc main 0 0
   (arr.pop) (cstr.println)
 
   "len: " (cstr.print)
-  (arr.len) (cstr.printint)
+  (arr.len) (int.print)
   
   array (arr.print)
 

@@ -68,11 +68,11 @@ class float
     {TODO: implement}
     float.working swap put disc
 
-    float.working read (float.sign) (cstr.printint)
-    float.working read (float.mant) (cstr.int) (cstr.print)
+    float.working read (float.sign) (int.print)
+    float.working read (float.mant) (int.cstr) (cstr.print)
     "*2^" (cstr.print)
-    float.working read (float.exp) 127 - (cstr.printint)
-    float.working read (cstr.printint) 
+    float.working read (float.exp) 127 - (int.print)
+    float.working read (int.print) 
     ret
   end
 
