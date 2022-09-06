@@ -51,11 +51,10 @@ class os
     (os.fork)
     copy 0 == if [
       {child}
-  
       1
-  
       0
       0
+      {TODO: magic num}
       "/dev/null"
       -100
       sysc.OPENAT sys4

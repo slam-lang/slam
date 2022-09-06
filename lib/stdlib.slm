@@ -349,6 +349,19 @@ class cstr
   
     ret
   end
+
+  {
+  args: ptr[store] int[delim] ptr[cstr]
+  result: ptr[store] ptr[cstr]
+ 
+  splits a string on the delim
+  }
+  proc split 3 2
+    {TODO: implement}
+    disc
+
+    ret
+  end
 end
 
 class mem

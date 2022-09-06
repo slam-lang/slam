@@ -12,7 +12,7 @@ TODO: defrag
 class tab
   prop Max 8
   prop Entry 8
-  prop Data -1
+  prop Data 0
   
   gvar entrytmp 8
   gvar valuetmp 8

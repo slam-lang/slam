@@ -8,6 +8,7 @@ TODO: Fix inc
 TODO: Macros
 TODO: Local variables
 TODO: Imp first class funcs
+TODO: Clean magic nums
 }
 
 inc lib/stdlib.slm
@@ -17,7 +18,7 @@ inc lib/log.slm
 inc lib/os.slm
 
 proc version 0 1
-  "0.2.2" ret
+  "0.3.2" ret
 end
 
 enum

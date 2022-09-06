@@ -162,7 +162,6 @@ class net
     net.buff read
     net.temp read net.connfd . read
     (os.read)
-    copy (cstr.printint)
 
     net.temp read
     swap

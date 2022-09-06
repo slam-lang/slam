@@ -12,12 +12,11 @@ proc main 0 0
   inet
   do
     (net.poll)
-    "Server accepted the client" (cstr.println)
 
     CBUFSIZE cbuf (net.read)
     cbuflen swap put disc
-
-    cbuf (cstr.print)
+    
+    "Got connection" (cstr.println)
 
     "HTTP/1.1 200 OK\r\n" (net.write)
     "Server: Slim-lang\r\n" (net.write)
