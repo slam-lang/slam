@@ -1,15 +1,18 @@
 inc lib/inet.slm
 
-gvar inet 52
+const PORT 6969
 
 const CBUFSIZE 10000
 gvar cbuf 10000
 gvar cbuflen 8
 
-proc main 0 0
-  inet 6969 (net.open) disc
+gvar inet 52
 
+proc main 0 0
   inet
+
+  PORT (net.open)
+
   do
     (net.poll)
 
@@ -19,7 +22,7 @@ proc main 0 0
     "Got connection" (cstr.println)
 
     "HTTP/1.1 200 OK\r\n" (net.write)
-    "Server: Slim-lang\r\n" (net.write)
+    "Server: SlimHTTPD\r\n" (net.write)
     "Content-Type: text/html\r\n" (net.write)
     "Conection: Closed\r\n" (net.write)
     "\r\n" (net.write)

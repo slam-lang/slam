@@ -1,9 +1,14 @@
 class sysc
+  {TODO: finish}
   enum
   0   READ
       WRITE
       OPEN
       CLOSE
+      STAT
+      FSTAT
+      LSTAT
+      POLL
 
   33  DUP2
 

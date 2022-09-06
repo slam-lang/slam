@@ -3,6 +3,8 @@ The Slim Compiler, written in Slim
 
 Preston Precourt (prestosilver) 2022
 
+TODO: Const copy
+TODO: Const size gvar
 TODO: Track stack blocks    
 TODO: Fix inc
 TODO: Macros
@@ -1114,6 +1116,7 @@ proc getblockasm 1 1
     ret
   ]
   copy
+  {TODO: log this}
   `; unimp ` (writeout)
   (getopname) copy (cstr.len) swap (writeout)
   ` ` (writeout)
@@ -1713,6 +1716,7 @@ proc getcmdasm 1 1
     ret
   ]
   copy
+  {TODO: log this}
   `; unimp ` (writeout)
   (getopname) copy (cstr.len) swap (writeout)
   ` ` (writeout)
@@ -2308,6 +2312,7 @@ proc initobjs 0 0
   constTab     TAB_KEY_SIZE 300000 (tab.new) disc
   procTab      TAB_KEY_SIZE 300000 (tab.new) disc
   procstackTab TAB_KEY_SIZE 300000 (tab.new) disc
+
   identstack   8            4096   (arr.new) disc
   
   ret
