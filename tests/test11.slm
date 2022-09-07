@@ -1,0 +1,9 @@
+proc lol 0 0
+  "lol" (cstr.println)
+  ret
+end
+
+proc main 0 0
+  lol ()
+  ret
+end

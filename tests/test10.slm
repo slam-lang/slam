@@ -1,0 +1,79 @@
+proc main 0 0
+  (heap.init)
+  
+  heap.startaddr read (int.printhex)
+
+  1024 (heap.alloc)
+  
+  (heap.map)
+  (cstr.cr)
+
+  64 (heap.alloc)
+  
+  (heap.map)
+  (cstr.cr)
+  
+  (heap.free)
+  (heap.free)
+
+  64 (heap.alloc)
+  
+  64 (heap.alloc)
+  
+  (heap.map)
+  (cstr.cr)
+
+  swap (heap.free)
+  
+  (heap.map)
+  (cstr.cr)
+
+  1024 (heap.alloc)
+  
+  (heap.map)
+  (cstr.cr)
+  
+  (heap.free)
+  (heap.free)
+  
+  1280000 (heap.alloc)
+  copy (int.printhex)
+
+  (heap.map)
+  (cstr.cr)
+  
+  (heap.free)
+
+  1000 (heap.alloc)
+  
+  (heap.map)
+  (cstr.cr)
+
+  5000 (heap.realloc)
+
+  (heap.map)
+
+  (cstr.cr)
+  (heap.free)
+  
+  1000 (heap.alloc)
+  1000 (heap.alloc)
+  
+  (cstr.cr)
+  (heap.map)
+
+  swap
+  1000 `lol` (str.new)
+
+  2000 (heap.realloc)
+  
+  copy (str.println)
+
+  (cstr.cr)
+  (heap.map)
+
+  (heap.free)
+  (heap.free)
+  
+  ret
+end

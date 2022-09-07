@@ -3,15 +3,18 @@ The Slim Compiler, written in Slim
 
 Preston Precourt (prestosilver) 2022
 
-TODO: Imp first class funcs
+TODO: Class inheritance
+TODO: Merge to asm functions
+TODO: Clean magic nums
 TODO: Track stack blocks    
 TODO: Fix inc
 TODO: Macros
 TODO: Local variables
-TODO: Clean magic nums
+TODO: Stripping
 }
 
 inc lib/stdlib.slm
+inc lib/mem.slm
 inc lib/tables.slm
 inc lib/arrays.slm
 inc lib/log.slm
@@ -21,6 +24,10 @@ proc version 0 1
   "0.3.2" ret
 end
 
+{
+This is a enum of all the operations
+and identifiers in slim
+}
 enum
 0   OP_BAD
     OP_NOP
@@ -82,6 +89,9 @@ enum
     IDENT_END
 end
 
+{
+some parsing flags for context
+}
 enum
 0   CF_NONE
 
@@ -111,6 +121,9 @@ enum
     CF_CLASS
 end
 
+{
+help message modes
+}
 enum
 1   HELP_VERSION
     HELP_SHOW
@@ -126,18 +139,19 @@ const STRING_BUF_CAP 100000
 const LOCAL_CAP 1024
 const IDENT_CAP 1024
 
-gvar gvarTab BIG_TAB_CAP
-gvar constTab BIG_TAB_CAP
-gvar procTab BIG_TAB_CAP
-gvar procstackTab BIG_TAB_CAP
+gvar gvartab BIG_TAB_CAP
+gvar consttab BIG_TAB_CAP
+gvar proctab BIG_TAB_CAP
+gvar procstacktab BIG_TAB_CAP
 
-gvar lvarTab SML_TAB_CAP
+gvar lvartab SML_TAB_CAP
 
 gvar cmdbuffer READSIZE
-gvar _ 1
+gvar _ 1 {add 1 char for reading}
 gvar readbuffer READSIZE
-gvar _ 1
+gvar _ 1 {add 1 char for reading}
 gvar blockbuffer READSIZE
+gvar _ 1 {add 1 char for reading}
 
 gvar stringbuffer STRING_BUF_CAP
 gvar stringbufferlen int.SIZE
@@ -153,8 +167,8 @@ gvar outputbuffer 64
 gvar inputbuffer 64
 gvar cmdtmpbuffer 64
 gvar tmpprocbuffer 64
-gvar includebuffer 256
-gvar includetmpbuffer 256
+gvar includebuffer 1024
+gvar includetmpbuffer 1024
 
 gvar parseflags int.SIZE
 
@@ -180,6 +194,7 @@ proc getescape 1 1
   copy 'r' == if [ disc 13 ret ]
   copy 'n' == if [ disc 10 ret ]
   copy 't' == if [ disc 9  ret ]
+  copy '0' == if [ disc 0  ret ]
   ret
 end
 
@@ -255,7 +270,7 @@ proc checkpopb 2 0
   parsestackblock read
   0 < if [
     copy (cstr.println)
-    procstackTab (tab.print)
+    procstacktab (tab.print)
     disc -1 quit
   ]
   disc
@@ -276,7 +291,7 @@ proc checkpop 2 0
   parsestack read
   0 < if [
     copy (cstr.println)
-    procstackTab (tab.print)
+    procstacktab (tab.print)
     disc -1 quit
   ]
   disc
@@ -414,9 +429,9 @@ end
 
 proc getconst 0 1
   NULL
-  constTab cmdbuffer (tab.in) swap disc ! if [ disc cmdbuffer (cstr.tonum) ret ]
+  consttab cmdbuffer (tab.in) swap disc ! if [ disc cmdbuffer (cstr.tonum) ret ]
   disc
-  constTab cmdbuffer (tab.get)
+  consttab cmdbuffer (tab.get)
   swap disc
   
   ret
@@ -427,7 +442,7 @@ proc addproc 0 0
   cmdbuffer copy (cstr.len) swap (writeout)
   parseflags copy read
   copy CF_PROC_NAME == if [
-    procTab
+    proctab
     cmdbuffer (getexpandedname) parseaddr read (tab.put) disc
     procname (cstr.clear) cmdbuffer (cstr.copy) disc disc
   ] copy CF_PROC_IN == if [
@@ -444,7 +459,7 @@ proc addproc 0 0
     cmdbuffer (cstr.tonum) 255 &&
     4294967296 * ||
     put disc
-    procstackTab
+    procstacktab
     procname (getexpandedname) procstats read (tab.put) disc
     (writeoutln)
   ]
@@ -458,7 +473,7 @@ proc addprop 0 0
   parseflags
   copy read 1 - copy
   CF_PROP_VALUE 1 - == if [      
-    constTab constname (getexpandedname) propsize read (tab.put) disc
+    consttab constname (getexpandedname) propsize read (tab.put) disc
 
     propsize
     copy read
@@ -478,7 +493,7 @@ proc addconst 0 0
   parseflags
   copy read 1 - copy
   CF_CONST_VALUE 1 - == if [
-    constTab constname (getexpandedname) (getconst) (tab.put) disc
+    consttab constname (getexpandedname) (getconst) (tab.put) disc
     disc CF_NONE
   ] copy CF_CONST_NAME 1 - == if [
     cmdbuffer constname (cstr.clear) swap (cstr.copy) disc disc
@@ -492,7 +507,7 @@ proc addgvar 0 0
   parseflags
   copy read 1 -
   copy CF_GVAR_VALUE 1 - == if [
-    gvarTab constname (getexpandedname) parsememory read (tab.put) disc
+    gvartab constname (getexpandedname) parsememory read (tab.put) disc
     (getconst)
     parsememory read +
     parsememory swap put disc
@@ -509,7 +524,7 @@ proc addlvar 0 0
   parseflags
   copy read 1 -
   copy CF_LVAR_VALUE 1 - == if [
-    lvarTab constname parsememorylocal read (tab.put) disc
+    lvartab constname parsememorylocal read (tab.put) disc
     cmdbuffer (cstr.tonum)
     parsememorylocal read +
     parsememorylocal swap put disc
@@ -550,7 +565,7 @@ proc addenum 0 0
     ret
   ]
 
-  constTab cmdbuffer (getexpandedname) enumvalue read (tab.put) disc
+  consttab cmdbuffer (getexpandedname) enumvalue read (tab.put) disc
 
   enumvalue read
   1 +
@@ -615,7 +630,7 @@ proc asmfooter 0 0
   `    mov rax, [ret_stack_rsp]\n` (writeout)
   `    mov qword [rax], quit\n` (writeout)
   `    jmp addr_` (writeout)
-  procTab
+  proctab
   "main" (tab.in) ! if [
     "no main proc defined" (cstr.println)
     (exit)
@@ -651,14 +666,14 @@ proc endopasm 1 0
     (writeoutln)
   ]
   copy IDENT_CLASS == if [
-    constTab
+    consttab
     "SIZE" (getexpandedname) propsize read (tab.put)
     disc
     classname (cstr.clear) disc
   ]
   copy IDENT_PROC == if [
-    lvarTab 50 (mem.zero)
-    lvarTab 20 SML_TAB_CAP (tab.new) disc
+    lvartab 50 (mem.zero)
+    lvartab 20 SML_TAB_CAP (tab.new) disc
   ]
   disc
   ret
@@ -730,7 +745,12 @@ proc checkbadblock 1 1
     disc OP_PUSH
     ret
   ]
-  constTab blockbuffer (tab.in) if [
+  proctab blockbuffer (tab.in) if [
+    disc
+    disc OP_PUSHP    
+    ret
+  ] disc
+  consttab blockbuffer (tab.in) if [
     blockbuffer (tab.get) swap disc
     (int.cstr)
     blockbuffer (cstr.clear) swap (cstr.copy) disc disc
@@ -738,19 +758,19 @@ proc checkbadblock 1 1
     disc OP_PUSH
     ret
   ] disc
-  lvarTab blockbuffer (tab.in) if [
+  lvartab blockbuffer (tab.in) if [
     1 (addstackb)
     `    push lmem+` (writeout)
-    lvarTab blockbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    lvartab blockbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
     ret
   ] disc
-  gvarTab blockbuffer (tab.in) if [
+  gvartab blockbuffer (tab.in) if [
     1 (addstackb)
     `    push mem+` (writeout)
-    gvarTab blockbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    gvartab blockbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
@@ -761,7 +781,7 @@ proc checkbadblock 1 1
 end
 
 proc badret 0 0
-  procstackTab
+  procstacktab
   procname (getexpandedname) (tab.get)
   4294967296 / disc
   255 && (int.print)
@@ -793,6 +813,29 @@ proc getblockasm 1 1
     blockbuffer copy (cstr.len) swap (writeout)
     (writeoutln)
     `    push rax\n` (writeout)
+    ret
+  ] copy OP_CALLS == if [
+    "call" 1 (checkpopb)
+    0 (addstackb)
+    `    mov rax, [ret_stack_rsp]\n` (writeout)
+    `    add rax, 8\n` (writeout)
+    `    mov qword [ret_stack_rsp], rax\n` (writeout)
+    `    mov qword [rax], addr_` (writeout)
+    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    `_` (writeout)
+    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    `    pop rax\n` (writeout)
+    `    jmp rax\n` (writeout)
+    ret
+  ] copy OP_PUSHP == if [
+    "pushp" 0 (checkpopb)
+    1 (addstackb)
+    `    push addr_` (writeout)
+    proctab blockbuffer (tab.get) (int.cstr) copy (cstr.len) swap (writeout)
+    {TODO: assert return is same}
+    (writeoutln)
+    disc
     ret
   ] copy OP_COPY == if [
     "copy" 1 (checkpopb)
@@ -918,7 +961,7 @@ proc getblockasm 1 1
   ] copy OP_RET == if [
     "ret" 0 (checkpopb)
     0 (addstackb)
-    procstackTab
+    procstacktab
     procname (getexpandedname) (tab.get)
     4294967296 / disc
     255 &&
@@ -1238,7 +1281,7 @@ proc parseblockcmd 0 0
     
     (parsestring)
     ret
-  ] blockbuffer readc '(' == blockbuffer (cstr.last) ')' == && if [
+  ] blockbuffer readc '(' == blockbuffer (cstr.last) ')' == && blockbuffer (cstr.len) 2 != && if [
     {call}
 
     (writesubaddr)
@@ -1252,12 +1295,12 @@ proc parseblockcmd 0 0
     (writeoutln)
     `    jmp addr_` (writeout)
     blockbuffer (inner) disc
-    procTab
+    proctab
     blockbuffer 1 + (tab.in) ! if (noprocblock)
     blockbuffer 1 + (tab.get) (int.cstr)
     
     
-    procstackTab
+    procstacktab
     blockbuffer 1 + (tab.get)
     255 && blockbuffer 1 + swap (checkpopb)
     blockbuffer 1 + (tab.get)
@@ -1305,7 +1348,12 @@ proc checkbad 1 1
     disc OP_PUSH
     ret
   ]
-  constTab cmdbuffer (tab.in) if [
+  proctab cmdbuffer (tab.in) if [
+    disc
+    disc OP_PUSHP    
+    ret
+  ] disc
+  consttab cmdbuffer (tab.in) if [
     cmdbuffer (tab.get) swap disc
     (int.cstr)
     cmdbuffer (cstr.clear) swap (cstr.copy) disc disc
@@ -1313,19 +1361,19 @@ proc checkbad 1 1
     disc OP_PUSH
     ret
   ] disc
-  lvarTab cmdbuffer (tab.in) if [
+  lvartab cmdbuffer (tab.in) if [
     1 (addstack)
     `    push lmem+` (writeout)
-    lvarTab cmdbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    lvartab cmdbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
     ret
   ] disc
-  gvarTab cmdbuffer (tab.in) if [
+  gvartab cmdbuffer (tab.in) if [
     1 (addstack)
     `    push mem+` (writeout)
-    gvarTab cmdbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    gvartab cmdbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
@@ -1351,6 +1399,27 @@ proc getcmdasm 1 1
     cmdbuffer copy (cstr.len) swap (writeout)
     (writeoutln)
     `    push rax\n` (writeout)
+    ret
+  ] copy OP_CALLS == if [
+    "call" 1 (checkpopb)
+    0 (addstackb)
+    `    mov rax, [ret_stack_rsp]\n` (writeout)
+    `    add rax, 8\n` (writeout)
+    `    mov qword [ret_stack_rsp], rax\n` (writeout)
+    `    mov qword [rax], addr_` (writeout)
+    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    `    pop rax\n` (writeout)
+    `    jmp rax\n` (writeout)
+    ret
+  ] copy OP_PUSHP == if [
+    "pushp" 0 (checkpopb)
+    1 (addstackb)
+    `    push addr_` (writeout)
+    proctab cmdbuffer (tab.get) (int.cstr) copy (cstr.len) swap (writeout)
+    {TODO: assert return is same}
+    (writeoutln)
+    disc
     ret
   ] copy OP_COPY == if [
     "copy" 1 (checkpop)
@@ -1500,7 +1569,7 @@ proc getcmdasm 1 1
   ] copy OP_RET == if [
     "ret" 0 (checkpop)
     0 (addstack)
-    procstackTab
+    procstacktab
     procname (getexpandedname) (tab.get)
     4294967296 / disc
     255 &&
@@ -1947,7 +2016,7 @@ proc parsecmd 0 0
     cmdbuffer (cstr.clear) disc
     ret
   ]
-  cmdbuffer readc '(' == cmdbuffer (cstr.last) ')' == && if [
+  cmdbuffer readc '(' == cmdbuffer (cstr.last) ')' == && cmdbuffer (cstr.len) 2 != && if [
     (writeaddr)
     `    mov rax, [ret_stack_rsp]\n` (writeout)
     `    add rax, 8\n` (writeout)
@@ -1957,11 +2026,11 @@ proc parsecmd 0 0
     (writeoutln)
     `    jmp addr_` (writeout)
     cmdbuffer (inner) disc
-    procTab
+    proctab
     cmdbuffer 1 + (tab.in) ! if (noproc)
     cmdbuffer 1 + (tab.get) (int.cstr)
     
-    procstackTab
+    procstacktab
     cmdbuffer 1 + (tab.get)
     255 && cmdbuffer 1 + swap (checkpop)
     cmdbuffer 1 + (tab.get)
@@ -2168,7 +2237,9 @@ proc openinput 1 0
   ]
 
   {open input}
-  0 swap 0 swap
+  0
+  swap
+  fm.READ swap
   -100
   (os.open)
   inputfd swap put disc
@@ -2296,8 +2367,6 @@ proc nasm 0 0
 end
 
 proc ld 0 0
-  162 sys0 disc
-
   cmdtmpbuffer
   "/usr/bin/mv" put int.SIZE +
   "tmp" put int.SIZE +
@@ -2327,11 +2396,11 @@ proc ld 0 0
 end
 
 proc initobjs 0 0
-  gvarTab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
-  lvarTab      TAB_KEY_SIZE SML_TAB_CAP (tab.new) disc
-  constTab     TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
-  procTab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
-  procstackTab TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
+  gvartab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
+  lvartab      TAB_KEY_SIZE SML_TAB_CAP (tab.new) disc
+  consttab     TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
+  proctab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
+  procstacktab TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
 
   identstack   int.SIZE     IDENT_CAP   (arr.new) disc
   
@@ -2359,16 +2428,20 @@ proc main 0 0
   end
   disc
 
+  { if no output, put default }
   outputbuffer
   readc 0 ==
   if [outputbuffer "output" (cstr.copy) disc disc]
 
+  { if no input, write help message }
   inputbuffer
   readc 0 ==
   if [HELP_ARGS (help)]
 
   {open output}
-  511 65 "temp.fasm"
+  511
+  65
+  "temp.fasm"
   -100
   (os.open)
   outputfd swap put disc

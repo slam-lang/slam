@@ -14,7 +14,7 @@ gvar http http.SIZE
 
 proc main 0 0
   http
-  "SlimHttp" (http.setserver)
+  "SlimHTTP" (http.setserver)
   disc
 
   inet

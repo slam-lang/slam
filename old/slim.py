@@ -795,7 +795,13 @@ def parse_program(text, consts = {}, multi = False):
         elif func == "const":
             name = data[idx]
             idx += 1
-            consts[prefix + name] = int(data[idx])
+            if data[idx][-1] == "h":
+                cval = int(data[idx][:-1], 16)
+            elif data[idx][-1] == "b":
+                cval = int(data[idx][:-1], 2)
+            else:
+                cval = int(data[idx])
+            consts[prefix + name] = cval
             idx += 1
 
         elif func == "prop":
@@ -809,7 +815,12 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
 
         elif func == "enum":
-            enumval = int(data[idx])
+            if data[idx][-1] == "h":
+                enumval = int(data[idx][:-1], 16)
+            elif data[idx][-1] == "b":
+                enumval = int(data[idx][:-1], 2)
+            else:
+                enumval = int(data[idx])
             idx += 1
             while data[idx] != "end": 
                 if data[idx].lstrip('-').isnumeric():
