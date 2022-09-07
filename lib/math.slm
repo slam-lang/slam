@@ -4,7 +4,7 @@ class math
   {
   args: int[a] int[b]
   result: int
-  
+
   returns a ^ b
   }
   proc pow 2 1
@@ -48,7 +48,7 @@ class float
 
   proc exp 1 1
     8388608 / disc
-    511 {2^9 - 1}
+    01FFh {2^9 - 1}
     &&
 
     ret

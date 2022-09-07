@@ -305,50 +305,6 @@ class cstr
   end
 end
 
-class mem
-  gvar tmp 8
-  
-  proc copy 3 0
-    mem.tmp swap put disc
-    do
-      covr
-      covr readc
-      putc disc
-  
-      swap 1 +
-      swap 1 +
-  
-      mem.tmp
-      mem.tmp read
-      1 - put disc
-      mem.tmp read 0 >
-    end
-    disc
-    disc
-  
-    ret
-  end
-  
-  proc zero 2 0
-    mem.tmp swap put disc
-    do
-      copy
-      0
-      putc disc
-  
-      1 +
-  
-      mem.tmp
-      mem.tmp read
-      1 - put disc
-      mem.tmp read 0 >
-    end
-    disc
-  
-    ret
-  end
-end
-
 class int
   prop data 8
 

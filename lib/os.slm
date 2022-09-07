@@ -10,6 +10,8 @@ class sysc
       LSTAT
       POLL
 
+  12  BRK
+
   33  DUP2
 
   41  SOCKET
@@ -28,6 +30,23 @@ class sysc
 
   257 OPENAT
   end
+end
+
+class fm
+  enum
+  0   READ
+      WRITE
+      READWR
+      ACC
+  end
+  
+  const CREATE 0040h
+  const EXCL   0080h
+  const NOCTTY 0100h
+  const TURNIC 0200h
+  const NOBLOK 0400h
+  const DSYNC  0800h
+  const ASYNC  1000h
 end
 
 class os
@@ -56,9 +75,9 @@ class os
     (os.fork)
     copy 0 == if [
       {child}
-      1
+      1 {stdin}
       0
-      0
+      fm.READ
       {TODO: magic num}
       "/dev/null"
       -100
@@ -80,9 +99,7 @@ class os
   
       NULL
       0
-  
       os.waitsig
-  
       -1
       sysc.WAIT4 sys4 0 < if (os.deverr)
       disc disc
@@ -107,7 +124,7 @@ class os
     copy
     do
       copy read (log.cat)
-      8 +
+      int.SIZE +
        
       copy read NULL !=
       copy if [
@@ -134,7 +151,7 @@ class os
       "Bad arg" (int.print)
       disc -1 quit
     ]
-    8 * 
+    int.SIZE * 
     argv +
   
     read

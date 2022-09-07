@@ -179,7 +179,7 @@ class arr
     copy
     arr.curtemp read
     arr.Size . read
-    > if [ "INDEX ERROR" (cstr.println) quit ]
+    > if [ "INDEX ERROR" (cstr.println) disc -1 quit ]
     
     arr.curtemp read
     arr.Elem . read

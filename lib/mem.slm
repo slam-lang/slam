@@ -1,0 +1,246 @@
+const BRK 12
+
+class heapentry
+  prop Addr int.SIZE
+  prop Flags 1
+  prop Size int.SIZE
+  prop Data 0
+
+  proc isentry 1 1
+    copy
+    copy heapentry.Addr . read ==
+    covr heapentry.Flags . readc
+    1 && 0 != &&
+
+    swap disc
+
+    ret
+  end
+end
+
+class mem
+  gvar tmp 8
+
+  proc copy 3 0
+    mem.tmp swap put disc
+    do
+      covr
+      covr readc
+      putc disc
+  
+      swap 1 +
+      swap 1 +
+  
+      mem.tmp
+      mem.tmp read
+      1 - put disc
+      mem.tmp read 0 >
+    end
+    disc
+    disc
+  
+    ret
+  end
+  
+  proc zero 2 0
+    mem.tmp swap put disc
+    do
+      copy
+      0
+      putc disc
+  
+      1 +
+  
+      mem.tmp
+      mem.tmp read
+      1 - put disc
+      mem.tmp read 0 >
+    end
+    disc
+  
+    ret
+  end
+end
+
+
+class heap
+  gvar startaddr int.SIZE
+  gvar endaddr int.SIZE
+  gvar reqsize int.SIZE
+
+  const HEAP_PAGE 6400
+  const HEAP_STEP 64
+
+
+  proc allocpage 0 0
+    heap.endaddr read
+    heap.HEAP_PAGE +
+    copy
+    heap.endaddr swap put disc
+
+    BRK sys1 0 < if [
+      "could not allocate heap" (cstr.println)
+    ]
+  
+    ret
+  end
+
+  proc init 0 0
+    { get the heap addr }
+    heap.startaddr
+    0 BRK sys1
+    put disc
+   
+    { get the heap addr }
+    heap.endaddr
+    heap.startaddr read
+    put disc
+
+    (heap.allocpage)
+
+    ret
+  end
+
+  proc map 0 0
+    "size:   " (cstr.print)
+    heap.endaddr read
+    heap.startaddr read
+    - (int.print)
+    heap.startaddr read
+    heap.HEAP_STEP -
+    do
+      heap.HEAP_STEP +
+      copy (heapentry.isentry) if [
+        "object: " (cstr.print)
+        copy (int.printhex)
+        "  size: " (cstr.print)
+        copy heapentry.Size . read
+        copy (int.print)
+        +
+        heap.HEAP_STEP -
+      ]
+      
+      copy heap.endaddr read <
+    end
+    disc
+
+    ret
+  end
+
+  proc alloc 1 1
+    heapentry.SIZE +
+    copy heap.HEAP_STEP / swap disc -
+    heap.HEAP_STEP +
+    heap.reqsize swap put disc
+    
+    0
+    heap.startaddr read
+    swap heap.HEAP_STEP -
+    swap heap.HEAP_STEP -
+    do
+      swap heap.HEAP_STEP +
+      swap heap.HEAP_STEP +
+      copy heap.endaddr read < ! if [
+        (heap.allocpage)
+      ]
+      copy (heapentry.isentry) if [
+        copy heapentry.Size . read +
+        swap disc 0 heap.HEAP_STEP -
+        swap heap.HEAP_STEP -
+      ]
+      covr heap.reqsize read <
+    end
+    swap disc
+     
+    heap.reqsize read -
+
+    copy heapentry.Size .
+    heap.reqsize read
+    put disc
+    copy
+    copy heapentry.Addr .
+    swap
+    put disc
+    copy heapentry.Flags .
+    1
+    putc disc
+
+    heapentry.SIZE +
+
+    ret
+  end
+
+  proc free 1 0
+    "free" (cstr.println)
+    heapentry.SIZE -
+    copy (heapentry.isentry) ! if [
+      "Bad free call" (cstr.println)
+    ]
+   
+    heapentry.Flags .
+    0
+    putc disc
+
+    ret
+  end
+  
+  {
+  args: ptr[mem] int[newsize]
+  result: ptr[mem]
+
+  reallocates a block
+  }
+  proc realloc 2 1
+    heapentry.SIZE +
+    copy heap.HEAP_STEP / swap disc -
+    heap.HEAP_STEP +
+    heap.reqsize swap put disc
+
+    heapentry.SIZE -
+
+    copy (heapentry.isentry) ! if [
+      "Bad realloc call" (cstr.println)
+    ]
+
+    copy
+    copy heapentry.Size . read +
+    covr heapentry.Size . read
+    heap.HEAP_STEP -
+    swap heap.HEAP_STEP -
+    do
+      swap heap.HEAP_STEP +
+      swap heap.HEAP_STEP +
+      copy (heapentry.isentry) if [
+        disc
+        disc
+        copy heapentry.SIZE +
+        (heap.free)
+        heap.reqsize
+        read (heap.alloc)
+        swap
+        covr heapentry.Data . swap
+        copy heapentry.Size . read
+        (mem.copy)
+        ret
+      ]
+
+      covr heap.reqsize read > !
+    end
+    disc
+    disc
+
+    copy heapentry.Size .
+    heap.reqsize read
+    put disc
+    copy
+    copy heapentry.Addr .
+    swap
+    put disc
+    copy heapentry.Flags .
+    1
+    putc disc
+
+    heapentry.SIZE +
+    ret
+  end
+end
