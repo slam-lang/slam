@@ -1,0 +1,115 @@
+class lcd
+  const rNR52 FF26h
+  const rLCDC FF40h
+  const rLCDS FF41h
+  const rSCX  FF42h
+  const rSCY  FF43h
+  const rLY   FF44h
+  const rLX   FF45h
+  const rDMA  FF46h
+  const rBGP  FF47h
+  const rOBP1 FF48h
+  const rOBP2 FF49h
+  const LCDCF_OFF   00000000b
+  const LCDCF_ON    10000000b
+  const LCDCF_OBJON 00000010b
+  const LCDCF_BGON  00000001b
+
+  proc vblank 0 0
+    do
+      lcd.rLY readc 144 <
+    end
+
+    ret
+  end
+
+  proc init 0 0
+    lcd.rNR52
+    0
+    putc disc
+
+    ret
+  end
+
+  proc mode 1 0
+    lcd.rLCDC
+    swap
+    putc disc
+    ret
+  end
+end
+
+class sprite
+  const start FE00h
+
+  prop y 1
+  prop x 1
+  prop tile 1
+  prop flags 1
+  
+  gvar temp 1
+
+  proc get 1 1
+    4 *
+    sprite.start +
+    
+    ret
+  end
+  
+  proc settile 2 1
+    covr sprite.tile .
+    swap
+    lcd
+    putc disc
+
+    ret
+  end
+  
+  proc setpos 3 1
+    sprite.temp swap putc disc
+    
+    covr sprite.y .
+    swap
+    lcd
+    putc disc
+
+    sprite.temp readc
+    
+    covr sprite.x .
+    swap
+    lcd
+    putc disc
+
+    ret
+  end
+end
+
+class joypad
+  const rP1     FF00h
+
+  const dpadf   0020h
+  const btnsf   0010h
+
+  proc buttons 0 0
+    joypad.rP1
+    joypad.btnsf
+    putc disc
+
+    ret
+  end
+
+  proc dpad 0 0
+    joypad.rP1
+    joypad.dpadf
+    putc disc
+
+    ret
+  end
+
+  proc get 0 1
+    joypad.rP1
+    readc
+
+    ret
+  end
+end

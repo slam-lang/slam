@@ -171,7 +171,6 @@ class heap
   end
 
   proc free 1 0
-    "free" (cstr.println)
     heapentry.SIZE -
     copy (heapentry.isentry) ! if [
       "Bad free call" (cstr.println)

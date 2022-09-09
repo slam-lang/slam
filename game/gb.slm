@@ -1,0 +1,146 @@
+const p1 11100100b
+const p2 01110000b
+const vramts 8000h
+const vramtm 9000h
+const vramm1 9800h
+const vramm2 9C00h
+const sram A000h
+const tile 0000h
+const tilesize 00FFh
+const floor 9800h
+{const floor A000h}
+const speed 200
+const gravity 100
+const jumpv 128
+const jumptime 10
+
+gvar x 2
+gvar y 2
+gvar yv 2
+gvar jump 1
+
+proc dojump 0 0
+  jump readc if [
+    jump
+    jump readc 1 swap -
+    putc disc
+    yv
+    yv read jumpv +
+    put disc
+
+    ret
+  ]
+  jump 0 putc disc
+  yv
+  yv read gravity swap -
+  put disc
+
+  ret
+end
+
+proc updateinput 0 0
+  (joypad.dpad)
+  (joypad.get)
+
+  copy 1 && 1 != if [
+    x
+    x read speed +
+    put disc
+  ]
+  copy 2 && 2 != if [
+    x
+    x read speed swap -
+    put disc
+  ]
+  copy 4 && 4 != if [
+    (dojump)
+  ]
+  copy 4 && if [
+    jump 0 putc disc
+    yv
+    yv read gravity swap -
+    put disc
+  ]
+  disc
+
+  ret
+end
+  
+proc updatevel 0 0
+  y
+  y read yv read swap -
+  copy floor swap < if [
+    yv 0 put disc
+    jump jumptime putc disc
+    disc floor
+  ]
+  put disc
+  
+  ret
+end
+
+proc main 0 0
+  (lcd.init)
+
+  (lcd.vblank)
+
+  lcd.LCDCF_OFF
+  (lcd.mode)
+  
+  0
+  do
+    copy vramtm +
+    covr tiles + readc
+    putc disc
+    
+    copy vramts +
+    covr tiles + readc
+    putc disc
+
+    1 +
+
+    copy tilesize <
+  end
+  disc
+  
+  vramm1
+  do
+    tile putc
+    1 +
+    copy vramm2 <
+  end
+  disc
+
+  lcd.LCDCF_ON
+  lcd.LCDCF_BGON +
+  lcd.LCDCF_OBJON +
+  (lcd.mode)
+
+  lcd.rBGP
+  p1
+  putc disc
+  
+  lcd.rOBP1
+  p2
+  putc disc
+  
+  1 (sprite.get)
+  3 (sprite.settile)
+  x 20 putc disc
+  y 20 putc disc
+
+  do
+    (lcd.vblank)
+    (updateinput)
+    (updatevel)
+
+    y readc
+    x readc
+    (sprite.setpos)
+    1
+  end
+
+  disc
+
+  ret
+end

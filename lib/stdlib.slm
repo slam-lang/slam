@@ -246,9 +246,12 @@ class cstr
       
     cstr.tempmul 10 putc disc
     
-    copy copy (cstr.len) +
+    copy copy (cstr.len) + 1 -
     copy readc 'b' == if [
       cstr.tempmul 2 putc disc
+    ]
+    copy readc 'h' == if [
+      cstr.tempmul 16 putc disc
     ]
     disc
     
@@ -256,12 +259,21 @@ class cstr
     do
       cstr.tempmul readc *
       covr readc
+      copy 'F' 1 + <
+      covr 'A' 1 - > && if [
+        'A' 10 - -
+        '0' +
+      ]
       '0' - +
       
       swap 1 +
       swap
   
       covr readc
+      copy 0 !=
+      covr 'b' != &&
+      covr 'h' != &&
+      swap disc
     end
     swap disc
   
@@ -337,6 +349,31 @@ class int
       copy 0 !=
     end
     disc
+    (int.gettmp) 1 +
+    
+    int.tmpidx 0 putc disc
+    ret
+  end
+
+  proc cstrhex 1 1
+    do
+      16 /
+      copy 9 > if ['a' 10 - +]
+      copy 10 < if ['0' +]
+      (int.gettmp)
+      swap
+      putc disc
+      (int.inctmpidx)
+
+      copy 0 !=
+    end
+    disc
+    
+    (int.gettmp)
+    '$'
+    putc disc
+    (int.inctmpidx)
+
     (int.gettmp) 1 +
     
     int.tmpidx 0 putc disc

@@ -6,6 +6,7 @@ TODO: remove
 TODO: defrag
 }
 class map
-  prop
+  prop hashfunc int.SIZE
+  prop listsptr int.SIZE
 
 end

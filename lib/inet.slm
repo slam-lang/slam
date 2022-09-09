@@ -4,9 +4,9 @@ class sockaddr
   prop addr 4
   prop misc 8
   
-  const FAMI_MASK FFFFFFFFh
-  const PORT_MASK FFFFFFFFh
-  const ADDR_MASK FFFFFFFFFFFFFFFFh
+  const FAMI_MASK FFFFh
+  const PORT_MASK FFFFh
+  const ADDR_MASK FFFFFFFFh
 
   gvar temp int.SIZE
 
@@ -45,11 +45,9 @@ class sockaddr
   proc setport 2 1
     swap sockaddr.temp swap put disc
     
-    copy 00ffh &&     00ffh *
+    copy 00ffh &&     0100h *
     swap 0100h / disc 00ffh &&
     ||
-
-    sockaddr.PORT_MASK &&
 
     sockaddr.temp read
     sockaddr.port .
@@ -143,7 +141,6 @@ class net
       {TODO: Log}
     ]
     net.temp read net.connfd .
-
     swap
     put disc
 

@@ -2,3 +2,6 @@
 *.asm
 *.o
 slim
+temp/**
+slim-gb
+gb.gb

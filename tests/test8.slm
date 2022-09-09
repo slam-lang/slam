@@ -20,6 +20,9 @@ proc main 0 0
   inet
 
   PORT (net.open)
+  
+  "started on port " (cstr.print)
+  PORT (int.print)
 
   do
     (net.poll)
@@ -27,12 +30,13 @@ proc main 0 0
     CBUFSIZE cbuf (net.read)
     cbuflen swap put disc
 
-    "Got connection" (cstr.println)
-
     http
     cbuf (http.parseurl) urlbuf (cstr.clear) swap (cstr.copy) disc disc
     respbuf 200 (http.getheader)
     swap disc
+    "Got connection" (cstr.println)
+    "URL: " (cstr.print) urlbuf (cstr.println)
+
     (net.write)
 
     "<h1>Hello, World!</h1>\n" (net.write)
