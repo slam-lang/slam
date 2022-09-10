@@ -1,6 +1,11 @@
 const NULL 0
-const true 1
-const false 0
+
+class bool
+  prop val 1
+
+  const true 1
+  const false 0
+end
 
 class cstr
 
@@ -76,7 +81,7 @@ class cstr
   proc eq 2 1
     covr readc
     covr readc
-    != if [disc disc false ret]
+    != if [disc disc bool.false ret]
     1 -
     swap
     1 -
@@ -93,7 +98,7 @@ class cstr
         disc
         disc
         disc
-        true
+        bool.true
         ret
         ]
       covr 0 ==
@@ -103,14 +108,14 @@ class cstr
         disc
         disc
         disc
-        false
+        bool.false
         ret
       ]
       ==
     end
     disc
     disc
-    false
+    bool.false
     ret
   end
 

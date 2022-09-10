@@ -187,7 +187,7 @@ class tab
       1 +
       (tab.curentryaddr)
   
-      copy readc NULL == if [disc disc false ret]
+      copy readc NULL == if [disc disc bool.false ret]
   
       tab.entrytmp read (cstr.eq) !
     end
@@ -196,7 +196,7 @@ class tab
     
     tab.curtmp read
   
-    true
+    bool.true
     ret
   end
   

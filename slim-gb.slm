@@ -39,7 +39,7 @@ enum
     OP_PUT
     OP_DISC
     OP_TILES
-    OP_ARGC
+    OP_TILEM
     OP_LCD
     OP_PUSHP
     OP_CALLS
@@ -224,8 +224,8 @@ proc getnameop 1 1
   covr "="     (cstr.eq) if [disc OP_PUT]
   covr "disc"  (cstr.eq) if [disc OP_DISC]
   covr "tiles" (cstr.eq) if [disc OP_TILES]
-  covr "argc"  (cstr.eq) if [disc OP_ARGC]
-  covr "lcd"  (cstr.eq) if [disc OP_LCD]
+  covr "tilem" (cstr.eq) if [disc OP_TILEM]
+  covr "lcd"   (cstr.eq) if [disc OP_LCD]
   covr "()"    (cstr.eq) if [disc OP_CALLS]
   covr "ret"   (cstr.eq) if [disc OP_RET]
   covr "quit"  (cstr.eq) if [disc OP_QUIT]
@@ -616,6 +616,9 @@ proc asmheader 0 0
 end
 
 proc asmfooter 0 0
+  "used memory: " (cstr.print)
+  parsememory read (int.cstr) (cstr.print)
+  "b" (cstr.println)
   `addr_` (writeout)
   (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
   `:\n` (writeout)
@@ -667,7 +670,7 @@ proc asmfooter 0 0
   `INCBIN "game/lol.2bpp" \n` (writeout)
   `SECTION "Tile Map", ROM0\n` (writeout)
   `Tilemap:\n` (writeout)
-  `INCBIN "game/lol.tilemap"\n` (writeout)
+  `INCBIN "game/map.bin" \n` (writeout)
   disc
   ret
 end
@@ -883,8 +886,8 @@ proc getblockasm 1 1
   ] copy OP_SUB == if [
     "sub" 2 (checkpopb)
     1 (addstackb)
-    `    pop bc\n` (writeout)
     `    pop de\n` (writeout)
+    `    pop bc\n` (writeout)
     `    ld a, c\n` (writeout)
     `    sub a, e\n` (writeout)
     `    ld c, a\n` (writeout)
@@ -940,7 +943,7 @@ proc getblockasm 1 1
     `    pop bc\n` (writeout)
     `    pop de\n` (writeout)
     `    call multi\n` (writeout)
-    `    push bc\n` (writeout)
+    `    push hl\n` (writeout)
     ret
   ] copy OP_DIV == if [
     "div" 2 (checkpopb)
@@ -961,18 +964,15 @@ proc getblockasm 1 1
     `    push bc\n` (writeout)
     `    push de\n` (writeout)
     ret
-  ] copy OP_ARGC == if [
+  ] copy OP_TILEM == if [
     "argc" 0 (checkpopb)
     1 (addstackb)
-    `    ld bc, [args_ptr]\n` (writeout)
-    `    ld bc, [bc]\n` (writeout)
-    `    push bc\n` (writeout)
+    `    ld hl, Tilemap\n` (writeout)
+    `    push hl\n` (writeout)
     ret
   ] copy OP_TILES == if [
     "tiles" 0 (checkpopb)
     1 (addstackb)
-    `    ld hl, tiles\n` (writeout)
-    `    push hl\n` (writeout)
     ret
   ] copy OP_LCD == if [
     "lcd" 0 (checkpopb)
@@ -1516,8 +1516,8 @@ proc getcmdasm 1 1
   ] copy OP_SUB == if [
     "sub" 2 (checkpop)
     1 (addstack)
-    `    pop bc\n` (writeout)
     `    pop de\n` (writeout)
+    `    pop bc\n` (writeout)
     `    ld a, c\n` (writeout)
     `    sub a, e\n` (writeout)
     `    ld c, a\n` (writeout)
@@ -1586,7 +1586,7 @@ proc getcmdasm 1 1
     `    pop bc\n` (writeout)
     `    pop de\n` (writeout)
     `    call multi\n` (writeout)
-    `    push bc\n` (writeout)
+    `    push hl\n` (writeout)
     ret
   ] copy OP_DIV == if [
     "div" 2 (checkpop)
@@ -1631,12 +1631,11 @@ proc getcmdasm 1 1
     CF_ENUM_START
     put disc
     ret
-  ] copy OP_ARGC == if [
+  ] copy OP_TILEM == if [
     "argc" 0 (checkpop)
     1 (addstack)
-    `    ld bc, [args_ptr]\n` (writeout)
-    `    ld bc, [bc]\n` (writeout)
-    `    push bc\n` (writeout)
+    `    ld hl, Tilemap\n` (writeout)
+    `    push hl\n` (writeout)
     ret
   ] copy OP_TILES == if [
     "tiles" 0 (checkpop)

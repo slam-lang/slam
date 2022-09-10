@@ -67,10 +67,10 @@ class heap
   gvar startaddr int.SIZE
   gvar endaddr int.SIZE
   gvar reqsize int.SIZE
+  gvar isinit bool.SIZE
 
   const HEAP_PAGE 6400
   const HEAP_STEP 64
-
 
   proc allocpage 0 0
     heap.endaddr read
@@ -86,6 +86,10 @@ class heap
   end
 
   proc init 0 0
+    heap.isinit readc if [
+      ret
+    ]
+    
     { get the heap addr }
     heap.startaddr
     0 BRK sys1
@@ -102,6 +106,7 @@ class heap
   end
 
   proc map 0 0
+    (heap.init)
     "size:   " (cstr.print)
     heap.endaddr read
     heap.startaddr read
@@ -128,6 +133,7 @@ class heap
   end
 
   proc alloc 1 1
+    (heap.init)
     heapentry.SIZE +
     copy heap.HEAP_STEP / swap disc -
     heap.HEAP_STEP +
@@ -169,11 +175,40 @@ class heap
 
     ret
   end
+  
+  proc zalloc 1 1
+    (heap.init)
+    (heap.alloc)
+    copy
+    
+    copy heapentry.SIZE -
+    heapentry.Size .
+    read
+    (mem.zero)
+
+    ret
+  end
 
   proc free 1 0
+    (heap.init)
     heapentry.SIZE -
     copy (heapentry.isentry) ! if [
       "Bad free call" (cstr.println)
+      disc ret
+    ]
+   
+    heapentry.Flags .
+    0
+    putc disc
+
+    ret
+  end
+
+  proc tryfree 1 0
+    (heap.init)
+    heapentry.SIZE -
+    copy (heapentry.isentry) ! if [
+      disc ret
     ]
    
     heapentry.Flags .
@@ -190,6 +225,7 @@ class heap
   reallocates a block
   }
   proc realloc 2 1
+    (heap.init)
     heapentry.SIZE +
     copy heap.HEAP_STEP / swap disc -
     heap.HEAP_STEP +
@@ -242,4 +278,8 @@ class heap
     heapentry.SIZE +
     ret
   end
+end
+
+class opt
+  prop val 0
 end

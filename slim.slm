@@ -160,7 +160,7 @@ gvar outputfd int.SIZE
 
 gvar cmdlineflags int.SIZE
 
-gvar identstack IDENT_CAP
+gvar identstack 8
 
 gvar classname 64
 gvar outputbuffer 64
@@ -306,14 +306,14 @@ proc addstack 1 0
 end
 
 proc identstackpush 1 0
-  identstack swap (arr.pushint)
+  identstack read swap (seq.pushint)
   disc
 
   ret
 end
 
 proc identstackpop 0 1
-  identstack (arr.popaddr) read swap disc
+  identstack read (seq.popaddr) read swap disc
 
   ret
 end
@@ -2402,7 +2402,7 @@ proc initobjs 0 0
   proctab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
   procstacktab TAB_KEY_SIZE BIG_TAB_CAP (tab.new) disc
 
-  identstack   int.SIZE     IDENT_CAP   (arr.new) disc
+  identstack   int.SIZE     IDENT_CAP   (seq.new) put disc
   
   ret
 end

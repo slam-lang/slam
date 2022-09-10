@@ -3,16 +3,74 @@ const p2 01110000b
 const vramts 8000h
 const vramtm 9000h
 const vramm1 9800h
+const vramm15 9A1Fh
 const vramm2 9C00h
-const sram A000h
-const tile 0000h
-const tilesize 00FFh
-const floor 9800h
-{const floor A000h}
+const tile 0005h
+const tilesize 017Fh
+const spritesize 0040h
+const floor 8800h
 const speed 200
 const gravity 100
 const jumpv 128
-const jumptime 10
+const jumptime 6
+
+class enemy
+  prop x 2
+  prop y 2
+  prop yv 2
+  prop obj 2
+
+  gvar temp 2
+
+  proc init 2 1
+    covr enemy.obj .
+    covr
+    (sprite.get)
+    1 (sprite.settile)
+    put disc
+
+    disc
+
+    copy enemy.x . 20 putc disc
+    copy enemy.y . 20 putc disc
+
+    ret
+  end
+
+  proc phys 1 1
+    copy enemy.yv .
+    copy read gravity - put disc
+
+    copy enemy.y . read
+    covr enemy.yv . read -
+    copy floor swap < if [
+      covr enemy.yv . 0 put -
+      disc floor
+    ]
+    covr enemy.y . swap
+    put disc
+
+    ret
+  end
+
+  proc update 1 1
+    (enemy.phys)
+
+    enemy.temp swap put disc
+
+    enemy.temp read enemy.obj . read
+    enemy.temp read enemy.y . readc
+    enemy.temp read enemy.x . readc
+
+    (sprite.setpos) disc
+    
+    enemy.temp read
+
+    ret
+  end
+end
+
+gvar enemy1 enemy.SIZE
 
 gvar x 2
 gvar y 2
@@ -22,7 +80,7 @@ gvar jump 1
 proc dojump 0 0
   jump readc if [
     jump
-    jump readc 1 swap -
+    jump readc 1 -
     putc disc
     yv
     yv read jumpv +
@@ -32,9 +90,20 @@ proc dojump 0 0
   ]
   jump 0 putc disc
   yv
-  yv read gravity swap -
+  yv read gravity -
   put disc
 
+  ret
+end
+
+proc moveleft 0 0
+  x read speed < if [
+    x x readc 168 + putc disc
+  ]
+  x
+  x read speed -
+  put disc
+  
   ret
 end
 
@@ -48,17 +117,19 @@ proc updateinput 0 0
     put disc
   ]
   copy 2 && 2 != if [
-    x
-    x read speed swap -
-    put disc
+    (moveleft)
   ]
-  copy 4 && 4 != if [
+  disc
+
+  (joypad.buttons)
+  (joypad.get)
+  copy 2 && 2 != if [
     (dojump)
   ]
-  copy 4 && if [
+  copy 2 && if [
     jump 0 putc disc
     yv
-    yv read gravity swap -
+    yv read gravity -
     put disc
   ]
   disc
@@ -68,7 +139,7 @@ end
   
 proc updatevel 0 0
   y
-  y read yv read swap -
+  y read yv read -
   copy floor swap < if [
     yv 0 put disc
     jump jumptime putc disc
@@ -79,7 +150,20 @@ proc updatevel 0 0
   ret
 end
 
+proc updatedge 0 0
+  x
+  x readc
+  copy 168 swap < if [
+    168 -
+  ]
+  putc disc
+
+  ret
+end
+
 proc main 0 0
+  enemy1 1 (enemy.init) disc
+  
   (lcd.init)
 
   (lcd.vblank)
@@ -89,11 +173,10 @@ proc main 0 0
   
   0
   do
-    copy vramtm +
-    covr tiles + readc
-    putc disc
-    
-    copy vramts +
+    copy vramtm + spritesize -
+    covr spritesize < if [
+      disc copy vramts +
+    ]
     covr tiles + readc
     putc disc
 
@@ -103,11 +186,15 @@ proc main 0 0
   end
   disc
   
-  vramm1
+  0
   do
-    tile putc
+    copy vramm1 +
+    covr tilem + readc
+    putc disc
+    
     1 +
-    copy vramm2 <
+
+    copy vramm2 vramm1 - <
   end
   disc
 
@@ -124,15 +211,19 @@ proc main 0 0
   p2
   putc disc
   
-  1 (sprite.get)
+  0 (sprite.get)
   3 (sprite.settile)
-  x 20 putc disc
-  y 20 putc disc
+  x 84 putc disc
+  y 144 putc disc
 
   do
     (lcd.vblank)
+    enemy1
+    (enemy.update)
+    disc
     (updateinput)
     (updatevel)
+    (updatedge)
 
     y readc
     x readc
