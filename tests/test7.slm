@@ -1,4 +1,5 @@
-inc lib/math.slm
+inc stdlib.slm
+inc math.slm
 
 proc main 0 0
   10000 (float.fromint)

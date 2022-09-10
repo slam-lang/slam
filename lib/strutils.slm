@@ -1,0 +1,18 @@
+class strutil
+  gvar tempstore int.SIZE
+  
+  proc starts 2 1
+    copy (cstr.len) 1 + (heap.zalloc)
+    strutil.tempstore swap put disc
+  
+    covr
+    covr (cstr.len)
+    strutil.tempstore read swap (mem.copy)
+    swap disc
+
+    strutil.tempstore read (cstr.eq)
+
+    strutil.tempstore read (heap.free)
+    ret
+  end
+end

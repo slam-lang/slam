@@ -1,3 +1,8 @@
+inc stdlib.slm
+inc mem.slm
+inc string.slm
+inc strutils.slm
+
 gvar temp 32
 gvar str1 64
 gvar str2 64
@@ -39,6 +44,12 @@ proc main 0 0
   copy (str.len) (int.print)
 
   disc
+  
+  "lol" "fdsafdsa" (strutil.starts) (int.print)
+  "lol" "lol" (strutil.starts) (int.print)
+  "lolf" "lol" (strutil.starts) (int.print)
+  "lol" "lolf" (strutil.starts) (int.print)
+  "fdsa" "lolf" (strutil.starts) (int.print)
 
   ret
 end

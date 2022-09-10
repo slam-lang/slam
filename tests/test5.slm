@@ -1,4 +1,4 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
 gvar string 128
 

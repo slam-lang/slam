@@ -449,13 +449,14 @@ def compile_inst(out, op, ip, start):
     else:
         assert False, "not implemented" + str(op)
 
-
+includepath = ""
 
 def compile_program(program):
     global procs
     global strs
     global locs
     global memsize
+    global includepath
     with open("output.asm", "w") as out:
         strs = []
         locs = {}
@@ -731,6 +732,7 @@ gvars = []
 lvars = {}
 
 def parse_program(text, consts = {}, multi = False):
+    global includepath
     global proc_values
     global gvars
     global lvars
@@ -839,7 +841,7 @@ def parse_program(text, consts = {}, multi = False):
                 proc_block.pop()
         
         elif func == "inc":
-            with open(data[idx], "r") as file:
+            with open(includepath + "/" + data[idx], "r") as file:
                 (program, values) = parse_program(file.read())
                 result.extend(program)
             idx += 1
@@ -966,14 +968,16 @@ def cmd_call_echoed(cmd, silent):
     return subprocess.call(cmd)
 
 def main():
+    global includepath
     parser = argparse.ArgumentParser()
 
     parser.add_argument('file')
     parser.add_argument('-s', '--simulate', type=bool, default=False)
     parser.add_argument('-S', '--silent', type=bool, default=False)
     parser.add_argument('-o', '--output', type=str, default="output", help="The file to write to")
-    parser.add_argument('-i', '--include', type=str, default="output", help="The file to write to")
+    parser.add_argument('-i', '--include', type=str, default="", help="The file to write to")
     args = parser.parse_args()
+    includepath = args.include
 
     with open(args.file, "r") as file:
         (program, _) = parse_program(file.read())

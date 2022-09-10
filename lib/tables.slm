@@ -24,9 +24,12 @@ class tab
   
   construct a table
   }
-  proc new 3 1
+  proc new 2 1
     swap tab.entrytmp swap put disc
-    swap tab.curtmp swap put disc
+    tab.curtmp
+    covr (heap.alloc)
+    put disc
+
     tab.Data -
     tab.curtmp read
     tab.Max .
@@ -36,7 +39,7 @@ class tab
     tab.Entry .
     tab.entrytmp read
     put disc
-  
+
     tab.curtmp read
     ret
   end
@@ -48,8 +51,9 @@ class tab
     tab.curtmp read
     tab.Entry . read 
     8 + *
-    copy tab.curtmp
-    read tab.Max .
+    copy
+    tab.curtmp read
+    tab.Max . read
     > if [
       "TABLE OVERFLOW" (cstr.println)
       disc disc disc -1 quit
@@ -207,4 +211,10 @@ class tab
   defragments a table
   }
   {TODO} 
+
+  proc free 1 0
+    (heap.free)
+
+    ret
+  end
 end

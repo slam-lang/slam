@@ -1,14 +1,14 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
 proc main 0 0
   {prints 15 3 times}
 
-  1111b (cstr.printint) 
-  0015  (cstr.printint) 
-  000fh (cstr.printint) 
+  1111b (int.print) 
+  0015  (int.print) 
+  000fh (int.print) 
 
-  1111b (cstr.printinthex) 
-  0015  (cstr.printinthex) 
-  000fh (cstr.printinthex) 
+  1111b (int.printhex) 
+  0015  (int.printhex) 
+  000fh (int.printhex) 
   ret
 end

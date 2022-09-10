@@ -1,4 +1,8 @@
-inc lib/inet.slm
+inc stdlib.slm
+inc mem.slm
+inc log.slm
+inc os.slm
+inc inet.slm
 
 const PORT 6969
 

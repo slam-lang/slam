@@ -1,4 +1,7 @@
-inc lib/stdlib.slm
+inc stdlib.slm
+inc mem.slm
+inc log.slm
+inc os.slm
 
 gvar cmdtmp 128
 

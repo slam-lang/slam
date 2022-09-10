@@ -1,10 +1,11 @@
-inc lib/stdlib.slm
-inc lib/tables.slm
+inc stdlib.slm
+inc mem.slm
+inc tables.slm
 
 gvar table 4096
 
 proc main 0 0
-  table int.SIZE 4096 (tab.new)
+  int.SIZE 4096 (tab.new)
 
   "lol" 32
   (tab.put)
@@ -30,7 +31,9 @@ proc main 0 0
 
   "lmao" (tab.get)
   (int.print)
-  (tab.print)
+  copy (tab.print)
+
+  (tab.free)
 
   ret
 end

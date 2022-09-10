@@ -1,3 +1,5 @@
+inc stdlib.slm
+
 proc lol 0 0
   "lol" (cstr.println)
   ret

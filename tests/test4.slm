@@ -1,47 +1,52 @@
-inc lib/arrays.slm
+inc stdlib.slm
+inc mem.slm
+inc arrays.slm
 
-gvar array 4096
+gvar seq 8
 
 proc main 0 0
-  array int.SIZE 4096 (arr.new)
-  1 (arr.setlen)
+  seq int.SIZE 4096 (seq.new) put disc
 
-  0 (arr.getaddr)
+  seq read
+  1 (seq.setlen)
+
+  0 (seq.getaddr)
   64 putc disc
 
-  disc array
+  disc
+  seq read
 
   "len: " (cstr.print)
-  (arr.len) (int.print)
+  (seq.len) (int.print)
 
-  "44" (arr.push)
-  "45" (arr.push)
-  "46" (arr.push)
-  "47" (arr.push)
+  "44" (seq.push)
+  "45" (seq.push)
+  "46" (seq.push)
+  "47" (seq.push)
 
   "len: " (cstr.print)
-  (arr.len) (int.print)
+  (seq.len) (int.print)
 
-  array (arr.print)
+  seq read (seq.print)
 
   "poped: " (cstr.print)
 
-  (arr.pop) (cstr.println)
+  (seq.pop) (cstr.println)
 
   "len: " (cstr.print)
-  (arr.len) (int.print)
+  (seq.len) (int.print)
   
-  array (arr.print)
+  seq read (seq.print)
 
-  1 (arr.getaddr)
+  1 (seq.getaddr)
   64 put disc
 
-  array (arr.print)
+  seq read (seq.print)
   
-  1 (arr.extend)
+  1 (seq.extend)
 
-  array (arr.print)
+  seq read (seq.print)
 
-  disc
+  (seq.free)
   ret
 end
