@@ -11,6 +11,8 @@ TODO: Track stack blocks
 TODO: Macros
 TODO: Stripping
 TODO: Check for no return
+TODO: String consts
+TODO: More comments
 }
 
 inc os.slm
@@ -126,19 +128,17 @@ enum
     HELP_OUTPUT
 end
 
-const TAB_KEY_SIZE 20
-const BIG_TAB_CAP 300000
-const SML_TAB_CAP 100000
-const READSIZE 2048
+const TAB_KEY_SIZE   20
+const BIG_TAB_CAP    300000
+const SML_TAB_CAP    100000
 const STRING_BUF_CAP 100000
-const LOCAL_CAP 1024
-const IDENT_CAP 1024
+const READSIZE       2048
+const IDENT_CAP      1024
 
 gvar gvartab 8
 gvar consttab 8
 gvar proctab 8
 gvar procstacktab 8
-gvar lvartab 8
 gvar includedtab 8
 
 gvar cmdbuffer READSIZE
@@ -703,10 +703,6 @@ proc endopasm 1 0
     disc
     classname (cstr.clear) disc
   ]
-  copy IDENT_PROC == if [
-    lvartab read (tab.free)
-    lvartab 20 SML_TAB_CAP (tab.new) put disc
-  ]
   disc
   ret
 end
@@ -784,15 +780,6 @@ proc checkbadblock 1 1
     blockbuffer (cstr.clear) swap (cstr.copy) disc disc
     
     disc OP_PUSH
-    ret
-  ] disc
-  lvartab read blockbuffer (tab.in) if [
-    1 (addstackb)
-    `    push lmem+` (writeout)
-    lvartab read blockbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
-    (writeoutln) disc
-    
-    disc OP_NOP
     ret
   ] disc
   gvartab read blockbuffer (tab.in) if [
@@ -1380,15 +1367,6 @@ proc checkbad 1 1
     cmdbuffer (cstr.clear) swap (cstr.copy) disc disc
     
     disc OP_PUSH
-    ret
-  ] disc
-  lvartab read cmdbuffer (tab.in) if [
-    1 (addstack)
-    `    push lmem+` (writeout)
-    lvartab read cmdbuffer (tab.get) swap disc (int.cstr) copy (cstr.len) swap (writeout)
-    (writeoutln) disc
-    
-    disc OP_NOP
     ret
   ] disc
   gvartab read cmdbuffer (tab.in) if [
@@ -2364,7 +2342,6 @@ proc initobjs 0 0
   (heap.init)
   
   gvartab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
-  lvartab      TAB_KEY_SIZE SML_TAB_CAP (tab.new) put disc
   consttab     TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
   proctab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
   procstacktab TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
