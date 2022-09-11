@@ -1,4 +1,4 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
 gvar temp 8
 
@@ -13,8 +13,9 @@ proc main 0 0
     1 +
     copy 1000 !=
   end
+  disc
 
-  temp read (cstr.printint)
+  temp read (int.print)
   
   ret
 end

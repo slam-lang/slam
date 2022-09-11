@@ -1,3 +1,7 @@
+inc stdlib.slm
+inc mem.slm
+inc os.slm
+
 class sockaddr
   prop family 2
   prop port 2

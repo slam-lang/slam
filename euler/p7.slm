@@ -1,14 +1,16 @@
-inc lib/stdlib.slm
+inc stdlib.slm
+
+gvar testing 8
 
 proc checkprime 1 1
-  copy 
+  testing swap put disc
+  1
   do
-    1 -
-    covr covr / swap disc 0 == if [disc disc 0 ret]
+    1 +
+    testing read covr / swap disc 0 == if [disc 0 ret]
 
-    copy 2 !=
+    copy copy * testing read <
   end
-  disc
   disc
   1
 
@@ -28,8 +30,8 @@ proc main 0 0
 
     covr 0 !=
   end
-  (str.printint)
-  (str.printint)
+  (int.print)
+  disc
 
   ret
 end

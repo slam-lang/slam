@@ -1,4 +1,5 @@
-inc lib/stdlib.slm
+inc stdlib.slm
+inc os.slm
 
 gvar thirteen 14
 gvar inputfd 8
@@ -18,7 +19,7 @@ proc main 0 0
       1
       covr thirteen +
       inputfd read (os.read) 0 == if [
-        maxval read (cstr.printint)
+        maxval read (int.print)
         quit
       ]
       thirteen (cstr.isnum) !

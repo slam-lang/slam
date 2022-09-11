@@ -1,7 +1,10 @@
-inc lib/stdlib.slm
+inc stdlib.slm
+inc tables.slm
 
-gvar vals 10000000
+gvar valtab 8
 gvar max 8
+
+gvar val 10
 
 proc collatz 1 1
   0
@@ -13,45 +16,59 @@ proc collatz 1 1
       1 +
       3 * 1 +
     ]
-      
-    copy vals +
 
-    readc 0 != if [
-      copy vals + readc +
-      swap disc
-      ret
+    val swap put disc
+    
+    valtab read val read (int.cstr) (tab.in) if [
+      val read (int.cstr) (tab.get) swap disc + 1 + ret
     ]
+    disc
 
+    val read
     swap
     1 +
 
     covr 1 !=
   end
-  disc
+  swap disc
+  1 +
 
   ret
 end
 
 proc main 0 0
+  (heap.init)
+
+  valtab 15 2000000 (tab.new) put disc
+  
   2
   do
     1 +
-
+    valtab read
+    covr
     copy (collatz)
-    covr (str.int) (str.print)
-    ":" (str.print)
-    copy (str.int) (str.println)
+
     copy max read > if [
+      "  " (cstr.print)
+      covr (int.cstr) (cstr.print)
+      ":" (cstr.print)
+      copy (int.cstr) (cstr.println)
       covr max swap put disc
     ]
-    covr vals + covr
-    putc disc disc
+
+    swap (int.cstr)
+    swap
+    (tab.put) disc
+    
+    copy 1000 / swap disc 0 == if [
+      copy (int.print)
+    ]
 
     copy 1000000 <
   end
   disc
 
-  max read (str.printint)
+  max read (int.print)
 
   ret
 end

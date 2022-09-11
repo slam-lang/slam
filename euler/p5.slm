@@ -1,41 +1,33 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
-proc temp 0 0
-  var 8
-  
-  ret
-end
-
-proc otemp 0 0
-  var 8
-  
-  ret
-end
+gvar temp 8
+gvar oldtemp 8
 
 const max 20
 
 proc main 0 0
-  (temp) 1 put disc
-  (otemp) 1 put disc
+  temp 1 put disc
+  oldtemp 1 put disc
   1
   do
     1 +
     
-    copy (temp) read swap / swap disc 0 != if [
+    copy temp read swap / swap disc 0 != if [
       do
-        (temp)
-        (temp) read (otemp) read +
+        temp
+        temp read oldtemp read +
         put disc
 
-        copy (temp) read swap / swap disc 0 !=
+        copy temp read swap / swap disc 0 !=
       end
     ]
-    (otemp) (temp) read put disc
+    oldtemp temp read put disc
     
     copy max <
   end
+  disc
   
-  (temp) read (str.printint)
+  temp read (int.print)
 
   ret
 end

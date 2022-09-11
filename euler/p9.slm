@@ -1,14 +1,10 @@
-inc lib/stdlib.slm
+inc stdlib.slm
+inc math.slm
 
 {
   a + b + c = 1000
   a^2 + b^2 - c^2 = 0
 }
-proc sq 1 1
-  copy *
-
-  ret
-end
 
 proc main 0 0
   0
@@ -19,13 +15,14 @@ proc main 0 0
       1 -
       covr
       covr 
-      covr + 1000 swap - (sq) swap (sq) swap -
-      covr (sq)
+      covr + 1000 swap - (math.squared) swap (math.squared) swap -
+      covr (math.squared)
 
       == if [
-        covr covr (printint) (printint)
-        covr covr + 1000 swap - (printint)
-        covr covr + 1000 swap - * * (printint) quit ]
+        covr covr (int.print) (int.print)
+        covr covr + 1000 swap - (int.print)
+        covr covr + 1000 swap - * * (int.print) 0 quit
+      ]
 
       copy 0 > 
     end
@@ -34,6 +31,8 @@ proc main 0 0
     copy 1000 <
   end
   disc
+
+  "no solution found" (cstr.println)
 
   ret
 end

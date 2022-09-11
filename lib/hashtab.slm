@@ -1,3 +1,5 @@
+inc stdlib.slm
+
 {
 HASH TABLES:
 data structure

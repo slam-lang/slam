@@ -1,4 +1,3 @@
-inc stdlib.slm
 inc mem.slm
 inc string.slm
 inc strutils.slm
@@ -8,6 +7,8 @@ gvar str1 64
 gvar str2 64
 
 proc main 0 0
+  (heap.init)
+
   (cstr.cr)
   "cstr.split" (cstr.println)
   "=============" (cstr.println)

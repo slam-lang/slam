@@ -1,0 +1,60 @@
+inc stdlib.slm
+
+gvar two 8
+gvar five 8
+
+proc fac 1 1
+  copy
+  5 *
+  five
+  five read 1 -
+  put disc
+  do
+    five
+    five read 1 +
+    put disc
+    5 / disc
+    copy 5 / swap disc 0 ==
+  end
+
+  2 *
+  two
+  two read 1 -
+  put disc
+  do
+    two
+    two read 1 +
+    put disc
+    2 / disc
+    copy 2 / swap disc 0 ==
+  end
+
+  covr 1 == if [disc disc 1 ret]
+
+  swap 1 - (fac) *
+  
+  ret
+end
+
+proc main 0 0
+  100
+  (fac)
+  five read
+  two read
+   > if [
+    "5 " (cstr.print)
+    five read two read -
+    (int.print)
+  ]
+  five read
+  two read
+  < if [
+    "2 " (cstr.print)
+    two read five read -
+    (int.print)
+  ]
+  
+  (int.print)
+
+  ret
+end

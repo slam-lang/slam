@@ -9,6 +9,9 @@ TODO: remove
 TODO: defrag
 }
 
+inc stdlib.slm
+inc mem.slm
+
 class tab
   prop Max int.SIZE
   prop Entry int.SIZE
@@ -56,13 +59,13 @@ class tab
     tab.Max . read
     > if [
       "TABLE OVERFLOW" (cstr.println)
-      disc disc disc -1 quit
+      disc disc 0 ret
     ]
     +
   
     ret
   end
-  
+
   {
   args: int[data] ptr[value] ptr[table]
   result: ptr[table]
@@ -88,7 +91,9 @@ class tab
     do
       1 +
       (tab.curentryaddr)
-  
+
+      copy NULL == if [disc ret]
+      
       copy read NULL ==
       swap tab.entrytmp read (cstr.eq) ||
       !
@@ -119,6 +124,7 @@ class tab
     0
     do
       (tab.curentryaddr)
+      copy NULL == if [disc disc ret]
   
       copy (cstr.print) ":" (cstr.print)
       tab.curtmp read
@@ -156,6 +162,7 @@ class tab
     do
       1 +
       (tab.curentryaddr)
+      copy NULL == if [disc NULL ret]
   
       copy readc NULL == if [disc NULL ret]
   
@@ -190,6 +197,7 @@ class tab
     do
       1 +
       (tab.curentryaddr)
+      copy NULL == if [disc disc bool.false ret]
   
       copy readc NULL == if [disc disc bool.false ret]
   

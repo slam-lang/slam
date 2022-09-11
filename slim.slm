@@ -4,24 +4,22 @@ The Slim Compiler, written in Slim
 Preston Precourt (prestosilver) 2022
 
 TODO: Class inheritance
-TODO: Merge to asm functions
+TODO: Merge the two asm functions
 TODO: Clean magic nums
 TODO: Track stack blocks    
-TODO: Fix inc
 TODO: Macros
-TODO: Local variables
 TODO: Stripping
+TODO: Check for no return
 }
 
-inc stdlib.slm
+inc os.slm
 inc mem.slm
 inc tables.slm
 inc arrays.slm
 inc log.slm
-inc os.slm
 
 proc version 0 1
-  "0.3.2" ret
+  "0.4.2" ret
 end
 
 {
@@ -78,7 +76,6 @@ enum
 
     IDENT_INC 
     IDENT_GVAR
-    IDENT_LVAR
     IDENT_CLASS
     IDENT_CONST
     IDENT_ENUM
@@ -112,9 +109,6 @@ enum
     CF_GVAR_VALUE
     CF_GVAR_NAME
 
-    CF_LVAR_VALUE
-    CF_LVAR_NAME
-
     CF_ENUM_CONTENT
     CF_ENUM_START
 
@@ -144,6 +138,7 @@ gvar consttab 8
 gvar proctab 8
 gvar procstacktab 8
 gvar lvartab 8
+gvar includedtab 8
 
 gvar cmdbuffer READSIZE
 gvar _ 1 {add 1 char for reading}
@@ -198,14 +193,22 @@ proc getescape 1 1
   ret
 end
 
-proc openinput 1 0
+proc openinput 1 1
   inputfd read
   copy != 0 if [(os.close) 0]
+  disc
+  
+  includedtab read covr (tab.in) if [
+    disc disc bool.false ret
+  ]
+  disc
+  includedtab read covr 1 (tab.put)
   disc
 
   cmdlineflags read ! if [
     0 1 (log.level)
-    "SLM" covr (log.msg)
+    "SLM" "Compile: " (log.msg)
+    copy (log.cat)
     (log.log)
   ]
 
@@ -216,6 +219,8 @@ proc openinput 1 0
   -100
   (os.open)
   inputfd swap put disc
+
+  bool.true
 
   ret
 end
@@ -230,7 +235,6 @@ proc getnameop 1 1
   covr "enum"  (cstr.eq) if [disc IDENT_ENUM]
   covr "var"   (cstr.eq) if [disc IDENT_VAR]
   covr "gvar"  (cstr.eq) if [disc IDENT_GVAR]
-  {covr "lvar"  (cstr.eq) if [disc IDENT_LVAR]}
   covr "const" (cstr.eq) if [disc IDENT_CONST]
   covr "class" (cstr.eq) if [disc IDENT_CLASS]
   covr "prop"  (cstr.eq) if [disc IDENT_PROP]
@@ -294,6 +298,7 @@ proc checkpopb 2 0
   0 < if [
     copy (cstr.println)
     procstacktab read (tab.print)
+    {TODO: log}
     disc -1 quit
   ]
   disc
@@ -315,6 +320,7 @@ proc checkpop 2 0
   0 < if [
     copy (cstr.println)
     procstacktab read (tab.print)
+    {TODO: log}
     disc -1 quit
   ]
   disc
@@ -543,23 +549,6 @@ proc addgvar 0 0
   ret
 end
 
-proc addlvar 0 0
-  parseflags
-  copy read 1 -
-  copy CF_LVAR_VALUE 1 - == if [
-    lvartab read constname parsememorylocal read (tab.put) disc
-    cmdbuffer (cstr.tonum)
-    parsememorylocal read +
-    parsememorylocal swap put disc
-    disc CF_NONE
-  ] copy CF_LVAR_NAME 1 - == if [
-    cmdbuffer constname (cstr.clear) swap (cstr.copy) disc disc
-  ]
-  put disc
-
-  ret
-end
-
 proc addenumstart 0 0
   enumvalue
   cmdbuffer (cstr.tonum)
@@ -648,6 +637,11 @@ proc asmheader 0 0
 end
 
 proc asmfooter 0 0
+  {
+  "INF" "Total procs: " (log.msg)
+  proctab read (tab.count) (log.cat)
+  (log.log)
+  }
   `addr_` (writeout)
   (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
   `:\n` (writeout)
@@ -661,7 +655,10 @@ proc asmfooter 0 0
   `    jmp addr_` (writeout)
   proctab read
   "main" (tab.in) ! if [
-    "no main proc defined" (cstr.println)
+    0 1 (log.level)
+    "ERR" "no main proc defined" (log.msg)
+    blockbuffer 1 + (log.cat)
+    (log.log)
     (exit)
   ]
   "main" (tab.get) 1 - (int.cstr) copy (cstr.len) swap (writeout)
@@ -679,6 +676,11 @@ proc asmfooter 0 0
   parsememory read (int.cstr) copy (cstr.len) swap (writeout)
   (writeoutln)
   disc
+  0 1 (log.level)
+  "INF" "Global memory footprint: " (log.msg)
+  parsememory read (int.cstr) (log.cat)
+  " bytes" (log.cat)
+  (log.log)
   ret
 end
 
@@ -734,11 +736,6 @@ proc writeaddr 0 0
   `:` (writeout)
   (writeoutln)
 
-  {
-  parsestack read (int.print)
-  cmdbuffer (cstr.println)
-  }
-
   ret
 end
 
@@ -754,8 +751,9 @@ proc writesubaddr 0 0
 end
 
 proc badblockop 0 0
-  "BAD OPERATION: " (cstr.println)
-  "`" (cstr.print) blockbuffer (cstr.print) "`" (cstr.println)
+  "ERR" "BAD OPERATION: `" (log.msg)
+  blockbuffer (log.cat) "`" (log.cat)
+  (log.log)
   (exit)
 
   ret
@@ -819,6 +817,7 @@ proc badret 0 0
   procname (cstr.println)
   parsestack read (int.print)
   "Error: proc dosent return correct ammount" (cstr.println)
+  {TODO: log}
   -1 quit
 
   ret
@@ -1190,13 +1189,6 @@ proc getblockasm 1 1
     CF_GVAR_NAME
     put disc
     ret
-  ] copy IDENT_LVAR == if [
-    "lvar" 0 (checkpopb)
-    0 (addstackb)
-    parseflags
-    CF_LVAR_NAME
-    put disc
-    ret
   ] copy IDENT_VAR == if [
     "var" 0 (checkpopb)
     0 (addstackb)
@@ -1348,8 +1340,6 @@ proc parseblockcmd 0 0
     blockbuffer (getnameop)
     covr CF_NONE == if (getblockasm)
     covr CF_VAR == if (addvar)
-    covr CF_LVAR_VALUE == if (addlvar)
-    covr CF_LVAR_NAME == if (addlvar)
     disc disc
   ]
   blockbuffer (cstr.clear) disc
@@ -1358,8 +1348,9 @@ proc parseblockcmd 0 0
 end
 
 proc badop 0 0
-  "BAD OPERATION: " (cstr.println)
-  "`" (cstr.print) cmdbuffer (cstr.print) "`" (cstr.println)
+  "ERR" "BAD OPERATION: `" (log.msg)
+  cmdbuffer (log.cat) "`" (log.cat)
+  (log.log)
   (exit)
 
   ret
@@ -1809,13 +1800,6 @@ proc getcmdasm 1 1
     parseaddr read 1 - (identstackpush)
     IDENT_DO (identstackpush)
     ret
-  ] copy IDENT_LVAR == if [
-    "lvar" 0 (checkpop)
-    0 (addstack)
-    parseflags
-    CF_LVAR_NAME
-    put disc
-    ret
   ] copy IDENT_GVAR == if [
     "gvar" 0 (checkpop)
     0 (addstack)
@@ -2087,8 +2071,6 @@ proc parsecmd 0 0
     covr CF_PROP_NAME == if (addprop)
     covr CF_INC == if (addinc)
     covr CF_VAR == if (addvar)
-    covr CF_LVAR_NAME == if (addlvar)
-    covr CF_LVAR_VALUE == if (addlvar)
     covr CF_GVAR_NAME == if (addgvar)
     covr CF_GVAR_VALUE == if (addgvar)
     covr CF_ENUM_CONTENT == if (addenum)
@@ -2116,6 +2098,7 @@ result: ptr
 parses a file
 }
 proc parsefile 0 0
+  inputfd read 0 == if ret
   READSIZE READSIZE (heap.alloc)
   readbuffer swap put read
   inputfd read (os.read) disc
@@ -2136,7 +2119,7 @@ proc parsefile 0 0
       includebuffer readc 0 != if [
         inputfd read
         inputfd 0 put disc
-        includebuffer (openinput)
+        includebuffer (openinput) disc
         includebuffer (cstr.clear) disc
         (parsefile)
         inputfd swap put disc
@@ -2377,11 +2360,14 @@ proc ld 0 0
 end
 
 proc initobjs 0 0
+  (heap.init)
+  
   gvartab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
   lvartab      TAB_KEY_SIZE SML_TAB_CAP (tab.new) put disc
   consttab     TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
   proctab      TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
   procstacktab TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
+  includedtab  TAB_KEY_SIZE BIG_TAB_CAP (tab.new) put disc
 
   identstack   int.SIZE     IDENT_CAP   (seq.new) put disc
   
@@ -2431,7 +2417,7 @@ proc main 0 0
   (asmheader)
 
   inputbuffer
-  (openinput)
+  (openinput) disc
 
   (parsefile)
 

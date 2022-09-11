@@ -1,17 +1,13 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
-proc max 0 1
-  var 8
-
-  ret
-end
+gvar max 8
 
 proc checkpal 1 0
-  copy (max) read < if [disc ret]
+  copy max read < if [disc ret]
   
-  copy (str.int)
+  copy (int.cstr)
   copy
-  copy (str.len) + 1 -
+  copy (cstr.len) + 1 -
   swap 1 -
   swap 1 +
   
@@ -28,7 +24,7 @@ proc checkpal 1 0
   disc
   disc
 
-  (max) swap put disc
+  max swap put disc
 
   ret
 end
@@ -64,7 +60,7 @@ proc main 0 0
     copy 999 <
   end
   disc
-  (max) read (str.printint)
+  max read (int.print)
 
   ret
 end

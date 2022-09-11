@@ -1,3 +1,6 @@
+inc stdlib.slm
+inc mem.slm
+
 class log
   prop Id   int.SIZE
   prop Crit 1

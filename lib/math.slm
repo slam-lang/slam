@@ -36,6 +36,12 @@ class math
 
     ret
   end
+
+  proc squared 1 1
+    copy *
+
+    ret
+  end
 end
 
 class float

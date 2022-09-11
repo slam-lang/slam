@@ -729,6 +729,7 @@ def check_proc(program, args, rets, values):
 
 proc_values = {}
 gvars = []
+inc = []
 lvars = {}
 
 def parse_program(text, consts = {}, multi = False):
@@ -736,6 +737,8 @@ def parse_program(text, consts = {}, multi = False):
     global proc_values
     global gvars
     global lvars
+    global inc
+
     tmp_data = [y.split(" ") for y in text.split("\n")]
     data = []
     for i in tmp_data:
@@ -841,9 +844,11 @@ def parse_program(text, consts = {}, multi = False):
                 proc_block.pop()
         
         elif func == "inc":
-            with open(includepath + "/" + data[idx], "r") as file:
-                (program, values) = parse_program(file.read())
-                result.extend(program)
+            if not includepath + "/" + data[idx] in inc:
+                inc.append(includepath + "/" + data[idx])
+                with open(includepath + "/" + data[idx], "r") as file:
+                    (program, values) = parse_program(file.read())
+                    result.extend(program)
             idx += 1
         
         elif func == "var":

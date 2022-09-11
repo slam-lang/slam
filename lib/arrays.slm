@@ -1,3 +1,5 @@
+inc stdlib.slm
+
 class arr
   prop Size int.SIZE
   prop Elem int.SIZE

@@ -1,3 +1,5 @@
+inc stdlib.slm
+
 class strutil
   gvar tempstore int.SIZE
   

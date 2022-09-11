@@ -1,4 +1,4 @@
-inc lib/stdlib.slm
+inc stdlib.slm
 
 const num 600851475143
 const sqrt 775147
@@ -12,8 +12,9 @@ proc checkprime 1 1
     copy 2 !=
   end
   disc
-  (str.printint)
-
+  (int.print)
+  
+  0
   quit
   0
 

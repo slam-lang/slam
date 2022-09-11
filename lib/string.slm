@@ -1,3 +1,5 @@
+inc stdlib.slm
+
 class str
   prop Max int.SIZE
   prop Size int.SIZE
