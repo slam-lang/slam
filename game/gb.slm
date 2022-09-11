@@ -71,7 +71,6 @@ class enemy
 end
 
 gvar enemy1 enemy.SIZE
-
 gvar x 2
 gvar y 2
 gvar yv 2

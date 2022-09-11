@@ -143,10 +143,9 @@ gvar includedtab 8
 
 gvar cmdbuffer READSIZE
 gvar _ 1 {add 1 char for reading}
-gvar readbuffer 8
-gvar _ 1 {add 1 char for reading}
 gvar blockbuffer READSIZE
 gvar _ 1 {add 1 char for reading}
+gvar readbuffer 8
 
 gvar stringbuffer STRING_BUF_CAP
 gvar stringbufferlen int.SIZE
@@ -1401,7 +1400,7 @@ proc getcmdasm 1 1
     ret
   ] copy OP_CALLS == if [
     "call" 1 (checkpopb)
-    0 (addstackb)
+    0 (addstack)
     `    mov rax, [ret_stack_rsp]\n` (writeout)
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
@@ -1412,8 +1411,8 @@ proc getcmdasm 1 1
     `    jmp rax\n` (writeout)
     ret
   ] copy OP_PUSHP == if [
-    "pushp" 0 (checkpopb)
-    1 (addstackb)
+    "pushp" 0 (checkpop)
+    1 (addstack)
     `    push addr_` (writeout)
     proctab read cmdbuffer (tab.get) (int.cstr) copy (cstr.len) swap (writeout)
     {TODO: assert return is same}
@@ -2367,18 +2366,20 @@ proc main 0 0
     { get argument }
     copy (os.args)
 
+    {try to apply the argument}
     (applyarg) if [copy (setinput)]
 
+    {loop if more args}
     copy argc 1 - <
   end
   disc
 
-  { if no output, put default }
+  {if no output, put default}
   outputbuffer
   readc 0 ==
   if [outputbuffer "output" (cstr.copy) disc disc]
 
-  { if no input, write help message }
+  {if no input, write help message}
   inputbuffer
   readc 0 ==
   if [HELP_ARGS (help)]
@@ -2391,14 +2392,16 @@ proc main 0 0
   (os.open)
   outputfd swap put disc
 
-  {parse input}
+  {put the header}
   (asmheader)
+  
+  {open input} 
+  inputbuffer (openinput) disc
 
-  inputbuffer
-  (openinput) disc
-
+  {parse input}
   (parsefile)
 
+  {put the footer}
   (asmfooter)
 
   {close output}
@@ -2406,10 +2409,14 @@ proc main 0 0
 
   {close input}
   inputfd read (os.close)
-
+  
+  {assemble}
   (nasm)
-  (ld)
 
+  {link}
+  (ld)
+  
+  {fix a weird bug}
   0 quit
 
   ret

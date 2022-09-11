@@ -1,4 +1,6 @@
-inc ./lib/stdlib.slm
+inc stdlib.slm
+
+{TODO: gvar}
 
 proc inputfd 0 1
   var 8

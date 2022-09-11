@@ -1,0 +1,41 @@
+inc arrays.slm
+
+gvar tmp int.SIZE
+
+proc eprint 1 1
+  copy read (int.cstr) (cstr.print)
+  ", " (cstr.print)
+  
+  ret
+end
+
+gvar list int.SIZE
+
+proc main 0 0
+  (heap.init)
+
+  list int.SIZE (llist.new) put disc
+  
+  0
+  do
+    tmp covr put disc
+    list read tmp (llist.append)
+    disc
+    
+    1 +
+    copy 3000 <
+  end
+  disc
+
+  list read
+
+  "[" (cstr.print)
+  eprint (llist.print)
+  "]" (cstr.println)
+
+  (llist.free)
+  
+  0 quit
+  
+  ret
+end

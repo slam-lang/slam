@@ -1,4 +1,5 @@
 inc stdlib.slm
+inc mem.slm
 
 class arr
   prop Size int.SIZE
@@ -321,4 +322,167 @@ class seq
   end
 
   {TODO: proc in 2 2}
+end
+
+class llentry
+  {TODO: Not recursive}
+
+  prop next int.SIZE
+  prop data 0
+ 
+  proc new 1 1
+    8 +
+    (heap.zalloc)
+
+    ret
+  end
+
+  proc free 1 0
+    copy llentry.next . read
+    copy NULL != if [
+      copy (llentry.free)
+    ]
+    disc
+
+    (heap.free)
+    
+    ret
+  end
+
+  proc last 1 1
+    copy llentry.next . read
+    0 == if [
+      ret
+    ]
+    
+    llentry.next . read
+    (llentry.last)
+
+    ret
+  end
+
+  proc append 2 1
+    covr llentry.next . swap put disc
+      
+    ret
+  end
+  
+  proc print 2 1
+    covr llentry.data .
+    covr () disc
+    
+    covr llentry.next . read
+    covr
+
+    covr NULL != if [
+      (llentry.print) 0
+    ]
+    disc
+    disc
+    disc
+
+    ret
+  end
+end
+
+class llist
+  prop entry int.SIZE
+  prop root int.SIZE
+
+  gvar curtemp int.SIZE
+
+  proc new 1 1
+    16 (heap.zalloc)
+
+    covr
+    covr llist.entry . swap put disc
+    swap disc
+
+    ret
+  end
+
+  proc free 1 0
+    copy llist.root . read
+    copy NULL != if [
+      copy (llentry.free)
+    ]
+    disc
+
+    (heap.free)
+
+    ret
+  end
+
+  proc last 1 2
+    copy llist.root . read 0 == if [NULL ret]
+    copy llist.root . read (llentry.last)
+    
+    ret
+  end
+
+  proc len 1 1
+  
+    ret
+  end
+
+  proc append 2 1
+    swap llist.curtemp swap put disc
+
+    llist.curtemp read
+    (llist.last) swap disc
+
+    NULL == if [
+      llist.curtemp read
+      llist.entry . read
+      (llentry.new)
+
+      llist.curtemp read
+      llist.root . swap put read
+      llentry.data .
+      swap
+      
+      llist.curtemp read
+      llist.entry . read
+      (mem.copy)
+
+      llist.curtemp read
+      ret
+    ]
+    
+    llist.curtemp read
+    llist.entry . read
+    (llentry.new)
+    
+    llist.curtemp read
+    (llist.last) swap disc
+    swap (llentry.append)
+    disc
+     
+    llist.curtemp read
+    (llist.last) swap disc
+    llentry.data .
+    swap
+
+    llist.curtemp read
+    llist.entry . read
+    (mem.copy)
+    
+    llist.curtemp read
+
+    ret
+  end
+
+  proc print 2 1
+    covr llist.root . read
+    covr
+
+    covr NULL != if [
+      (llentry.print) 0
+    ]
+    disc
+    disc
+    disc
+
+    ret
+  end
 end
