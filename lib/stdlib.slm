@@ -130,8 +130,7 @@ class cstr
     covr
     do
       covr
-      covr
-      readc
+      covr readc
   
       putc
       disc
@@ -140,6 +139,7 @@ class cstr
       swap 1 +
       copy readc 0 !=
     end
+    swap 1 +
     0
     putc
     disc

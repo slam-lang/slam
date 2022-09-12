@@ -351,7 +351,7 @@ def compile_inst(out, op, ip, start):
         out.write("    mov qword [rax], %s_%d\n" % (start, ip + 1))
         out.write("    jmp %s\n" % (procs[op[1]]))
     elif op[0] == OP_PUSHP:
-        out.write("    mov rax, %s_%d\n" % (start, procs[op[1]]))
+        out.write("    mov rax, %s\n" % (procs[op[1]]))
     elif op[0] == OP_CALLS:
         out.write("    pop rbx\n")
         out.write("    mov rax, [ret_stack_rsp]\n")
@@ -646,7 +646,7 @@ op_values = {
         OP_ARGV: (0, 1),
         OP_ARGC: (0, 1),
         OP_ENVP: (0, 1),
-        OP_CALLS:(0, 0),
+        OP_CALLS:(1, 0),
         OP_PROC: (0, 0),
         OP_RET:  (0, 0),
         OP_JUMP: (1, 0),

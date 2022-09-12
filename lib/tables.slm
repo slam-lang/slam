@@ -178,7 +178,7 @@ class tab
     
     tab.curtmp read
     swap
-  
+
     ret
   end
   

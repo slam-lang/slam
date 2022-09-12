@@ -67,8 +67,8 @@ class float
     ret
   end
 
-  gvar temp 8
-  gvar working 8
+  gvar temp int.SIZE
+  gvar working int.SIZE
 
   proc print 1 0
     {TODO: implement}

@@ -1,0 +1,373 @@
+{
+HASH TABLES:
+data structure
+
+essentially an array of linked lists
+
+TODO: make hash not a char
+}
+
+inc stdlib.slm
+inc arrays.slm
+inc mem.slm
+
+class hash
+  gvar result 1
+  {
+  args: ptr[data] int[size]
+  result: int[hash]
+  }
+  proc get 2 1
+    hash.result 0 putc disc
+    
+    do
+      1 -
+      covr
+      covr + readc
+      hash.result readc 2 * ^
+      hash.result swap
+      putc disc
+
+      copy 1 !=
+    end
+    disc
+    disc
+    
+    hash.result readc
+
+    ret
+  end
+end
+  
+class map
+  prop entrysize int.SIZE
+  prop keysize int.SIZE
+  prop count int.SIZE
+  prop dataarray 0
+
+  gvar curtemp int.SIZE
+  gvar entry int.SIZE
+  gvar temp int.SIZE
+
+  {
+  args: int[hashcount] int[entrysize] int[valuesize]
+  result: ptr[map]
+  }
+  proc new 3 1
+    map.temp swap put read +
+    swap map.entry swap put read
+    int.SIZE * 3 8 * + (heap.zalloc)
+    map.curtemp swap put disc 
+    
+    map.curtemp read
+    map.entrysize . swap
+    put disc
+   
+    map.curtemp read
+    map.keysize .
+    map.temp read
+    put disc
+   
+    map.curtemp read
+    map.count .
+    map.entry read
+    put disc
+
+    map.curtemp read
+    ret
+  end
+
+  proc valsize 0 1
+    map.curtemp read
+    map.entrysize . read
+    
+    map.curtemp read
+    map.keysize . read -
+
+    ret
+  end
+ 
+  proc put 3 1
+    map.temp swap put disc
+    swap map.curtemp swap put disc
+    map.temp read
+
+    swap
+
+    map.curtemp read
+    map.entrysize . read
+    (heap.zalloc)
+    map.entry swap put read swap
+
+    map.curtemp read
+    map.keysize . read
+    (mem.copy)
+    
+    map.entry read
+    map.curtemp read
+    map.keysize . read + swap
+  
+    (map.valsize)
+    (mem.copy)
+    
+    map.entry read
+    map.curtemp read
+    map.keysize . read
+    (hash.get)
+    map.curtemp read
+    map.count . read
+    / swap disc int.SIZE *
+    map.curtemp read
+    map.dataarray . +
+
+    copy read NULL == if [
+      copy
+      map.curtemp read
+      map.entrysize . read
+      (llist.new)
+      put read
+
+      map.entry read (llist.append)
+      disc
+      disc
+    
+      map.curtemp read
+    
+      map.entry read (heap.free)
+
+      ret
+    ]
+    read
+    copy
+    llist.root . read
+    do
+      map.entry read
+      covr llentry.data .
+      map.curtemp read
+      map.keysize . read
+      (mem.eq) if [
+        map.entry read
+        covr llentry.data . swap
+
+        map.curtemp read
+        map.entrysize . read
+
+        (mem.copy) disc disc
+    
+        map.entry read (heap.free)
+
+        map.curtemp read
+        ret
+      ]
+ 
+      llentry.next . read
+      copy NULL !=
+    end
+    disc
+   
+    map.entry read
+    (llist.append) disc
+    map.entry read (heap.free)
+    
+    map.curtemp read
+
+    ret
+  end
+
+  proc eprint 1 1
+    copy (int.print)
+
+    ret
+  end
+  
+  gvar pr bool.SIZE
+
+  proc comma 0 0
+    ", " (cstr.print)
+    ret
+  end
+ 
+  proc print 1 0
+    map.pr bool.false putc disc
+    "{" (cstr.print)
+    map.curtemp swap put disc
+    0
+    do
+      copy int.SIZE *
+      map.curtemp read
+      map.dataarray . +
+      read
+      copy NULL != if [
+        map.pr readc
+        if (map.comma)
+        map.pr bool.true putc disc
+        copy map.eprint (llist.print) disc
+      ]
+      disc
+
+      1 +
+     
+      copy
+      map.curtemp read
+      map.count . read
+      <
+    end
+    disc
+    
+    "}" (cstr.print)
+
+    ret
+  end
+
+  proc free 1 0
+    map.curtemp swap put disc
+    0
+    do
+      copy int.SIZE *
+      map.curtemp read
+      map.dataarray . +
+      read
+      copy NULL != if [
+        copy (llist.free)
+      ]
+      disc
+
+      1 +
+     
+      copy
+      map.curtemp read
+      map.count . read
+      <
+    end
+    disc
+    
+    map.curtemp read
+    (heap.free)
+    ret
+  end
+
+  proc get 2 2
+    map.entry swap put disc
+    map.curtemp swap put disc
+
+    map.entry read
+    map.curtemp read
+    map.keysize . read
+    (hash.get)
+    map.curtemp read
+    map.count . read
+    / swap disc int.SIZE *
+    map.curtemp read
+    map.dataarray . +
+    read
+    copy NULL == if [
+      disc
+      NULL
+      map.curtemp read swap
+      ret
+    ]
+    
+    llist.root . read
+    do
+      map.entry read
+      covr llentry.data .
+      map.curtemp read
+      map.keysize . read
+      (mem.eq) if [
+        llentry.data .
+        map.curtemp read
+        map.keysize . read +
+        map.curtemp read swap
+        ret
+      ]
+ 
+      llentry.next . read
+      copy NULL !=
+    end
+    disc
+
+    NULL
+    map.curtemp read swap
+
+    ret
+  end
+  
+  proc in 2 2
+    map.entry swap put disc
+    map.curtemp swap put disc
+    
+
+    map.entry read
+    map.curtemp read
+    map.keysize . read
+    (hash.get)
+    map.curtemp read
+    map.count . read
+    / swap disc int.SIZE *
+    map.curtemp read
+    map.dataarray . +
+    read
+    copy NULL == if [
+      disc
+      bool.false
+      map.curtemp read swap
+      ret
+    ]
+    
+    llist.root . read
+    do
+      map.entry read
+      covr llentry.data .
+      map.curtemp read
+      map.keysize . read
+      (mem.eq) if [
+        disc
+        bool.true
+        map.curtemp read swap
+        ret
+      ]
+ 
+      llentry.next . read
+      copy NULL !=
+    end
+    disc
+
+    bool.false
+    map.curtemp read swap
+
+    ret
+  end
+
+  proc len 1 2
+    map.curtemp swap put disc
+    
+    map.temp 0 put disc
+    
+    0
+    do
+      copy int.SIZE *
+      map.curtemp read
+      map.dataarray . +
+      read
+      copy NULL != if [
+        copy (llist.len)
+        map.temp read +
+        map.temp swap put disc
+      ]
+      disc
+
+      1 +
+     
+      copy
+      map.curtemp read
+      map.count . read
+      <
+    end
+    disc
+    
+    map.curtemp read
+    map.temp read
+
+    ret
+  end
+end

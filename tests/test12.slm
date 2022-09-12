@@ -4,7 +4,6 @@ gvar tmp int.SIZE
 
 proc eprint 1 1
   copy read (int.cstr) (cstr.print)
-  ", " (cstr.print)
   
   ret
 end
@@ -32,6 +31,8 @@ proc main 0 0
   "[" (cstr.print)
   eprint (llist.print)
   "]" (cstr.println)
+
+  (heap.map)
 
   (llist.free)
   

@@ -24,7 +24,7 @@ class seq
   Creates an seqay
   }
   proc new 2 1
-    copy (heap.alloc) seq.curtemp swap put disc
+    copy (heap.zalloc) seq.curtemp swap put disc
     seq.elemtemp swap put disc
 
     seq.curtemp read
@@ -375,6 +375,7 @@ class llentry
     covr
 
     covr NULL != if [
+      ", " (cstr.print)
       (llentry.print) 0
     ]
     disc
@@ -414,14 +415,26 @@ class llist
   end
 
   proc last 1 2
-    copy llist.root . read 0 == if [NULL ret]
+    copy llist.root . read NULL == if [NULL ret]
     copy llist.root . read (llentry.last)
     
     ret
   end
 
   proc len 1 1
-  
+    {TODO: Implement}
+    copy llist.root . read NULL == if [disc 0 ret]
+    llist.root . read
+    0 swap
+    do
+      swap 1 +
+      swap
+
+      llentry.next . read
+      copy NULL !=
+    end
+    disc
+
     ret
   end
 

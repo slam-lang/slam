@@ -43,6 +43,37 @@ class mem
   
     ret
   end
+
+  proc eq 3 1
+    swap mem.tmp swap put disc
+    
+    do
+      covr readc
+      mem.tmp read readc
+      != if [
+        disc
+        disc
+
+        bool.false
+
+        ret
+      ]
+      swap 1 +
+      swap 1 -
+      mem.tmp
+      copy read 1 +
+      put disc
+
+
+      copy 0 >
+    end
+    disc
+    disc
+
+    bool.true
+
+    ret
+  end
   
   proc zero 2 0
     mem.tmp swap put disc
@@ -68,9 +99,10 @@ class heap
   gvar startaddr int.SIZE
   gvar endaddr int.SIZE
   gvar reqsize int.SIZE
+  gvar usedtemp int.SIZE
 
-  const HEAP_PAGE 640000
-  const HEAP_STEP 256
+  const HEAP_PAGE 64000
+  const HEAP_STEP 64
 
   proc allocpage 0 0
     heap.endaddr read
@@ -102,6 +134,10 @@ class heap
   end
 
   proc map 0 0
+    heap.usedtemp 0 put disc
+
+    "HEAP MAP" (cstr.println)
+    "--------" (cstr.println)
     "size:   " (cstr.print)
     heap.endaddr read
     heap.startaddr read
@@ -111,10 +147,13 @@ class heap
     do
       heap.HEAP_STEP +
       copy (heapentry.isentry) if [
-        "object: " (cstr.print)
+        "Object" (cstr.println)
+        "  addr: " (cstr.print)
         copy (int.printhex)
         "  size: " (cstr.print)
         copy heapentry.Size . read
+        copy heap.usedtemp read +
+        heap.usedtemp swap put disc
         copy (int.print)
         +
         heap.HEAP_STEP -
@@ -123,6 +162,12 @@ class heap
       copy heap.endaddr read <
     end
     disc
+    
+    "used: " (cstr.print)
+
+    heap.usedtemp read (int.print)
+    (cstr.cr)
+
 
     ret
   end
@@ -186,7 +231,7 @@ class heap
     heapentry.SIZE -
     copy (heapentry.isentry) ! if [
       "Bad free call" (cstr.println)
-      disc ret
+      (int.printhex) ret
     ]
    
     heapentry.Flags .

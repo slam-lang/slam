@@ -1,0 +1,55 @@
+inc stdlib.slm
+inc ppm.slm
+
+gvar red color.SIZE
+gvar blk color.SIZE
+
+gvar image int.SIZE
+gvar x int.SIZE
+gvar y int.SIZE
+
+
+
+const W 255
+const H 255
+
+proc main 0 0
+  (heap.init)
+  
+  red 255 0 0 0 (color.new) put disc
+  blk 0 0 0 0 (color.new) put disc
+  image W H (ppm.new) put disc
+
+  0
+  do
+    x covr put disc
+    1 +
+
+    0
+    do
+      y covr put disc
+      1 +
+
+      image read
+      x read y read
+      x read y read 255 0 (color.new)
+      (ppm.setpxl)
+      
+      disc
+  
+      copy H <
+    end
+    disc
+  
+    copy W <
+  end
+  disc
+  
+  image read
+  
+  "image.ppm" (ppm.save)
+
+  (ppm.free)
+
+  ret
+end
