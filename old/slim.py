@@ -920,7 +920,7 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
             proc_rets = int(data[idx])
             idx += 1
-            print(f"proc `{data[idx - 3]}`, {proc_args} => {proc_rets}")
+            #print(f"proc `{data[idx - 3]}`, {proc_args} => {proc_rets}")
             ident_stack.append("proc")
             proc_values[prefix + data[idx - 3]] = (proc_args, proc_rets)
             lmem = 0

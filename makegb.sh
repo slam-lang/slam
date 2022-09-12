@@ -1,10 +1,10 @@
 #!/bin/bash
 
+set -x
+
 ./make.sh
 
-./slim -i lib/stdlib.slm,lib/mem.slm,lib/tables.slm,lib/arrays.slm,lib/log.slm,lib/os.slm -o slim-gb slim-gb.slm
-
-sudo cp slim-gb /usr/bin
+./slim -i lib -o slim-gb slim-gb.slm
 
 rgbgfx -o game/lol.2bpp game/lol.png
 

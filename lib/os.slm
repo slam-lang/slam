@@ -171,8 +171,8 @@ class os
     sysc.OPENAT sys4
   
     copy 0 < if [
-      "Error opening file"
-      disc disc -1 quit
+      "Error opening file" (cstr.println)
+      disc -1 quit
     ]
     ret
   end
@@ -187,8 +187,8 @@ class os
     sysc.WRITE sys3
   
     0 < if [
-      "Error writing file"
-      disc -1 quit
+      "Error writing file" (cstr.println)
+      -1 quit
     ]
     ret
   end
@@ -203,8 +203,8 @@ class os
     sysc.READ sys3
     
     copy 0 < if [
-      "Error reading file"
-      disc disc -1 quit
+      "Error reading file" (cstr.println)
+      disc -1 quit
     ]
     ret
   end
@@ -219,8 +219,8 @@ class os
     sysc.CLOSE sys1
   
     0 < if [
-      "Error closing file"
-      disc -1 quit
+      "Error closing file" (cstr.println)
+      -1 quit
     ]
     ret
   end

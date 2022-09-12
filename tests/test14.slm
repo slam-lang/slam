@@ -1,0 +1,12 @@
+inc stdlib.slm
+
+cproc glClearColor 1 0
+
+proc main 0 0
+  0 "lol\n" (glClearColor)
+  0 quit
+  disc
+  disc
+
+  ret
+end

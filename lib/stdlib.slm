@@ -8,57 +8,6 @@ class bool
 end
 
 class cstr
-
-  {
-  args: pointer
-  result: 
-  
-  prints a string
-  }
-  proc print 1 0 
-    copy read NULL == if [disc ret]
-    do
-      { read the current char }
-      copy
-      read
-      dump
-  
-      { increase the address }
-      1 +
-  
-      { read the next address }
-      copy
-      readc
-      
-      0 !=
-    end
-    disc
-    ret
-  end
-
-  {
-  args:
-  result:
-  
-  prints a new line
-  }
-  proc cr 0 0
-    { print new line }
-    10
-    dump
-    ret
-  end
-
-  {
-  prints
-  }
-  proc println 1 0
-    (cstr.print)
-    (cstr.cr)
-    ret
-  end
-
-  
   proc len 1 1
     copy readc 0 == if [disc 0 ret]
     copy
@@ -71,6 +20,40 @@ class cstr
     swap disc
     ret
   end
+
+  {
+  args: pointer
+  result: 
+  
+  prints a string
+  }
+  proc print 1 0
+    copy (cstr.len) swap 1 1 sys3 disc
+
+    ret
+  end
+
+  {
+  args:
+  result:
+  
+  prints a new line
+  }
+  proc cr 0 0
+    { print new line }
+    `\n` 1 1 sys3 disc
+    ret
+  end
+
+  {
+  prints
+  }
+  proc println 1 0
+    (cstr.print)
+    (cstr.cr)
+    ret
+  end
+
   
   {
   args: pointer pointer
