@@ -1,7 +1,7 @@
 inc stdlib.slm
 
 class strutil
-  gvar tempstore int.SIZE
+  var tempstore int.SIZE
   
   proc starts 2 1
     copy (cstr.len) 1 + (heap.zalloc)

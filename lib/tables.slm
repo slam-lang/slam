@@ -17,9 +17,9 @@ class tab
   prop Entry int.SIZE
   prop Data 0
   
-  gvar entrytmp int.SIZE
-  gvar valuetmp int.SIZE
-  gvar curtmp int.SIZE
+  var entrytmp int.SIZE
+  var valuetmp int.SIZE
+  var curtmp int.SIZE
   
   {
   args: int[size] int[entrysize] ptr[table]

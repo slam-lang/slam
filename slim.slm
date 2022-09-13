@@ -14,6 +14,7 @@ TODO: Check for no return
 TODO: String consts
 TODO: More comments
 }
+
 inc os.slm
 inc mem.slm
 inc maps.slm
@@ -129,63 +130,71 @@ class procdata
   prop out 1
 end
 
+class linedata
+  prop line 8
+  prop column 8
+  prop file 64
+end
+
 const TAB_KEY_SIZE   20
 const STRING_BUF_CAP 300000
 const READSIZE       2048
 const IDENT_CAP      1024
 
-gvar consttab int.SIZE
-gvar gvartab int.SIZE
-gvar proctab int.SIZE
-gvar includedtab int.SIZE
+var consttab int.SIZE
+var gvartab int.SIZE
+var proctab int.SIZE
+var includedtab int.SIZE
 
-gvar cproctab int.SIZE
+var cproctab int.SIZE
 
-gvar maptemp int.SIZE
-gvar maptempstr TAB_KEY_SIZE
+var maptemp int.SIZE
+var maptempstr TAB_KEY_SIZE
 
-gvar cmdbuffer READSIZE
-gvar _ 1 {add 1 char for reading}
-gvar blockbuffer READSIZE
-gvar _ 1 {add 1 char for reading}
-gvar readbuffer int.SIZE
+var cmdbuffer READSIZE
+var _ 1 {add 1 char for reading}
+var blockbuffer READSIZE
+var _ 1 {add 1 char for reading}
+var readbuffer int.SIZE
 
-gvar stringbuffer int.SIZE
-gvar stringbufferlen int.SIZE
-gvar inputfd int.SIZE
-gvar outputfd int.SIZE
+var stringbuffer int.SIZE
+var stringbufferlen int.SIZE
+var inputfd int.SIZE
+var outputfd int.SIZE
 
-gvar cmdlineflags int.SIZE
+var cmdlineflags int.SIZE
 
-gvar identstack int.SIZE
+var identstack int.SIZE
 
-gvar classname 64
-gvar outputbuffer 64
-gvar inputbuffer 64
-gvar cmdtmpbuffer 64
-gvar tmpprocbuffer 64
+var classname 64
+var outputbuffer 64
+var inputbuffer 64
+var cmdtmpbuffer 64
+var tmpprocbuffer 64
 
-gvar includebuffer 1024
-gvar includepath 1024
+var includebuffer 1024
+var includepath 1024
 
-gvar parseflags int.SIZE
+var parseflags int.SIZE
 
-gvar parseaddr int.SIZE
-gvar parsesubaddr int.SIZE
-gvar parsestringidx int.SIZE
-gvar parsememory int.SIZE
+var parseaddr int.SIZE
+var parsesubaddr int.SIZE
+var parsestringidx int.SIZE
+var parsememory int.SIZE
 
-gvar parsestack int.SIZE
-gvar parsestackblock int.SIZE
+var parsestack int.SIZE
+var parsestackblock int.SIZE
 
-gvar parsememorylocal int.SIZE
+var parsememorylocal int.SIZE
 
-gvar constname 64
-gvar enumvalue int.SIZE
-gvar propsize int.SIZE
+var constname 64
+var enumvalue int.SIZE
+var propsize int.SIZE
 
-gvar procname 64
-gvar procstats procdata.SIZE
+var procname 64
+var procstats procdata.SIZE
+
+var linestats int.SIZE
 
 proc getescape 1 1
   copy 'e' == if [ disc 27 ret ]
@@ -196,7 +205,42 @@ proc getescape 1 1
   ret
 end
 
+proc setupvar 0 0
+  parseflags
+  CF_VAR
+  put disc
+  
+  procname readc 0 == if [
+    parseflags
+    CF_GVAR_NAME
+    put disc
+  ]
+
+  ret
+end
+
+proc lineappend 0 0
+  " <" (log.cat)
+  linestats read
+  linedata.file .
+  (log.cat)
+  "@" (log.cat)
+  linestats read
+  linedata.line . read
+  (int.cstr) (log.cat)
+  ":" (log.cat)
+  linestats read
+  linedata.column . read
+  (int.cstr) (log.cat)
+  ">" (log.cat)
+
+  ret
+end
+
 proc openinput 1 1
+  linestats linedata.SIZE (heap.zalloc) put disc
+  linestats read linedata.file . covr (cstr.copy) disc disc
+
   inputfd read
   copy NULL != if [(os.close) 0]
   disc
@@ -295,15 +339,49 @@ proc getopname 1 1
 
   ret
 end
+  
+proc clean 0 0
+  {close output}
+  outputfd read
+  copy NULL != if [(os.close) 0]
+  disc
+
+  {close input}
+  inputfd read
+  copy NULL != if [(os.close) 0]
+  disc
+
+  gvartab      read (map.free)
+  consttab     read (map.free)
+  proctab      read (map.free)
+  cproctab     read (map.free)
+  includedtab  read (map.free)
+
+  identstack   read (seq.free)
+
+  stringbuffer read (heap.free)
+
+  ret
+end
+
+proc exit 0 0
+  (clean)
+
+  -1 quit
+  ret
+end
 
 proc checkpopb 2 0
   parsestackblock read swap -
   parsestackblock swap put disc
   parsestackblock read
   0 < if [
-    copy (cstr.println)
-    {TODO: log}
-    disc -1 quit
+    "ERR" "Stack underflow with `" (log.msg)
+    copy (log.cat)
+    "`" (log.cat)
+    (lineappend)
+    (log.log)
+    (exit)
   ]
   disc
   ret
@@ -321,9 +399,12 @@ proc checkpop 2 0
   parsestack swap put disc
   parsestack read
   0 < if [
-    copy (cstr.println)
-    {TODO: log}
-    disc -1 quit
+    "ERR" "Stack underflow with `" (log.msg)
+    copy (log.cat)
+    "`" (log.cat)
+    (lineappend)
+    (log.log)
+    (exit)
   ]
   disc
   ret
@@ -378,45 +459,13 @@ proc getsubaddr 0 1
   parsesubaddr swap put disc
   ret
 end
-  
-proc clean 0 0
-  {close output}
-  outputfd read
-  copy NULL != if [(os.close) 0]
-  disc
-
-  {close input}
-  inputfd read
-  copy NULL != if [(os.close) 0]
-  disc
-
-  gvartab      read (map.free)
-  consttab     read (map.free)
-  proctab      read (map.free)
-  cproctab     read (map.free)
-  includedtab  read (map.free)
-
-  identstack   read (seq.free)
-
-  stringbuffer read (heap.free)
-
-  (heap.map)
-
-  ret
-end
-
-proc exit 0 0
-  (clean)
-
-  -1 quit
-  ret
-end
 
 proc noprocblock 0 0
   0 1 (log.level)
   "ERR"
   "Proc not found: " (log.msg)
   blockbuffer 1 + (log.cat)
+  (lineappend)
   (log.log)
   (exit)
 
@@ -429,6 +478,7 @@ proc noproc 0 0
   "ERR"
   "Proc not found: " (log.msg)
   cmdbuffer 1 + (log.cat)
+  (lineappend)
   (log.log)
   (exit)
   
@@ -676,28 +726,6 @@ end
 proc asmheader 0 0
     stringbufferlen 1 put disc
     `format ELF64\n` (writeout)
-    `macro ccall proc,[arg]\n` (writeout)
-    `  { common\n` (writeout)
-    `     push rbx\n` (writeout)
-    `     xor rbx, rbx\n` (writeout)
-    `     mov ebx,esp\n` (writeout)
-    `     local size\n` (writeout)
-    `     size = 0\n` (writeout)
-    `     if ~ arg eq\n` (writeout)
-    `    forward\n` (writeout)
-    `     size = size + 4\n` (writeout)
-    `    common\n` (writeout)
-    `     sub esp,size\n` (writeout)
-    `     end if\n` (writeout)
-    `     and esp,-16\n` (writeout)
-    `     if ~ arg eq\n` (writeout)
-    `     add esp,size\n` (writeout)
-    `    reverse\n` (writeout)
-    `     pushd arg\n` (writeout)
-    `    common\n` (writeout)
-    `     end if\n` (writeout)
-    `     call proc\n` (writeout)
-    `     leave }\n` (writeout)
     `section '.text' executable\n` (writeout)
     `public _start\n\n` (writeout)
     `print:\n` (writeout)
@@ -734,6 +762,7 @@ proc asmfooter 0 0
     0 1 (log.level)
     "ERR" "no main proc defined" (log.msg)
     blockbuffer 1 + (log.cat)
+    (lineappend)
     (log.log)
     (exit)
   ]
@@ -778,6 +807,9 @@ proc endopasm 1 0
     "SIZE" (getexpandedname) propsize (map.put)
     disc
     classname (cstr.clear) disc
+  ]
+  copy IDENT_PROC == if [
+    procname (cstr.clear) disc
   ]
   disc
   ret
@@ -826,6 +858,7 @@ end
 proc badblockop 0 0
   "ERR" "BAD OPERATION: `" (log.msg)
   blockbuffer (log.cat) "`" (log.cat)
+  (lineappend)
   (log.log)
   (exit)
 
@@ -872,17 +905,13 @@ proc checkbadblock 1 1
 end
 
 proc badret 0 0
-  proctab read
-  procname (getexpandedname) (map.get)
-  procdata.out . readc
-  (int.print)
-  disc
+  "ERR" "proc dosent return correct ammount `" (log.msg)
 
-  procname (getexpandedname) (cstr.println)
-  parsestack read (int.print)
-  "Error: proc dosent return correct ammount" (cstr.println)
-  {TODO: log}
-  -1 quit
+  procname (getexpandedname) (log.cat)
+  "`" (log.cat)
+  (lineappend)
+  (log.log)
+  (exit)
 
   ret
 end
@@ -1230,6 +1259,7 @@ proc getblockasm 1 1
     "dump" 1 (checkpopb)
     0 (addstackb)
     "WRN" "dump is depricated" (log.msg)
+    (lineappend)
     (log.log)
 
     `    pop rax\n` (writeout)
@@ -1251,6 +1281,9 @@ proc getblockasm 1 1
   ] copy IDENT_GVAR == if [
     "gvar" 0 (checkpopb)
     0 (addstackb)
+    "WRN" "gvar is depricated use var instead" (log.msg)
+    (lineappend)
+    (log.log)
     parseflags
     CF_GVAR_NAME
     put disc
@@ -1258,9 +1291,7 @@ proc getblockasm 1 1
   ] copy IDENT_VAR == if [
     "var" 0 (checkpopb)
     0 (addstackb)
-    parseflags
-    CF_VAR
-    put disc
+    (setupvar)
     ret
   ]
   copy
@@ -1425,6 +1456,7 @@ end
 proc badop 0 0
   "ERR" "BAD OPERATION: `" (log.msg)
   cmdbuffer (log.cat) "`" (log.cat)
+  (lineappend)
   (log.log)
   (exit)
 
@@ -1851,6 +1883,7 @@ proc getcmdasm 1 1
     "dump" 1 (checkpop)
     0 (addstack)
     "WRN" "dump is depricated" (log.msg)
+    (lineappend)
     (log.log)
 
     `    pop rax\n` (writeout)
@@ -1878,6 +1911,9 @@ proc getcmdasm 1 1
   ] copy IDENT_GVAR == if [
     "gvar" 0 (checkpop)
     0 (addstack)
+    "WRN" "gvar is depricated use var instead" (log.msg)
+    (lineappend)
+    (log.log)
     parseflags
     CF_GVAR_NAME
     put disc
@@ -1885,9 +1921,7 @@ proc getcmdasm 1 1
   ] copy IDENT_VAR == if [
     "var" 0 (checkpop)
     0 (addstack)
-    parseflags
-    CF_VAR
-    put disc
+    (setupvar)
     ret
   ]
   copy
@@ -2226,6 +2260,17 @@ proc parsefile 0 0
     do
       covr readc
 
+      linestats read linedata.column .
+      copy read 1 + put disc
+
+      copy 10 == if [
+        linestats read linedata.column .
+        0 put disc
+        
+        linestats read linedata.line .
+        copy read 1 + put disc
+      ]
+
       copy 9 {tab} ==
       covr 10 {lf} == ||
       covr 13 {cr} == ||
@@ -2233,12 +2278,15 @@ proc parsefile 0 0
       if (checkbuffer)
       
       includebuffer readc 0 != if [
+        linestats read
+        linestats NULL put disc
         inputfd read
         inputfd NULL put disc
         includebuffer (openinput) disc
         includebuffer (cstr.clear) disc
         (parsefile)
         inputfd swap put disc
+        linestats swap put disc
       ]
 
       cmdbuffer readc
@@ -2247,6 +2295,7 @@ proc parsefile 0 0
       swap '`' == ||
       covr '\' == &&
       if [
+
         disc
         swap 1 +
         swap
@@ -2284,6 +2333,9 @@ proc parsefile 0 0
   end
 
   readbuffer read
+  (heap.free)
+
+  linestats read
   (heap.free)
 
   ret
@@ -2483,8 +2535,6 @@ proc ld 0 0
 end
 
 proc initobjs 0 0
-  (heap.init)
-  
   gvartab      256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
   consttab     256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
   proctab      256 procdata.SIZE TAB_KEY_SIZE (map.new) put disc

@@ -12,7 +12,7 @@ class sockaddr
   const PORT_MASK FFFFh
   const ADDR_MASK FFFFFFFFh
 
-  gvar temp int.SIZE
+  var temp int.SIZE
 
   proc reset 1 1
     copy 16 (mem.zero)
@@ -73,9 +73,9 @@ class net
   const SOCK_STREAM 1
   const INADDR_ANY 0
 
-  gvar temp int.SIZE
-  gvar buff int.SIZE
-  gvar port int.SIZE
+  var temp int.SIZE
+  var buff int.SIZE
+  var port int.SIZE
   
   {
   args: ptr[data] int[port]
@@ -208,12 +208,12 @@ end
 class http
   prop server 32
   
-  gvar resp 8
-  gvar temp 8
+  var resp 8
+  var temp 8
 
-  gvar getline 32
-  gvar gettemp 32
-  gvar geturl 32
+  var getline 32
+  var gettemp 32
+  var geturl 32
 
   {
   args: ptr[server] ptr[http]

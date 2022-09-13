@@ -1,23 +1,18 @@
-inc lib/stdlib.slm
-
-proc sq 1 1
-  copy *
-
-  ret
-end
+inc stdlib.slm
+inc math.slm
 
 const max 100
 
 proc main 0 0
 
-  max max 1 + * 2 / disc (sq)
+  max max 1 + * 2 / disc (math.squared)
   
   0
   0
   do
     1 +
     swap
-    covr (sq) +
+    covr (math.squared) +
     swap
     
     copy max <
@@ -26,7 +21,7 @@ proc main 0 0
 
   -
 
-  (str.printint)
+  (int.print)
 
   ret
 end

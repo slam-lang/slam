@@ -5,9 +5,9 @@ class str
   prop Size int.SIZE
   prop Data 0
   
-  gvar workingtemp int.SIZE
-  gvar rawtemp int.SIZE
-  gvar maxtemp int.SIZE
+  var workingtemp int.SIZE
+  var rawtemp int.SIZE
+  var maxtemp int.SIZE
 
 
   {

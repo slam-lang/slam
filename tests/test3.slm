@@ -3,7 +3,7 @@ inc mem.slm
 inc log.slm
 inc os.slm
 
-gvar cmdtmp 128
+var cmdtmp 128
 
 proc main 0 0
   cmdtmp

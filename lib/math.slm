@@ -1,5 +1,5 @@
 class math
-  gvar temp int.SIZE
+  var temp int.SIZE
 
   {
   args: int[a] int[b]
@@ -67,8 +67,8 @@ class float
     ret
   end
 
-  gvar temp int.SIZE
-  gvar working int.SIZE
+  var temp int.SIZE
+  var working int.SIZE
 
   proc print 1 0
     {TODO: implement}

@@ -12,19 +12,19 @@ inc arrays.slm
 inc mem.slm
 
 class hash
-  gvar result 1
+  var result 1
   {
   args: ptr[data] int[size]
   result: int[hash]
   }
   proc get 2 1
-    hash.result 0 putc disc
+    hash.result 7 putc disc
     
     do
       1 -
       covr
       covr + readc
-      hash.result readc 2 * ^
+      hash.result readc 31 * +
       hash.result swap
       putc disc
 
@@ -45,9 +45,9 @@ class map
   prop count int.SIZE
   prop dataarray 0
 
-  gvar curtemp int.SIZE
-  gvar entry int.SIZE
-  gvar temp int.SIZE
+  var curtemp int.SIZE
+  var entry int.SIZE
+  var temp int.SIZE
 
   {
   args: int[hashcount] int[entrysize] int[valuesize]
@@ -180,7 +180,7 @@ class map
     ret
   end
   
-  gvar pr bool.SIZE
+  var pr bool.SIZE
 
   proc comma 0 0
     ", " (cstr.print)

@@ -1,13 +1,11 @@
 inc maps.slm
 
-gvar key 4
-gvar value 4
+var key 4
+var value 4
 
-gvar map int.SIZE
+var map int.SIZE
 
 proc main 0 0
-  (heap.init)
-
   map 256 3 3 (map.new) put disc
 
   key "lol" (cstr.copy) disc disc

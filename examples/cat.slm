@@ -1,36 +1,29 @@
 inc stdlib.slm
+inc os.slm
 
 {TODO: gvar}
 
-proc inputfd 0 1
-  var 8
-
-  ret
-end
-
-proc inputbuffer 0 1
-  var 129
-  
-  ret
-end
+var inputfd 8
+var inputbuffer 129
 
 proc main 0 0
   0
   do
     1 +
-    copy (args)
+    copy (os.args)
     0 swap 0 swap
     -100
-    (open)
-    (inputfd) swap put disc
+    (os.open)
+    inputfd swap put disc
     do
       127
-      (inputbuffer) (str.clear)
-      (inputfd) read (read)
-      (inputbuffer) (str.print)
+      inputbuffer (cstr.clear)
+      inputfd read (os.read)
+      inputbuffer (cstr.print)
       0 !=
     end
-    (inputfd) read (close)
+    inputfd read (os.close)
   end
+
   ret
 end

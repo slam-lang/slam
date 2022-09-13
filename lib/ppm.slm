@@ -52,9 +52,9 @@ class ppm
   prop h int.SIZE
   prop data 0
 
-  gvar curtemp int.SIZE
-  gvar color int.SIZE
-  gvar file int.SIZE
+  var curtemp int.SIZE
+  var color int.SIZE
+  var file int.SIZE
 
   proc new 2 1
     covr

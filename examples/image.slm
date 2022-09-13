@@ -1,14 +1,12 @@
 inc stdlib.slm
 inc ppm.slm
 
-gvar red color.SIZE
-gvar blk color.SIZE
+var red color.SIZE
+var blk color.SIZE
 
-gvar image int.SIZE
-gvar x int.SIZE
-gvar y int.SIZE
-
-
+var image int.SIZE
+var x int.SIZE
+var y int.SIZE
 
 const W 255
 const H 255

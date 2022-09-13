@@ -7,8 +7,8 @@ class log
   prop Hint 4
   prop Mes  0
  
-  gvar idtemp int.SIZE
-  gvar curlog 64
+  var idtemp int.SIZE
+  var curlog 64
 
   {
   args: bool[crit] int[id]

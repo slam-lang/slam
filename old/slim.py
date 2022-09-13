@@ -780,6 +780,7 @@ def parse_program(text, consts = {}, multi = False):
     prefix = ""
     lmem = 0
     propsize = 0
+    inproc = False
 
     while idx < len(data):
         func = data[idx]
@@ -852,9 +853,22 @@ def parse_program(text, consts = {}, multi = False):
             idx += 1
         
         elif func == "var":
-            size = int(data[idx])
-            idx += 1
-            proc_block.append((OP_GPTR, size))
+            if inproc:
+                size = int(data[idx])
+                idx += 1
+                proc_block.append((OP_GPTR, size))
+            else:
+                name = data[idx]
+                idx += 1
+                result.append((OP_PROC, prefix + name))
+                if data[idx] in consts:
+                    result.append((OP_GPTR, consts[data[idx]]))
+                else:
+                    result.append((OP_GPTR, int(data[idx])))
+                result.append((OP_RET, 0))
+                idx += 1
+                proc_values[prefix + name] = (0, 1)
+                gvars.append(prefix + name)
 
         elif func == "gvar":
             name = data[idx]
@@ -892,6 +906,7 @@ def parse_program(text, consts = {}, multi = False):
                 proc_args = -1
                 lvars = {}
                 lmem = 0
+                inproc = False
             elif ident_stack[-1] == "do":
                 proc_block.append((OP_IF, ))
                 proc_block.append((OP_JUMPX, do_ids.pop()))
@@ -915,6 +930,7 @@ def parse_program(text, consts = {}, multi = False):
         
         elif func == "proc":
             result.append((OP_PROC, prefix + data[idx]))
+            inproc = True
             idx += 1
             proc_args = int(data[idx])
             idx += 1

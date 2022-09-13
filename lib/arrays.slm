@@ -14,8 +14,8 @@ class seq
   prop Elem int.SIZE
   prop Data 0
 
-  gvar curtemp int.SIZE
-  gvar elemtemp 32
+  var curtemp int.SIZE
+  var elemtemp 32
   
   {
   args: int[maxSize] int[elemSize] ptr[seqay]
@@ -390,7 +390,7 @@ class llist
   prop entry int.SIZE
   prop root int.SIZE
 
-  gvar curtemp int.SIZE
+  var curtemp int.SIZE
 
   proc new 1 1
     16 (heap.zalloc)

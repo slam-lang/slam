@@ -8,6 +8,13 @@ class bool
 end
 
 class cstr
+  var tempmin 1
+  var tempmax 1
+  var tempmul 1
+  var delim 1
+  var tempstore 8
+
+  
   proc len 1 1
     copy readc 0 == if [disc 0 ret]
     copy
@@ -169,9 +176,6 @@ class cstr
     ret
   end
 
-  gvar tempmin 1
-  gvar tempmax 1
-  
   {
   args: ptr[string]
   returns: int[val]
@@ -215,8 +219,6 @@ class cstr
     1
     ret
   end
-  
-  gvar tempmul 1
   
   {
   args: ptr[string]
@@ -268,9 +270,6 @@ class cstr
     ret
   end
 
-  gvar delim 1
-  gvar tempstore 8
-
   {
   args: ptr[store] int[delim] ptr[cstr]
   result: ptr[store] ptr[cstr]
@@ -308,7 +307,7 @@ end
 class int
   prop data 8
 
-  gvar tmpidx 8
+  var tmpidx 8
  
   proc gettmp 0 1
     var 32 30 +

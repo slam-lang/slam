@@ -21,7 +21,7 @@ class heapentry
 end
 
 class mem
-  gvar tmp 8
+  var tmp 8
 
   proc copy 3 0
     mem.tmp swap put disc
@@ -96,10 +96,11 @@ class mem
 end
 
 class heap
-  gvar startaddr int.SIZE
-  gvar endaddr int.SIZE
-  gvar reqsize int.SIZE
-  gvar usedtemp int.SIZE
+  var startaddr int.SIZE
+  var endaddr int.SIZE
+  var reqsize int.SIZE
+  var usedtemp int.SIZE
+  var isinit 1
 
   const HEAP_PAGE 64000
   const HEAP_STEP 64
@@ -118,6 +119,11 @@ class heap
   end
 
   proc init 0 0
+    heap.isinit readc if [
+      ret
+    ]
+    heap.isinit 1 putc disc
+
     { get the heap addr }
     heap.startaddr
     0 BRK sys1
@@ -173,6 +179,7 @@ class heap
   end
 
   proc alloc 1 1
+    (heap.init)
     heapentry.SIZE +
     copy heap.HEAP_STEP / swap disc -
     heap.HEAP_STEP +
@@ -216,6 +223,7 @@ class heap
   end
   
   proc zalloc 1 1
+    (heap.init)
     (heap.alloc)
     copy
     

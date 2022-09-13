@@ -2,7 +2,7 @@ inc stdlib.slm
 inc mem.slm
 inc arrays.slm
 
-gvar seq 8
+var seq 8
 
 proc main 0 0
   seq int.SIZE 4096 (seq.new) put disc
