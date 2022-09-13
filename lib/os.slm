@@ -129,16 +129,16 @@ class os
       copy read (log.cat)
       int.SIZE +
        
-      copy read NULL !=
       copy if [
         " " (log.cat)
       ]
+      copy read NULL !=
     end
     disc
-    (log.log)  
+    (log.log) 
 
     (os.execcmd)
-  
+    
     ret
   end
 

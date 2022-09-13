@@ -153,7 +153,6 @@ const READSIZE       2048
 {the maximum identifer stack size * 8}
 const IDENT_CAP      1024
 
-
 {A table of consts and values}
 var consttab int.SIZE
 {A table of gloval variables and addresses}
@@ -201,10 +200,10 @@ var outputbuffer 64
 var inputbuffer 64
 var cmdtmpbuffer 64
 var tmpprocbuffer 64
-var parseaddr int.SIZE
-var parsesubaddr int.SIZE
 var procname 64
 var constname 64
+var parseaddr int.SIZE
+var parsesubaddr int.SIZE
 
 {stores a file to be queued to include}
 var includebuffer 1024
@@ -803,7 +802,7 @@ proc addproc 0 0
   parseflags copy read
   copy CF_PROC_NAME == if [
     procname (cstr.clear) cmdbuffer (cstr.copy) disc disc
-    procstats procdata.addr . 
+    procstats procdata.addr .
     parseaddr read
     put disc
   ] copy CF_PROC_IN == if [
@@ -1202,6 +1201,8 @@ end
 
 proc badret 0 0
   "ERR" "proc dosent return correct ammount `" (log.msg)
+
+  parsestack read (int.print)
 
   procname (getexpandedname) (log.cat)
   "`" (log.cat)
@@ -2636,14 +2637,13 @@ prints a help string
 proc help 1 0
   copy HELP_VERSION == if [
     "slim compiler v" (cstr.print) (version) (cstr.println)
-    0 quit
+    disc 0 quit
   ]
   copy HELP_ARGS == if [
     "ERROR: You must compile exactly 1 file"
     (cstr.println)
   ]
   copy HELP_OUTPUT == if [
-    disc
     "ERROR: Last argument supplied requires a parameter"
     (cstr.println)
   ]
@@ -2830,7 +2830,7 @@ proc initobjs 0 0
 
   identstack   int.SIZE IDENT_CAP (seq.new) put disc
 
-  stringbuffer STRING_BUF_CAP (heap.alloc) put disc
+  stringbuffer STRING_BUF_CAP (heap.zalloc) put disc
   
   ret
 end

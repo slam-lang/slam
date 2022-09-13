@@ -8,7 +8,7 @@ class log
   prop Mes  0
  
   var idtemp int.SIZE
-  var curlog 64
+  var curlog 128
 
   {
   args: bool[crit] int[id]
