@@ -351,7 +351,7 @@ class llentry
 
   proc last 1 1
     copy llentry.next . read
-    0 == if [
+    NULL == if [
       ret
     ]
     
@@ -425,7 +425,7 @@ class llist
     {TODO: Implement}
     copy llist.root . read NULL == if [disc 0 ret]
     llist.root . read
-    0 swap
+    NULL swap
     do
       swap 1 +
       swap

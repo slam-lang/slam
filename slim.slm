@@ -9,10 +9,12 @@ TODO: Merge the getasm functions
 TODO: Clean magic nums
 TODO: Track stack blocks
 TODO: Macros / inlines
-TODO: Stripping
+TODO: Stripping?
 TODO: Check for no return
 TODO: String consts
-TODO: More comments
+TODO: Set stack size
+TODO: Make table key unlimited len
+FIX: cmdexec extra chars
 }
 
 inc os.slm
@@ -22,7 +24,7 @@ inc arrays.slm
 inc log.slm
 
 proc version 0 1
-  "0.4.2" ret
+  "0.4.3" ret
 end
 
 {
@@ -124,78 +126,116 @@ enum
     HELP_OUTPUT
 end
 
+{
+this stores information about a proc
+}
 class procdata
   prop addr int.SIZE
   prop in 1
   prop out 1
 end
 
+{
+stores the current line and file info
+}
 class linedata
-  prop line 8
-  prop column 8
+  prop line int.SIZE
+  prop column int.SIZE
   prop file 64
 end
 
+{the size of a key for the proc, const table}
 const TAB_KEY_SIZE   20
+{The maximum size of the string data at the end of the asm}
 const STRING_BUF_CAP 300000
+{The size of a segment the file reads}
 const READSIZE       2048
+{the maximum identifer stack size * 8}
 const IDENT_CAP      1024
 
-var consttab int.SIZE
-var gvartab int.SIZE
-var proctab int.SIZE
-var includedtab int.SIZE
 
+{A table of consts and values}
+var consttab int.SIZE
+{A table of gloval variables and addresses}
+var gvartab int.SIZE
+{A table of procs}
+var proctab int.SIZE
+{A table of included files}
+{TODO: Make list}
+var includedtab int.SIZE
+{A table of c procs}
 var cproctab int.SIZE
 
+{Temp vars for putting values into maps}
 var maptemp int.SIZE
 var maptempstr TAB_KEY_SIZE
 
+{stores the current command}
 var cmdbuffer READSIZE
 var _ 1 {add 1 char for reading}
+{stores the current command in a block}
 var blockbuffer READSIZE
 var _ 1 {add 1 char for reading}
+{stores the current data last read from the file}
 var readbuffer int.SIZE
-
+{A string storing the string data for end of asm}
 var stringbuffer int.SIZE
+{The size of the string buffer}
 var stringbufferlen int.SIZE
+{The last string id in the string buffer}
+var parsestringidx int.SIZE
+
+{the current input file descriptor}
 var inputfd int.SIZE
+{the current output file descriptor}
 var outputfd int.SIZE
-
+{Stores cmd line data}
 var cmdlineflags int.SIZE
-
+{Pointer to the identifier stack, used for IDENT_END}
 var identstack int.SIZE
 
+{some buffers for stats}
+{TODO: Make pointers}
 var classname 64
 var outputbuffer 64
 var inputbuffer 64
 var cmdtmpbuffer 64
 var tmpprocbuffer 64
-
-var includebuffer 1024
-var includepath 1024
-
-var parseflags int.SIZE
-
 var parseaddr int.SIZE
 var parsesubaddr int.SIZE
-var parsestringidx int.SIZE
+var procname 64
+var constname 64
+
+{stores a file to be queued to include}
+var includebuffer 1024
+{stores the path to include files from}
+var includepath 1024
+
+{Stores a parser flag for idents}
+var parseflags int.SIZE
+
+{the size of all gvars}
 var parsememory int.SIZE
 
+{the offset of the stack in the current proc}
 var parsestack int.SIZE
+{the offset of the stack in a block in the current proc}
 var parsestackblock int.SIZE
-
-var parsememorylocal int.SIZE
-
-var constname 64
+{the value of the next enum entry}
 var enumvalue int.SIZE
+{the size of the current object so far}
 var propsize int.SIZE
-
-var procname 64
+{stats for the current proc}
 var procstats procdata.SIZE
-
+{the current files line stats}
 var linestats int.SIZE
 
+{
+args: int[char]
+returns: int[char]
+
+gets the char for the escape code
+}
 proc getescape 1 1
   copy 'e' == if [ disc 27 ret ]
   copy 'r' == if [ disc 13 ret ]
@@ -205,6 +245,12 @@ proc getescape 1 1
   ret
 end
 
+{
+args:
+returns:
+
+Setup a var for adding
+}
 proc setupvar 0 0
   parseflags
   CF_VAR
@@ -219,6 +265,12 @@ proc setupvar 0 0
   ret
 end
 
+{
+args:
+returns:
+
+appends the current line to the log
+}
 proc lineappend 0 0
   " <" (log.cat)
   linestats read
@@ -237,6 +289,12 @@ proc lineappend 0 0
   ret
 end
 
+{
+args: ptr[input]
+returns: int[success]
+
+opens a file for writing
+}
 proc openinput 1 1
   linestats linedata.SIZE (heap.zalloc) put disc
   linestats read linedata.file . covr (cstr.copy) disc disc
@@ -273,8 +331,13 @@ proc openinput 1 1
   ret
 end
 
+{
+args: int[success]
+returns: ptr[input]
 
-proc getnameop 1 1
+gets a operation from a string name
+}
+proc getopfromname 1 1
   OP_BAD
   covr "proc"  (cstr.eq) if [disc IDENT_PROC]
   covr "cproc" (cstr.eq) if [disc IDENT_CPROC]
@@ -333,13 +396,25 @@ proc getnameop 1 1
   ret
 end
 
+{
+args: ptr[name]
+returns: int[value]
+
+gets a operation name from a enum
+}
 proc getopname 1 1
   (int.cstr)
   {TODO: reimplement}
 
   ret
 end
-  
+
+{
+args:
+returns:
+
+cleans the heap
+}  
 proc clean 0 0
   {close output}
   outputfd read
@@ -364,6 +439,12 @@ proc clean 0 0
   ret
 end
 
+{
+args:
+returns:
+
+quits the program with an error
+}  
 proc exit 0 0
   (clean)
 
@@ -371,6 +452,12 @@ proc exit 0 0
   ret
 end
 
+{
+args: str[name] int[pops]
+returns
+
+checks for a stack underflow in a block
+}
 proc checkpopb 2 0
   parsestackblock read swap -
   parsestackblock swap put disc
@@ -387,6 +474,12 @@ proc checkpopb 2 0
   ret
 end
 
+{
+args: int[value]
+returns:
+
+adds the value to the virtual stack in a block
+}
 proc addstackb 1 0
   parsestackblock read swap +
   parsestackblock swap put disc
@@ -394,6 +487,12 @@ proc addstackb 1 0
   ret
 end
 
+{
+args: str[name] int[pops]
+returns
+
+checks for a stack underflow
+}
 proc checkpop 2 0
   parsestack read swap -
   parsestack swap put disc
@@ -410,6 +509,12 @@ proc checkpop 2 0
   ret
 end
 
+{
+args: int[value]
+returns:
+
+adds the value to the virtual stack
+}
 proc addstack 1 0
   parsestack read swap +
   parsestack swap put disc
@@ -417,6 +522,12 @@ proc addstack 1 0
   ret
 end
 
+{
+args: int[push]
+returns:
+
+pushes an ident to the ident stack
+}
 proc identstackpush 1 0
   identstack read swap (seq.pushint)
   disc
@@ -424,18 +535,37 @@ proc identstackpush 1 0
   ret
 end
 
+{
+args:
+returns: int[push]
+
+pop from the ident stack
+}
 proc identstackpop 0 1
   identstack read (seq.popaddr) read swap disc
 
   ret
 end
 
+{
+args: ptr[cstr]
+returns: ptr[cstr]
+
+
+removes the first and last char from a string
+}
 proc inner 1 1
   1 + copy
   copy (cstr.len) 1 - + 0 putc disc
   ret
 end
 
+{
+args:
+returns: int[value]
+
+gets the next string index
+}
 proc getstringidx 0 1
   parsestringidx read
   copy 1 +
@@ -443,6 +573,12 @@ proc getstringidx 0 1
   ret
 end
 
+{
+args:
+returns: int[value]
+
+gets the next address
+}
 proc getaddr 0 1
   parsesubaddr
   0 put disc
@@ -453,6 +589,12 @@ proc getaddr 0 1
   ret
 end
 
+{
+args:
+returns: int[value]
+
+gets the next sub address
+}
 proc getsubaddr 0 1
   parsesubaddr read
   copy 1 +
@@ -460,6 +602,12 @@ proc getsubaddr 0 1
   ret
 end
 
+{
+args:
+returns:
+
+helper function for errors
+}
 proc noprocblock 0 0
   0 1 (log.level)
   "ERR"
@@ -472,7 +620,12 @@ proc noprocblock 0 0
   ret
 end
 
+{
+args:
+returns:
 
+helper function for errors
+}
 proc noproc 0 0
   0 1 (log.level)
   "ERR"
@@ -485,16 +638,66 @@ proc noproc 0 0
   ret
 end
 
+{
+args:
+returns:
+
+helper function for errors
+}
+proc badblockop 0 0
+  "ERR" "BAD OPERATION: `" (log.msg)
+  blockbuffer (log.cat) "`" (log.cat)
+  (lineappend)
+  (log.log)
+  (exit)
+
+  ret
+end
+
+{
+args:
+returns:
+
+helper function for errors
+}
+proc badop 0 0
+  "ERR" "BAD OPERATION: `" (log.msg)
+  cmdbuffer (log.cat) "`" (log.cat)
+  (lineappend)
+  (log.log)
+  (exit)
+
+  ret
+end
+
+{
+args: ptr[str] int[len]
+returns:
+
+helper func to write to the current output buffer
+}
 proc writeout 2 0
   outputfd read (os.write)
   ret
 end
 
+{
+args:
+returns:
+
+helper func to write a new line to the output
+}
 proc writeoutln 0 0
   `\n` (writeout)
   ret
 end
 
+{
+args:
+returns:
+
+sets the current class name
+}
 proc setclassname 0 0
   cmdbuffer classname swap (cstr.copy) disc disc
 
@@ -511,6 +714,12 @@ proc setclassname 0 0
   ret
 end
 
+{
+args: ptr[name]
+returns: ptr[expanded]
+
+gets the class proc name of a proc
+}
 proc getexpandedname 1 1
   tmpprocbuffer 64 (mem.zero)
   classname (cstr.len) 0 != if [
@@ -526,6 +735,12 @@ proc getexpandedname 1 1
   ret
 end
 
+{
+args:
+returns: ptr[value]
+
+gets the value of a const in the cmd buffer or returns the input
+}
 proc getconst 0 1
   NULL
   consttab read cmdbuffer (map.in) swap disc ! if [ disc cmdbuffer (cstr.tonum) ret ]
@@ -536,6 +751,12 @@ proc getconst 0 1
   ret
 end
 
+{
+args:
+returns:
+
+adds a proc thats linked to a c function
+}
 proc addcproc 0 0
   ` ` (writeout)
   parseflags copy read
@@ -570,6 +791,12 @@ proc addcproc 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a proc
+}
 proc addproc 0 0
   ` ` (writeout)
   cmdbuffer copy (cstr.len) swap (writeout)
@@ -602,6 +829,12 @@ proc addproc 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a class property
+}
 proc addprop 0 0
   parseflags
   copy read 1 - copy
@@ -622,6 +855,12 @@ proc addprop 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a const
+}
 proc addconst 0 0
   parseflags
   copy read 1 - copy
@@ -637,6 +876,12 @@ proc addconst 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a global variable
+}
 proc addgvar 0 0
   parseflags
   copy read 1 -
@@ -654,6 +899,12 @@ proc addgvar 0 0
   ret
 end
 
+{
+args:
+returns:
+
+inits the enum value 
+}
 proc addenumstart 0 0
   enumvalue
   cmdbuffer (cstr.tonum)
@@ -666,6 +917,12 @@ proc addenumstart 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a enum value 
+}
 proc addenum 0 0 
   cmdbuffer (cstr.isnum) if [
     enumvalue
@@ -691,6 +948,12 @@ proc addenum 0 0
   ret
 end
 
+{
+args:
+returns:
+
+include a file
+}
 proc addinc 0 0 
   includebuffer
   includepath (cstr.copy) disc
@@ -705,6 +968,12 @@ proc addinc 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds a variable, static and bad
+}
 proc addvar 0 0
   1 (addstack)
   `    push mem+` (writeout)
@@ -723,6 +992,12 @@ proc addvar 0 0
   ret
 end
 
+{
+args:
+returns:
+
+adds the header to the current output
+}
 proc asmheader 0 0
     stringbufferlen 1 put disc
     `format ELF64\n` (writeout)
@@ -742,10 +1017,13 @@ proc asmheader 0 0
     ret
 end
 
+{
+args:
+returns:
+
+adds the footer to the current output
+}
 proc asmfooter 0 0
-  "INF" "Total procs: " (log.msg)
-  proctab read (map.len) (int.cstr) (log.cat) disc
-  (log.log)
   `addr_` (writeout)
   (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
   `:\n` (writeout)
@@ -782,7 +1060,12 @@ proc asmfooter 0 0
   parsememory read (int.cstr) copy (cstr.len) swap (writeout)
   (writeoutln)
   disc
+  
+  {debug logging}
   0 1 (log.level)
+  "INF" "Total procs: " (log.msg)
+  proctab read (map.len) (int.cstr) (log.cat) disc
+  (log.log)
   "INF" "Global memory footprint: " (log.msg)
   parsememory read (int.cstr) (log.cat)
   " bytes" (log.cat)
@@ -790,6 +1073,12 @@ proc asmfooter 0 0
   ret
 end
 
+{
+args: int[kind]
+returns:
+
+ends a operation
+}
 proc endopasm 1 0
   copy IDENT_DO == if [
     "do - end" 1 (checkpop)
@@ -815,6 +1104,12 @@ proc endopasm 1 0
   ret
 end
 
+{
+args: int[kind]
+returns:
+
+ends a operation in a block
+}
 proc endopblockasm 1 0
   copy IDENT_DO == if [
     "do - end" 1 (checkpopb)
@@ -835,6 +1130,12 @@ proc endopblockasm 1 0
   ret
 end
 
+{
+args:
+returns:
+
+writes the current address to the output
+}
 proc writeaddr 0 0
   `addr_` (writeout)
   (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
@@ -844,6 +1145,12 @@ proc writeaddr 0 0
   ret
 end
 
+{
+args:
+returns:
+
+writes the current sub address to the output
+}
 proc writesubaddr 0 0
   `addr_` (writeout)
   parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
@@ -854,17 +1161,6 @@ proc writesubaddr 0 0
 
   ret
 end
-
-proc badblockop 0 0
-  "ERR" "BAD OPERATION: `" (log.msg)
-  blockbuffer (log.cat) "`" (log.cat)
-  (lineappend)
-  (log.log)
-  (exit)
-
-  ret
-end
-
 
 proc checkbadblock 1 1
   blockbuffer (cstr.len) 3 ==
@@ -1443,22 +1739,12 @@ proc parseblockcmd 0 0
     ret
   ] blockbuffer readc 0 != if [
     parseflags read
-    blockbuffer (getnameop)
+    blockbuffer (getopfromname)
     covr CF_NONE == if (getblockasm)
     covr CF_VAR == if (addvar)
     disc disc
   ]
   blockbuffer (cstr.clear) disc
-
-  ret
-end
-
-proc badop 0 0
-  "ERR" "BAD OPERATION: `" (log.msg)
-  cmdbuffer (log.cat) "`" (log.cat)
-  (lineappend)
-  (log.log)
-  (exit)
 
   ret
 end
@@ -2207,7 +2493,7 @@ proc parsecmd 0 0
   ]
   cmdbuffer readc 0 != if [
     parseflags read
-    cmdbuffer (getnameop)
+    cmdbuffer (getopfromname)
     covr CF_NONE == if (getcmdasm)
     covr CF_PROC_OUT == if (addproc)
     covr CF_PROC_IN == if (addproc)
@@ -2350,17 +2636,17 @@ prints a help string
 proc help 1 0
   copy HELP_VERSION == if [
     "slim compiler v" (cstr.print) (version) (cstr.println)
-    (exit)
+    0 quit
   ]
-  "Help"
-  covr HELP_ARGS == if [
-    disc
+  copy HELP_ARGS == if [
     "ERROR: You must compile exactly 1 file"
-  ] covr HELP_OUTPUT == if [
+    (cstr.println)
+  ]
+  copy HELP_OUTPUT == if [
     disc
     "ERROR: Last argument supplied requires a parameter"
+    (cstr.println)
   ]
-  (cstr.println)
   "slim compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
   (cstr.cr)
   "slim [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
@@ -2372,7 +2658,8 @@ proc help 1 0
   "-a, --asm     keeps the assembly code."     (cstr.println)
   "-o, --output  selects the output file."     (cstr.println)
   disc
-  (exit)
+  
+  0 quit
 
   ret
 end

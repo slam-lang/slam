@@ -1,0 +1,69 @@
+inc stdlib.slm
+inc mem.slm
+
+class matrix
+  prop width int.SIZE
+  prop height int.SIZE
+  prop data 0
+
+  var curtemp 8
+  var temp 8
+  var tempval 8
+
+  proc new 2 1
+    covr covr *
+    int.SIZE *
+    16 +
+    (heap.alloc) 
+    matrix.curtemp swap put disc
+  
+    matrix.curtemp read
+    matrix.height .
+    swap put disc
+
+    matrix.curtemp read
+    matrix.width .
+    swap put disc
+
+    matrix.curtemp read
+
+    ret
+  end
+
+  proc get 3 2
+    matrix.temp swap put disc
+    swap matrix.curtemp swap put disc
+    matrix.temp read
+    
+    matrix.curtemp read
+    matrix.width . read
+    * + int.SIZE *
+
+    matrix.curtemp read
+    matrix.data .
+    + read
+    
+    matrix.curtemp read swap
+
+    ret
+  end
+  
+  proc set 4 1
+    matrix.temp swap put disc
+    swap matrix.tempval swap put disc
+    swap matrix.curtemp swap put disc
+    matrix.temp read
+    
+    matrix.curtemp read
+    matrix.width . read
+    * + int.SIZE *
+
+    matrix.curtemp read
+    matrix.data .
+    + matrix.tempval read put disc
+
+    matrix.curtemp read
+
+    ret
+  end
+end

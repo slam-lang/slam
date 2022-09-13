@@ -280,6 +280,12 @@ class heap
       "Bad realloc call" (cstr.println)
     ]
 
+    heap.reqsize read
+    covr heapentry.Size . read == if [
+      heapentry.SIZE +
+      ret
+    ]
+    
     copy
     copy heapentry.Size . read +
     covr heapentry.Size . read
@@ -296,7 +302,7 @@ class heap
         heap.reqsize
         read (heap.alloc)
         swap
-        covr heapentry.Data . swap
+        covr heapentry.Data .
         copy heapentry.Size . read
         (mem.copy)
         ret

@@ -2,9 +2,9 @@ inc mem.slm
 inc string.slm
 inc strutils.slm
 
-gvar temp 32
-gvar str1 64
-gvar str2 64
+var temp 32
+var str1 int.SIZE
+var str2 int.SIZE
 
 proc main 0 0
   (heap.init)
@@ -22,9 +22,11 @@ proc main 0 0
   "str.new" (cstr.println)
   "=============" (cstr.println)
 
-  str1 64 `lol ` (str.new)
+  (str.new)
+  `lol ` (str.put)
   copy (str.println)
-  str2 64 `nope ` (str.new)
+  (str.new)
+  `nope ` (str.put)
   copy (str.println)
   
   (cstr.cr)
@@ -43,14 +45,16 @@ proc main 0 0
   copy (str.println)
 
   copy (str.len) (int.print)
-
-  disc
   
+  (str.free)
+
+  {
   "lol" "fdsafdsa" (strutil.starts) (int.print)
   "lol" "lol" (strutil.starts) (int.print)
   "lolf" "lol" (strutil.starts) (int.print)
   "lol" "lolf" (strutil.starts) (int.print)
   "fdsa" "lolf" (strutil.starts) (int.print)
+  }
 
   ret
 end

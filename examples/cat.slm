@@ -1,8 +1,6 @@
 inc stdlib.slm
 inc os.slm
 
-{TODO: gvar}
-
 var inputfd 8
 var inputbuffer 129
 

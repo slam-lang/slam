@@ -1,40 +1,28 @@
 inc stdlib.slm
+inc mem.slm
 
 class str
-  prop Max int.SIZE
-  prop Size int.SIZE
-  prop Data 0
+  prop max int.SIZE
+  prop size int.SIZE
+  prop data 0
   
   var workingtemp int.SIZE
   var rawtemp int.SIZE
   var maxtemp int.SIZE
-
+  
+  const STEP 64
 
   {
-  args: ptr[str] ptr[size] ptr[max] ptr[cstr]
+  args:
   result: ptr[str]
 
   creats a string from a ` string
   }
-  proc new 4 1
-    str.rawtemp swap put disc
-    swap str.maxtemp swap put disc
-    swap str.workingtemp swap put disc
+  proc new 0 1
+    str.STEP 16 + (heap.zalloc)
+
+    copy str.max . str.STEP put disc
     
-    str.workingtemp read str.Max .
-    covr str.maxtemp read swap -
-    put disc
-
-    str.workingtemp read str.Size .
-    covr
-    put disc
-
-    str.workingtemp read str.Data . swap
-    str.rawtemp read swap
-    (mem.copy)
-    
-    str.workingtemp read
-
     ret
   end
 
@@ -53,13 +41,13 @@ class str
 
       copy
       str.workingtemp read
-      str.Data . +
+      str.data . +
       readc dump
       
       
       copy
       str.workingtemp read
-      str.Size . read
+      str.size . read
       <
     end
     disc
@@ -86,7 +74,7 @@ class str
   gets the length of a string
   }
   proc len 1 1
-    str.Size . read
+    str.size . read
 
     ret
   end
@@ -100,7 +88,7 @@ class str
   proc endaddr 1 1
     str.workingtemp swap put disc
     
-    str.workingtemp read str.Data .
+    str.workingtemp read str.data .
     str.workingtemp read (str.len) +
 
     ret
@@ -117,23 +105,31 @@ class str
 
     copy (str.len)
     str.workingtemp read (str.len) +
-    str.workingtemp read str.Max . read
+    str.workingtemp read str.max . read
     > if [
-      "String overflow" (cstr.println)
-      -1 quit
+      copy (str.len)
+      str.workingtemp read (str.len) +
+      str.STEP +
+      copy
+      str.workingtemp read str.max .
+      swap put disc
+      str.workingtemp read swap
+      (heap.realloc)
+      str.workingtemp swap put disc
     ]
     
     copy
     str.workingtemp read (str.endaddr)
     swap
+    copy (heap.free)
     copy (str.len)
-    swap str.Data .
+    swap str.data .
     swap
     (mem.copy)
     
     (str.len)
     str.workingtemp read (str.len) +
-    str.workingtemp read str.Size .
+    str.workingtemp read str.size .
     swap put disc
 
     str.workingtemp read
@@ -146,10 +142,17 @@ class str
 
     copy (cstr.len)
     str.workingtemp read (str.len) +
-    str.workingtemp read str.Max . read
+    str.workingtemp read str.max . read
     > if [
-      "String overflow" (cstr.println)
-      -1 quit
+      copy (cstr.len)
+      str.workingtemp read (str.len) +
+      str.STEP +
+      copy
+      str.workingtemp read str.max .
+      swap put disc
+      str.workingtemp read swap
+      (heap.realloc)
+      str.workingtemp swap put disc
     ]
     
     copy
@@ -160,11 +163,50 @@ class str
     
     (cstr.len)
     str.workingtemp read (str.len) +
-    str.workingtemp read str.Size .
+    str.workingtemp read str.size .
     swap put disc
 
     str.workingtemp read
 
+    ret
+  end
+
+  proc put 3 1
+    swap str.rawtemp swap put disc
+    swap str.workingtemp swap put disc
+  
+    str.rawtemp read
+    str.workingtemp read
+    str.max . read >
+    if [
+      str.workingtemp read
+      str.rawtemp read
+      str.STEP +
+      copy
+      str.workingtemp read str.max .
+      swap put disc
+      (heap.realloc) 
+      str.workingtemp swap put disc
+    ]
+   
+    str.workingtemp read
+    str.data . swap
+    str.rawtemp read
+    (mem.copy)
+    
+    str.workingtemp read
+    str.size .
+    str.rawtemp read
+    put disc
+
+    str.workingtemp read
+    
+    ret
+  end
+  
+  proc free 1 0
+    (heap.free)
+    
     ret
   end
 end
