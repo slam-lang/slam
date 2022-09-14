@@ -1,12 +1,41 @@
-inc stdlib.slm
+inc maps.slm
 
-proc lol 0 0
-  "lol" (cstr.println)
-  ret
-end
+var key 4
+var value 4
+
+var map int.SIZE
 
 proc main 0 0
-  lol ()
+  map 256 3 3 (map.new) put disc
+
+  key "lol" (cstr.copy) disc disc
+  value "ab" (cstr.copy) disc disc
+  
+  map read key value (map.put) disc
+
+  key "lol" (cstr.copy) disc disc
+  value "cd" (cstr.copy) disc disc
+
+  map read key value (map.put) disc
+
+  key "llo" (cstr.copy) disc disc
+  value "ef" (cstr.copy) disc disc
+  
+  map read key value (map.put) disc
+
+  key "mpo" (cstr.copy) disc disc
+  value "gh" (cstr.copy) disc disc
+
+  map read key value (map.put) disc
+
+  map read key (map.get)
+  (cstr.println) disc
+  
+  map read
+
+  (map.free)
+
+  0 quit
   
   ret
 end

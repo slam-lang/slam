@@ -1,83 +1,30 @@
-inc stdlib.slm
-inc mem.slm
-inc string.slm
+inc arrays.slm
+
+gvar tmp int.SIZE
+
+gvar list int.SIZE
 
 proc main 0 0
   (heap.init)
-  
-  heap.startaddr read (int.printhex)
 
-  1024 (heap.alloc)
+  list int.SIZE (llist.new) put disc
   
-  (heap.map)
-  (cstr.cr)
+  0
+  do
+    tmp covr put disc
+    list read tmp (llist.append)
+    disc
+    
+    1 +
+    copy 3000 <
+  end
+  disc
 
-  64 (heap.alloc)
-  
-  (heap.map)
-  (cstr.cr)
-  
-  (heap.free)
-  (heap.free)
+  list read
 
-  64 (heap.alloc)
+  (llist.free)
   
-  64 (heap.alloc)
-  
-  (heap.map)
-  (cstr.cr)
-
-  swap (heap.free)
-  
-  (heap.map)
-  (cstr.cr)
-
-  1024 (heap.alloc)
-  
-  (heap.map)
-  (cstr.cr)
-  
-  (heap.free)
-  (heap.free)
-  
-  1280000 (heap.alloc)
-  copy (int.printhex)
-
-  (heap.map)
-  (cstr.cr)
-  
-  (heap.free)
-
-  1000 (heap.alloc)
-  
-  (heap.map)
-  (cstr.cr)
-
-  5000 (heap.realloc)
-
-  (heap.map)
-
-  (cstr.cr)
-  (heap.free)
-  
-  1000 (heap.alloc)
-  1000 (heap.alloc)
-  
-  (cstr.cr)
-  (heap.map)
-
-  swap
-  1000 `lol` (str.new)
-
-  2000 (heap.realloc)
-  
-  copy (str.println)
-
-  (cstr.cr)
-  (heap.map)
-
-  (heap.free)
-  (heap.free)
+  0 quit
   
   ret
 end

@@ -1,15 +1,17 @@
 inc stdlib.slm
-inc mem.slm
-inc log.slm
+inc testin.slm
+inc math.slm
 
 proc main 0 0
-  0 1 (log.level)
-  "WRN" "oops" (log.msg)
-  (log.log)
+  "Create float" (testin.setup)
 
-  1 100 (log.level)
-  "ERR" "Lol" (log.msg)
-  (log.log)
+    10000 (float.fromint)
+
+  "Check value" (testin.next)
+  
+    1176256512 (testin.eq)
+  
+  (testin.done)
 
   ret
 end

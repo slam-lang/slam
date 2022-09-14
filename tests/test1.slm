@@ -1,14 +1,13 @@
-inc stdlib.slm
+inc testin.slm
 
 proc main 0 0
-  {prints 15 3 times}
+  "Numbers in other bases" (testin.setup)
+  
+    1111b 15 (testin.eq)
+    0015  15 (testin.eq)
+    000fh 15 (testin.eq)
 
-  1111b (int.print) 
-  0015  (int.print) 
-  000fh (int.print) 
+  (testin.done)
 
-  1111b (int.printhex) 
-  0015  (int.printhex) 
-  000fh (int.printhex) 
   ret
 end

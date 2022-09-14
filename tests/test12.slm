@@ -1,42 +1,12 @@
-inc arrays.slm
+inc stdlib.slm
 
-gvar tmp int.SIZE
-
-proc eprint 1 1
-  copy read (int.cstr) (cstr.print)
-  
-  ret
-end
-
-gvar list int.SIZE
+cproc glClearColor 1 0
 
 proc main 0 0
-  (heap.init)
-
-  list int.SIZE (llist.new) put disc
-  
-  0
-  do
-    tmp covr put disc
-    list read tmp (llist.append)
-    disc
-    
-    1 +
-    copy 3000 <
-  end
+  0 "lol\n" (glClearColor)
+  0 quit
+  disc
   disc
 
-  list read
-
-  "[" (cstr.print)
-  eprint (llist.print)
-  "]" (cstr.println)
-
-  (heap.map)
-
-  (llist.free)
-  
-  0 quit
-  
   ret
 end

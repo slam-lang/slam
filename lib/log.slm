@@ -52,7 +52,7 @@ class log
   proc log 0 0
     log.curlog
     log.Crit . readc
-    if [
+    copy 1 == if [
       "\e[1;31m" (cstr.print)
       "[" (cstr.print)
       log.curlog
@@ -61,9 +61,32 @@ class log
       log.curlog
       log.Mes . (cstr.print)
       "\e[0;0m" (cstr.println)
-
-      0 log.Id - quit
+        
+      disc ret
     ]
+    copy 2 == if [
+      "\e[0;32m" (cstr.print)
+      "[" (cstr.print)
+      log.curlog
+      log.Hint . (cstr.print)
+      "]\ " (cstr.print)
+      log.curlog
+      log.Mes . (cstr.print)
+      "\e[0;0m" (cstr.println)
+      disc ret
+    ]
+    copy 3 == if [
+      "\e[0;33m" (cstr.print)
+      "[" (cstr.print)
+      log.curlog
+      log.Hint . (cstr.print)
+      "]\ " (cstr.print)
+      log.curlog
+      log.Mes . (cstr.print)
+      "\e[0;0m" (cstr.println)
+      disc ret
+    ]
+    disc
     "[" (cstr.print)
     log.curlog
     log.Hint . (cstr.print)

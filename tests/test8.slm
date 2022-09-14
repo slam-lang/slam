@@ -1,0 +1,35 @@
+inc stdlib.slm
+inc mem.slm
+inc string.slm
+
+proc main 0 0
+  1024 (heap.alloc)
+  
+  64 (heap.alloc)
+  
+  (heap.free)
+  (heap.free)
+
+  64 (heap.alloc)
+  
+  64 (heap.alloc)
+  
+  swap (heap.free)
+
+  1024 (heap.alloc)
+  
+  (heap.free)
+  (heap.free)
+  
+  1280000 (heap.alloc)
+  
+  (heap.free)
+
+  1000 (heap.alloc)
+  
+  5000 (heap.realloc)
+
+  (heap.free)
+
+  ret
+end

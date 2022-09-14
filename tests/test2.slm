@@ -1,37 +1,43 @@
+inc testin.slm
 inc tables.slm
 
 gvar table 4096
 
 proc main 0 0
-  int.SIZE 4096 (tab.new)
-
-  "lol" 32
-  (tab.put)
-
-  "=======" (cstr.println)
-  copy (tab.print)
-  "=======" (cstr.println)
+  "Create Table" (testin.setup)
   
-  "lmao" 69
-  (tab.put)
-
-  copy (tab.print)
-  "=======" (cstr.println)
+    int.SIZE 4096 (tab.new)
   
-  "lmao" 42
-  (tab.put)
+  "Add to Table" (testin.next)
+  
+    "lol" 32
+    (tab.put)
 
-  copy (tab.print)
-  "=======" (cstr.println)
+  "Add more to Table" (testin.next)
 
-  "lmao" (tab.in)
-  (int.print)
+    "lmao" 69
+    (tab.put)
+  
+  "Change value in Table" (testin.next)
 
-  "lmao" (tab.get)
-  (int.print)
-  copy (tab.print)
+    "lmao" 42
+    (tab.put)
+  
+  "Get value in Table" (testin.next)
+  
+    "lmao" (tab.get)
+    42 (testin.eq)
+ 
+  "Get value in Table" (testin.next)
 
-  (tab.free)
+    "lmao" (tab.get)
+    42 (testin.eq)
+  
+  "Free Table" (testin.next)
+
+    (tab.free)
+  
+  (testin.done)
 
   ret
 end

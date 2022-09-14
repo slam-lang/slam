@@ -1,60 +1,22 @@
-inc mem.slm
-inc string.slm
-inc strutils.slm
+inc stdlib.slm
+inc testin.slm
 
-var temp 32
-var str1 int.SIZE
-var str2 int.SIZE
+proc foo 0 0
+  "Called" (testin.next)
+  
+  ret
+end
 
 proc main 0 0
-  (heap.init)
-
-  (cstr.cr)
-  "cstr.split" (cstr.println)
-  "=============" (cstr.println)
-
-  "lol1 lol2"  ' ' temp (cstr.split)
-  (cstr.println)
-  (cstr.println)
-  temp (cstr.println)
+  "Create first class func" (testin.setup)
   
-  (cstr.cr)
-  "str.new" (cstr.println)
-  "=============" (cstr.println)
+    foo
 
-  (str.new)
-  `lol ` (str.put)
-  copy (str.println)
-  (str.new)
-  `nope ` (str.put)
-  copy (str.println)
+  "Call it" (testin.next)
+
+    ()
+
+  (testin.done)
   
-  (cstr.cr)
-  "str.cat" (cstr.println)
-  "=============" (cstr.println)
-  (str.cat)
-  copy (str.println)
-
-  copy (str.len) (int.print)
-  
-  (cstr.cr)
-  "str.catc" (cstr.println)
-  "=============" (cstr.println)
-  
-  "boi" (str.catc)
-  copy (str.println)
-
-  copy (str.len) (int.print)
-  
-  (str.free)
-
-  {
-  "lol" "fdsafdsa" (strutil.starts) (int.print)
-  "lol" "lol" (strutil.starts) (int.print)
-  "lolf" "lol" (strutil.starts) (int.print)
-  "lol" "lolf" (strutil.starts) (int.print)
-  "fdsa" "lolf" (strutil.starts) (int.print)
-  }
-
   ret
 end

@@ -1,20 +1,21 @@
-inc stdlib.slm
-inc mem.slm
-inc log.slm
 inc os.slm
+inc testin.slm
 
 var cmdtmp 128
 
 proc main 0 0
-  cmdtmp
-  "/usr/bin/tree"
-  put disc
-  
-  cmdtmp 8 +
-  "."
-  put disc
+  "Create a command to run" (testin.setup)
+    
+    cmdtmp
+    "/usr/bin/users" put int.SIZE +
+    "." put int.SIZE +
+    NULL put disc
 
-  cmdtmp (os.execcmdecho)
+  "Run the command" (testin.next)
+
+    cmdtmp (os.execcmd)
+
+  (testin.done)
 
   ret
 end

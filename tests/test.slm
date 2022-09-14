@@ -1,10 +1,51 @@
+inc stdlib.slm
 inc os.slm
+
+const TEST_COUNT 15
 
 var tmpbuffer 128
 var tmpname 64
+    
+proc runcmdstdout 1 0
+  (os.fork)
+  copy 0 == if [
+    covr envp swap copy read
+  
+    sysc.EXECVE sys3 disc
+    disc disc
+    -1
+    quit
+  ]
+  copy 0 > if [
+    {parent}
+  
+    NULL
+    0
+    os.waitsig
+    -1
+    sysc.WAIT4 sys4 0 < if (os.deverr)
+    disc disc
+    ret
+  ]
+  0 != if [
+    "ERROR" (cstr.println)
+  ]
+  disc
+  ret
+end
 
 proc runtest 1 0
-  "TST" "Run: " (log.msg)
+  tmpbuffer
+  "/usr/bin/rm" put int.SIZE +
+  "-f" put int.SIZE +
+  "tester" put int.SIZE +
+  "temp.fasm" put int.SIZE +
+  NULL put disc
+
+  tmpbuffer (os.execcmd)
+
+  3 1 (log.level)
+  "SUT" "Run: " (log.msg)
   copy (log.cat)
   (log.log)
 
@@ -19,12 +60,29 @@ proc runtest 1 0
 
   tmpbuffer (os.execcmd)
   
+  os.waitsig read 0 != if [
+    1 1 (log.level)
+    "BAD" "Test Failed to compile, code=" (log.msg)
+    os.waitsig read (int.cstr) (log.cat)
+    (log.log)
+
+    ret
+  ]
+  
   tmpbuffer
   "tester" put int.SIZE +
   NULL put disc
 
-  tmpbuffer (os.execcmd)
+  tmpbuffer (runcmdstdout)
+  
+  os.waitsig read 0 != if [
+    1 1 (log.level)
+    "BAD" "Test Failed, code=" (log.msg)
+    os.waitsig read (int.cstr) (log.cat)
+    (log.log)
 
+    ret
+  ]
   ret
 end
 
@@ -38,8 +96,10 @@ proc main 0 0
     ".slm" (cstr.cat)
     (runtest)
 
-    copy 15 <
+    copy TEST_COUNT <
   end
   disc
+
+  0 quit
   ret
 end

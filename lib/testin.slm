@@ -1,1 +1,90 @@
-{TODO: Implement}
+inc stdlib.slm
+inc log.slm
+
+class testin
+  proc setup 1 0
+    "CHK" swap (log.msg)
+
+    ret
+  end
+  
+  proc done 0 0
+    2 1 (log.level)
+
+    (log.log)
+    
+    ret
+  end
+  
+  proc next 1 0
+    (testin.done)
+    (testin.setup)
+    
+    ret
+  end
+  
+  proc cstreq 2 0
+    covr covr (cstr.eq) ! if [
+      1 1 (log.level)
+      " - Assertion Failed `" (log.cat)
+      (log.cat)
+      "` != `" (log.cat)
+      (log.cat)
+      "`" (log.cat)
+      (log.log)
+
+      255 quit
+    ]
+    disc
+    disc
+  
+    ret
+  end
+
+  proc eq 2 0
+    covr covr != if [
+      1 1 (log.level)
+      " - Assertion Failed " (log.cat)
+      (int.cstr) (log.cat)
+      " != " (log.cat)
+      (int.cstr) (log.cat)
+      (log.log)
+
+      255 quit
+    ]
+    disc
+    disc
+
+    ret
+  end
+  
+  proc true 1 0
+    copy 0 == if [
+      1 1 (log.level)
+      " - Assertion Failed " (log.cat)
+      (int.cstr) (log.cat)
+      " is not true" (log.cat)
+      (log.log)
+      
+      255 quit
+    ]
+    disc
+  
+    ret
+  end
+  
+  proc false 1 0
+    copy 0 != if [
+      1 1 (log.level)
+      " - Assertion Failed " (log.cat)
+      (int.cstr) (log.cat)
+      " is not false" (log.cat)
+      (log.log)
+
+      255 quit
+    ]
+    disc
+  
+    ret
+  end
+end

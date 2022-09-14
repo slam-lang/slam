@@ -1,14 +1,24 @@
 inc stdlib.slm
+inc testin.slm
 
 gvar string 128
 
 proc main 0 0
-  string
 
-  "foo\n" (cstr.cat)  
-  "bar\n" (cstr.cat)  
+  "Create a cstring" (testin.setup)
+    
+    string
   
-  (cstr.print)
+  "Concat to the string" (testin.next)
+
+    "foo" (cstr.cat)  
+    "bar" (cstr.cat)  
+  
+  "Check that its correct" (testin.next)
+  
+    "foobar" (testin.cstreq)
+
+  (testin.done)
 
   ret
 end
