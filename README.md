@@ -1,5 +1,7 @@
 ![banner](/docs/banner.png)
 
+[![compile](https://github.com/bob16795/slim/actions/workflows/compile.yml/badge.svg)](https://github.com/bob16795/slim/actions/workflows/compile.yml)
+
 ## About
 
 Ive always wanted to make my own programming language, so heres the process.
