@@ -51,8 +51,8 @@ inc name.slm
 ### Proc definitons
 
 ```slm
-     {name} {input} {output}
-proc main   0       0
+{    name input output }
+proc main 0     0
   {do stuff}
 
   {return is required}
