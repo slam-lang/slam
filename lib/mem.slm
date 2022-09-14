@@ -45,21 +45,36 @@ class mem
   end
   
   proc eq 3 1
-    mem.tmp swap put disc
+    swap mem.tmp swap put disc
+
     do
       covr readc
-      covr readc
-      != if [disc disc bool.false ret]
-  
+      mem.tmp read readc
+
+      != if [
+        disc
+        disc
+
+        bool.false
+        ret
+      ]
+
+      swap 1 +
+      swap 1 -
+
       mem.tmp
-      mem.tmp read
-      1 - put disc
-      mem.tmp read 0 >
+      copy read 1 +
+      put disc
+      
+
+      copy 0 >
     end
     disc
     disc
 
-    bool.true ret
+    bool.true
+
+    ret
   end
 
   proc zero 2 0

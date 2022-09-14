@@ -1,6 +1,23 @@
+name: compile
+on:
+  push:
+    branches:
+      - main
+    tags-ignore:
+      - '**'
+  pull_request:
+
 jobs:
   test:
-    - uses: ilammy/setup-nasm@v1
-    - uses: actions/checkout@v1
-    - name: Build something requiring NASM
-      run: ./make.sh
+    runs-on: ubuntu-latest
+    steps:
+      - uses: ilammy/setup-nasm@v1
+      - uses: stevenwdv/setup-fasm@v1
+      - uses: actions/checkout@v1
+      - name: Build something requiring NASM
+        run: |
+          sudo cp $(which fasm) /usr/bin/fasm
+          ./old/slim.py -i lib -o ./slim ./slim.slm
+          rm output.*
+          ./slim -i lib -o ./slim slim.slm $@ || exit
+          ./slim -v
