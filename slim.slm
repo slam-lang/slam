@@ -14,7 +14,7 @@ TODO: Check for no return
 TODO: String consts
 TODO: Set stack size
 TODO: Make table key unlimited len
-FIX: cmdexec extra chars
+FIX: cmdexec dosent check for command
 }
 
 inc os.slm

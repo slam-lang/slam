@@ -14,7 +14,7 @@ jobs:
       - uses: ilammy/setup-nasm@v1
       - uses: stevenwdv/setup-fasm@v1
       - uses: actions/checkout@v1
-      - name: Build something requiring NASM
+      - name: Create slim executable
         run: |
           sudo cp $(which fasm) /usr/bin/fasm
           ./old/slim.py -i lib -o ./slim ./slim.slm
