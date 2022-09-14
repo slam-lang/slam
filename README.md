@@ -4,6 +4,10 @@
 
 Ive always wanted to make my own programming language, so heres the process.
 
+## Types
+
+Types are pointless.
+
 ## Inspiration
 
 - [porth](https://gitlab.com/tsoding/porth)

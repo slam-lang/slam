@@ -1,0 +1,45 @@
+inc os.slm
+
+var tmpbuffer 128
+var tmpname 64
+
+proc runtest 1 0
+  "TST" "Run: " (log.msg)
+  copy (log.cat)
+  (log.log)
+
+  tmpbuffer
+  "../slim" put int.SIZE +
+  "-i" put int.SIZE +
+  "../lib" put int.SIZE +
+  "-o" put int.SIZE +
+  "tester" put int.SIZE +
+  swap put int.SIZE +
+  NULL put disc
+
+  tmpbuffer (os.execcmd)
+  
+  tmpbuffer
+  "tester" put int.SIZE +
+  NULL put disc
+
+  tmpbuffer (os.execcmd)
+
+  ret
+end
+
+proc main 0 0
+  0
+  do
+    1 +
+    tmpname (cstr.clear)
+    "test" (cstr.copy) disc
+    covr (int.cstr) (cstr.cat)
+    ".slm" (cstr.cat)
+    (runtest)
+
+    copy 15 <
+  end
+  disc
+  ret
+end

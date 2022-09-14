@@ -17,7 +17,10 @@ jobs:
       - name: Create slim executable
         run: |
           sudo cp $(which fasm) /usr/bin/fasm
-          ./old/slim.py -i lib -o ./slim ./slim.slm
+          ./old/slim.py -i lib -o slim slim.slm
           rm output.*
-          ./slim -i lib -o ./slim slim.slm $@ || exit
+          ./slim -i lib -o slim slim.slm
           ./slim -v
+          cd tests
+          ../slim -i ../lib -o test test.slm
+          ./test

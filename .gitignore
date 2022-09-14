@@ -7,3 +7,5 @@ slim-gb
 gb.gb
 gb.sav
 temp.fasm
+tests/tester
+tests/test
