@@ -1,3 +1,5 @@
+![banner](/docs/banner.png)
+
 ## About
 
 Ive always wanted to make my own programming language, so heres the process.

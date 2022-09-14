@@ -141,7 +141,7 @@ stores the current line and file info
 class linedata
   prop line int.SIZE
   prop column int.SIZE
-  prop file 64
+  prop file 20
 end
 
 {the size of a key for the proc, const table}
@@ -1202,8 +1202,6 @@ end
 proc badret 0 0
   "ERR" "proc dosent return correct ammount `" (log.msg)
 
-  parsestack read (int.print)
-
   procname (getexpandedname) (log.cat)
   "`" (log.cat)
   (lineappend)
@@ -1380,7 +1378,7 @@ proc getblockasm 1 1
     "ret" 0 (checkpopb)
     0 (addstackb)
     proctab read
-    procname (getexpandedname) (map.get)
+    procstats
     procdata.out . readc
     parsestackblock read != if (badret)
     disc
@@ -1982,7 +1980,7 @@ proc getcmdasm 1 1
     "ret" 0 (checkpop)
     0 (addstack)
     proctab read
-    procname (getexpandedname) (map.get)
+    procstats
     procdata.out . readc
     parsestack read != if (badret)
     disc

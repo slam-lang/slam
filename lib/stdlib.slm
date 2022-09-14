@@ -11,9 +11,6 @@ class cstr
   var tempmin 1
   var tempmax 1
   var tempmul 1
-  var delim 1
-  var tempstore 8
-
   
   proc len 1 1
     copy readc 0 == if [disc 0 ret]
@@ -270,6 +267,9 @@ class cstr
     ret
   end
 
+  var delim 1
+  var tempstore 8
+
   {
   args: ptr[store] int[delim] ptr[cstr]
   result: ptr[store] ptr[cstr]
@@ -416,4 +416,3 @@ class int
     ret
   end
 end
-
