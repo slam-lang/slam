@@ -1,0 +1,6 @@
+jobs:
+  test:
+    - uses: ilammy/setup-nasm@v1
+    - uses: actions/checkout@v1
+    - name: Build something requiring NASM
+      run: ./make.sh
