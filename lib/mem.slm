@@ -105,7 +105,7 @@ class heap
   var isinit 1
 
   const HEAP_PAGE 64000
-  const HEAP_STEP 64
+  const HEAP_STEP 128
 
   proc allocpage 0 0
     heap.endaddr read

@@ -1,3 +1,4 @@
+inc testin.slm
 inc maps.slm
 
 var key 4
@@ -6,35 +7,52 @@ var value 4
 var map int.SIZE
 
 proc main 0 0
-  map 256 3 3 (map.new) put disc
+  "Create a Hash Map" (testin.setup)
 
-  key "lol" (cstr.copy) disc disc
-  value "ab" (cstr.copy) disc disc
+    map 256 3 3 (map.new) put disc
+
+  "Add a key" (testin.next)
+
+    key "lol" (cstr.copy) disc disc
+    value "ab" (cstr.copy) disc disc
+ 
+    map read key value (map.put) disc
+
+  "Change the value of the key" (testin.next)
+
+    key "lol" (cstr.copy) disc disc
+    value "cd" (cstr.copy) disc disc
+
+    map read key value (map.put) disc
   
-  map read key value (map.put) disc
+  "Add another key" (testin.next)
 
-  key "lol" (cstr.copy) disc disc
-  value "cd" (cstr.copy) disc disc
-
-  map read key value (map.put) disc
-
-  key "llo" (cstr.copy) disc disc
-  value "ef" (cstr.copy) disc disc
+    key "llo" (cstr.copy) disc disc
+    value "ef" (cstr.copy) disc disc
   
-  map read key value (map.put) disc
-
-  key "mpo" (cstr.copy) disc disc
-  value "gh" (cstr.copy) disc disc
-
-  map read key value (map.put) disc
-
-  map read key (map.get)
-  (cstr.println) disc
+    map read key value (map.put) disc
   
-  map read
+  "Add another key" (testin.next)
 
-  (map.free)
+    key "mpo" (cstr.copy) disc disc
+    value "gh" (cstr.copy) disc disc
+  
+    map read key value (map.put) disc
 
+  "Read the key" (testin.next)
+
+    key "lol" (cstr.copy) disc disc
+    
+    map read key (map.get)
+    "cd" (testin.cstreq)
+    disc
+
+  "Free the map" (testin.next)
+  
+    map read (map.free)
+
+  (testin.done)
+  
   0 quit
   
   ret
