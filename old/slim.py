@@ -520,7 +520,7 @@ singles = {
         "*": [
             (OP_MUL, )
             ],
-        "/": [
+        "/%": [
             (OP_DIV, )
             ],
         "-": [
@@ -731,11 +731,13 @@ proc_values = {}
 gvars = []
 inc = []
 lvars = {}
+opers = []
 
 def parse_program(text, consts = {}, multi = False):
     global includepath
     global proc_values
     global gvars
+    global opers
     global lvars
     global inc
 
@@ -775,6 +777,7 @@ def parse_program(text, consts = {}, multi = False):
     proc_args = 0
     proc_rets = 0
     last_jumpx = 0
+    oper = False
 
     do_ids = []
     prefix = ""
@@ -809,6 +812,9 @@ def parse_program(text, consts = {}, multi = False):
                 cval = int(data[idx])
             consts[prefix + name] = cval
             idx += 1
+        
+        elif func == "oper":
+            oper = True
 
         elif func == "prop":
             name = data[idx]
@@ -929,6 +935,9 @@ def parse_program(text, consts = {}, multi = False):
             proc_block.append((OP_CONST, func[1:-1].replace("\\n", "\n").replace("\\t", "\t")))
         
         elif func == "proc":
+            if oper:
+                opers.append(prefix + data[idx])
+                oper = False
             result.append((OP_PROC, prefix + data[idx]))
             inproc = True
             idx += 1
@@ -965,6 +974,8 @@ def parse_program(text, consts = {}, multi = False):
 
         elif func in proc_values:
             if func in gvars:
+                proc_block.append((OP_CALL, func))
+            elif func in opers:
                 proc_block.append((OP_CALL, func))
             else:
                 proc_block.append((OP_PUSHP, func))

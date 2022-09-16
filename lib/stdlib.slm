@@ -419,8 +419,12 @@ end
 
 oper proc / 2 1
   /% swap disc
+
+  ret
 end
 
 oper proc % 2 1
   /% disc
+
+  ret
 end
