@@ -7,12 +7,12 @@ Started by:
 TODO: Merge the getasm functions
 TODO: Clean magic nums
 TODO: Track stack blocks
-TODO: Macros / inlines
+TODO: Macros / Inlines
 TODO: Stripping?
 TODO: Check for no return
 TODO: String consts
 TODO: Set stack size
-TODO: Make table key unlimited len
+TODO: Make string buffer a string instead of cstring
 FIX: class inheritance issue with oper procs
 FIX: cmdexec dosent check for command
 FIX: cmdexec $PATH
@@ -466,12 +466,13 @@ proc clean 0 0
   consttab     read (map.free)
   proctab      read (map.free)
   cproctab     read (map.free)
+  classtab     read (map.free)
   includedtab  read (map.free)
 
   identstack   read (seq.free)
 
   stringbuffer read (heap.free)
-
+  
   ret
 end
 
@@ -3120,6 +3121,20 @@ proc ld 0 0
   cmdlineflags read 1 && ! if [(os.execcmdecho) 0]
   cmdlineflags read 1 && if [(os.execcmd) 0]
   disc
+  
+  linkcount read 0 != if [
+    0
+    do
+      linkbuffer covr
+      2 * 1 + int.SIZE * + read
+      (heap.free)
+      
+      1 + 
+
+      copy linkcount read 1 - <
+    end
+    disc
+  ]
 
   cmdlineflags read 2 && 0 != if [
     (clean)
