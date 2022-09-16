@@ -5,9 +5,10 @@ const TEST_COUNT 13
 
 var tmpbuffer 128
 var tmpname 64
-    
-{TODO: exit code}
 
+var failed 1
+var passed 1
+    
 proc runcmdstdout 1 0
   (os.fork)
   copy 0 == if [
@@ -83,8 +84,16 @@ proc runtest 1 0
     os.waitsig read (int.cstr) (log.cat)
     (log.log)
 
+    failed
+    copy readc 1 +
+    putc disc
+
     ret
   ]
+  passed
+  copy readc 1 +
+  putc disc
+  
   ret
 end
 
@@ -101,7 +110,24 @@ proc main 0 0
     copy TEST_COUNT <
   end
   disc
+  (cstr.cr)
 
-  0 quit
+  2 1 (log.level)
+  "PAS" "Passed " (log.msg)
+  passed readc (int.cstr) (log.cat)
+  " Tests" (log.cat)
+  (log.log)
+
+  failed readc
+  copy 0 != if [
+    1 1 (log.level)
+    "ERR" "Failed " (log.msg)
+    copy (int.cstr) (log.cat)
+    " Tests" (log.cat)
+    (log.log)
+
+    disc 255
+  ]
+  quit
   ret
 end

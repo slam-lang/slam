@@ -16,6 +16,7 @@ TODO: Make table key unlimited len
 FIX: class inheritance issue with oper procs
 FIX: cmdexec dosent check for command
 FIX: cmdexec $PATH
+FIX: \ on boundry
 }
 inc stdlib.slm
 inc os.slm
@@ -1123,7 +1124,7 @@ proc asmfooter 0 0
   `_start:\n` (writeout)
   `    mov qword [args_ptr], rsp\n` (writeout)
   `    mov qword [ret_stack_rsp], ret_stack\n` (writeout)
-  `    mov rax, [ret_stack_rsp]\n` (writeout)
+  `    mov rax, [ret_stack_rsp] \n` (writeout)
   `    mov qword [rax], quit\n` (writeout)
   `    jmp addr_` (writeout)
   proctab read
