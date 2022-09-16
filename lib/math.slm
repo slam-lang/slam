@@ -27,7 +27,7 @@ class math
   proc log2 1 1
     -1
     do
-      swap 2 / disc
+      swap 2 /% disc
       swap 1 +
 
       covr 0 !=
@@ -53,7 +53,7 @@ class float
   end
 
   proc exp 1 1
-    8388608 / disc
+    8388608 /% disc
     01FFh {2^9 - 1}
     &&
 
@@ -111,7 +111,7 @@ class float
     if [
       float.working read (float.exp) 127 - 23 -
       do 
-        swap 2 / disc
+        swap 2 /% disc
         swap 1 -
         copy
         0 >

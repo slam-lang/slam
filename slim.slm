@@ -87,6 +87,7 @@ enum
     IDENT_ENUM
     IDENT_PROP
     IDENT_PROC
+    IDENT_INTRI
     IDENT_CPROC
     IDENT_DO
     IDENT_VAR
@@ -129,12 +130,22 @@ enum
 end
 
 {
+kinds of procs
+}
+enum
+0   PROC_DEFAULT
+    PROC_INTRI
+    PROC_INLINE
+end
+
+{
 this stores information about a proc
 }
 class procdata
   prop in 1
   prop out 1
   prop addr int.SIZE
+  prop kind int.SIZE
 end
 
 {
@@ -344,6 +355,7 @@ gets a operation from a string name
 proc getopfromname 1 1
   OP_BAD
   covr "proc"  (cstr.eq) if [disc IDENT_PROC]
+  covr "oper"  (cstr.eq) if [disc IDENT_INTRI]
   covr "cproc" (cstr.eq) if [disc IDENT_CPROC]
   covr "do"    (cstr.eq) if [disc IDENT_DO]
   covr "end"   (cstr.eq) if [disc IDENT_END]
@@ -359,7 +371,7 @@ proc getopfromname 1 1
   covr "nop"   (cstr.eq) if [disc OP_NOP]
   covr "-"     (cstr.eq) if [disc OP_SUB]
   covr "*"     (cstr.eq) if [disc OP_MUL]
-  covr "/"     (cstr.eq) if [disc OP_DIV]
+  covr "/%"     (cstr.eq) if [disc OP_DIV]
   covr "+"     (cstr.eq) if [disc OP_PLUS]
   covr "^"     (cstr.eq) if [disc OP_XOR]
   covr "."     (cstr.eq) if [disc OP_PLUS]
@@ -831,6 +843,7 @@ proc addproc 0 0
     procstats
     (map.put) disc
     (writeoutln)
+    procstats procdata.kind . 0 put disc
   ]
   1 -
   putc disc
@@ -1199,6 +1212,46 @@ proc writesubaddr 0 0
   ret
 end
 
+proc addpushblock 1 1
+  disc OP_PUSHP    
+  
+  proctab read blockbuffer (map.get)
+  procdata.kind . read
+  1 == if [
+    (writesubaddr)
+    `    mov rax, [ret_stack_rsp]\n` (writeout)
+    `    add rax, 8\n` (writeout)
+    `    mov qword [ret_stack_rsp], rax\n` (writeout)
+    `    mov qword [rax], addr_` (writeout)
+    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    `_` (writeout)
+    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    `    jmp addr_` (writeout)
+    blockbuffer 1 + (map.get)
+    procdata.addr .
+    read (int.cstr) (writeout)
+    (writeoutln)
+    
+    proctab read
+    blockbuffer 1 + (map.get)
+    procdata.kind . read
+    1 == if (noprocblock)
+    blockbuffer 1 + (map.get)
+    procdata.in . readc
+    blockbuffer 1 + swap (checkpopb)
+    blockbuffer 1 + (map.get)
+    procdata.out . readc
+    (addstackb)
+    disc
+    disc
+    0
+    OP_NOP
+  ]
+  swap disc
+  ret
+end
+
 proc checkbadblock 1 1
   blockbuffer (cstr.len) 3 ==
   blockbuffer readc ''' == &&
@@ -1213,7 +1266,7 @@ proc checkbadblock 1 1
   ]
   proctab read blockbuffer (map.in) if [
     disc
-    disc OP_PUSHP    
+    (addpushblock)
     ret
   ] disc
   consttab read blockbuffer (map.in) if [
@@ -1362,7 +1415,7 @@ proc getblockasm 1 1
     `    push rax\n` (writeout)
     ret
   ] copy OP_DIV == if [
-    "div" 2 (checkpopb)
+    "divmod" 2 (checkpopb)
     2 (addstackb)
     `    xor rdx, rdx\n` (writeout)
     `    pop rbx\n` (writeout)
@@ -1709,12 +1762,6 @@ proc cprocbuff 1 0
   copy 0 == if [
     disc ret
   ]
-  `    push rbp\n` (writeout)
-  `    mov rbp, rsp\n` (writeout)
-  `    add rbp, ` (writeout)
-  copy 2 +
-  8 * (int.cstr) copy (cstr.len) swap (writeout)
-  (writeoutln)
   disc
   ret
 end
@@ -1734,8 +1781,14 @@ proc addcallblock 0 0
     blockbuffer 1 + (map.get)
     procdata.addr .
     read (int.cstr)
+    copy (cstr.len) swap
+    (writeout)
+    (writeoutln)
     
     proctab read
+    blockbuffer 1 + (map.get)
+    procdata.kind . read
+    1 == if (noprocblock)
     blockbuffer 1 + (map.get)
     procdata.in . readc
     blockbuffer 1 + swap (checkpopb)
@@ -1744,16 +1797,13 @@ proc addcallblock 0 0
     (addstackb)
     disc
 
-    copy (cstr.len) swap
-    (writeout)
     blockbuffer (cstr.clear) disc
-    (writeoutln)
 
     disc ret
   ] disc
   cproctab read blockbuffer 1 + (map.in) if [
     `    push ebp\n` (writeout)
-    `    sub ebp, 4 * ` (writeout)
+    `    sub ebp, 8 * ` (writeout)
     cproctab read
     cmdbuffer 1 + (map.get)
     readc
@@ -1832,6 +1882,42 @@ proc parseblockcmd 0 0
   ret
 end
 
+proc addpush 1 1
+  disc OP_PUSHP    
+  
+  proctab read cmdbuffer (map.in) ! if [disc ret]
+  cmdbuffer (map.get)
+  procdata.kind . read
+  swap disc
+  1 == if [
+    (writeaddr)
+    `    mov rax, [ret_stack_rsp]\n` (writeout)
+    `    add rax, 8\n` (writeout)
+    `    mov qword [ret_stack_rsp], rax\n` (writeout)
+    `    mov qword [rax], addr_` (writeout)
+    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    `    jmp addr_` (writeout)
+    proctab read
+    cmdbuffer (map.get)
+    procdata.addr .
+    read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    
+    cmdbuffer (map.get)
+    procdata.in . readc
+    cmdbuffer swap (checkpop)
+    cmdbuffer (map.get)
+    procdata.out . readc
+    (addstack)
+    disc
+    disc
+    OP_NOP
+  ]
+  ret
+end
+
+
 proc checkbad 1 1
   cmdbuffer (cstr.len) 3 ==
   cmdbuffer readc ''' == &&
@@ -1846,7 +1932,8 @@ proc checkbad 1 1
   ]
   proctab read cmdbuffer (map.in) if [
     disc
-    disc OP_PUSHP    
+    (addpush)
+    
     ret
   ] disc
   consttab read cmdbuffer (map.in) if [
@@ -2019,6 +2106,13 @@ proc getcmdasm 1 1
     parseflags
     CF_PROC_NAME
     put disc
+    ret
+  ] copy IDENT_INTRI == if [
+    "int proc" 0 (checkpop)
+    0 (addstack)
+    procstats
+    procdata.kind .
+    PROC_INTRI put disc
     ret
   ] copy IDENT_ENUM == if [
     "enum" 0 (checkpop)
@@ -2506,9 +2600,6 @@ proc addccall 0 0
   `    call ` (writeout)
   cmdbuffer 1 + copy (cstr.len) swap (writeout)
   (writeoutln)
-  
-  `    mov rsp, rbp\n` (writeout)
-  `    pop rbp\n` (writeout)
   `    push rax\n` (writeout)
   {`    sub rsp, ` (writeout)
   cproctab read
@@ -2547,6 +2638,9 @@ proc addcall 0 0
     read (int.cstr)
     
     proctab read
+    cmdbuffer 1 + (map.get)
+    procdata.kind . read
+    1 == if (noproc)
     cmdbuffer 1 + (map.get)
     procdata.in . readc
     cmdbuffer 1 + swap (checkpop)

@@ -1,0 +1,25 @@
+inc stdlib.slm
+lnk OpenGL
+lnk glfw
+
+cproc glfwInit 0 1
+cproc glfwCreateWindow 5 1
+
+gvar win 8
+
+proc main 0 0
+  (glfwInit)
+  ! if [
+    "lol" (cstr.println)
+  ]
+
+  "Init" (cstr.println)
+
+  win 0 0 "Window" NULL NULL (glfwCreateWindow)
+  put disc
+
+  win (int.print)
+
+  ret
+end
+

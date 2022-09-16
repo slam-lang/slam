@@ -326,7 +326,7 @@ class int
 
   proc cstr 1 1
     do
-      10 /
+      10 /%
       '0' +
       (int.gettmp)
       swap
@@ -344,7 +344,7 @@ class int
 
   proc cstrhex 1 1
     do
-      16 /
+      16 /%
       copy 9 > if ['a' 10 - +]
       copy 10 < if ['0' +]
       (int.gettmp)
@@ -388,7 +388,7 @@ class int
   }
   proc printhex 1 0
     do
-      16 /
+      16 /%
       copy 9 > if ['a' 10 - +]
       copy 10 < if ['0' +]
       (int.gettmp)
@@ -415,4 +415,12 @@ class int
     (cstr.cr)
     ret
   end
+end
+
+oper proc / 2 1
+  /% swap disc
+end
+
+oper proc % 2 1
+  /% disc
 end

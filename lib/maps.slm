@@ -116,7 +116,7 @@ class map
     (hash.get)
     map.curtemp read
     map.count . read
-    / swap disc int.SIZE *
+    /% swap disc int.SIZE *
     map.curtemp read
     map.dataarray . +
 
@@ -256,7 +256,7 @@ class map
     (hash.get)
     map.curtemp read
     map.count . read
-    / swap disc int.SIZE *
+    /% swap disc int.SIZE *
     map.curtemp read
     map.dataarray . +
     read
@@ -303,7 +303,7 @@ class map
     (hash.get)
     map.curtemp read
     map.count . read
-    / swap disc int.SIZE *
+    /% swap disc int.SIZE *
     map.curtemp read
     map.dataarray . +
     read

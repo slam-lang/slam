@@ -183,7 +183,7 @@ class heap
   proc alloc 1 1
     (heap.init)
     heapentry.SIZE +
-    copy heap.HEAP_STEP / swap disc -
+    copy heap.HEAP_STEP /% swap disc -
     heap.HEAP_STEP +
     heap.reqsize swap put disc
     
@@ -272,7 +272,7 @@ class heap
   }
   proc realloc 2 1
     heapentry.SIZE +
-    copy heap.HEAP_STEP / swap disc -
+    copy heap.HEAP_STEP /% swap disc -
     heap.HEAP_STEP +
     heap.reqsize swap put disc
 

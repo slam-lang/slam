@@ -6,6 +6,8 @@ const TEST_COUNT 13
 var tmpbuffer 128
 var tmpname 64
     
+{TODO: exit code}
+
 proc runcmdstdout 1 0
   (os.fork)
   copy 0 == if [
