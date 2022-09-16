@@ -1,132 +1,64 @@
-inc lina.slm
+inc testin.slm
 
-var input int.SIZE
-var weights int.SIZE
-
-const W 100
-const H 100
-const RES 1000
-
-var output int.SIZE
-var x int.SIZE
-var y int.SIZE
-
-var temprect int.SIZE
-var tempmat int.SIZE
-var tempval int.SIZE
-
-class rect
-  prop x 8
-  prop y 8
-  prop w 8
-  prop h 8
-
-  proc new 4 1
-    32 (heap.alloc)
-
-    covr covr
-    rect.h . swap put disc
-    swap disc
-
-    covr covr
-    rect.w . swap put disc
-    swap disc
-
-    covr covr
-    rect.y . swap put disc
-    swap disc
-
-    covr covr
-    rect.x . swap put disc
-    swap disc
+class foo
+  proc get 0 1
+    "get"
 
     ret
   end
 
-  proc free 1 0
-    (heap.free)
-
+  proc name 0 1
+    "foo"
+    
     ret
   end
 end
 
-proc f 0 1
-  output 0 put disc
+class bar of foo
+  proc name 0 1
+    "bar"
 
-  0
-  do
-    x covr put disc
-    1 +
-    
-    0
-    do
-      y covr put disc
-      1 +
-
-      input read x read y read (matrix.get) swap disc
-      weights read x read y read (matrix.get) swap disc *
-      output read +
-      output swap put disc
-
-      copy H <
-    end
-    disc
-
-    copy W <
+    ret
   end
-  disc
-
-  output read
-
-  ret
-end
-
-proc fillrect 3 1
-  tempval swap put disc
-  temprect swap put disc
-  tempmat swap put disc
-
-  0
-  do
-    x covr put disc
-    1 +
-    
-    0
-    do
-      y covr put disc
-      1 +
-
-      tempmat read tempval read x read y read (matrix.set) disc
-
-      copy
-      temprect read rect.h . read <
-    end
-    disc
-
-    copy
-    temprect read rect.w . read <
-  end
-  disc
-  
-  temprect read (rect.free)
-  tempmat read
-
-  ret
 end
 
 proc main 0 0
-  input W H (matrix.new) put disc
-  weights W H (matrix.new) put disc
+  "Call function" (testin.setup)
 
-  weights read 0 0 W H (rect.new) 0 (fillrect) disc
-  input   read 0 0 W H (rect.new) 0 (fillrect) disc
+    (bar.name) "bar" (testin.cstreq)
+    
+  "Call override" (testin.next)
 
-  (f)
-  RES RES W H * * *
-  /% swap
-  (int.cstr) (cstr.print)
-  "." (cstr.print)
-  (int.print)
+    (foo.name) "foo" (testin.cstreq)
+
+  "Call Function" (testin.next)
+
+    (foo.get) "get" (testin.cstreq)
+
+  "Call Inherited" (testin.next)
+
+    (bar.get) "get" (testin.cstreq)
+
+  [
+  "Call function Block" (testin.setup)
+
+    (bar.name) "bar" (testin.cstreq)
+    
+  "Call override Block" (testin.next)
+
+    (foo.name) "foo" (testin.cstreq)
+
+  "Call Function Block" (testin.next)
+
+    (foo.get) "get" (testin.cstreq)
+
+  "Call Inherited Block" (testin.next)
+
+    (bar.get) "get" (testin.cstreq)
+
+  ]
+
+  (testin.done)
 
   ret
 end
