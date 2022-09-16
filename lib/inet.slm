@@ -49,8 +49,8 @@ class sockaddr
   proc setport 2 1
     swap sockaddr.temp swap put disc
     
-    copy 00ffh &&     0100h *
-    swap 0100h / disc 00ffh &&
+    copy 00ffh &&      0100h *
+    swap 0100h /% disc 00ffh &&
     ||
 
     sockaddr.temp read

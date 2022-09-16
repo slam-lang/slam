@@ -15,8 +15,9 @@ TODO: String consts
 TODO: Set stack size
 TODO: Make table key unlimited len
 FIX: cmdexec dosent check for command
+FIX: cmdexec $PATH
 }
-
+inc stdlib.slm
 inc os.slm
 inc mem.slm
 inc maps.slm
@@ -87,7 +88,7 @@ enum
     IDENT_ENUM
     IDENT_PROP
     IDENT_PROC
-    IDENT_INTRI
+    IDENT_OPER
     IDENT_CPROC
     IDENT_DO
     IDENT_VAR
@@ -134,7 +135,7 @@ kinds of procs
 }
 enum
 0   PROC_DEFAULT
-    PROC_INTRI
+    PROC_OPER
     PROC_INLINE
 end
 
@@ -355,7 +356,7 @@ gets a operation from a string name
 proc getopfromname 1 1
   OP_BAD
   covr "proc"  (cstr.eq) if [disc IDENT_PROC]
-  covr "oper"  (cstr.eq) if [disc IDENT_INTRI]
+  covr "oper"  (cstr.eq) if [disc IDENT_OPER]
   covr "cproc" (cstr.eq) if [disc IDENT_CPROC]
   covr "do"    (cstr.eq) if [disc IDENT_DO]
   covr "end"   (cstr.eq) if [disc IDENT_END]
@@ -371,7 +372,7 @@ proc getopfromname 1 1
   covr "nop"   (cstr.eq) if [disc OP_NOP]
   covr "-"     (cstr.eq) if [disc OP_SUB]
   covr "*"     (cstr.eq) if [disc OP_MUL]
-  covr "/%"     (cstr.eq) if [disc OP_DIV]
+  covr "/%"    (cstr.eq) if [disc OP_DIV]
   covr "+"     (cstr.eq) if [disc OP_PLUS]
   covr "^"     (cstr.eq) if [disc OP_XOR]
   covr "."     (cstr.eq) if [disc OP_PLUS]
@@ -2107,12 +2108,12 @@ proc getcmdasm 1 1
     CF_PROC_NAME
     put disc
     ret
-  ] copy IDENT_INTRI == if [
-    "int proc" 0 (checkpop)
+  ] copy IDENT_OPER == if [
+    "oper" 0 (checkpop)
     0 (addstack)
     procstats
     procdata.kind .
-    PROC_INTRI put disc
+    PROC_OPER put disc
     ret
   ] copy IDENT_ENUM == if [
     "enum" 0 (checkpop)
