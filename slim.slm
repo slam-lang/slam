@@ -4,7 +4,6 @@ The Slim Compiler, written in Slim
 Started by:
   Preston Precourt (prestosilver) 2022
 
-TODO: Class inheritance
 TODO: Merge the getasm functions
 TODO: Clean magic nums
 TODO: Track stack blocks
@@ -14,6 +13,7 @@ TODO: Check for no return
 TODO: String consts
 TODO: Set stack size
 TODO: Make table key unlimited len
+FIX: class inheritance issue with oper procs
 FIX: cmdexec dosent check for command
 FIX: cmdexec $PATH
 }
@@ -93,6 +93,7 @@ enum
     IDENT_DO
     IDENT_VAR
     IDENT_END
+    IDENT_OF
 end
 
 {
@@ -118,6 +119,7 @@ enum
     CF_ENUM_CONTENT
     CF_ENUM_START
     CF_CLASS
+    CF_OF
 end
 
 {
@@ -158,6 +160,13 @@ class linedata
   prop file 20
 end
 
+{
+this stores data for a class
+}
+class classdata
+  prop inherits 64
+end
+
 {the size of a key for the proc, const table}
 const TAB_KEY_SIZE   20
 {The maximum size of the string data at the end of the asm}
@@ -173,6 +182,8 @@ var consttab int.SIZE
 var gvartab int.SIZE
 {A table of procs}
 var proctab int.SIZE
+{A table of classes}
+var classtab int.SIZE
 {A table of included files}
 {TODO: Make list}
 var includedtab int.SIZE
@@ -243,8 +254,13 @@ var enumvalue int.SIZE
 var propsize int.SIZE
 {stats for the current proc}
 var procstats procdata.SIZE
+{stats for the current class}
+var classstats classdata.SIZE
 {the current files line stats}
 var linestats int.SIZE
+
+var tmpbuffer 64
+
 
 {
 args: int[char]
@@ -367,6 +383,7 @@ proc getopfromname 1 1
   covr "gvar"  (cstr.eq) if [disc IDENT_GVAR]
   covr "const" (cstr.eq) if [disc IDENT_CONST]
   covr "class" (cstr.eq) if [disc IDENT_CLASS]
+  covr "of"    (cstr.eq) if [disc IDENT_OF]
   covr "prop"  (cstr.eq) if [disc IDENT_PROP]
   
   covr "nop"   (cstr.eq) if [disc OP_NOP]
@@ -717,6 +734,7 @@ returns:
 sets the current class name
 }
 proc setclassname 0 0
+  classstats (cstr.clear) disc
   cmdbuffer classname swap (cstr.copy) disc disc
 
   IDENT_CLASS (identstackpush)
@@ -725,8 +743,31 @@ proc setclassname 0 0
   CF_NONE
   put disc
 
+  classtab read
+  classname
+  classstats
+  (map.put)
+  disc
+
   propsize
   0
+  put disc
+
+  ret
+end
+
+proc setclassinherits 0 0
+  classstats
+  cmdbuffer (cstr.copy) disc disc
+
+  classtab read
+  classname
+  classstats
+  (map.put)
+  disc
+
+  parseflags
+  CF_NONE
   put disc
 
   ret
@@ -1833,6 +1874,28 @@ proc addcallblock 0 0
     disc
   ] disc
 
+  blockbuffer 1 + '.' tmpbuffer (cstr.split)
+
+  copy "" (cstr.eq) !
+  covr classtab read swap (map.in) swap disc
+  &&
+  if [
+    classtab read swap (map.get)
+    swap disc
+    tmpbuffer (cstr.clear)
+    "(" (cstr.cat) 
+    swap (cstr.cat)
+    "." (cstr.cat)
+    swap (cstr.cat)
+    disc
+    blockbuffer (cstr.clear)
+    tmpbuffer (cstr.copy) disc disc
+    (addcallblock)
+    ret
+  ]
+  disc
+  disc
+
   (noprocblock)
 
   ret
@@ -2090,6 +2153,13 @@ proc getcmdasm 1 1
     0 (addstack)
     parseflags
     CF_CLASS
+    put disc
+    ret
+  ] copy IDENT_OF == if [
+    "class" 0 (checkpop)
+    0 (addstack)
+    parseflags
+    CF_OF
     put disc
     ret
   ] copy IDENT_CPROC == if [
@@ -2660,9 +2730,32 @@ proc addcall 0 0
   cproctab read cmdbuffer 1 + (map.in) if [
   (addccall)
   cmdbuffer (cstr.clear) disc
-  disc ret]
+  disc ret
+  ]
   disc
 
+  cmdbuffer 1 + '.' tmpbuffer (cstr.split)
+
+  copy "" (cstr.eq) !
+  covr classtab read swap (map.in) swap disc
+  &&
+  if [
+    classtab read swap (map.get)
+    swap disc
+    tmpbuffer (cstr.clear)
+    "(" (cstr.cat) 
+    swap (cstr.cat)
+    "." (cstr.cat)
+    swap (cstr.cat)
+    disc
+    cmdbuffer (cstr.clear)
+    tmpbuffer (cstr.copy) disc disc
+    (addcall)
+    ret
+  ]
+  disc
+  disc
+  
   (noproc)
 
   ret
@@ -2735,6 +2828,7 @@ proc parsecmd 0 0
     covr CF_ENUM_CONTENT == if (addenum)
     covr CF_ENUM_START == if (addenumstart)
     covr CF_CLASS == if (setclassname)
+    covr CF_OF == if (setclassinherits)
     disc disc
   ]
   cmdbuffer (cstr.clear) disc
@@ -3047,11 +3141,12 @@ proc ld 0 0
 end
 
 proc initobjs 0 0
-  gvartab      256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
-  consttab     256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
-  proctab      256 procdata.SIZE TAB_KEY_SIZE (map.new) put disc
-  cproctab     256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
-  includedtab  256 int.SIZE      TAB_KEY_SIZE (map.new) put disc
+  gvartab      256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
+  consttab     256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
+  proctab      256 procdata.SIZE  TAB_KEY_SIZE (map.new) put disc
+  cproctab     256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
+  classtab     256 classdata.SIZE TAB_KEY_SIZE (map.new) put disc
+  includedtab  256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
 
   identstack   int.SIZE IDENT_CAP (seq.new) put disc
 

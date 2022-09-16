@@ -287,7 +287,8 @@ class cstr
       covr readc
       cstr.delim readc ==
       if [
-        disc 1 + cstr.tempstore read
+        disc 1 +
+        cstr.tempstore read
         ret
       ]
       covr readc

@@ -1,0 +1,132 @@
+inc lina.slm
+
+var input int.SIZE
+var weights int.SIZE
+
+const W 100
+const H 100
+const RES 1000
+
+var output int.SIZE
+var x int.SIZE
+var y int.SIZE
+
+var temprect int.SIZE
+var tempmat int.SIZE
+var tempval int.SIZE
+
+class rect
+  prop x 8
+  prop y 8
+  prop w 8
+  prop h 8
+
+  proc new 4 1
+    32 (heap.alloc)
+
+    covr covr
+    rect.h . swap put disc
+    swap disc
+
+    covr covr
+    rect.w . swap put disc
+    swap disc
+
+    covr covr
+    rect.y . swap put disc
+    swap disc
+
+    covr covr
+    rect.x . swap put disc
+    swap disc
+
+    ret
+  end
+
+  proc free 1 0
+    (heap.free)
+
+    ret
+  end
+end
+
+proc f 0 1
+  output 0 put disc
+
+  0
+  do
+    x covr put disc
+    1 +
+    
+    0
+    do
+      y covr put disc
+      1 +
+
+      input read x read y read (matrix.get) swap disc
+      weights read x read y read (matrix.get) swap disc *
+      output read +
+      output swap put disc
+
+      copy H <
+    end
+    disc
+
+    copy W <
+  end
+  disc
+
+  output read
+
+  ret
+end
+
+proc fillrect 3 1
+  tempval swap put disc
+  temprect swap put disc
+  tempmat swap put disc
+
+  0
+  do
+    x covr put disc
+    1 +
+    
+    0
+    do
+      y covr put disc
+      1 +
+
+      tempmat read tempval read x read y read (matrix.set) disc
+
+      copy
+      temprect read rect.h . read <
+    end
+    disc
+
+    copy
+    temprect read rect.w . read <
+  end
+  disc
+  
+  temprect read (rect.free)
+  tempmat read
+
+  ret
+end
+
+proc main 0 0
+  input W H (matrix.new) put disc
+  weights W H (matrix.new) put disc
+
+  weights read 0 0 W H (rect.new) 0 (fillrect) disc
+  input   read 0 0 W H (rect.new) 0 (fillrect) disc
+
+  (f)
+  RES RES W H * * *
+  /% swap
+  (int.cstr) (cstr.print)
+  "." (cstr.print)
+  (int.print)
+
+  ret
+end
