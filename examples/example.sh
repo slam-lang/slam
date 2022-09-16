@@ -1,7 +1,7 @@
 #!/bin/bash
 
-../slim -i ../lib -o $1 $1.slm -a
+../slim -i ../lib -o $1 $1.slm
 
 ./$1
 
-#rm $1
+rm $1
