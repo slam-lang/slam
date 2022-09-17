@@ -1,167 +1,266 @@
 const p1 11100100b
-const p2 01110000b
+const p2 11100100b
 const vramts 8000h
 const vramtm 9000h
 const vramm1 9800h
 const vramm15 9A1Fh
 const vramm2 9C00h
 const tile 0005h
-const tilesize 017Fh
-const spritesize 0040h
-const floor 8800h
-const speed 200
-const gravity 100
-const jumpv 128
-const jumptime 6
+const tilesize 0880h
+const spritesize 0080h
+const curflags 00010000b
+const negmask 10000000b
+const zerotile 68
+const cashloc 98D2h
+const nextloc 9912h
+const timeloc 9A12h
+const bottom 120
 
-class enemy
-  prop x 2
-  prop y 2
-  prop yv 2
-  prop obj 2
+const gamemapstart 0000h
+const titlemapstart 0400h
 
-  gvar temp 2
+const stocksp 3
+const topsp 4
 
-  proc init 2 1
-    covr enemy.obj .
-    covr
-    (sprite.get)
-    1 (sprite.settile)
-    put disc
+gvar gamestate 1
 
+enum
+0   GS_TITLE
+    GS_GAME
+    GS_WIN
+end
+
+gvar money 2
+gvar timem 2
+gvar times 1
+gvar timefr 1
+
+gvar tempmoney 2
+gvar temptimes 2
+gvar temptimem 2
+gvar tempnext 2
+
+class elements
+  const invertflag 10000000b
+  prop count 2
+  prop spc 2
+
+  proc update 1 0
     disc
 
-    copy enemy.x . 20 putc disc
-    copy enemy.y . 20 putc disc
-
-    ret
-  end
-
-  proc phys 1 1
-    copy enemy.yv .
-    copy read gravity - put disc
-
-    copy enemy.y . read
-    covr enemy.yv . read -
-    copy floor swap < if [
-      covr enemy.yv . 0 put -
-      disc floor
-    ]
-    covr enemy.y . swap
-    put disc
-
-    ret
-  end
-
-  proc update 1 1
-    (enemy.phys)
-
-    enemy.temp swap put disc
-
-    enemy.temp read enemy.obj . read
-    enemy.temp read enemy.y . readc
-    enemy.temp read enemy.x . readc
-
-    (sprite.setpos) disc
-    
-    enemy.temp read
-
     ret
   end
 end
 
-gvar enemy1 enemy.SIZE
-gvar x 2
-gvar y 2
-gvar yv 2
-gvar jump 1
+gvar elems elements.SIZE
 
-proc dojump 0 0
-  jump readc if [
-    jump
-    jump readc 1 -
-    putc disc
-    yv
-    yv read jumpv +
-    put disc
-
-    ret
-  ]
-  jump 0 putc disc
-  yv
-  yv read gravity -
-  put disc
-
-  ret
-end
-
-proc moveleft 0 0
-  x read speed < if [
-    x x readc 168 + putc disc
-  ]
-  x
-  x read speed -
-  put disc
+class cursor
+  prop y 2
+  prop sprite 2
   
+  gvar time 2
+  gvar pinput 1
+  gvar pbtns 1
+
+  proc init 2 1
+    1 (sprite.settile)
+
+    covr cursor.sprite .
+    swap put disc
+
+    ret
+  end
+
+  proc input 1 1
+    (joypad.dpad)
+    (joypad.get)
+    copy 4 && 4 !=
+    cursor.pinput readc
+    4 && 0 !=
+    && if [  
+      covr cursor.y .
+      copy read 1 +
+      put disc
+    ]
+    copy 8 && 8 !=
+    cursor.pinput readc
+    8 && 0 !=
+    && if [
+      covr cursor.y .
+      copy read 1 -
+      put disc
+    ]
+    disc
+
+    cursor.pinput
+    (joypad.get)
+    putc disc
+    
+    (joypad.buttons)
+
+    (joypad.get)
+    copy 1 && 1 !=
+    cursor.pbtns readc
+    1 && 0 !=
+    && if [  
+      elems elements.count .
+      copy read 1 +
+      put disc
+    ]
+    disc
+    
+    cursor.pbtns
+    (joypad.get)
+    putc disc
+
+    ret
+  end
+
+  proc update 1 0
+    (cursor.input)
+
+    copy cursor.y . 1 + readc negmask && 0 != if [
+      copy cursor.y . 0 put disc
+    ]
+
+    elems elements.count . read covr cursor.y . read - 255 swap < if [
+      copy cursor.y . elems elements.count . read put disc
+    ]
+    
+    copy cursor.sprite . read
+    covr cursor.y . read 8 *
+    bottom swap -
+    36
+    cursor.time
+    copy read 1 +
+    put read 32 && if [
+      1 +
+    ]
+    (sprite.setpos)
+    disc
+    disc
+
+    ret
+  end
+end
+
+proc nextcost 0 1
+  elems elements.count . read 100 *
+
   ret
 end
 
-proc updateinput 0 0
-  (joypad.dpad)
-  (joypad.get)
+gvar cursorobj cursor.SIZE
 
-  copy 1 && 1 != if [
-    x
-    x read speed +
-    put disc
-  ]
-  copy 2 && 2 != if [
-    (moveleft)
-  ]
+proc copymap 1 0
+  0
+  do
+    covr covr +
+    tilem + readc
+    covr vramm1 +
+    swap
+    lcd
+    putc disc
+    
+    1 +
+
+    copy vramm2 vramm1 - <
+  end
+  disc
   disc
 
+  ret
+end
+
+proc updatetitle 0 0
   (joypad.buttons)
   (joypad.get)
-  copy 2 && 2 != if [
-    (dojump)
+  15 &&
+  15 != if [
+    gamemapstart (copymap)
+    
+    gamestate
+    GS_GAME
+    putc disc
   ]
-  copy 2 && if [
-    jump 0 putc disc
-    yv
-    yv read gravity -
+  
+  ret
+end
+
+proc updategame 0 0
+  cursorobj (cursor.update)
+  elems (elements.update)
+
+  timefr
+  copy readc 1 +
+  putc readc
+  60 swap < if [
+    times
+    copy readc 1 +
+    putc disc
+    timefr
+    0 putc disc
+  ]
+  times readc
+  60 swap < if [
+    timem
+    copy read 1 +
     put disc
+    times
+    0 putc disc
   ]
+
+  tempmoney money read put disc
+  tempnext (nextcost) put disc
+  temptimes times readc put disc
+  temptimem timem read put disc
+  0
+  do
+    cashloc covr -
+    tempmoney read 10 swap / swap
+    tempmoney swap put disc
+    zerotile +
+    lcd putc disc
+    
+    nextloc covr -
+    tempnext read 10 swap / swap
+    tempnext swap put disc
+    zerotile +
+    lcd putc disc
+   
+    copy 1 < if [
+      timeloc covr -
+      temptimes read 10 swap / swap
+      temptimes swap put disc
+      zerotile +
+      lcd putc disc
+      
+      timeloc covr 3 + -
+      temptimem read 10 swap / swap
+      temptimem swap put disc
+      zerotile +
+      lcd putc disc
+    ]
+    
+    1 +
+    
+    copy 3 <
+  end
   disc
 
   ret
 end
-  
-proc updatevel 0 0
-  y
-  y read yv read -
-  copy floor swap < if [
-    yv 0 put disc
-    jump jumptime putc disc
-    disc floor
-  ]
-  put disc
-  
-  ret
-end
 
-proc updatedge 0 0
-  x
-  x readc
-  copy 168 swap < if [
-    168 -
-  ]
-  putc disc
+proc updatemusic 0 0
 
   ret
 end
 
 proc main 0 0
-  enemy1 1 (enemy.init) disc
+  cursorobj
+  0 (sprite.get)
+  (cursor.init)
+  disc
   
   (lcd.init)
 
@@ -173,7 +272,7 @@ proc main 0 0
   0
   do
     copy vramtm + spritesize -
-    covr spritesize < if [
+    covr spritesize 1 - < if [
       disc copy vramts +
     ]
     covr tiles + readc
@@ -184,19 +283,9 @@ proc main 0 0
     copy tilesize <
   end
   disc
+
+  titlemapstart (copymap)
   
-  0
-  do
-    copy vramm1 +
-    covr tilem + readc
-    putc disc
-    
-    1 +
-
-    copy vramm2 vramm1 - <
-  end
-  disc
-
   lcd.LCDCF_ON
   lcd.LCDCF_BGON +
   lcd.LCDCF_OBJON +
@@ -206,31 +295,34 @@ proc main 0 0
   p1
   putc disc
   
-  lcd.rOBP1
+  lcd.rOBP0
   p2
   putc disc
+
+  elems elements.count . 0 put disc
   
-  0 (sprite.get)
-  3 (sprite.settile)
-  x 84 putc disc
-  y 144 putc disc
+  1 (sprite.get)
+  2 (sprite.settile)
+  120 48 (sprite.setpos)
+  disc
+
+  255 (snd.init)
+  
+  1 00  (snd.sweep)
+  1 3   (snd.length)
+  1 242 (snd.envelope)
+  1 446 (snd.freq)
 
   do
     (lcd.vblank)
-    enemy1
-    (enemy.update)
-    disc
-    (updateinput)
-    (updatevel)
-    (updatedge)
+  
+    gamestate readc GS_TITLE != 1 != if (updatetitle)
+    gamestate readc GS_GAME  != 1 != if (updategame)
 
-    y readc
-    x readc
-    (sprite.setpos)
+    (updatemusic)
+
     1
   end
-
-  disc
 
   ret
 end

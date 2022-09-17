@@ -14,7 +14,7 @@ inc log.slm
 inc os.slm
 
 proc version 0 1
-  "0.3.2" ret
+  "0.4.2" ret
 end
 
 {
@@ -503,6 +503,9 @@ proc addgvar 0 0
   parseflags
   copy read 1 -
   copy CF_GVAR_VALUE 1 - == if [
+    constname (cstr.print)
+    ": " (cstr.print)
+    parsememory read 49408 + (int.printhex)
     gvartab read constname (getexpandedname) parsememory read (tab.put) disc
     (getconst)
     parsememory read +
@@ -606,6 +609,20 @@ proc asmfooter 0 0
   `lcdw:\n` (writeout)
   `    bit 1, [hl]\n` (writeout)  
   `    jr nz, lcdw\n` (writeout)  
+  `    ret\n` (writeout)  
+  `divi:\n` (writeout)
+  `    xor a\n` (writeout)
+  `    ld b, 16\n` (writeout)
+  `div_loop:\n` (writeout)
+  `    add hl, hl\n` (writeout)
+  `    rla\n` (writeout)
+  `    cp d\n` (writeout)
+  `    jp c, div_next\n` (writeout)
+  `    sub d\n` (writeout)
+  `    inc l\n` (writeout)
+  `div_next:\n` (writeout)
+  `    dec b\n` (writeout)
+  `    jp nz, div_loop\n` (writeout)
   `    ret\n` (writeout)  
   `multi:\n` (writeout)
   `    ld a, 16\n` (writeout)  
@@ -779,7 +796,6 @@ proc badret 0 0
   procname (getexpandedname) (tab.get)
   4294967296 / disc
   255 && (int.print)
-  disc
 
   procname (cstr.println)
   parsestack read (int.print)
@@ -911,12 +927,14 @@ proc getblockasm 1 1
   ] copy OP_DIV == if [
     "div" 2 (checkpopb)
     2 (addstackb)
-    `    xor rdx, rdx\n` (writeout)
+    `    pop hl\n` (writeout)
     `    pop de\n` (writeout)
-    `    pop bc\n` (writeout)
-    `    idiv de\n` (writeout)
-    `    push bc\n` (writeout)
-    `    push rdx\n` (writeout)
+    `    ld d, e\n` (writeout)
+    `    call divi\n` (writeout)
+    `    push hl\n` (writeout)
+    `    ld d, 0\n` (writeout)
+    `    ld e, a\n` (writeout)
+    `    push de\n` (writeout)
     ret
   ] copy OP_COVR == if [
     "covr" 2 (checkpopb)
@@ -952,7 +970,7 @@ proc getblockasm 1 1
     0 (addstackb)
     procstacktab read
     procname (getexpandedname) (tab.get)
-    4294967296 / disc
+    4294967296 /% disc
     255 &&
     parsestackblock read != if (badret)
     disc
@@ -1335,7 +1353,7 @@ proc parseblockcmd 0 0
     blockbuffer 1 + (tab.get)
     255 && blockbuffer 1 + swap (checkpopb)
     blockbuffer 1 + (tab.get)
-    4294967296 / disc
+    4294967296 /% disc
     255 && (addstackb)
     disc
 
@@ -1536,12 +1554,14 @@ proc getcmdasm 1 1
   ] copy OP_DIV == if [
     "div" 2 (checkpop)
     2 (addstack)
-    `    xor rdx, rdx\n` (writeout)
+    `    pop hl\n` (writeout)
     `    pop de\n` (writeout)
-    `    pop bc\n` (writeout)
-    `    idiv de\n` (writeout)
-    `    push bc\n` (writeout)
-    `    push rdx\n` (writeout)
+    `    ld d, e\n` (writeout)
+    `    call divi\n` (writeout)
+    `    push hl\n` (writeout)
+    `    ld d, 0\n` (writeout)
+    `    ld e, a\n` (writeout)
+    `    push de\n` (writeout)
     ret
   ] copy OP_COVR == if [
     "covr" 2 (checkpop)
@@ -1603,7 +1623,7 @@ proc getcmdasm 1 1
     0 (addstack)
     procstacktab read
     procname (getexpandedname) (tab.get)
-    4294967296 / disc
+    4294967296 /% disc
     255 &&
     parsestack read != if (badret)
     disc
@@ -2117,7 +2137,7 @@ proc parsecmd 0 0
     cmdbuffer 1 + (tab.get)
     255 && cmdbuffer 1 + swap (checkpop)
     cmdbuffer 1 + (tab.get)
-    4294967296 / disc
+    4294967296 /% disc
     255 && (addstack)
     disc
 
@@ -2466,7 +2486,7 @@ proc ld 0 0
   "-p" put int.SIZE +
   "0xFF" put int.SIZE +
   "-t" put int.SIZE +
-  "Slim Game" put int.SIZE +
+  "Tall Plant" put int.SIZE +
   outputbuffer put int.SIZE +
   NULL put disc
 

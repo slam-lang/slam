@@ -1,5 +1,7 @@
+const rNR0 FF00h
+proc rNRx 1 1 rNR0 + ret end
+
 class lcd
-  const rNR52 FF26h
   const rLCDC FF40h
   const rLCDS FF41h
   const rSCX  FF42h
@@ -8,10 +10,11 @@ class lcd
   const rLX   FF45h
   const rDMA  FF46h
   const rBGP  FF47h
-  const rOBP1 FF48h
-  const rOBP2 FF49h
+  const rOBP0 FF48h
+  const rOBP1 FF49h
   const LCDCF_OFF   00000000b
   const LCDCF_ON    10000000b
+  const LCDCF_OBJ2x 00000100b
   const LCDCF_OBJON 00000010b
   const LCDCF_BGON  00000001b
 
@@ -24,9 +27,6 @@ class lcd
   end
 
   proc init 0 0
-    lcd.rNR52
-    0
-    putc disc
 
     ret
   end
@@ -64,9 +64,18 @@ class sprite
 
     ret
   end
-  
+
+  proc setflags 2 1
+    covr sprite.flags .
+    swap
+    lcd
+    putc disc
+
+    ret
+  end
+
   proc setpos 3 1
-    sprite.temp swap put disc
+    sprite.temp swap putc disc
     
     covr sprite.y .
     swap
@@ -74,7 +83,7 @@ class sprite
     putc disc
 
     copy sprite.x .
-    sprite.temp read
+    sprite.temp readc
     lcd
     putc disc
 
@@ -107,6 +116,69 @@ class joypad
   proc get 0 1
     joypad.rP1
     readc
+
+    ret
+  end
+end
+
+class snd
+  const ch4 10001000b
+  const ch3 01000100b
+  const ch2 00100010b
+  const ch1 00010001b
+  
+  const vol 01110111b
+
+  proc init 1 0
+    82 (rNRx) 128 putc disc
+    81 (rNRx) swap putc disc
+    80 (rNRx) snd.vol putc disc
+
+    ret
+  end
+
+  proc sweep 2 0
+    swap 16 * (rNRx)
+    swap putc disc
+
+    ret
+  end
+  
+  proc length 2 0
+    swap 16 * 1 + (rNRx)
+    swap putc disc
+
+    ret
+  end
+  
+  proc envelope 2 0
+    swap 16 * 2 + (rNRx)
+    swap putc disc
+
+    ret
+  end
+ 
+  proc freq 2 0
+    swap 16 * 3 + (rNRx)
+    covr 255 &&
+    putc
+    1 +
+    covr 256 / disc 7 &&
+    128 +
+    putc disc
+    disc
+
+    ret
+  end
+  
+  proc setsoundlen 1 0
+    65 (rNRx) swap put disc
+
+    ret
+  end
+ 
+  proc setsoundenv 1 0
+    66 (rNRx) swap put disc
 
     ret
   end

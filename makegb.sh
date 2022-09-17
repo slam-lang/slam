@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -x
-
 ./make.sh
 
 ./slim -i lib -o slim-gb slim-gb.slm

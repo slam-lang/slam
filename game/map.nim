@@ -36,7 +36,7 @@ for layer in map.layers:
         blank += 1
         outputData.tiles[layerid * layerSize.int + index] = tile
         continue
-      tile.kind = gid.uint8 - 1 - 4
+      tile.kind = gid.uint8 - 1 - 8
       outputData.tiles[layerid * layerSize.int + index] = tile
   layerid += 1
 
