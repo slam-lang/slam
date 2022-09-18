@@ -1,3 +1,3 @@
 #!/bin/bash
 
-rm -rf ./slim
+rm -rf ./slam

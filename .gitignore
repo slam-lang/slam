@@ -4,6 +4,7 @@
 slam
 temp/**
 slam-gb
+slam-pyc
 gb.gb
 gb.sav
 temp.fasm

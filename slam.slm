@@ -19,11 +19,11 @@ FIX: cmdexec $PATH
 FIX: \ on boundry
 }
 inc stdlib.slm
+inc log.slm
 inc os.slm
 inc mem.slm
 inc maps.slm
 inc arrays.slm
-inc log.slm
 
 proc version 0 1
   "0.4.3" ret
@@ -95,6 +95,7 @@ enum
     IDENT_VAR
     IDENT_END
     IDENT_OF
+    IDENT_ASM
 end
 
 {
@@ -235,9 +236,9 @@ var parseaddr int.SIZE
 var parsesubaddr int.SIZE
 
 {stores a file to be queued to include}
-var includebuffer 1024
+var includebuffer 256
 {stores the path to include files from}
-var includepath 1024
+var includepath 256
 
 {Stores a parser flag for idents}
 var parseflags int.SIZE
@@ -355,7 +356,10 @@ proc openinput 1 1
   {open input}
   0 swap
   fm.READ swap
-  -100
+  0
+  covr readc '/' != if [
+    disc -100
+  ]
   (os.open)
   inputfd swap put disc
 
@@ -385,6 +389,7 @@ proc getopfromname 1 1
   covr "const" (cstr.eq) if [disc IDENT_CONST]
   covr "class" (cstr.eq) if [disc IDENT_CLASS]
   covr "of"    (cstr.eq) if [disc IDENT_OF]
+  covr "asm"   (cstr.eq) if [disc IDENT_ASM]
   covr "prop"  (cstr.eq) if [disc IDENT_PROP]
   
   covr "nop"   (cstr.eq) if [disc OP_NOP]
@@ -1296,6 +1301,42 @@ proc addpushblock 1 1
   ret
 end
 
+proc addpushblock 1 1
+  disc OP_PUSHP    
+  
+  proctab read blockbuffer (map.in) ! if [disc ret]
+  blockbuffer (map.get)
+  procdata.kind . read
+  swap disc
+  1 == if [
+    (writeaddr)
+    `    mov rax, [ret_stack_rsp]\n` (writeout)
+    `    add rax, 8\n` (writeout)
+    `    mov qword [ret_stack_rsp], rax\n` (writeout)
+    `    mov qword [rax], addr_` (writeout)
+    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    `    jmp addr_` (writeout)
+    proctab read
+    blockbuffer (map.get)
+    procdata.addr .
+    read (int.cstr) copy (cstr.len) swap (writeout)
+    (writeoutln)
+    
+    blockbuffer (map.get)
+    procdata.in . readc
+    blockbuffer swap (checkpopb)
+    blockbuffer (map.get)
+    procdata.out . readc
+    (addstackb)
+    disc
+    disc
+    OP_NOP
+  ]
+  ret
+end
+
+
 proc checkbadblock 1 1
   blockbuffer (cstr.len) 3 ==
   blockbuffer readc ''' == &&
@@ -1897,7 +1938,7 @@ proc addcallblock 0 0
   ]
   disc
   disc
-
+  
   (noprocblock)
 
   ret
@@ -2163,6 +2204,13 @@ proc getcmdasm 1 1
     parseflags
     CF_OF
     put disc
+    ret
+  ] copy IDENT_ASM == if [
+    "asm" 0 (checkpop)
+    0 (addstack)
+    `    ` (writeout)
+    cmdbuffer (inner) copy (cstr.len) swap (writeout)
+    (writeoutln)
     ret
   ] copy IDENT_CPROC == if [
     "cproc" 0 (checkpop)
@@ -3162,7 +3210,7 @@ proc initobjs 0 0
   proctab      256 procdata.SIZE  TAB_KEY_SIZE (map.new) put disc
   cproctab     256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
   classtab     256 classdata.SIZE TAB_KEY_SIZE (map.new) put disc
-  includedtab  256 int.SIZE       TAB_KEY_SIZE (map.new) put disc
+  includedtab  256 int.SIZE       256          (map.new) put disc
 
   identstack   int.SIZE IDENT_CAP (seq.new) put disc
 

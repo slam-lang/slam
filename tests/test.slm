@@ -53,7 +53,7 @@ proc runtest 1 0
   (log.log)
 
   tmpbuffer
-  "../slim" put int.SIZE +
+  "../slam" put int.SIZE +
   "-i" put int.SIZE +
   "../lib" put int.SIZE +
   "-o" put int.SIZE +
