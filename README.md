@@ -1,6 +1,6 @@
 ![banner](/docs/banner.png)
 
-[![compile](https://github.com/bob16795/slim/actions/workflows/compile.yml/badge.svg)](https://github.com/bob16795/slim/actions/workflows/compile.yml)
+[![compile](https://github.com/slam-lang/slam/actions/workflows/compile.yml/badge.svg)](https://github.com/slam-lang/slam/actions/workflows/compile.yml)
 
 ## About
 

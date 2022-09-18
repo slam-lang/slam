@@ -31,7 +31,7 @@ end
 
 {
 This is a enum of all the operations
-and identifiers in slim
+and identifiers in slam
 }
 enum
 0   OP_BAD
@@ -2954,7 +2954,7 @@ prints a help string
 }
 proc help 1 0
   copy HELP_VERSION == if [
-    "slim compiler v" (cstr.print) (version) (cstr.println)
+    "slam compiler v" (cstr.print) (version) (cstr.println)
     disc 0 quit
   ]
   copy HELP_ARGS == if [
@@ -2965,9 +2965,9 @@ proc help 1 0
     "ERROR: Last argument supplied requires a parameter"
     (cstr.println)
   ]
-  "slim compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
+  "slam compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
   (cstr.cr)
-  "slim [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
+  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
   (cstr.cr)
   "-v            shows the version and exits." (cstr.println)
   "-h, --help    shows this help message."     (cstr.println)

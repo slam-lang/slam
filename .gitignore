@@ -1,9 +1,9 @@
 *.nasm
 *.asm
 *.o
-slim
+slam
 temp/**
-slim-gb
+slam-gb
 gb.gb
 gb.sav
 temp.fasm

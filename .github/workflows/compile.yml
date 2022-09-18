@@ -14,13 +14,13 @@ jobs:
       - uses: ilammy/setup-nasm@v1
       - uses: stevenwdv/setup-fasm@v1
       - uses: actions/checkout@v1
-      - name: Create slim executable
+      - name: Create slam executable
         run: |
           sudo cp $(which fasm) /usr/bin/fasm
-          ./old/slim.py -i lib -o slim slim.slm
+          ./old/slam.py -i lib -o slam slam.slm
           rm output.*
-          ./slim -i lib -o slim slim.slm
-          ./slim -v
+          ./slam -i lib -o slam slam.slm
+          ./slam -v
           cd tests
-          ../slim -i ../lib -o test test.slm
+          ../slam -i ../lib -o test test.slm
           ./test

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-[[ ! -f ./slim ]] && ./old/slim.py -i lib -o ./slim ./slim.slm && rm output.*
+[[ ! -f ./slam ]] && ./old/slam.py -i lib -o ./slam ./slam.slm && rm output.*
 
-./slim -i lib -o ./slim slim.slm $@ || exit
+./slam -i lib -o ./slam slam.slm $@ || exit
 
-./slim -v
+./slam -v
 
