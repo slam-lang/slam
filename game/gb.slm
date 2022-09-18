@@ -5,19 +5,22 @@ const vramtm 9000h
 const vramm1 9800h
 const vramm15 9A1Fh
 const vramm2 9C00h
-const tile 0005h
-const tilesize 0880h
+const tilesize 0900h
 const spritesize 0080h
 const curflags 00010000b
 const negmask 10000000b
 const zerotile 68
 const cashloc 98D2h
 const nextloc 9912h
+const nextuloc 99B2h
 const timeloc 9A12h
+const levelloc 9972h
+const wintimeloc 99aeh
 const bottom 120
 
 const gamemapstart 0000h
-const titlemapstart 0400h
+const titlemapstart 0240h
+const winmapstart 0480h
 
 const stocksp 3
 const topsp 4
@@ -39,20 +42,158 @@ gvar tempmoney 2
 gvar temptimes 2
 gvar temptimem 2
 gvar tempnext 2
+gvar tempnextu 2
+gvar templevel 2
 
 class elements
-  const invertflag 10000000b
+  const invertflag 8000h
   prop count 2
-  prop spc 2
+  prop tpc 2
+  prop levels 14
+
+  gvar tick 2
+
+  proc upgrade 2 0
+    covr elements.levels .
+    covr +
+    copy readc 1 +
+    putc disc
+
+    covr
+    elements.count . read
+    covr != 1 !=
+    if [
+      covr elements.count .
+      copy read 1 +
+      put disc
+    ]
+
+    disc
+    disc
+    
+    ret
+  end
+
+
+  proc upgradetpc 1 0
+    copy elements.tpc . read 0 != 1 != if [
+      elements.tpc .
+      4 put disc
+
+      ret
+    ]
+    
+    copy elements.tpc . read 1 != 1 != if [
+      elements.tpc .
+      2 elements.invertflag +
+      put disc
+
+      ret
+    ]
+    
+    copy elements.tpc . read
+    elements.invertflag && elements.invertflag != if [
+      elements.tpc .
+      copy read 1 -
+      put
+    
+      disc
+      ret
+    ]
+
+    elements.tpc . 1 +
+    copy readc 1 +
+    putc
+
+    disc
+    ret
+  end
+
+  proc subupdate 2 2
+    do
+      1 -
+
+      copy 1 + (sprite.get)
+      stocksp (sprite.settile)
+      disc
+
+      copy 0 !=
+    end
+
+    ret
+  end
+
+  proc curupdate 1 1
+    {update currency}
+    copy copy elements.tpc . read
+    copy elements.invertflag && elements.invertflag !=
+    swap
+    elements.tick read / swap disc
+    0 != 1 != && if [
+      money
+      copy read 1 +
+      put disc
+
+      disc
+
+      ret
+    ]
+    
+    copy elements.tpc . read
+    elements.invertflag && elements.invertflag != 1 !=
+    if [
+      copy elements.tpc . 1 + readc
+      money read +
+      money swap put disc
+    ]
+    disc
+
+    ret
+  end
 
   proc update 1 0
+    elements.tick
+    copy read 1 +
+    put disc
+
+    copy elements.tpc . read if (elements.curupdate)
+    
+    {update elems}
+    copy elements.count . read
+    copy 1 + (sprite.get)
+    topsp (sprite.settile)
+    covr 8 * 120 swap - 48 (sprite.setpos)
     disc
+    copy 0 != if (elements.subupdate)
+
+    disc
+    disc
+
+    ret
+  end
+  
+  proc canbuy 1 1
+    money read <
 
     ret
   end
 end
 
 gvar elems elements.SIZE
+
+proc nextcost 1 1
+  copy 1 +
+  swap 
+  elems elements.levels . + readc 1 + 
+  *
+  1 -
+  copy *
+  50 *
+
+  ret
+end
+
+gvar cursorobj 4
 
 class cursor
   prop y 2
@@ -102,10 +243,15 @@ class cursor
     copy 1 && 1 !=
     cursor.pbtns readc
     1 && 0 !=
-    && if [  
-      elems elements.count .
-      copy read 1 +
+    cursorobj cursor.y . read (nextcost) (elements.canbuy) &&
+    && if [
+      money
+      copy read cursorobj cursor.y . read (nextcost) -
       put disc
+
+      elems cursorobj cursor.y . read (elements.upgrade)
+
+      elems (elements.upgradetpc)
     ]
     disc
     
@@ -144,14 +290,6 @@ class cursor
   end
 end
 
-proc nextcost 0 1
-  elems elements.count . read 100 *
-
-  ret
-end
-
-gvar cursorobj cursor.SIZE
-
 proc copymap 1 0
   0
   do
@@ -187,9 +325,53 @@ proc updatetitle 0 0
   ret
 end
 
+proc wintime 0 0
+  temptimes times readc put disc
+  temptimem timem read put disc
+  0
+  do
+    wintimeloc covr -
+    temptimes read 10 swap / swap
+    temptimes swap put disc
+    zerotile +
+    lcd putc disc
+    
+    wintimeloc covr 3 + -
+    temptimem read 10 swap / swap
+    temptimem swap put disc
+    zerotile +
+    lcd putc disc
+    
+    1 +
+    
+    copy 2 <
+  end
+  disc
+  
+  ret
+end
+
 proc updategame 0 0
   cursorobj (cursor.update)
   elems (elements.update)
+  
+  elems elements.count . read 13 swap < if [
+    lcd.LCDCF_ON
+    lcd.LCDCF_BGON +
+    (lcd.mode)
+    
+    winmapstart (copymap)
+
+    (lcd.vblank)
+
+    gamestate
+    GS_WIN
+    putc disc
+
+    (wintime)
+  
+    ret
+  ]
 
   timefr
   copy readc 1 +
@@ -211,9 +393,14 @@ proc updategame 0 0
   ]
 
   tempmoney money read put disc
-  tempnext (nextcost) put disc
+  tempnext elems elements.count . read (nextcost) put disc
+  tempnextu cursorobj cursor.y . read (nextcost) put disc
   temptimes times readc put disc
   temptimem timem read put disc
+  templevel
+  elems elements.levels .
+  cursorobj cursor.y . read +
+  readc put disc
   0
   do
     cashloc covr -
@@ -225,6 +412,12 @@ proc updategame 0 0
     nextloc covr -
     tempnext read 10 swap / swap
     tempnext swap put disc
+    zerotile +
+    lcd putc disc
+    
+    nextuloc covr -
+    tempnextu read 10 swap / swap
+    tempnextu swap put disc
     zerotile +
     lcd putc disc
    
@@ -240,6 +433,12 @@ proc updategame 0 0
       temptimem swap put disc
       zerotile +
       lcd putc disc
+
+      levelloc covr -
+      templevel read 10 swap / swap
+      templevel swap put disc
+      zerotile +
+      lcd putc disc
     ]
     
     1 +
@@ -250,6 +449,7 @@ proc updategame 0 0
 
   ret
 end
+
 
 proc updatemusic 0 0
 
@@ -300,11 +500,7 @@ proc main 0 0
   putc disc
 
   elems elements.count . 0 put disc
-  
-  1 (sprite.get)
-  2 (sprite.settile)
-  120 48 (sprite.setpos)
-  disc
+  elems elements.tpc . 0 put disc
 
   255 (snd.init)
   
@@ -318,6 +514,7 @@ proc main 0 0
   
     gamestate readc GS_TITLE != 1 != if (updatetitle)
     gamestate readc GS_GAME  != 1 != if (updategame)
+    gamestate readc GS_WIN  != 1 != if (wintime)
 
     (updatemusic)
 
