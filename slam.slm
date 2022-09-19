@@ -47,24 +47,17 @@ enum
     OP_COVR
     OP_READ
     OP_READC
-    OP_PUTC
     OP_PUT
+    OP_PUTC
     OP_DISC
     OP_ARGV
     OP_ARGC
     OP_ENVP
     OP_PUSHP
     OP_CALLS
-    OP_MULTI
     OP_RET
     OP_QUIT
-    OP_LOCX
-    OP_JUMPX
-    OP_JUMP
     OP_IF
-    OP_JNZ
-    OP_GETP
-    OP_CYCL
     OP_NQ
     OP_EQ
     OP_LT
@@ -417,7 +410,6 @@ proc getopfromname 1 1
   covr "ret"   (cstr.eq) if [disc OP_RET]
   covr "quit"  (cstr.eq) if [disc OP_QUIT]
   covr "if"    (cstr.eq) if [disc OP_IF]
-  covr "cycl"  (cstr.eq) if [disc OP_CYCL]
   covr "!="    (cstr.eq) if [disc OP_NQ]
   covr "=="    (cstr.eq) if [disc OP_EQ]
   covr "<"     (cstr.eq) if [disc OP_LT]
