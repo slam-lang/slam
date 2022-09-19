@@ -1,12 +1,12 @@
 default: slam
 
 slam-pyc: old/slam.py
-	./old/slam.py -i lib -o slam-pyc slam.slm
+	./old/slam.py -i ~/.local/slam/lib -o slam-pyc slam.slm
 	rm output.o output.asm
-	./slam-pyc -i lib -o slam slam.slm
+	./slam-pyc -o slam slam.slm
 
 slam: slam-pyc slam.slm
-	./slam -i lib -o slam slam.slm
+	./slam -o slam slam.slm
 
 install: slam
 	cp slam /usr/bin

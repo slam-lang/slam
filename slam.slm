@@ -19,11 +19,11 @@ FIX: cmdexec $PATH
 FIX: \ on boundry
 }
 inc stdlib.slm
-inc log.slm
-inc os.slm
-inc mem.slm
-inc maps.slm
-inc arrays.slm
+inc stdlib/log.slm
+inc stdlib/os.slm
+inc stdlib/mem.slm
+inc stdlib/maps.slm
+inc stdlib/arrays.slm
 
 proc version 0 1
   "0.4.3" ret
@@ -3224,6 +3224,10 @@ proc main 0 0
   1 argc == if [HELP_ARGS (help)]
 
   (initobjs)
+  
+  includepath "HOME" (os.env) (cstr.copy) disc
+  "/.local/slam/lib" (cstr.cat)
+  disc
 
   { iterate through args }
   0
