@@ -16,13 +16,13 @@ jobs:
       - name: Create slam executable
         run: |
           sudo cp $(which fasm) /usr/bin/fasm
-          git clone git@github.com:slam-lang/spakig
+          git clone http://github.com/slam-lang/spakig
           cd spakig
-          fasm spakig.fasm -m 524288 spakig.fasm temp.o
+          fasm -m 524288 spakig.fasm temp.o
           ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
           ./spakig init
           cd ..
-          git clone git@github.com:slam-lang/slam
-          cd slam
-          ~/.local/slam/bin/slam -i ../lib -o test test.slm
+          git clone http://github.com/slam-lang/slam
+          cd slam/tests
+          ~/.local/slam/bin/slam -o test test.slm
           ./test
