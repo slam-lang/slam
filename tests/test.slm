@@ -1,10 +1,11 @@
+inc stdlib/os.slm
 inc stdlib.slm
-inc os.slm
 
 const TEST_COUNT 13
 
 var tmpbuffer 128
 var tmpname 64
+var slamexec 64
 
 var failed 1
 var passed 1
@@ -53,9 +54,7 @@ proc runtest 1 0
   (log.log)
 
   tmpbuffer
-  "../slam" put int.SIZE +
-  "-i" put int.SIZE +
-  "../lib" put int.SIZE +
+  slamexec put int.SIZE +
   "-o" put int.SIZE +
   "tester" put int.SIZE +
   swap put int.SIZE +
@@ -64,6 +63,7 @@ proc runtest 1 0
   tmpbuffer (os.execcmd)
   
   os.waitsig read 0 != if [
+    tmpbuffer (runcmdstdout)
     1 1 (log.level)
     "BAD" "Test Failed to compile, code=" (log.msg)
     os.waitsig read (int.cstr) (log.cat)
@@ -98,6 +98,9 @@ proc runtest 1 0
 end
 
 proc main 0 0
+  slamexec "HOME" (os.env) (cstr.copy) disc
+  "/.local/slam/bin/slam" (cstr.cat) disc
+
   0
   do
     1 +

@@ -1,5 +1,5 @@
-inc arrays.slm
-inc testin.slm
+inc stdlib/arrays.slm
+inc stdlib/testin.slm
 
 var tmp int.SIZE
 var list int.SIZE

@@ -1,6 +1,6 @@
-inc testin.slm
-inc mem.slm
-inc string.slm
+inc stdlib/testin.slm
+inc stdlib/mem.slm
+inc stdlib/string.slm
 
 proc main 0 0
   "Allocate 1024 bytes" (testin.setup)

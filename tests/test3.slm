@@ -1,5 +1,5 @@
-inc os.slm
-inc testin.slm
+inc stdlib/os.slm
+inc stdlib/testin.slm
 
 var cmdtmp 128
 

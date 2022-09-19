@@ -1,7 +1,7 @@
+inc stdlib/mem.slm
+inc stdlib/arrays.slm
+inc stdlib/testin.slm
 inc stdlib.slm
-inc mem.slm
-inc arrays.slm
-inc testin.slm
 
 var seq 8
 

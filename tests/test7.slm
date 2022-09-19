@@ -1,7 +1,7 @@
+inc stdlib/testin.slm
+inc stdlib/string.slm
+inc stdlib/strutils.slm
 inc stdlib.slm
-inc testin.slm
-inc string.slm
-inc strutils.slm
 
 var temp 32
 var str1 int.SIZE

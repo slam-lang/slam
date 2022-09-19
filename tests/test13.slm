@@ -1,4 +1,4 @@
-inc testin.slm
+inc stdlib/testin.slm
 
 class foo
   proc get 0 1

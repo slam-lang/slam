@@ -1,5 +1,5 @@
+inc stdlib/testin.slm
 inc stdlib.slm
-inc testin.slm
 
 gvar string 128
 

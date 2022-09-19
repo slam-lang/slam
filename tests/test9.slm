@@ -1,5 +1,5 @@
+inc stdlib/testin.slm
 inc stdlib.slm
-inc testin.slm
 
 proc foo 0 0
   "Called" (testin.next)

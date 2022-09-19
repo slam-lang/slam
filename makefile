@@ -20,7 +20,7 @@ clean:
 	rm -f gb.gb gb.sav temp.o
 
 tester: slam
-	./slam -i lib -o tests/test tests/test.slm
+	slam -o tests/test tests/test.slm
 
 test: tester
 	cd tests; ./test

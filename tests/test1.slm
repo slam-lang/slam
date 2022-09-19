@@ -1,4 +1,4 @@
-inc testin.slm
+inc stdlib/testin.slm
 
 proc main 0 0
   "Numbers in other bases" (testin.setup)

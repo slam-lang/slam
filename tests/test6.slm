@@ -1,6 +1,6 @@
+inc stdlib/testin.slm
+inc stdlib/math.slm
 inc stdlib.slm
-inc testin.slm
-inc math.slm
 
 proc main 0 0
   "Create float" (testin.setup)

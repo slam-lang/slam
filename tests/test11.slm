@@ -1,5 +1,5 @@
-inc testin.slm
-inc maps.slm
+inc stdlib/testin.slm
+inc stdlib/maps.slm
 
 var key 4
 var value 4
