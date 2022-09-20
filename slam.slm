@@ -1757,10 +1757,13 @@ proc getblockasm 1 1
     (setupvar)
     ret
   ]
-  copy
-  {TODO: log this}
+  2 0 (log.level)
+  "WRN" "Unimplemented op: " (log.msg)
+  copy (getopname) (log.cat)
+  (log.log)
+
   `; unimp ` (writeout)
-  (getopname) copy (cstr.len) swap (writeout)
+  copy (getopname) copy (cstr.len) swap (writeout)
   ` ` (writeout)
   cmdbuffer copy (cstr.len) swap (writeout)
   (writeoutln)
@@ -2509,10 +2512,13 @@ proc getcmdasm 1 1
     (setupvar)
     ret
   ]
-  copy
-  {TODO: log this}
+  2 0 (log.level)
+  "WRN" "Unimplemented op: " (log.msg)
+  copy (getopname) (log.cat)
+  (log.log)
+
   `; unimp ` (writeout)
-  (getopname) copy (cstr.len) swap (writeout)
+  copy (getopname) copy (cstr.len) swap (writeout)
   ` ` (writeout)
   cmdbuffer copy (cstr.len) swap (writeout)
   (writeoutln)
