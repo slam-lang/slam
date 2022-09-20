@@ -1,12 +1,12 @@
 {
-The Slim Compiler, written in Slim
+The Slam Compiler, written in Slam
 
 Started by:
   Preston Precourt (prestosilver) 2022
 
 TODO: Merge the getasm functions
 TODO: Clean magic nums
-TODO: Track stack blocks
+TODO: Track stack loop
 TODO: Macros / Inlines
 TODO: Stripping?
 TODO: Check for no return
@@ -255,7 +255,8 @@ var classstats classdata.SIZE
 var linestats int.SIZE
 
 var tmpbuffer 64
-
+{if the block returned}
+var blockret 1
 
 {
 args: int[char]
@@ -1386,6 +1387,8 @@ proc getblockasm 1 1
   ]
 
   (writesubaddr)
+  
+  blockret 0 putc disc
 
   copy OP_BAD == if (checkbadblock)
   copy OP_NOP == if [
@@ -1538,6 +1541,7 @@ proc getblockasm 1 1
   ] copy OP_QUIT == if [
     "quit" 1 (checkpopb)
     0 (addstackb)
+    blockret 1 putc disc
     `    mov rax, 60\n` (writeout)
     `    pop rdi\n` (writeout)
     `    syscall\n` (writeout)
@@ -1545,6 +1549,7 @@ proc getblockasm 1 1
   ] copy OP_RET == if [
     "ret" 0 (checkpopb)
     0 (addstackb)
+    blockret 1 putc disc
     procstats
     procdata.out . readc
     parsestackblock read != if (badret)
@@ -2613,8 +2618,8 @@ proc parseblock 0 0
   disc
   disc
   (writesubaddr)
-  {
-  parsestackblock read parsestack read == !
+  blockret readc 0 ==
+  parsestackblock read parsestack read != &&
   if [
     cmdbuffer (cstr.print)
     " Bad Block" (cstr.println)
@@ -2622,7 +2627,7 @@ proc parseblock 0 0
     parsestack read (int.print)
     -1 quit
   ]
-  }
+  blockret 0 putc disc
   ret
 end
 
@@ -2711,7 +2716,7 @@ proc addccall 0 0
     procdata.out .
     readc (addstack)
     disc
-    `    push rax\n` (writeout)
+    {`    push rax\n` (writeout)}
     ret
   ]
   (cprocbuff)
@@ -2719,8 +2724,9 @@ proc addccall 0 0
   `    call ` (writeout)
   cmdbuffer 1 + copy (cstr.len) swap (writeout)
   (writeoutln)
+  {
   `    push rax\n` (writeout)
-  {`    sub rsp, ` (writeout)
+  `    sub rsp, ` (writeout)
   cproctab read
   cmdbuffer 1 + (map.get)
   procdata.in .
