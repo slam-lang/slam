@@ -4,6 +4,7 @@ The Slam Compiler, written in Slam
 Started by:
   Preston Precourt (prestosilver) 2022
 
+TODO: check for multiple definitions
 TODO: Merge the getasm functions
 TODO: Clean magic nums
 TODO: Track stack loop
@@ -115,6 +116,7 @@ enum
     CF_ENUM_START
     CF_CLASS
     CF_OF
+    CF_ASM
 end
 
 {
@@ -744,6 +746,17 @@ proc setclassname 0 0
   put disc
 
   classtab read
+  classname 
+  (map.in) if [
+    1 1 (log.level)
+    "ERR" "Attempt to redefine class `" (log.msg)
+    classname (log.cat) "`" (log.cat)
+    (lineappend)
+    (log.log)
+    (exit)
+  ]
+
+
   classname
   classstats
   (map.put)
@@ -854,6 +867,17 @@ proc addcproc 0 0
   ret
 end
 
+proc redeferr 0 0
+  1 1 (log.level)
+  "ERR" "Attempt to redefine proc `" (log.msg)
+  procname (getexpandedname) (log.cat) "`" (log.cat)
+  (lineappend)
+  (log.log)
+  (exit)
+
+  ret
+end
+
 {
 args:
 returns:
@@ -881,6 +905,8 @@ proc addproc 0 0
     cmdbuffer (cstr.tonum) 255 &&
     putc disc
     proctab read
+    procname (getexpandedname)
+    (map.in) if (redeferr)
     procname (getexpandedname)
     procstats
     (map.put) disc
@@ -1251,46 +1277,6 @@ proc writesubaddr 0 0
   `:` (writeout)
   (writeoutln)
 
-  ret
-end
-
-proc addpushblock 1 1
-  disc OP_PUSHP    
-  
-  proctab read blockbuffer (map.get)
-  procdata.kind . read
-  1 == if [
-    (writesubaddr)
-    `    mov rax, [ret_stack_rsp]\n` (writeout)
-    `    add rax, 8\n` (writeout)
-    `    mov qword [ret_stack_rsp], rax\n` (writeout)
-    `    mov qword [rax], addr_` (writeout)
-    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
-    `_` (writeout)
-    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
-    (writeoutln)
-    `    jmp addr_` (writeout)
-    blockbuffer 1 + (map.get)
-    procdata.addr .
-    read (int.cstr) (writeout)
-    (writeoutln)
-    
-    proctab read
-    blockbuffer 1 + (map.get)
-    procdata.kind . read
-    1 == if (noprocblock)
-    blockbuffer 1 + (map.get)
-    procdata.in . readc
-    blockbuffer 1 + swap (checkpopb)
-    blockbuffer 1 + (map.get)
-    procdata.out . readc
-    (addstackb)
-    disc
-    disc
-    0
-    OP_NOP
-  ]
-  swap disc
   ret
 end
 
@@ -2208,9 +2194,9 @@ proc getcmdasm 1 1
   ] copy IDENT_ASM == if [
     "asm" 0 (checkpop)
     0 (addstack)
-    `    ` (writeout)
-    cmdbuffer (inner) copy (cstr.len) swap (writeout)
-    (writeoutln)
+    parseflags
+    CF_ASM
+    put disc
     ret
   ] copy IDENT_CPROC == if [
     "cproc" 0 (checkpop)
@@ -2724,16 +2710,6 @@ proc addccall 0 0
   `    call ` (writeout)
   cmdbuffer 1 + copy (cstr.len) swap (writeout)
   (writeoutln)
-  {
-  `    push rax\n` (writeout)
-  `    sub rsp, ` (writeout)
-  cproctab read
-  cmdbuffer 1 + (map.get)
-  procdata.in .
-  readc
-  4 * (int.cstr) copy (cstr.len) swap (writeout)
-  (writeoutln)
-  }
 
   cproctab read
   cmdbuffer 1 + (map.get)
@@ -2815,11 +2791,27 @@ proc addcall 0 0
   ret
 end
 
+proc addasm 0 0
+  cmdbuffer (inner) copy (cstr.len) swap (writeout)
+  (writeoutln)
+  
+  parseflags
+  CF_NONE
+  put disc
+
+  ret
+end
+
 proc parsecmd 0 0
   cmdbuffer copy (cstr.len) +
   READSIZE cmdbuffer (cstr.len) -
   (mem.zero)
+  parseflags CF_ASM == if [
+    (addasm)
+    cmdbuffer (cstr.clear) disc
 
+    ret
+  ]
   cmdbuffer readc '{' == cmdbuffer (cstr.last) '}' == && if [
 
     cmdbuffer (cstr.clear) disc

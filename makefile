@@ -16,8 +16,6 @@ install: slam
 clean:
 	rm -f slam
 	rm -f slam-pyc
-	rm -f slam-gb
-	rm -f gb.gb gb.sav temp.o
 
 tester: slam
 	slam -o tests/test tests/test.slm
