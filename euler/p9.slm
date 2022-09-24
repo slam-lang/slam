@@ -1,5 +1,5 @@
 inc stdlib.slm
-inc math.slm
+inc imath.slm
 
 {
   a + b + c = 1000
@@ -15,8 +15,8 @@ proc main 0 0
       1 -
       covr
       covr 
-      covr + 1000 swap - (math.squared) swap (math.squared) swap -
-      covr (math.squared)
+      covr + 1000 swap - (imath.squared) swap (imath.squared) swap -
+      covr (imath.squared)
 
       == if [
         covr covr (int.print) (int.print)

@@ -4,7 +4,7 @@ The Slam Compiler, written in Slam
 Started by:
   Preston Precourt (prestosilver) 2022
 
-TODO: check for multiple definitions
+TODO: super class
 TODO: Merge the getasm functions
 TODO: Clean magic nums
 TODO: Track stack loop

@@ -1,5 +1,5 @@
 inc stdlib/testin.slm
-inc stdlib/math.slm
+inc fmath.slm
 inc stdlib.slm
 
 proc main 0 0

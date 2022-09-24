@@ -55,7 +55,6 @@ proc main 0 0
   "Call Inherited Block" (testin.next)
 
     (bar.get) "get" (testin.cstreq)
-
   ]
 
   (testin.done)

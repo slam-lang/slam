@@ -1,2 +1,4 @@
+"slam-lang/stdlib" req
+"slam-lang/math" req
 "" src
 "slam" bin
