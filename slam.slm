@@ -2806,7 +2806,7 @@ proc parsecmd 0 0
   cmdbuffer copy (cstr.len) +
   READSIZE cmdbuffer (cstr.len) -
   (mem.zero)
-  parseflags CF_ASM == if [
+  parseflags read CF_ASM == if [
     (addasm)
     cmdbuffer (cstr.clear) disc
 
