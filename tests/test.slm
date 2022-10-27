@@ -1,7 +1,7 @@
 inc stdlib/os.slm
 inc stdlib.slm
 
-const TEST_COUNT 13
+const TEST_COUNT 12
 
 var tmpbuffer 128
 var tmpname 64
@@ -48,10 +48,10 @@ proc runtest 1 0
 
   tmpbuffer (os.execcmd)
 
-  3 1 (log.level)
-  "SUT" "Run: " (log.msg)
-  copy (log.cat)
-  (log.log)
+  (cstr.cr)
+  "# " (cstr.print)
+  copy (cstr.println)
+  (cstr.cr)
 
   tmpbuffer
   slamexec put int.SIZE +
@@ -63,11 +63,16 @@ proc runtest 1 0
   tmpbuffer (os.execcmd)
   
   os.waitsig read 0 != if [
+    "- Test Failed to compile, code="  (cstr.print)
+    os.waitsig read (int.print)
+    
+    "```" (cstr.println)
     tmpbuffer (runcmdstdout)
-    1 1 (log.level)
-    "BAD" "Test Failed to compile, code=" (log.msg)
-    os.waitsig read (int.cstr) (log.cat)
-    (log.log)
+    "```" (cstr.println)
+    
+    failed
+    copy readc 1 +
+    putc disc
 
     ret
   ]
@@ -79,10 +84,8 @@ proc runtest 1 0
   tmpbuffer (runcmdstdout)
   
   os.waitsig read 0 != if [
-    1 1 (log.level)
-    "BAD" "Test Failed, code=" (log.msg)
-    os.waitsig read (int.cstr) (log.cat)
-    (log.log)
+    "- Test Failed, code=" (cstr.print)
+    os.waitsig read (int.cstr) (cstr.println)
 
     failed
     copy readc 1 +
@@ -98,8 +101,7 @@ proc runtest 1 0
 end
 
 proc main 0 0
-  slamexec "HOME" (os.env) (cstr.copy) disc
-  "/.local/slam/bin/slam" (cstr.cat) disc
+  slamexec "/usr/bin/slam" (cstr.copy) disc disc
 
   0
   do
@@ -114,23 +116,18 @@ proc main 0 0
   end
   disc
   (cstr.cr)
+  "# Results" (cstr.println)
+  (cstr.cr)
 
-  2 1 (log.level)
-  "PAS" "Passed " (log.msg)
-  passed readc (int.cstr) (log.cat)
-  " Tests" (log.cat)
-  (log.log)
+  "- Passed: " (cstr.print)
+  passed readc
+  (int.print)
 
+  "- Failed: " (cstr.print)
   failed readc
-  copy 0 != if [
-    1 1 (log.level)
-    "ERR" "Failed " (log.msg)
-    copy (int.cstr) (log.cat)
-    " Tests" (log.cat)
-    (log.log)
+  (int.print)
 
-    disc 255
-  ]
-  quit
+  failed readc quit
+
   ret
 end

@@ -1,62 +1,16 @@
 inc stdlib/testin.slm
-
-class foo
-  proc get 0 1
-    "get"
-
-    ret
-  end
-
-  proc name 0 1
-    "foo"
-    
-    ret
-  end
-end
-
-class bar of foo
-  proc name 0 1
-    "bar"
-
-    ret
-  end
-end
+inc fmath.slm
+inc stdlib.slm
 
 proc main 0 0
-  "Call function" (testin.setup)
+  "Create float" (testin.setup)
 
-    (bar.name) "bar" (testin.cstreq)
-    
-  "Call override" (testin.next)
+    10000 (float.fromint)
 
-    (foo.name) "foo" (testin.cstreq)
-
-  "Call Function" (testin.next)
-
-    (foo.get) "get" (testin.cstreq)
-
-  "Call Inherited" (testin.next)
-
-    (bar.get) "get" (testin.cstreq)
-
-  [
-  "Call function Block" (testin.setup)
-
-    (bar.name) "bar" (testin.cstreq)
-    
-  "Call override Block" (testin.next)
-
-    (foo.name) "foo" (testin.cstreq)
-
-  "Call Function Block" (testin.next)
-
-    (foo.get) "get" (testin.cstreq)
-
-  "Call Inherited Block" (testin.next)
-
-    (bar.get) "get" (testin.cstreq)
-  ]
-
+  "Check value" (testin.next)
+  
+    1176256512 (testin.eq)
+  
   (testin.done)
 
   ret
