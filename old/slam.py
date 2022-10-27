@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+
+"""
+Quick disclaimer, I dislike python, this is mostly ripped from porth with changes to parse slam
+"""
+
 import argparse
 import shlex
 import subprocess
@@ -851,7 +856,10 @@ def parse_program(text, consts = {}, multi = False):
                 proc_block.pop()
         
         elif func == "inc":
+            if data[idx][0] == "\"":
+              data[idx] = data[idx][1:-1]
             if not includepath + "/" + data[idx] in inc:
+                print(data[idx])
                 inc.append(includepath + "/" + data[idx])
                 with open(includepath + "/" + data[idx], "r") as file:
                     (program, values) = parse_program(file.read())
