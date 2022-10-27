@@ -1,0 +1,9 @@
+inc "compiler/node.slm"
+
+class assembler
+  proc visitnode 1 0
+    disc
+    
+    ret
+  end
+end

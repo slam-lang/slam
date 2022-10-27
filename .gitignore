@@ -2,6 +2,7 @@
 *.asm
 *.o
 slam
+slam2
 temp/**
 slam-gb
 slam-pyc

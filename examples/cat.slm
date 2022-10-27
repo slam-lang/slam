@@ -1,5 +1,5 @@
-inc stdlib.slm
-inc os.slm
+inc "stdlib.slm"
+inc "os.slm"
 
 var inputfd 8
 var inputbuffer 129

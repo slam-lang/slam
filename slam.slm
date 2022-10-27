@@ -18,13 +18,15 @@ FIX: class inheritance issue with oper procs
 FIX: cmdexec dosent check for command
 FIX: cmdexec $PATH
 FIX: \ on boundry
-}
-inc stdlib.slm
-inc stdlib/log.slm
-inc stdlib/os.slm
-inc stdlib/mem.slm
-inc stdlib/maps.slm
-inc stdlib/arrays.slm
+} 
+inc "stdlib.slm"
+inc "stdlib/log.slm"
+inc "stdlib/os.slm"
+inc "stdlib/mem.slm"
+inc "stdlib/maps.slm"
+inc "stdlib/arrays.slm"
+
+{inc compiler/sim.slm}
 
 proc version 0 1
   "0.4.3" ret
@@ -272,6 +274,7 @@ proc getescape 1 1
   copy 'n' == if [ disc 10 ret ]
   copy 't' == if [ disc 9  ret ]
   copy '0' == if [ disc 0  ret ]
+
   ret
 end
 
@@ -1048,7 +1051,9 @@ proc addinc 0 0
   includebuffer
   includepath (cstr.copy) disc
   "/" (cstr.cat)
-  cmdbuffer (cstr.cat)
+  cmdbuffer copy readc '"' == if [
+    (inner)
+  ] (cstr.cat)
   disc
 
   parseflags
@@ -2817,7 +2822,9 @@ proc parsecmd 0 0
     cmdbuffer (cstr.clear) disc
     ret
   ]
-  cmdbuffer readc '"' == cmdbuffer (cstr.last) '"' == && if [
+  cmdbuffer readc '"' == cmdbuffer (cstr.last) '"' == &&
+  parseflags read CF_NONE == &&
+  if [
     (writeaddr)
 
     cmdbuffer (inner)

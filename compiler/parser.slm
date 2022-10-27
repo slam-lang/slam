@@ -1,0 +1,700 @@
+inc "compiler/token.slm"
+inc "compiler/node.slm"
+inc "stdlib/arrays.slm"
+inc "stdlib/mem.slm"
+
+class parser
+  prop tokens int.SIZE
+  prop idx int.SIZE
+  prop current int.SIZE
+
+  var tmp int.SIZE
+
+  proc new 1 1
+    parser.tmp
+    int.SIZE 3 *
+    (heap.alloc) put disc
+
+    parser.tmp read parser.tokens . swap put disc
+    parser.tmp read parser.idx . -1 put disc
+
+    parser.tmp read
+
+    ret
+  end
+
+  proc free 1 0
+    copy parser.tokens . read (llist.free)
+    (heap.free)
+
+    ret
+  end
+
+  proc advance 1 1
+    parser.tmp swap put disc
+
+    parser.tmp read parser.idx .
+    copy read 1 +
+    put disc
+
+    parser.tmp read parser.current . NULL put disc
+
+    parser.tmp read parser.idx . read
+    parser.tmp read parser.tokens . read (llist.len) < if [
+      parser.tmp read parser.current .
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      (llist.ptrat)
+      put disc
+    ]
+    parser.tmp read
+
+    ret
+  end
+
+  proc parseret 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_RET != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    INK_RETURN
+    (intrdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsecopy 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_COPY != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    INK_COPY
+    (intrdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsedisc 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_DISC != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    INK_DISC
+    (intrdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsenum 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_CONST_NUMBER != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    CNK_NUMBER
+    0
+    (constdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsestring 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_CONST_STRING != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    CNK_STRING
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (constdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parseword 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    CNK_WORD
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (constdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsecall 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_PAREN != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (calldata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parseinc 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_INC != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_CONST_STRING != if [
+      parser.tmp read parser.idx .
+      copy read 2 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (incdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc parsecomment 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_COMMENT != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    (commentdata.new)
+
+    (slmnode.new)
+
+    ret
+  end
+
+  var procstart int.SIZE
+
+  proc parseproc 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.procstart
+    parser.tmp read parser.idx . read
+    put disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_PROC != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 2 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER != if [
+      parser.tmp read parser.idx .
+      copy read 3 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER != if [
+      parser.tmp read parser.idx .
+      copy read 4 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    
+    BNK_PROC
+    (blockdata.new)
+  
+    do
+      (parser.parsecomment)
+      copy NULL == if [disc (parser.parseret)]
+      copy NULL == if [disc (parser.parsecall)]
+      copy NULL == if [disc (parser.parseword)]
+      copy NULL == if [disc (parser.parsenum)]
+      copy NULL == if [disc (parser.parsestring)]
+      copy NULL == if [disc (parser.parsecopy)]
+      copy NULL == if [disc (parser.parsedisc)]
+
+      copy NULL != if [swap covr (blockdata.append) swap]
+    end
+    swap disc
+    parser.tmp read (parser.advance) disc
+
+    (slmnode.new)
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_END != if [
+      disc
+      parser.tmp read parser.idx .
+      parser.procstart read
+      put disc
+      NULL ret
+    ]
+
+    ret
+  end
+
+  proc parseenum 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.procstart
+    parser.tmp read parser.idx . read
+    put disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_ENUM != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    
+    BNK_ENUM
+    (blockdata.new)
+  
+    do
+      (parser.parseword)
+      copy NULL == if [disc (parser.parsenum)]
+
+      copy NULL != if [swap covr (blockdata.append) swap]
+    end
+    swap disc
+    parser.tmp read (parser.advance) disc
+
+    (slmnode.new)
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_END != if [
+      disc
+      parser.tmp read parser.idx .
+      parser.procstart read
+      put disc
+      NULL ret
+    ]
+
+    ret
+  end
+
+  var varname int.SIZE
+
+  proc parseprop 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_PROP != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 2 -
+      put disc
+      NULL ret
+    ]
+
+    parser.varname
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read (parser.advance) disc
+
+    NULL
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+
+      parser.varname read
+      CNK_WORD
+      parser.tmp read parser.current . read slmtoken.value . read
+      (propdata.new)
+
+      (slmnode.new)
+    ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+      
+      parser.varname read
+      CNK_NUMBER
+      parser.tmp read parser.current . read slmtoken.value . read
+      (propdata.new)
+
+      (slmnode.new)
+    ]
+
+    ret
+  end
+
+  proc parseconst 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 2 -
+      put disc
+      NULL ret
+    ]
+
+    parser.varname
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read (parser.advance) disc
+
+    NULL
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+
+      parser.varname read
+      CNK_WORD
+      parser.tmp read parser.current . read slmtoken.value . read
+      (defdata.new)
+
+      (slmnode.new)
+    ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+      
+      parser.varname read
+      CNK_NUMBER
+      parser.tmp read parser.current . read slmtoken.value . read
+      (defdata.new)
+
+      (slmnode.new)
+    ]
+
+    ret
+  end
+
+  proc parsevar 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_VAR != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 2 -
+      put disc
+      NULL ret
+    ]
+
+    parser.varname
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read (parser.advance) disc
+
+    NULL
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+
+      parser.varname read
+      CNK_WORD
+      parser.tmp read parser.current . read slmtoken.value . read
+      (vardata.new)
+
+      (slmnode.new)
+
+      copy (slmnode.print)
+    ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER == if [
+      disc
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read
+      1 - (llist.ptrat) slmtoken.start .
+      parser.tmp read parser.current . read slmtoken.stop .
+      
+      parser.varname read
+      CNK_NUMBER
+      parser.tmp read parser.current . read slmtoken.value . read
+      (vardata.new)
+
+      (slmnode.new)
+
+      copy (slmnode.print)
+    ]
+
+    ret
+  end
+
+  var classstart int.SIZE
+
+  proc parseclass 0 1
+    parser.tmp read (parser.advance) disc
+
+    parser.classstart
+    parser.tmp read parser.idx . read
+    put disc
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CLASS != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+    
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      copy read 1 -
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    
+    BNK_CLASS
+    (blockdata.new)
+  
+    do
+      (parser.parseproc)
+      copy NULL == if [disc (parser.parsecomment)]
+      copy NULL == if [disc (parser.parseenum)]
+      copy NULL == if [disc (parser.parseprop)]
+      copy NULL == if [disc (parser.parseconst)]
+      copy NULL == if [disc (parser.parsevar)]
+
+      copy NULL != if [
+        copy (slmnode.print)
+
+        swap covr (blockdata.append) swap
+      ]
+    end
+    swap disc
+    parser.tmp read (parser.advance) disc
+
+    (slmnode.new)
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_END != if [
+      disc
+      parser.tmp read parser.idx .
+      parser.classstart read
+      put disc
+      NULL ret
+    ]
+
+    ret
+  end
+
+  proc parsefile 0 1
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start . filepos.filename . read
+    (filedata.new)
+
+    do
+      (parser.parseinc)
+      copy NULL == if [disc (parser.parseproc)]
+      copy NULL == if [disc (parser.parseclass)]
+      copy NULL == if [disc (parser.parsevar)]
+      copy NULL == if [disc (parser.parseconst)]
+      copy NULL == if [disc (parser.parsecomment)]
+      copy NULL == if [disc (parser.parseenum)]
+
+      copy NULL != if [swap covr (filedata.append) swap]
+    end
+    swap disc
+
+    (slmnode.new)
+
+    ret
+  end
+
+  proc run 1 1
+    parser.tmp swap put disc
+    (parser.parsefile)
+    parser.tmp read (parser.free)
+
+    ret
+  end
+end

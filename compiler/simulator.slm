@@ -1,0 +1,164 @@
+inc "compiler/node.slm"
+
+class simulator
+  const SUCCESS 1
+  const FAIL 0
+
+  var root int.SIZE
+  var visit int.SIZE
+  var file int.SIZE
+
+  var consttab int.SIZE
+  var proctab int.SIZE
+
+  proc visitconst 1 1
+    disc    
+
+    "CONST" (cstr.println)
+
+    simulator.SUCCESS
+
+    ret
+  end
+
+  proc visitinc 1 1
+    simulator.file read
+
+    covr slmnode.data . read incdata.include . read
+    str.data .
+    copy (cstr.println)
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+
+    simulator.visit read ()
+    swap
+
+    simulator.file swap put disc
+
+    disc
+
+    ret
+  end
+
+  proc visitfile 1 1
+    simulator.file
+    covr slmnode.data . read filedata.name . read
+    put disc
+  
+    copy slmnode.data . read filedata.childcount . read
+
+    0 == if [
+      disc
+      simulator.SUCCESS
+      ret
+    ]
+
+    0
+    do
+      covr slmnode.data . read filedata.children .
+      covr int.SIZE * + read
+
+      simulator.visit read ()
+      simulator.FAIL == if [
+        disc
+        disc
+        simulator.FAIL
+        ret
+      ]
+
+      1 +
+      covr slmnode.data . read filedata.childcount . read
+      covr >
+    end
+    disc
+    disc
+
+    simulator.SUCCESS
+
+    ret
+  end
+
+  proc visitblock 1 1
+    simulator.file
+    covr slmnode.data . read filedata.name . read
+    put disc
+  
+    copy slmnode.data . read filedata.childcount . read
+
+    0 == if [
+      disc
+      simulator.SUCCESS
+      ret
+    ]
+
+    0
+    do
+      covr slmnode.data . read filedata.children .
+      covr int.SIZE * + read
+
+      simulator.visit read ()
+      simulator.FAIL == if [
+        disc
+        disc
+        simulator.FAIL
+        ret
+      ]
+
+      1 +
+      covr slmnode.data . read filedata.childcount . read
+      covr >
+    end
+    disc
+    disc
+
+    simulator.SUCCESS
+
+    ret
+  end
+
+  proc visitnode 1 1
+    simulator.visit simulator.visitnode put disc
+
+    copy slmnode.data . read nodedata.kind . read
+    copy SNK_NULL == if [
+      disc disc
+      simulator.FAIL
+
+      ret
+    ]
+    copy SNK_INC == if [
+      disc
+      (simulator.visitinc)
+      
+      ret
+    ]
+    copy SNK_COMMENT == if [
+      disc disc
+      simulator.SUCCESS
+
+      ret
+    ]
+    copy SNK_FILE == if [
+      disc
+      (simulator.visitfile)
+      
+      ret
+    ]
+    copy SNK_BLOCK == if [
+      disc
+      (simulator.visitblock)
+      
+      ret
+    ]
+    copy SNK_CONST == if [
+      disc
+      (simulator.visitconst)
+      
+      ret
+    ]
+    disc (slmnode.print)
+
+    simulator.FAIL
+    ret
+  end
+end

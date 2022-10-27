@@ -1,0 +1,11 @@
+inc "compiler/node.slm"
+
+{ lol }
+
+proc dostuff 0 0
+  'l' dump
+  'o' dump
+  'l' dump
+
+  ret
+end

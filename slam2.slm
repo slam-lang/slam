@@ -1,0 +1,26 @@
+{
+slam2
+}
+inc "compiler/node.slm"
+inc "compiler/lexer.slm"
+inc "compiler/parser.slm"
+inc "compiler/simulator.slm"
+inc "stdlib/mem.slm"
+
+proc main 0 0
+  1 (os.args)
+  (lexer.new) (lexer.run)
+  slmtoken.print (llist.print)
+
+  "\n" (cstr.print)
+
+  (parser.new) (parser.run)
+  copy (slmnode.print)
+
+  (simulator.visitnode)
+
+  (int.print)
+
+  ret
+end
+
