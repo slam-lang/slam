@@ -13,6 +13,7 @@ Types are pointless.
 ## Inspiration
 
 - [porth](https://gitlab.com/tsoding/porth)
+- c
 
 ## Usage
 
@@ -45,41 +46,3 @@ Types are pointless.
 - `||` pops the last 2 items and ands them together
 - `!` pops the last ites and inverts the first bit
 - `sys[0-6]` syscalls
-
-### Includes
-
-compile with `-i {libpath}`
-
-```slm
-inc name.slm
-```
-
-### Proc definitons
-
-```slm
-{    name input output }
-proc main 0     0
-  {do stuff}
-
-  {return is required}
-  ret
-end
-```
-
-### Class definitions
-
-```slm
-inc stdlib.slm
-inc mem.slm
-
-class name
-  prop name int.SIZE
-  
-  proc new 0 1
-    8 (heap.alloc)
-    
-    ret  
-  end
-end
-```
-

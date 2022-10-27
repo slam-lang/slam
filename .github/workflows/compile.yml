@@ -10,10 +10,13 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    outputs:
+      status: ${{ steps.tests.outputs.test }}
     steps:
       - uses: ilammy/setup-nasm@v1
       - uses: stevenwdv/setup-fasm@v1
       - name: Create slam executable
+        id: compile
         run: |
           sudo cp $(which fasm) /usr/bin/fasm
           git clone http://github.com/slam-lang/spakig
@@ -22,7 +25,10 @@ jobs:
           ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
           ./spakig init
           cd ..
+      - name: Run tests
+        id: tests
+        run: |
           git clone http://github.com/slam-lang/slam
           cd slam/tests
           ~/.local/slam/bin/slam -o test test.slm
-          ./test
+          ./test >> $GITHUB_OUTPUT
