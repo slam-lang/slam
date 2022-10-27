@@ -10,8 +10,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    outputs:
-      status: ${{ steps.tests.outputs.test }}
     steps:
       - uses: ilammy/setup-nasm@v1
       - uses: stevenwdv/setup-fasm@v1
@@ -31,4 +29,4 @@ jobs:
           git clone http://github.com/slam-lang/slam
           cd slam/tests
           ~/.local/slam/bin/slam -o test test.slm
-          ./test >> $GITHUB_OUTPUT
+          ./test >> $GITHUB_STEP_SUMMARY
