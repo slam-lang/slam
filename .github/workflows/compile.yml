@@ -11,7 +11,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: ilammy/setup-nasm@v1
       - uses: stevenwdv/setup-fasm@v1
       - name: Create slam executable
         id: compile
