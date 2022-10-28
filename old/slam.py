@@ -363,7 +363,7 @@ def compile_inst(out, op, ip, start):
         out.write("    add rax, 8\n")
         out.write("    mov qword [ret_stack_rsp], rax\n")
         out.write("    mov qword [rax], %s_%d\n" % (start, ip + 1))
-        out.write("    jmp [rbx]\n")
+        out.write("    jmp qword [rbx]\n")
     elif op[0] == OP_QUIT:
         out.write("    mov rax, 60\n")
         out.write("    pop rdi\n")
@@ -390,7 +390,7 @@ def compile_inst(out, op, ip, start):
         out.write("    sub rax, 8\n")
         out.write("    mov qword [ret_stack_rsp], rax\n")
         out.write("    add rax, 8\n")
-        out.write("    jmp [rax]\n")
+        out.write("    jmp qword [rax]\n")
     elif op[0] == OP_LOCX:
         locs[op[1]] = start + "_%d" % ip
     elif op[0] == OP_JUMPX:
@@ -468,9 +468,9 @@ def compile_program(program):
         procs = {}
         memsize = 0 
         
-        out.write("BITS 64\n")
-        out.write("segment .text\n")
-        out.write("extern malloc\n")
+        out.write("format ELF64\n")
+        out.write("section '.text' executable\n")
+        out.write("public _start\n\n")
         out.write("print:\n")
         out.write("    mov r10, rsp\n")
         out.write("    sub rsp, 8\n")
@@ -491,7 +491,6 @@ def compile_program(program):
 
         out.write("addr_%d:\n" % len(program))
         out.write("    ret\n")
-        out.write("global _start\n")
         out.write("_start:\n")
         out.write("    mov qword [args_ptr], rsp\n")
         out.write("    mov qword [ret_stack_rsp], ret_stack\n")
@@ -502,15 +501,15 @@ def compile_program(program):
         out.write("    mov rax, 60\n")
         out.write("    mov rdi, 0x0\n")
         out.write("    syscall\n")
-        out.write("segment .data\n")
+        out.write("section '.data'\n")
         for index, s in enumerate(strs):
             out.write("str_%d: db %s\n" % (index, ','.join(map(str, list(s)))))
-        out.write("segment .bss\n")
-        out.write("args_ptr: resq 1\n")
-        out.write("ret_stack_rsp: resq 1\n")
-        out.write("ret_stack: resb %d\n" % (64 * 1024)) 
+        out.write("section '.bss'\n")
+        out.write("args_ptr: rq 1\n")
+        out.write("ret_stack_rsp: rq 1\n")
+        out.write("ret_stack: rb %d\n" % (64 * 1024)) 
         out.write("ret_stack_end:\n")
-        out.write("mem: resb %d\n" % memsize)
+        out.write("mem: rb %d\n" % memsize)
 
 singles = {
         "dump": [
@@ -1026,8 +1025,8 @@ def main():
         simulate_program(program)
     else:
         compile_program(program)
-        cmd_call_echoed(["nasm", "-f", "elf64", "output.asm"], args.silent)
-        cmd_call_echoed(["ld", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-o", args.output, "-lc", "output.o"], args.silent)
+        cmd_call_echoed(["fasm", "-m", "524288", "output.asm", "output.o"], args.silent)
+        cmd_call_echoed(["ld", "-dynamic-linker", "/lib64/ld-linux-x86-64.so.2", "-o", args.output, "-lc", "-melf_x86_64", "output.o"], args.silent)
 
 if __name__ == "__main__":
     main()
