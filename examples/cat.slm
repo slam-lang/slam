@@ -16,7 +16,7 @@ proc main 0 0
     do
       127
       inputbuffer (cstr.clear)
-      inputfd read (os.read)
+      inputfd read (os.readf)
       inputbuffer (cstr.print)
       0 !=
     end

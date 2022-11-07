@@ -1,26 +1,182 @@
 {
 slam2
 }
-inc "compiler/node.slm"
 inc "compiler/lexer.slm"
 inc "compiler/parser.slm"
 inc "compiler/simulator.slm"
+inc "compiler/assembler.slm"
+inc "compiler/writer.slm"
 inc "stdlib/mem.slm"
 
-proc main 0 0
-  1 (os.args)
-  (lexer.new) (lexer.run)
-  slmtoken.print (llist.print)
+proc version 0 1
+  "2.0.0" ret
+end
 
-  "\n" (cstr.print)
+enum
+0   HELP_SHOW
+    HELP_VERSION
+    HELP_ARGS
+    HELP_OUTPUT
+end
 
-  (parser.new) (parser.run)
-  copy (slmnode.print)
+enum
+0   TARGET_ASM
+    TARGET_SIM
+end
 
-  (simulator.visitnode)
+var target int.SIZE
+var targetfile int.SIZE
+var targetout int.SIZE
+var targetoutasm int.SIZE
 
-  (int.print)
+{
+args: int
+result:
+
+prints a help string
+}
+proc help 1 0
+  copy HELP_VERSION == if [
+    "slam compiler v" (cstr.print) (version) (cstr.println)
+    disc 0 quit
+  ]
+  copy HELP_ARGS == if [
+    "ERROR: You must compile exactly 1 file"
+    (cstr.println)
+  ]
+  copy HELP_OUTPUT == if [
+    "ERROR: Last argument supplied requires a parameter"
+    (cstr.println)
+  ]
+  "slam compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
+  (cstr.cr)
+  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
+  (cstr.cr)
+  "-v            shows the version and exits."      (cstr.println)
+  "-h, --help    shows this help message."          (cstr.println)
+  "-s, --sim     runs the file with the simulator." (cstr.println)
+  "-a, --asm     assembles the file."               (cstr.println)
+  "-o, --output  selects the output file."          (cstr.println)
+  disc
+  
+  0 quit
 
   ret
 end
 
+proc setinput 1 0
+  targetfile read NULL != if [ disc ret ]
+  targetfile swap (os.args) put disc
+
+  ret
+end
+
+{
+args: int
+result: int
+
+sets the output flag to the argument
+}
+proc setoutput 1 1
+    copy argc 1 - > if [ HELP_OUTPUT (help) ]
+
+    targetout
+    covr (os.args)
+    put disc
+
+    targetoutasm read
+    targetout read copy (cstr.len) swap (str.sput)
+    ".asm" (str.catc)
+    disc
+
+    ret
+end
+
+{
+args: ptr int
+result: int int
+
+checks the string for a match with an argument
+if so returns 0 and runs argument
+otherwise returns 1
+}
+proc applyarg 2 2
+  copy "-h" (cstr.eq)
+  if [ disc HELP_SHOW (help) 0 ret ]
+  copy "--help" (cstr.eq)
+  if [ disc HELP_SHOW (help) 0 ret ]
+  copy "-v" (cstr.eq)
+  if [ disc HELP_VERSION (help) 0 ret ]
+  copy "--sim" (cstr.eq)
+  if [ disc target TARGET_SIM put disc 0 ret ]
+  copy "-s" (cstr.eq)
+  if [ disc target TARGET_SIM put disc 0 ret ]
+  copy "--asm" (cstr.eq)
+  if [ disc target TARGET_ASM put disc 0 ret ]
+  copy "-a" (cstr.eq)
+  if [ disc target TARGET_ASM put disc 0 ret ]
+  copy "-o" (cstr.eq)
+  if [ disc 1 + (setoutput) 0 ret ]
+  disc
+  1 ret
+end
+
+proc main 0 0
+  { only cmd, then show help }
+  1 argc == if [ HELP_ARGS (help) ]
+
+  targetout "out" put disc
+
+  targetoutasm (str.new) put disc
+
+  targetoutasm read
+  `out.asm` (str.sput)
+  disc
+
+  { iterate through args }
+  0
+  do
+    { increment }
+    1 +
+
+    { get argument }
+    copy (os.args)
+
+    {try to apply the argument}
+    (applyarg) if [ copy (setinput) ]
+
+    {loop if more args}
+    copy argc 1 - <
+  end
+  disc
+
+  targetfile read NULL == if [ HELP_ARGS (help) ]
+  
+  target read
+  copy TARGET_ASM == if [
+    disc
+
+    targetfile read
+
+    bool.false
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+    
+    targetoutasm read str.data .
+    (writer.open)
+
+    (writer.header)
+
+    (assembler.visitnode)
+    disc
+    
+    (writer.footer)
+    
+    0 quit
+  ]
+  disc
+
+  1 quit
+
+  ret
+end

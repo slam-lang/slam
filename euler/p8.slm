@@ -18,7 +18,7 @@ proc main 0 0
     do
       1
       covr thirteen +
-      inputfd read (os.read) 0 == if [
+      inputfd read (os.readf) 0 == if [
         maxval read (int.print)
         quit
       ]

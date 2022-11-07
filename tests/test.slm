@@ -101,14 +101,14 @@ proc runtest 1 0
 end
 
 proc main 0 0
-  slamexec "HOME" (os.env) (cstr.copy) disc
+  slamexec "HOME" (os.env) (cstr.cpy) disc
   "/.local/slam/bin/slam" (cstr.cat) disc
 
   0
   do
     1 +
     tmpname (cstr.clear)
-    "test" (cstr.copy) disc
+    "test" (cstr.cpy) disc
     covr (int.cstr) (cstr.cat)
     ".slm" (cstr.cat)
     (runtest)

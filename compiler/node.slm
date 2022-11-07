@@ -11,6 +11,7 @@ enum
 0   SNK_NULL
     SNK_FILE
     SNK_INC
+    SNK_OF
     SNK_BLOCK
     SNK_INTR
     SNK_CALL
@@ -27,12 +28,39 @@ enum
     BNK_PROC
     BNK_ENUM
     BNK_DO
+    BNK_IF
 end
 
 enum
 0   INK_RETURN
     INK_COPY
+    INK_READ
+    INK_READC
+    INK_PUT
+    INK_PUTC
     INK_DISC
+    INK_EQ
+    INK_NEQ
+    INK_LT
+    INK_GT
+    INK_ACCESS
+    INK_COVR
+    INK_SWAP
+    INK_ADD
+    INK_SUB
+    INK_MUL
+    INK_AND
+    INK_NOT
+    INK_OR
+    INK_DIVMOD
+    INK_QUIT
+    INK_SYS0
+    INK_SYS1
+    INK_SYS2
+    INK_SYS3
+    INK_SYS4
+    INK_SYS5
+    INK_SYS6
 end
 
 enum
@@ -101,6 +129,32 @@ class incdata of nodedata
   end
 end
 
+class ofdata of nodedata
+  prop kind int.SIZE
+  prop inherit int.SIZE
+
+  proc new 1 1
+    nodedata.tmp
+    int.SIZE 2 *
+    (heap.alloc)
+    put disc
+
+    nodedata.tmp read ofdata.kind . SNK_OF put disc
+    nodedata.tmp read ofdata.inherit . swap put disc
+
+    nodedata.tmp read
+
+    ret
+  end
+
+  proc print 1 0
+    """ (cstr.print)
+    ofdata.inherit . read (str.print)
+    """ (cstr.print)
+    ret
+  end
+end
+
 class commentdata of nodedata
   prop kind int.SIZE
 
@@ -145,6 +199,17 @@ class intrdata of nodedata
     covr INK_RETURN == if [ disc "ret" ]
     covr INK_COPY == if [ disc "copy" ]
     covr INK_DISC == if [ disc "disc" ]
+    covr INK_READ == if [ disc "read" ]
+    covr INK_READC == if [ disc "readc" ]
+    covr INK_EQ == if [ disc "equal" ]
+    covr INK_ACCESS == if [ disc "access" ]
+    covr INK_COVR == if [ disc "covr" ]
+    covr INK_SWAP == if [ disc "swap" ]
+    covr INK_ADD == if [ disc "add" ]
+    covr INK_SUB == if [ disc "sub" ]
+    covr INK_MUL == if [ disc "mul" ]
+    covr INK_DIVMOD == if [ disc "divmod" ]
+    covr INK_QUIT == if [ disc "quit" ]
     swap disc
 
     (cstr.print)
@@ -277,7 +342,7 @@ class propdata of nodedata
 
     nodedata.tmp read propdata.propkind . read
     nodedata.tmp read propdata.propvalue . read
-    covr CNK_NUMBER == if [ (str.print) disc ret ]
+    covr CNK_NUMBER == if [ (int.cstr) (cstr.print) disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
     disc disc
 
@@ -409,12 +474,15 @@ end
 class blockdata of nodedata
   prop kind int.SIZE
   prop blockkind int.SIZE
+  prop blockname int.SIZE
+  prop blockin int.SIZE
+  prop blockout int.SIZE
 
   {child array}
   prop childcount int.SIZE
   prop children 0
 
-  proc new 1 1
+  proc new 4 1
     nodedata.tmp
     int.SIZE 3 *
     (heap.alloc)
@@ -423,6 +491,9 @@ class blockdata of nodedata
     nodedata.tmp read blockdata.kind . SNK_BLOCK put disc
     nodedata.tmp read blockdata.childcount . 0 put disc
     nodedata.tmp read blockdata.blockkind . swap put disc
+    nodedata.tmp read blockdata.blockout . swap put disc
+    nodedata.tmp read blockdata.blockin . swap put disc
+    nodedata.tmp read blockdata.blockname . swap put disc
 
     nodedata.tmp read
 
@@ -503,7 +574,7 @@ class slmnode
 
   proc print 1 0
     copy NULL == if [
-      "ERR" "Could not convert NULL to string " (log.msg)
+      "ERR" "Could not convert node NULL to string " (log.msg)
       (log.log)
       1 quit
     ]
@@ -542,6 +613,15 @@ class slmnode
       slmnode.tmp read
       slmnode.data . read
       (incdata.print)
+
+      ">" (cstr.print)
+      disc ret
+    ]
+    copy SNK_OF == if [
+      "<OF: " (cstr.print)
+      slmnode.tmp read
+      slmnode.data . read
+      (ofdata.print)
 
       ">" (cstr.print)
       disc ret
@@ -621,9 +701,9 @@ class slmnode
 
     slmnode.result read slmnode.data . swap put disc
     slmnode.result read slmnode.start . swap
-    filepos.SIZE (mem.copy)
+    filepos.SIZE (mem.cpy)
     slmnode.result read slmnode.stop . swap
-    filepos.SIZE (mem.copy)
+    filepos.SIZE (mem.cpy)
 
     slmnode.result read
     ret

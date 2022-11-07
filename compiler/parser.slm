@@ -8,6 +8,8 @@ class parser
   prop idx int.SIZE
   prop current int.SIZE
 
+  var inblock int.SIZE
+  var startstack int.SIZE
   var tmp int.SIZE
 
   proc new 1 1
@@ -27,6 +29,8 @@ class parser
     copy parser.tokens . read (llist.free)
     (heap.free)
 
+    parser.startstack read (seq.free)
+
     ret
   end
 
@@ -35,6 +39,7 @@ class parser
 
     parser.tmp read parser.idx .
     copy read 1 +
+    copy 0 < if [ disc 0 ]
     put disc
 
     parser.tmp read parser.current . NULL put disc
@@ -53,12 +58,17 @@ class parser
   end
 
   proc parseret 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_RET != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -73,64 +83,88 @@ class parser
 
     (slmnode.new)
 
-    ret
-  end
-
-  proc parsecopy 0 1
-    parser.tmp read (parser.advance) disc
-
-    parser.tmp read parser.current . read slmtoken.type . read 
-    STK_COPY != if [
-      parser.tmp read parser.idx .
-      copy read 1 -
-      put disc
-      NULL ret
-    ]
-
-    parser.tmp read parser.tokens . read
-    parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.current . read slmtoken.stop .
-    
-    INK_COPY
-    (intrdata.new)
-
-    (slmnode.new)
+    parser.startstack read (seq.popaddr) disc disc
 
     ret
   end
+  
+  proc subintr 2 1
+    parser.tmp read parser.current . read slmtoken.type . read
+    == if [
+      parser.tmp read parser.tokens . read
+      parser.tmp read parser.idx . read 1 - (llist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.current . read slmtoken.stop . swap
+      
+      (intrdata.new)
 
-  proc parsedisc 0 1
-    parser.tmp read (parser.advance) disc
+      (slmnode.new)
 
-    parser.tmp read parser.current . read slmtoken.type . read 
-    STK_DISC != if [
-      parser.tmp read parser.idx .
-      copy read 1 -
-      put disc
-      NULL ret
+      parser.startstack read (seq.popaddr) disc disc
+      ret
     ]
+    disc
 
-    parser.tmp read parser.tokens . read
+    NULL
+    ret
+  end
+  
+  proc parseintr 0 1
+    parser.startstack read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.current . read slmtoken.stop .
-    
-    INK_DISC
-    (intrdata.new)
+    (seq.pushint) disc
 
-    (slmnode.new)
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    INK_COPY STK_COPY (parser.subintr) copy NULL != if [ ret ] disc
+    INK_COVR STK_COVR (parser.subintr) copy NULL != if [ ret ] disc 
+    INK_DISC STK_DISC (parser.subintr) copy NULL != if [ ret ] disc
+    INK_AND STK_AND (parser.subintr) copy NULL != if [ ret ] disc
+    INK_OR STK_OR (parser.subintr) copy NULL != if [ ret ] disc
+    INK_NOT STK_NOT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_READ STK_READ (parser.subintr) copy NULL != if [ ret ] disc
+    INK_READC STK_READC (parser.subintr) copy NULL != if [ ret ] disc
+    INK_PUT STK_PUT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_PUTC STK_PUTC (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SWAP STK_SWAP (parser.subintr) copy NULL != if [ ret ] disc
+    INK_ADD STK_ADD (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SUB STK_SUB (parser.subintr) copy NULL != if [ ret ] disc
+    INK_MUL STK_MUL (parser.subintr) copy NULL != if [ ret ] disc
+    INK_DIVMOD STK_DIVMOD (parser.subintr) copy NULL != if [ ret ] disc
+    INK_ACCESS STK_ACCESS (parser.subintr) copy NULL != if [ ret ] disc
+    INK_EQ STK_EQ (parser.subintr) copy NULL != if [ ret ] disc
+    INK_NEQ STK_NEQ (parser.subintr) copy NULL != if [ ret ] disc
+    INK_LT STK_LT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_GT STK_GT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_QUIT STK_QUIT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS0 STK_SYS0 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS1 STK_SYS1 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS2 STK_SYS2 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS3 STK_SYS3 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS4 STK_SYS4 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS5 STK_SYS5 (parser.subintr) copy NULL != if [ ret ] disc
+    INK_SYS6 STK_SYS6 (parser.subintr) copy NULL != if [ ret ] disc
+
+    parser.tmp read parser.idx .
+    parser.startstack read (seq.popaddr) read swap disc
+    put disc
+    NULL ret
 
     ret
   end
 
   proc parsenum 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_CONST_NUMBER != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -146,16 +180,24 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
   proc parsestring 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_STRING != if [
+    copy STK_CONST_STRING !=
+    swap STK_CONST_SSTRING != && if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -171,16 +213,23 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
   proc parseword 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_WORD != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -196,16 +245,23 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
   proc parsecall 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_PAREN != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -220,26 +276,34 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
   proc parseinc 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+    
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_INC != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_CONST_STRING != if [
       parser.tmp read parser.idx .
-      copy read 2 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -254,16 +318,65 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
+    ret
+  end
+
+  proc parseof 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+    
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_OF != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (ofdata.new)
+
+    (slmnode.new)
+
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
   proc parsecomment 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_COMMENT != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -277,52 +390,23 @@ class parser
 
     (slmnode.new)
 
+    parser.startstack read (seq.popaddr) disc disc
+
     ret
   end
 
-  var procstart int.SIZE
-
-  proc parseproc 0 1
-    parser.tmp read (parser.advance) disc
-
-    parser.procstart
+  proc parseif 0 1
+    parser.startstack read
     parser.tmp read parser.idx . read
-    put disc
-
-    parser.tmp read parser.current . read slmtoken.type . read
-    STK_PROC != if [
-      parser.tmp read parser.idx .
-      copy read 1 -
-      put disc
-      NULL ret
-    ]
+    (seq.pushint) disc
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
-    STK_WORD != if [
+    STK_IF != if [
       parser.tmp read parser.idx .
-      copy read 2 -
-      put disc
-      NULL ret
-    ]
-
-    parser.tmp read (parser.advance) disc
-
-    parser.tmp read parser.current . read slmtoken.type . read
-    STK_CONST_NUMBER != if [
-      parser.tmp read parser.idx .
-      copy read 3 -
-      put disc
-      NULL ret
-    ]
-
-    parser.tmp read (parser.advance) disc
-
-    parser.tmp read parser.current . read slmtoken.type . read
-    STK_CONST_NUMBER != if [
-      parser.tmp read parser.idx .
-      copy read 4 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -330,23 +414,22 @@ class parser
     parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
     parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
     
-    BNK_PROC
+    NULL
+    0
+    0
+    BNK_IF
     (blockdata.new)
   
     do
-      (parser.parsecomment)
-      copy NULL == if [disc (parser.parseret)]
-      copy NULL == if [disc (parser.parsecall)]
-      copy NULL == if [disc (parser.parseword)]
-      copy NULL == if [disc (parser.parsenum)]
-      copy NULL == if [disc (parser.parsestring)]
-      copy NULL == if [disc (parser.parsecopy)]
-      copy NULL == if [disc (parser.parsedisc)]
+      NULL
+      parser.inblock read ()
 
-      copy NULL != if [swap covr (blockdata.append) swap]
+      copy NULL != if [ swap covr (blockdata.append) swap ]
     end
     swap disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ disc disc disc NULL ret ]
 
     (slmnode.new)
 
@@ -354,25 +437,185 @@ class parser
     STK_END != if [
       disc
       parser.tmp read parser.idx .
-      parser.procstart read
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
+
+    parser.startstack read (seq.popaddr) disc disc
+
+    ret
+  end
+
+  proc parsedo 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_DO != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    
+    NULL
+    0
+    0
+    BNK_DO
+    (blockdata.new)
+  
+    do
+      NULL
+      parser.inblock read ()
+
+      copy NULL != if [ swap covr (blockdata.append) swap ]
+    end
+    swap disc
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ disc disc disc NULL ret ]
+
+    (slmnode.new)
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_END != if [
+      disc
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.startstack read (seq.popaddr) disc disc
+
+    ret
+  end
+
+  var procname int.SIZE
+  var procin int.SIZE
+  var procout int.SIZE
+
+  proc parseproc 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_OPER == if [
+      parser.tmp read (parser.advance) disc
+    ]
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_PROC != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_WORD != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.procname
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.procin
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_CONST_NUMBER != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.procout
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
+    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+  
+    parser.procname read
+    parser.procin read
+    parser.procout read
+    BNK_PROC
+    (blockdata.new)
+  
+    do
+      NULL
+      parser.inblock read ()
+
+      copy NULL != if [ swap covr (blockdata.append) swap ]
+    end
+    swap disc
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ disc disc disc NULL ret ]
+
+    (slmnode.new)
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_END != if [
+      disc
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.startstack read (seq.popaddr) disc disc
 
     ret
   end
 
   proc parseenum 0 1
-    parser.tmp read (parser.advance) disc
-
-    parser.procstart
+    parser.startstack read
     parser.tmp read parser.idx . read
-    put disc
+    (seq.pushint) disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_ENUM != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -380,17 +623,21 @@ class parser
     parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
     parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
     
+    NULL
+    0
+    0
     BNK_ENUM
     (blockdata.new)
   
     do
       (parser.parseword)
-      copy NULL == if [disc (parser.parsenum)]
+      copy NULL == if [ disc (parser.parsenum) ]
 
-      copy NULL != if [swap covr (blockdata.append) swap]
+      copy NULL != if [ swap covr (blockdata.append) swap ]
     end
     swap disc
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ disc disc disc NULL ret ]
 
     (slmnode.new)
 
@@ -398,10 +645,12 @@ class parser
     STK_END != if [
       disc
       parser.tmp read parser.idx .
-      parser.procstart read
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
+
+    parser.startstack read (seq.popaddr) disc disc
 
     ret
   end
@@ -409,22 +658,28 @@ class parser
   var varname int.SIZE
 
   proc parseprop 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_PROP != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_WORD != if [
       parser.tmp read parser.idx .
-      copy read 2 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -434,6 +689,7 @@ class parser
     put disc
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     NULL
     parser.tmp read parser.current . read slmtoken.type . read
@@ -450,6 +706,10 @@ class parser
       (propdata.new)
 
       (slmnode.new)
+
+      parser.startstack read (seq.popaddr) disc disc
+
+      ret
     ]
 
     parser.tmp read parser.current . read slmtoken.type . read
@@ -463,31 +723,45 @@ class parser
       parser.varname read
       CNK_NUMBER
       parser.tmp read parser.current . read slmtoken.value . read
+      str.data . (cstr.tonum)
       (propdata.new)
 
       (slmnode.new)
+
+      parser.startstack read (seq.popaddr) disc disc
+      
+      ret
     ]
+    parser.tmp read parser.idx .
+    parser.startstack read (seq.popaddr) read swap disc
+    put disc
 
     ret
   end
 
   proc parseconst 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_CONST != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_WORD != if [
       parser.tmp read parser.idx .
-      copy read 2 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -497,6 +771,7 @@ class parser
     put disc
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     NULL
     parser.tmp read parser.current . read slmtoken.type . read
@@ -513,6 +788,10 @@ class parser
       (defdata.new)
 
       (slmnode.new)
+
+      parser.startstack read (seq.popaddr) disc disc
+      
+      ret
     ]
 
     parser.tmp read parser.current . read slmtoken.type . read
@@ -529,28 +808,41 @@ class parser
       (defdata.new)
 
       (slmnode.new)
+
+      parser.startstack read (seq.popaddr) disc disc
+      
+      ret
     ]
+    parser.tmp read parser.idx .
+    parser.startstack read (seq.popaddr) read swap disc
+    put disc
 
     ret
   end
 
   proc parsevar 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_VAR != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_WORD != if [
       parser.tmp read parser.idx .
-      copy read 2 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
@@ -560,6 +852,7 @@ class parser
     put disc
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     NULL
     parser.tmp read parser.current . read slmtoken.type . read
@@ -577,7 +870,9 @@ class parser
 
       (slmnode.new)
 
-      copy (slmnode.print)
+      parser.startstack read (seq.popaddr) disc disc
+      
+      ret
     ]
 
     parser.tmp read parser.current . read slmtoken.type . read
@@ -595,72 +890,87 @@ class parser
 
       (slmnode.new)
 
-      copy (slmnode.print)
+      parser.startstack read (seq.popaddr) disc disc
+      
+      ret
     ]
+
+    parser.tmp read parser.idx .
+    parser.startstack read (seq.popaddr) read swap disc
+    put disc
 
     ret
   end
 
-  var classstart int.SIZE
+  var classname int.SIZE
 
   proc parseclass 0 1
-    parser.tmp read (parser.advance) disc
-
-    parser.classstart
+    parser.startstack read
     parser.tmp read parser.idx . read
-    put disc
+    (seq.pushint) disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_CLASS != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
     
     parser.tmp read parser.current . read slmtoken.type . read
     STK_WORD != if [
       parser.tmp read parser.idx .
-      copy read 1 -
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
 
+    parser.classname
+    parser.tmp read parser.current . read slmtoken.value . read
+    put disc
+
     parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
     parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
     
+    parser.classname read
+    0
+    0
     BNK_CLASS
     (blockdata.new)
   
     do
       (parser.parseproc)
-      copy NULL == if [disc (parser.parsecomment)]
-      copy NULL == if [disc (parser.parseenum)]
-      copy NULL == if [disc (parser.parseprop)]
-      copy NULL == if [disc (parser.parseconst)]
-      copy NULL == if [disc (parser.parsevar)]
+      copy NULL == if [ disc (parser.parsecomment) ]
+      copy NULL == if [ disc (parser.parseenum) ]
+      copy NULL == if [ disc (parser.parseof) ]
+      copy NULL == if [ disc (parser.parseprop) ]
+      copy NULL == if [ disc (parser.parseconst) ]
+      copy NULL == if [ disc (parser.parsevar) ]
 
-      copy NULL != if [
-        copy (slmnode.print)
-
-        swap covr (blockdata.append) swap
-      ]
+      copy NULL != if [ swap covr (blockdata.append) swap ]
     end
     swap disc
     parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ disc disc disc NULL ret ]
 
     (slmnode.new)
 
     parser.tmp read parser.current . read slmtoken.type . read
     STK_END != if [
-      disc
+      (slmnode.print)
       parser.tmp read parser.idx .
-      parser.classstart read
+      parser.startstack read (seq.popaddr) read swap disc
       put disc
       NULL ret
     ]
+
+    parser.startstack read (seq.popaddr) disc disc
 
     ret
   end
@@ -674,14 +984,14 @@ class parser
 
     do
       (parser.parseinc)
-      copy NULL == if [disc (parser.parseproc)]
-      copy NULL == if [disc (parser.parseclass)]
-      copy NULL == if [disc (parser.parsevar)]
-      copy NULL == if [disc (parser.parseconst)]
-      copy NULL == if [disc (parser.parsecomment)]
-      copy NULL == if [disc (parser.parseenum)]
+      copy NULL == if [ disc (parser.parseclass) ]
+      copy NULL == if [ disc (parser.parsecomment) ]
+      copy NULL == if [ disc (parser.parseproc) ]
+      copy NULL == if [ disc (parser.parsevar) ]
+      copy NULL == if [ disc (parser.parseconst) ]
+      copy NULL == if [ disc (parser.parseenum) ]
 
-      copy NULL != if [swap covr (filedata.append) swap]
+      copy NULL != if [ swap covr (filedata.append) swap ]
     end
     swap disc
 
@@ -690,9 +1000,34 @@ class parser
     ret
   end
 
+  proc parseinblock 1 1
+    copy NULL == if [ disc (parser.parsenum) ]
+    copy NULL == if [ disc (parser.parsecall) ]
+    copy NULL == if [ disc (parser.parsecomment) ]
+    copy NULL == if [ disc (parser.parseintr) ]
+    copy NULL == if [ disc (parser.parseword) ]
+    copy NULL == if [ disc (parser.parseret) ]
+    copy NULL == if [ disc (parser.parseif) ]
+    copy NULL == if [ disc (parser.parsedo) ]
+    copy NULL == if [ disc (parser.parsestring) ]
+
+    ret
+  end
+
   proc run 1 1
+    "[PRS] " (cstr.println)
+
+    parser.startstack int.SIZE 2048 (seq.new) put disc
+
+    parser.inblock parser.parseinblock put disc
+
     parser.tmp swap put disc
     (parser.parsefile)
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL != if [
+      parser.tmp read parser.current . read (slmtoken.print) disc (cstr.cr)
+      1 quit
+    ]
     parser.tmp read (parser.free)
 
     ret

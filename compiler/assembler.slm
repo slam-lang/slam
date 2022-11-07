@@ -1,9 +1,957 @@
 inc "compiler/node.slm"
+inc "compiler/writer.slm"
+inc "stdlib/maps.slm"
+
+{the size of a key for the proc, const table}
+const TAB_KEY_SIZE   64
 
 class assembler
-  proc visitnode 1 0
+  const SUCCESS 0
+  const FAIL 1
+
+  var root int.SIZE
+  var visit int.SIZE
+  var file int.SIZE
+
+  var blockstack int.SIZE
+  var consttab int.SIZE
+  var vartab int.SIZE
+  var varpos int.SIZE
+
+  var classsize int.SIZE
+  var curcall int.SIZE
+  var laststring int.SIZE
+  var classname int.SIZE
+
+  var includedtab int.SIZE
+
+  var tmpname int.SIZE
+
+  var tmpchar 2
+
+  proc getconst 1 1
+    assembler.consttab read covr (map.in) if [
+      covr (map.get) read
+      swap disc
+      swap disc
+      ret
+    ] disc
+
+    ret
+  end
+
+  var itemp int.SIZE
+
+  proc internalname 1 1
+    assembler.itemp swap put disc
+
+    assembler.tmpname read
+    str.size . 0 put disc
+
+    0
+    do
+      copy
+      assembler.itemp read
+      str.data . +
+      readc 
+      copy assembler.tmpchar swap putc disc
+      copy '/' == if [
+        assembler.tmpname read
+        "slash" (str.catc)
+        disc disc 0
+      ]
+      copy '.' == if [
+        assembler.tmpname read
+        "_" (str.catc)
+        disc disc 0
+      ]
+      copy 0 != if [
+        assembler.tmpname read
+        assembler.tmpchar
+        (str.catc)
+        disc disc 0
+      ]
+      disc
+      
+      1 +
+      
+      copy
+      assembler.itemp read
+      str.size . read
+      <
+    end
     disc
+
+    assembler.tmpname read
+    copy
+    copy str.data .
+    swap str.size . read +
+    0 putc disc
+
+    ret
+  end
+
+  proc visitof 1 1
+    disc
+
+    assembler.SUCCESS
+
+    ret
+  end
+
+  proc visitword 1 1
+    assembler.consttab read covr (map.in) if [
+      covr (map.get) read
+      swap disc
+      swap disc
+      disc
+
+      assembler.FAIL
+
+      ret
+    ] disc
+    assembler.vartab read covr (map.in) if [
+      covr (map.get) read
+      swap disc
+      swap disc
+      disc
+
+      assembler.FAIL
+
+      ret
+    ] disc
+
+    disc
+    "    ; Word" (writer.writeln)
+
+    assembler.FAIL
     
+    ret
+  end
+
+  proc visitconst 1 1
+    copy constdata.constkind . read swap
+    covr CNK_NUMBER == if [
+      "    push qword " (writer.write)
+      copy constdata.constvalue . read
+      (int.cstr) (writer.write)
+      (writer.cr)
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_STRING == if [
+      "    push str_" (writer.write)
+      assembler.laststring read (int.cstr) (writer.writeln)
+
+      assembler.laststring copy
+      read 1 +
+      put disc
+
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_WORD == if [
+      swap disc
+      constdata.constvalue . read str.data .
+      (assembler.visitword)
+      ret
+    ]
+    disc
+    disc
+    assembler.FAIL
+    ret
+  end
+
+  var tmp int.SIZE
+  var tmpstr int.SIZE
+
+  proc getfullname 1 0
+
+    assembler.tmpstr read 0 != if [
+      assembler.tmpstr read 
+      (heap.free)
+    ]
+    assembler.tmpstr 64 (heap.zalloc) put disc
+
+    assembler.tmpstr read
+    assembler.classname read
+    copy NULL != if [
+      str.data . (cstr.cpy)
+
+      assembler.tmpstr read
+      "." (cstr.cat) disc
+    ] disc disc
+
+    assembler.tmpstr read
+    covr (cstr.cat)
+    disc
+    disc
+    ret
+  end
+  
+  proc visitdef 1 1
+    copy defdata.defkind . read swap
+    covr CNK_NUMBER == if [
+      
+      copy defdata.defname . read str.data .
+      (assembler.getfullname)
+
+      assembler.consttab read
+      covr defdata.defvalue . read
+      assembler.tmpstr read swap
+      (map.putat)
+      disc
+      disc
+      disc
+
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_STRING == if [
+
+      disc
+      disc
+      assembler.FAIL
+      ret
+    ]
+    disc
+    disc
+    assembler.FAIL
+
+    ret
+  end
+
+  proc visitprop 1 1
+    copy propdata.propkind . read swap
+    covr CNK_NUMBER == if [
+      copy propdata.propname . read str.data .
+      (assembler.getfullname)    
+    
+      assembler.consttab read
+      assembler.tmpstr read
+      assembler.classsize
+      (map.putat)
+      disc
+      
+      assembler.classsize
+      covr propdata.propvalue . read
+      assembler.classsize read +
+      put disc
+      
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_WORD == if [
+      copy propdata.propname . read str.data .
+      (assembler.getfullname)    
+
+      assembler.consttab read
+      assembler.tmpstr read
+      assembler.classsize
+      (map.putat)
+      disc
+      
+      assembler.classsize
+      covr propdata.propvalue . read str.data . 
+      (assembler.getconst)
+
+      assembler.classsize read +
+      put disc
+      
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    disc
+    disc
+    assembler.FAIL
+    ret
+  end
+
+  proc visitvar 1 1
+    copy vardata.varkind . read swap
+    covr CNK_NUMBER == if [
+      copy vardata.varname . read str.data .
+      (assembler.getfullname)
+
+      assembler.vartab read
+      assembler.tmpstr read
+      assembler.varpos
+      (map.putat)
+      disc
+
+      assembler.varpos
+      covr vardata.varvalue . read
+      assembler.varpos read +
+      put disc
+      
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_WORD == if [
+      copy vardata.varname . read str.data .
+      (assembler.getfullname)
+      
+      assembler.vartab read
+      assembler.tmpstr read
+      assembler.varpos
+      (map.putat)
+      disc
+
+      assembler.varpos
+      covr vardata.varvalue . read str.data . 
+      (assembler.getconst)
+      
+      assembler.varpos read +
+      put disc
+      
+      disc
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    swap disc
+
+    ret
+  end
+
+  proc visitcall 1 1
+    calldata.callee . read
+    "    mov rax, [ret_stack_rsp]\n" (writer.write)
+    "    add rax, 8\n" (writer.write)
+    "    mov qword [ret_stack_rsp], rax\n" (writer.write)
+    "    mov qword [rax], .call_" (writer.write)
+    assembler.curcall read (int.cstr) (writer.writeln)
+    "    jmp proc_" (writer.write)
+    (assembler.internalname)
+    str.data . (writer.writeln)
+    ".call_" (writer.write)
+    assembler.curcall read (int.cstr) (writer.write)
+    ":" (writer.writeln)
+
+    assembler.curcall copy
+    read 1 +
+    put disc
+
+    assembler.SUCCESS
+    
+    ret
+  end
+
+  proc visitintr 1 1
+    copy intrdata.intrkind . read swap
+    covr INK_RETURN == if [
+      "    mov rax, [ret_stack_rsp]\n" (writer.write)
+      "    sub rax, 8\n" (writer.write)
+      "    mov qword [ret_stack_rsp], rax\n" (writer.write)
+      "    add rax, 8\n" (writer.write)
+      "    jmp qword [rax]\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_COPY == if [
+      "    pop rax\n" (writer.write)
+      "    push rax\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SWAP == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_COVR == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_READ == if [
+      "    pop rax\n" (writer.write)
+      "    xor rbx, rbx\n" (writer.write)
+      "    mov rbx, [rax]\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_READC == if [
+      "    pop rax\n" (writer.write)
+      "    xor rbx, rbx\n" (writer.write)
+      "    mov bl, [rax]\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_PUT == if [
+      "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    mov qword [rax], rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_PUTC == if [
+      "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    mov byte [rax], bl\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_EQ == if [
+      "    mov rcx, 0\n" (writer.write)
+      "    mov rdx, 1\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    cmp rax, rbx\n" (writer.write)
+      "    cmove rcx, rdx\n" (writer.write)
+      "    push rcx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_NEQ == if [
+      "    mov rcx, 0\n" (writer.write)
+      "    mov rdx, 1\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    cmp rax, rbx\n" (writer.write)
+      "    cmovne rcx, rdx\n" (writer.write)
+      "    push rcx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_NOT == if [
+      "    pop rax\n" (writer.write)
+      "    xor rax, 1\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_LT == if [
+      "    mov rcx, 0\n" (writer.write)
+      "    mov rdx, 1\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    cmp rax, rbx\n" (writer.write)
+      "    cmovl rcx, rdx\n" (writer.write)
+      "    push rcx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_GT == if [
+      "    mov rcx, 0\n" (writer.write)
+      "    mov rdx, 1\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    cmp rax, rbx\n" (writer.write)
+      "    cmovg rcx, rdx\n" (writer.write)
+      "    push rcx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_AND == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    and rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_OR == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    or rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_ADD == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    add rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_ACCESS == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    add rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_MUL == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    imul rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_DIVMOD == if [
+      "    xor rdx, rdx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    idiv rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
+      "    push rdx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SUB == if [
+      "    pop rax\n" (writer.write)
+      "    pop rbx\n" (writer.write)
+      "    sub rbx, rax\n" (writer.write)
+      "    push rbx\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS0 == if [
+      "    pop rax\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS1 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS2 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    pop rsi\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS3 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    pop rsi\n" (writer.write)
+      "    pop rdx\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS4 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    pop rsi\n" (writer.write)
+      "    pop rdx\n" (writer.write)
+      "    pop r10\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS5 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    pop rsi\n" (writer.write)
+      "    pop rdx\n" (writer.write)
+      "    pop r10\n" (writer.write)
+      "    pop r8\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_SYS5 == if [
+      "    pop rax\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    pop rsi\n" (writer.write)
+      "    pop rdx\n" (writer.write)
+      "    pop r10\n" (writer.write)
+      "    pop r8\n" (writer.write)
+      "    pop r9\n" (writer.write)
+      "    syscall\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_DISC == if [
+      "    pop rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_QUIT == if [
+      "    mov rax, 60\n" (writer.write)
+      "    pop rdi\n" (writer.write)
+      "    syscall\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    disc
+    disc
+    assembler.FAIL
+
+    ret
+  end
+
+  proc visitinc 1 1
+    assembler.file read
+
+    covr incdata.include . read
+    str.data .
+    copy assembler.includedtab read swap (map.in) swap disc if [
+      disc disc disc
+      assembler.SUCCESS
+      ret
+    ]
+    assembler.includedtab read covr
+    "y" (map.putat)
+    disc
+
+    bool.true
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+
+    assembler.visit read ()
+    swap
+
+    assembler.file swap put disc
+
+    swap disc
+
+    ret
+  end
+
+  proc visitfile 1 1
+    "[ASM] " (cstr.print)
+    copy filedata.name . read
+    (cstr.println)
+
+    assembler.file
+    covr filedata.name . read
+    put disc
+  
+    copy filedata.childcount . read
+
+    0 == if [
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+
+    0
+    do
+      covr filedata.children .
+      covr int.SIZE * + read
+
+      copy assembler.visit read ()
+      assembler.SUCCESS != if [
+        (slmnode.print)
+        (writer.cr)
+        disc
+        disc
+        assembler.FAIL
+        ret
+      ]
+
+      disc
+
+      1 +
+      covr filedata.childcount . read
+      covr >
+    end
+    disc
+    disc
+
+    assembler.SUCCESS
+
+    ret
+  end
+
+  proc addprochead 2 2
+    assembler.curcall 0 put disc
+    "proc_" (writer.write)
+    assembler.classname read
+    copy NULL != if [
+      (assembler.internalname)
+      str.data . (writer.write) 0
+      "_" (writer.write)
+    ] disc
+    covr blockdata.blockname . read
+    (assembler.internalname)
+    str.data . (writer.write)
+    ":" (writer.writeln)
+
+    ret
+  end
+
+  proc visitblock 1 1
+    copy blockdata.blockkind . read
+    copy BNK_CLASS == if [
+      assembler.classsize 0 put disc
+      "class_" (writer.write)
+      covr blockdata.blockname . read
+      (assembler.internalname)
+      str.data . (writer.write)
+      ":" (writer.writeln)
+      covr blockdata.blockname . read
+      assembler.classname swap
+      put disc
+    ]
+    copy BNK_PROC == if [
+      (assembler.addprochead)
+    ]
+    disc
+
+    copy blockdata.childcount . read
+
+    0 == if [
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+
+    0
+    do
+      covr blockdata.children .
+      covr int.SIZE * + read
+
+      copy assembler.visit read ()
+      assembler.SUCCESS != if [
+        (slmnode.print)
+        (writer.cr)
+        disc
+        disc
+        assembler.FAIL
+        ret
+      ]
+
+      disc
+
+      1 +
+      covr blockdata.childcount . read
+      covr >
+    end
+    disc
+    blockdata.blockkind . read
+    copy BNK_CLASS == if [
+      "SIZE"
+      (assembler.getfullname)
+    
+      assembler.consttab read
+      assembler.tmpstr read
+      assembler.classsize
+      (map.putat)
+      disc
+
+      assembler.classname
+      NULL
+      put disc
+    ]
+    disc
+
+    assembler.SUCCESS
+
+    ret
+  end
+
+  proc visitnode 1 1
+    assembler.blockstack read NULL == if [
+      assembler.blockstack int.SIZE (llist.new) put disc
+      assembler.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
+      assembler.vartab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
+      assembler.includedtab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
+      assembler.tmpname (str.new) put disc
+    ]
+    assembler.visit assembler.visitnode put disc
+
+    slmnode.data . read copy nodedata.kind . read
+    copy SNK_NULL == if [
+      disc disc
+      assembler.FAIL
+
+      ret
+    ]
+    copy SNK_INC == if [
+      disc
+      (assembler.visitinc)
+      
+      ret
+    ]
+    copy SNK_COMMENT == if [
+      disc disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    copy SNK_COMMENT == if [
+      disc disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    copy SNK_FILE == if [
+      disc
+      (assembler.visitfile)
+      
+      ret
+    ]
+    copy SNK_BLOCK == if [
+      disc
+      (assembler.visitblock)
+      
+      ret
+    ]
+    copy SNK_CONST == if [
+      disc
+      (assembler.visitconst)
+      
+      ret
+    ]
+    copy SNK_DEF == if [
+      disc
+      (assembler.visitdef)
+      
+      ret
+    ]
+    copy SNK_INTR == if [
+      disc
+      (assembler.visitintr)
+      
+      ret
+    ]
+    copy SNK_PROP == if [
+      disc
+      (assembler.visitprop)
+      
+      ret
+    ]
+    copy SNK_VAR == if [
+      disc
+      (assembler.visitvar)
+      
+      ret
+    ]
+    copy SNK_CALL == if [
+      disc
+      (assembler.visitcall)
+      
+      ret
+    ]
+    copy SNK_OF == if [
+      disc
+      (assembler.visitof)
+      
+      ret
+    ]
+    disc (slmnode.print)
+
+    assembler.FAIL
     ret
   end
 end

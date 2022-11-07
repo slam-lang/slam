@@ -33,7 +33,7 @@ proc main 0 0
     "Got connection" (cstr.println)
 
     http
-    cbuf (http.parseurl) urlbuf (cstr.clear) swap (cstr.copy) disc disc
+    cbuf (http.parseurl) urlbuf (cstr.clear) swap (cstr.cpy) disc disc
     respbuf 200 (http.getheader)
     swap disc
     "got connection" (cstr.println)

@@ -1,0 +1,74 @@
+inc "stdlib/os.slm"
+
+class writer
+  var fd int.SIZE
+
+  proc write 1 0
+    copy (cstr.len) swap writer.fd read (os.write)
+
+    ret
+  end
+
+  proc cr 0 0
+    "\n" (writer.write)
+
+    ret
+  end
+
+  proc writeln 1 0
+    (writer.write)
+    (writer.cr)
+
+    ret
+  end
+
+  proc header 0 0
+    "format ELF64\n" (writer.write)
+    "section '.text' executable\n" (writer.write)
+    "public _start\n\n" (writer.write)
+    "print:\n" (writer.write)
+    "    mov r10, rsp\n" (writer.write)
+    "    sub rsp, 8\n" (writer.write)
+    "    mov [rsp], al\n" (writer.write)
+    "    mov edi, 1\n" (writer.write)
+    "    mov rsi, rsp\n" (writer.write)
+    "    mov edx, 1\n" (writer.write)
+    "    mov eax, 1\n" (writer.write)
+    "    syscall\n" (writer.write)
+    "    mov rsp, r10\n" (writer.write)
+    "    ret\n" (writer.write)
+
+    ret
+  end
+
+  proc footer 0 0
+    "_start:\n" (writer.write)
+    "    mov qword [args_ptr], rsp\n" (writer.write)
+    "    mov qword [ret_stack_rsp], ret_stack\n" (writer.write)
+    "    mov rax, [ret_stack_rsp] \n" (writer.write)
+    "    mov qword [rax], quit\n" (writer.write)
+    "    jmp proc_main\n" (writer.write)
+    "quit:\n" (writer.write)
+    "    mov rax, 60\n" (writer.write)
+    "    mov rdi, 0\n" (writer.write)
+    "    syscall\n" (writer.write)
+    "section '.data'\n" (writer.write)
+    "section '.bss'\n" (writer.write)
+    "args_ptr: rq 1\n" (writer.write)
+    "ret_stack_rsp: rq 1\n" (writer.write)
+    "ret_stack: rb 65536\n" (writer.write)
+    "mem: rb 100\n" (writer.write)
+
+    ret
+  end
+
+  proc open 1 0
+    511 swap
+    65 swap
+    -100
+    (os.open)
+    writer.fd swap put disc
+
+    ret
+  end
+end

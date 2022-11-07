@@ -1,16 +1,28 @@
-inc stdlib.slm
-inc stdlib/log.slm
+inc "stdlib.slm"
+inc "stdlib/log.slm"
 
 enum
 0   STK_NULL
     STK_INC
+    STK_IF
+    STK_DO
     STK_PROC
     STK_CLASS
     STK_VAR
     STK_PROP
     STK_RET
     STK_ENUM
+    STK_OPER
+    STK_OF
+    STK_QUIT
+    STK_SIM
 
+    STK_READ
+    STK_READC
+    STK_PUT
+    STK_PUTC
+
+    STK_SWAP
     STK_COPY
     STK_COVR
     STK_DISC
@@ -20,6 +32,13 @@ enum
     STK_DIVMOD
     STK_CONST
     STK_ACCESS
+    STK_AND
+    STK_OR
+    STK_NOT
+    STK_EQ
+    STK_NEQ
+    STK_LT
+    STK_GT
 
     STK_BLOCK_START
     STK_BLOCK_END
@@ -27,10 +46,19 @@ enum
     
     STK_CONST_NUMBER
     STK_CONST_STRING
+    STK_CONST_SSTRING
 
     STK_WORD
     STK_PAREN
     STK_COMMENT
+    
+    STK_SYS0
+    STK_SYS1
+    STK_SYS2
+    STK_SYS3
+    STK_SYS4
+    STK_SYS5
+    STK_SYS6
 end
 
 {
@@ -105,6 +133,7 @@ class slmtoken
     covr STK_PROC == if [ disc "PROC" ]
     covr STK_CLASS == if [ disc "CLASS" ]
     covr STK_VAR == if [ disc "VAR" ]
+    covr STK_IF == if [ disc "IF" ]
     covr STK_ENUM == if [ disc "ENUM" ]
     covr STK_BLOCK_START == if [ disc "BLOCK START" ]
     covr STK_BLOCK_END == if [ disc "BLOCK END" ]
