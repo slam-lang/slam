@@ -15,11 +15,14 @@ class assembler
 
   var blockstack int.SIZE
   var consttab int.SIZE
+  var proctab int.SIZE
   var vartab int.SIZE
   var varpos int.SIZE
 
   var classsize int.SIZE
   var curcall int.SIZE
+  var curif int.SIZE
+  var curdo int.SIZE
   var laststring int.SIZE
   var classname int.SIZE
 
@@ -28,6 +31,9 @@ class assembler
   var tmpname int.SIZE
 
   var tmpchar 2
+
+  var procnamecstr TAB_KEY_SIZE
+
 
   proc getconst 1 1
     assembler.consttab read covr (map.in) if [
@@ -58,6 +64,11 @@ class assembler
       copy '/' == if [
         assembler.tmpname read
         "slash" (str.catc)
+        disc disc 0
+      ]
+      copy '%' == if [
+        assembler.tmpname read
+        "perc" (str.catc)
         disc disc 0
       ]
       copy '.' == if [
@@ -99,30 +110,60 @@ class assembler
     ret
   end
 
+  var blockprocname int.SIZE
+
   proc visitword 1 1
+    assembler.blockprocname read covr copy (cstr.len) swap (str.sput) disc
+    assembler.blockprocname read (assembler.internalname) disc
+
+    assembler.procnamecstr TAB_KEY_SIZE (mem.zero)
+    assembler.procnamecstr
+    assembler.tmpname read str.data . (cstr.cpy) disc disc
+
     assembler.consttab read covr (map.in) if [
       covr (map.get) read
-      swap disc
-      swap disc
+      "    push qword " (writer.write)
+      (int.cstr) (writer.write)
+      (writer.cr)
+
+      disc
       disc
 
-      assembler.FAIL
+      assembler.SUCCESS
 
       ret
     ] disc
     assembler.vartab read covr (map.in) if [
       covr (map.get) read
-      swap disc
-      swap disc
+      "    push mem+" (writer.write)
+      (int.cstr) (writer.write)
+      (writer.cr)
+
+      disc
       disc
 
-      assembler.FAIL
+      assembler.SUCCESS
 
       ret
     ] disc
+    assembler.proctab read assembler.procnamecstr (map.in) if [
+      "    push proc_" (writer.write)
 
+      assembler.procnamecstr
+      (writer.write)
+      (writer.cr)
+
+      disc
+      disc
+
+      assembler.SUCCESS
+
+      ret
+    ] disc
     disc
-    "    ; Word" (writer.writeln)
+    "    ; Word " (writer.write)
+    assembler.tmpname read str.data .
+    (writer.writeln)
 
     assembler.FAIL
     
@@ -143,13 +184,9 @@ class assembler
     ]
     covr CNK_STRING == if [
       "    push str_" (writer.write)
-      assembler.laststring read (int.cstr) (writer.writeln)
+      constdata.constvalue . (writer.addstr)
+      (writer.cr)
 
-      assembler.laststring copy
-      read 1 +
-      put disc
-
-      disc
       disc
       assembler.SUCCESS
       ret
@@ -170,7 +207,6 @@ class assembler
   var tmpstr int.SIZE
 
   proc getfullname 1 0
-
     assembler.tmpstr read 0 != if [
       assembler.tmpstr read 
       (heap.free)
@@ -288,7 +324,7 @@ class assembler
       disc
 
       assembler.varpos
-      covr vardata.varvalue . read
+      covr vardata.varvalue . read read
       assembler.varpos read +
       put disc
       
@@ -326,6 +362,27 @@ class assembler
 
   proc visitcall 1 1
     calldata.callee . read
+    copy str.data . "" (cstr.eq) if [
+      disc
+
+      "    pop rbx\n" (writer.write)
+      "    mov rax, [ret_stack_rsp]\n" (writer.write)
+      "    add rax, 8\n" (writer.write)
+      "    mov qword [ret_stack_rsp], rax\n" (writer.write)
+      "    mov qword [rax], .call_" (writer.write)
+      assembler.curcall read (int.cstr) (writer.writeln)
+      "    jmp qword rbx\n" (writer.write)
+      ".call_" (writer.write)
+      assembler.curcall read (int.cstr) (writer.write)
+      ":" (writer.writeln)
+      assembler.curcall copy
+      read 1 +
+      put disc
+
+      assembler.SUCCESS
+
+      ret
+    ]
     "    mov rax, [ret_stack_rsp]\n" (writer.write)
     "    add rax, 8\n" (writer.write)
     "    mov qword [ret_stack_rsp], rax\n" (writer.write)
@@ -365,6 +422,43 @@ class assembler
       "    pop rax\n" (writer.write)
       "    push rax\n" (writer.write)
       "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_ARGC == if [
+      "    mov rax, [args_ptr]\n" (writer.write)
+      "    mov rax, [rax]\n" (writer.write)
+      "    push rax\n" (writer.write)
+
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_ARGV == if [
+      "    mov rax, [args_ptr]\n" (writer.write)
+      "    add rax, 8\n" (writer.write)
+      "    push rax\n" (writer.write)
+
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
+    covr INK_ENVP == if [
+      "    mov rax, [args_ptr]\n" (writer.write)
+      "    add rax, [rax]\n" (writer.write)
+      "    add rax, 2\n" (writer.write)
+      "    shl rax, 3\n" (writer.write)
+      "    mov rbx, [args_ptr]\n" (writer.write)
+      "    add rbx, rax\n" (writer.write)
+      "    push rbx\n" (writer.write)
+
       disc
       disc
       assembler.SUCCESS
@@ -699,6 +793,15 @@ class assembler
     ret
   end
 
+  proc visitasm 1 1
+    "    " (writer.write)
+    asmdata.raw . read str.data . (writer.write)
+    (writer.cr)
+  
+    assembler.SUCCESS
+    ret
+  end
+
   proc visitinc 1 1
     assembler.file read
 
@@ -773,22 +876,98 @@ class assembler
     ret
   end
 
+  var procdata int.SIZE
+  var procname int.SIZE
+
   proc addprochead 2 2
+    assembler.procname read str.size . 0 put disc
+    assembler.procdata 1 put disc
+
     assembler.curcall 0 put disc
+    assembler.curif 0 put disc
     "proc_" (writer.write)
+    
     assembler.classname read
     copy NULL != if [
-      (assembler.internalname)
-      str.data . (writer.write) 0
-      "_" (writer.write)
+      (assembler.internalname) str.data .
+      assembler.procname read
+      swap (str.catc)
+      "_" (str.catc)
     ] disc
     covr blockdata.blockname . read
-    (assembler.internalname)
-    str.data . (writer.write)
+    (assembler.internalname) str.data . 
+
+    assembler.procname read
+    swap (str.catc) disc
+
+    assembler.procname read
+    copy str.data .
+    swap str.size . read +
+    0 putc disc
+
+    assembler.procnamecstr TAB_KEY_SIZE (mem.zero)
+    assembler.procnamecstr
+    assembler.procname read str.data . (cstr.cpy) disc disc
+
+
+
+    assembler.proctab read
+    assembler.procnamecstr
+    assembler.procdata
+    (map.putat) disc
+
+    assembler.procname read str.data . (writer.write)
     ":" (writer.writeln)
 
     ret
   end
+
+  var enumval int.SIZE
+
+  proc visitenum 1 1
+    copy blockdata.childcount . read
+    0 == if [
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+
+    assembler.enumval 0 put disc
+
+    0
+    do
+      covr blockdata.children .
+      covr int.SIZE * + read
+      slmnode.data . read
+      copy constdata.constkind . read swap
+      covr CNK_NUMBER == if [
+        assembler.enumval covr constdata.constvalue . read put disc
+      ]
+      covr CNK_WORD == if [
+        copy constdata.constvalue . read str.data .
+        (assembler.getfullname)
+      
+        assembler.consttab read
+        assembler.tmpstr read
+        assembler.enumval
+        (map.putat) disc
+      ]
+      disc
+      disc
+
+      1 +
+      covr blockdata.childcount . read
+      covr >
+    end
+    disc
+    disc
+
+    assembler.SUCCESS
+
+    ret
+  end
+
+  var blockends int.SIZE
 
   proc visitblock 1 1
     copy blockdata.blockkind . read
@@ -805,6 +984,31 @@ class assembler
     ]
     copy BNK_PROC == if [
       (assembler.addprochead)
+    ]
+    copy BNK_ENUM == if [
+      disc (assembler.visitenum)
+      ret
+    ]
+    copy BNK_IF == if [
+      "    pop rbx\n" (writer.write)
+      "    test rbx, rbx\n" (writer.write)
+      "    jz .if_" (writer.write)
+      assembler.curif read (int.cstr) (writer.writeln)
+      assembler.blockends read
+      assembler.curif read (seq.pushint) disc
+      assembler.curif copy
+      read 1 +
+      put disc
+    ]
+    copy BNK_DO == if [
+      ".do_" (writer.write)
+      assembler.curdo read (int.cstr) (writer.write)
+      ":" (writer.writeln)
+      assembler.blockends read
+      assembler.curdo read (seq.pushint) disc
+      assembler.curdo copy
+      read 1 +
+      put disc
     ]
     disc
 
@@ -853,6 +1057,19 @@ class assembler
       NULL
       put disc
     ]
+    copy BNK_IF == if [
+      ".if_" (writer.write)
+      assembler.blockends read (seq.popaddr) read (int.cstr) (writer.write)
+      ":" (writer.writeln)
+      disc
+    ]
+    copy BNK_DO == if [
+      "    pop rbx\n" (writer.write)
+      "    test rbx, rbx\n" (writer.write)
+      "    jnz .do_" (writer.write)
+      assembler.blockends read (seq.popaddr) read (int.cstr) (writer.writeln)
+      disc
+    ]
     disc
 
     assembler.SUCCESS
@@ -863,10 +1080,14 @@ class assembler
   proc visitnode 1 1
     assembler.blockstack read NULL == if [
       assembler.blockstack int.SIZE (llist.new) put disc
+      assembler.blockends int.SIZE 256 (seq.new) put disc
       assembler.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
+      assembler.proctab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.vartab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.includedtab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.tmpname (str.new) put disc
+      assembler.procname (str.new) put disc
+      assembler.blockprocname (str.new) put disc
     ]
     assembler.visit assembler.visitnode put disc
 
@@ -916,6 +1137,12 @@ class assembler
     copy SNK_DEF == if [
       disc
       (assembler.visitdef)
+      
+      ret
+    ]
+    copy SNK_ASM == if [
+      disc
+      (assembler.visitasm)
       
       ret
     ]

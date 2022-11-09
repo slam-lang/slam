@@ -11,6 +11,7 @@ enum
 0   SNK_NULL
     SNK_FILE
     SNK_INC
+    SNK_ASM
     SNK_OF
     SNK_BLOCK
     SNK_INTR
@@ -23,8 +24,7 @@ enum
 end
 
 enum
-0   BNK_BRACKET
-    BNK_CLASS
+0   BNK_CLASS
     BNK_PROC
     BNK_ENUM
     BNK_DO
@@ -54,6 +54,9 @@ enum
     INK_OR
     INK_DIVMOD
     INK_QUIT
+    INK_ARGV
+    INK_ARGC
+    INK_ENVP
     INK_SYS0
     INK_SYS1
     INK_SYS2
@@ -98,6 +101,32 @@ class calldata of nodedata
   proc print 1 0
     """ (cstr.print)
     calldata.callee . read (str.print)
+    """ (cstr.print)
+    ret
+  end
+end
+
+class asmdata of nodedata
+  prop kind int.SIZE
+  prop raw int.SIZE
+
+  proc new 1 1
+    nodedata.tmp
+    int.SIZE 2 *
+    (heap.alloc)
+    put disc
+
+    nodedata.tmp read asmdata.kind . SNK_ASM put disc
+    nodedata.tmp read asmdata.raw . swap put disc
+
+    nodedata.tmp read
+
+    ret
+  end
+
+  proc print 1 0
+    """ (cstr.print)
+    asmdata.raw . read (str.print)
     """ (cstr.print)
     ret
   end
@@ -530,8 +559,8 @@ class blockdata of nodedata
     covr BNK_CLASS == if [ disc "class" ]
     covr BNK_PROC == if [ disc "proc" ]
     covr BNK_ENUM == if [ disc "enum" ]
-    covr BNK_BRACKET == if [ disc "block" ]
     covr BNK_DO == if [ disc "do" ]
+    covr BNK_IF == if [ disc "if" ]
     swap disc
 
     (cstr.print)
@@ -613,6 +642,15 @@ class slmnode
       slmnode.tmp read
       slmnode.data . read
       (incdata.print)
+
+      ">" (cstr.print)
+      disc ret
+    ]
+    copy SNK_ASM == if [
+      "<ASM: " (cstr.print)
+      slmnode.tmp read
+      slmnode.data . read
+      (asmdata.print)
 
       ">" (cstr.print)
       disc ret

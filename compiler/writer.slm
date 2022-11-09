@@ -2,6 +2,7 @@ inc "stdlib/os.slm"
 
 class writer
   var fd int.SIZE
+  var strings int.SIZE
 
   proc write 1 0
     copy (cstr.len) swap writer.fd read (os.write)
@@ -18,6 +19,15 @@ class writer
   proc writeln 1 0
     (writer.write)
     (writer.cr)
+
+    ret
+  end
+
+  proc addstr 1 0
+    writer.strings read swap (llist.append) disc
+
+    writer.strings read (llist.len) 
+    1 - (int.cstr) (writer.write)
 
     ret
   end
@@ -41,6 +51,31 @@ class writer
     ret
   end
 
+  proc writestrings 0 0
+    writer.strings read (llist.len) 0 == if [ ret ]
+
+    0
+    do
+      writer.strings read 
+      covr (llist.ptrat)
+      copy NULL != if [
+        "str_" (writer.write)
+        covr (int.cstr) (writer.write)
+        ": rb "" (writer.write)
+        copy read str.data . (writer.write)
+        """ (writer.writeln)
+      ]
+      disc
+      
+      1 +
+
+      writer.strings read (llist.len) covr !=
+    end
+    disc
+
+    ret
+  end
+
   proc footer 0 0
     "_start:\n" (writer.write)
     "    mov qword [args_ptr], rsp\n" (writer.write)
@@ -53,6 +88,9 @@ class writer
     "    mov rdi, 0\n" (writer.write)
     "    syscall\n" (writer.write)
     "section '.data'\n" (writer.write)
+
+    (writer.writestrings)
+
     "section '.bss'\n" (writer.write)
     "args_ptr: rq 1\n" (writer.write)
     "ret_stack_rsp: rq 1\n" (writer.write)
@@ -69,6 +107,7 @@ class writer
     (os.open)
     writer.fd swap put disc
 
+    writer.strings int.SIZE (llist.new) put disc
     ret
   end
 end

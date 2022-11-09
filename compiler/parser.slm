@@ -136,6 +136,9 @@ class parser
     INK_NEQ STK_NEQ (parser.subintr) copy NULL != if [ ret ] disc
     INK_LT STK_LT (parser.subintr) copy NULL != if [ ret ] disc
     INK_GT STK_GT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_ARGV STK_ARGV (parser.subintr) copy NULL != if [ ret ] disc
+    INK_ARGC STK_ARGC (parser.subintr) copy NULL != if [ ret ] disc
+    INK_ENVP STK_ENVP (parser.subintr) copy NULL != if [ ret ] disc
     INK_QUIT STK_QUIT (parser.subintr) copy NULL != if [ ret ] disc
     INK_SYS0 STK_SYS0 (parser.subintr) copy NULL != if [ ret ] disc
     INK_SYS1 STK_SYS1 (parser.subintr) copy NULL != if [ ret ] disc
@@ -315,6 +318,48 @@ class parser
 
     parser.tmp read parser.current . read slmtoken.value . read 
     (incdata.new)
+
+    (slmnode.new)
+
+    parser.startstack read (seq.popaddr) disc disc
+
+    ret
+  end
+
+  proc parseasm 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+    
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_ASM != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_CONST_STRING != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (asmdata.new)
 
     (slmnode.new)
 
@@ -1010,6 +1055,7 @@ class parser
     copy NULL == if [ disc (parser.parseif) ]
     copy NULL == if [ disc (parser.parsedo) ]
     copy NULL == if [ disc (parser.parsestring) ]
+    copy NULL == if [ disc (parser.parseasm) ]
 
     ret
   end
