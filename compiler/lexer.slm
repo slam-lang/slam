@@ -315,6 +315,9 @@ class lexer
       copy "oper" (str.eq) if [
         lexer.tmp read lexer.token . slmtoken.type . STK_OPER put disc
       ]
+      copy "push" (str.eq) if [
+        lexer.tmp read lexer.token . slmtoken.type . STK_PUSH put disc
+      ]
       copy "read" (str.eq) if [
         lexer.tmp read lexer.token . slmtoken.type . STK_READ put disc
       ]
@@ -343,22 +346,22 @@ class lexer
         lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
       ]
       copy "sys1" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS1 put disc
       ]
       copy "sys2" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS2 put disc
       ]
       copy "sys3" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS3 put disc
       ]
       copy "sys4" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS4 put disc
       ]
       copy "sys5" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS5 put disc
       ]
       copy "sys6" (str.eq) if [
-        lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc
+        lexer.tmp read lexer.token . slmtoken.type . STK_SYS6 put disc
       ]
 
       str.data .

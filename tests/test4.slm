@@ -27,10 +27,10 @@ proc main 0 0
 
   "Push to a sequence" (testin.next)
 
-    "44" (seq.push)
-    "45" (seq.push)
-    "46" (seq.push)
-    "47" (seq.push)
+    "44" (seq.pushptr)
+    "45" (seq.pushptr)
+    "46" (seq.pushptr)
+    "47" (seq.pushptr)
 
   "Get the length and pointer of the sequence" (testin.next)
 

@@ -3,6 +3,11 @@ inc "compiler/node.slm"
 inc "stdlib/arrays.slm"
 inc "stdlib/mem.slm"
 
+enum
+0   PROC_OPER
+    PROC_PUSH
+end
+
 class parser
   prop tokens int.SIZE
   prop idx int.SIZE
@@ -178,7 +183,7 @@ class parser
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_NUMBER
-    0
+    parser.tmp read parser.current . read slmtoken.value . read
     (constdata.new)
 
     (slmnode.new)
@@ -197,8 +202,7 @@ class parser
     parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    copy STK_CONST_STRING !=
-    swap STK_CONST_SSTRING != && if [
+    STK_CONST_STRING != if [
       parser.tmp read parser.idx .
       parser.startstack read (seq.popaddr) read swap disc
       put disc
@@ -211,6 +215,38 @@ class parser
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_STRING
+    parser.tmp read parser.current . read slmtoken.value . read 
+    (constdata.new)
+
+    (slmnode.new)
+
+    parser.startstack read (seq.popaddr) disc disc
+
+    ret
+  end
+
+  proc parsesstring 0 1
+    parser.startstack read
+    parser.tmp read parser.idx . read
+    (seq.pushint) disc
+
+    parser.tmp read (parser.advance) disc
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read 
+    STK_CONST_SSTRING != if [
+      parser.tmp read parser.idx .
+      parser.startstack read (seq.popaddr) read swap disc
+      put disc
+      NULL ret
+    ]
+
+    parser.tmp read parser.tokens . read
+    parser.tmp read parser.idx . read
+    1 - (llist.ptrat) slmtoken.start .
+    parser.tmp read parser.current . read slmtoken.stop .
+    
+    CNK_SSTRING
     parser.tmp read parser.current . read slmtoken.value . read 
     (constdata.new)
 
@@ -546,6 +582,7 @@ class parser
   var procname int.SIZE
   var procin int.SIZE
   var procout int.SIZE
+  var prockind int.SIZE
 
   proc parseproc 0 1
     parser.startstack read
@@ -555,8 +592,18 @@ class parser
     parser.tmp read (parser.advance) disc
     parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
+    parser.prockind PROC_OPER put disc
+
     parser.tmp read parser.current . read slmtoken.type . read
     STK_OPER == if [
+      parser.prockind PROC_OPER put disc
+      parser.tmp read (parser.advance) disc
+    ]
+    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+
+    parser.tmp read parser.current . read slmtoken.type . read
+    STK_PUSH == if [
+      parser.prockind PROC_PUSH put disc
       parser.tmp read (parser.advance) disc
     ]
     parser.tmp read parser.current . read NULL == if [ NULL ret ]
@@ -1055,13 +1102,17 @@ class parser
     copy NULL == if [ disc (parser.parseif) ]
     copy NULL == if [ disc (parser.parsedo) ]
     copy NULL == if [ disc (parser.parsestring) ]
+    copy NULL == if [ disc (parser.parsesstring) ]
     copy NULL == if [ disc (parser.parseasm) ]
 
     ret
   end
 
   proc run 1 1
-    "[PRS] " (cstr.println)
+    "[PRS] " (cstr.print)
+    copy parser.tokens . read (llist.len)
+    (int.cstr) (cstr.print)
+    " tokens" (cstr.println)
 
     parser.startstack int.SIZE 2048 (seq.new) put disc
 

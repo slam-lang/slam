@@ -1,4 +1,4 @@
-default: slam
+default: clean slam s2.asm
 
 slam-pyc: old/slam.py
 	./old/slam.py -i ~/.local/slam/lib -o slam-pyc slam.slm
@@ -14,6 +14,8 @@ install: slam
 	cp -r lib ~/.local/slam/
 
 clean:
+	rm -f slam2
+	rm -f s2.asm
 	rm -f slam
 	rm -f slam-pyc
 
@@ -25,17 +27,9 @@ test: tester
 	rm tests/test -rf
 	rm tests/tester
 
-slam-gb: slam
-	slam -i lib -o slam-gb slam-gb.slm
+slam2:
+	cp -r compiler ~/.local/slam/lib/
+	slam -o slam2 slam2.slm	
 
-game/lol.2bpp: game/lol.png
-	rgbgfx -o game/lol.2bpp game/lol.png
-
-game/map.bin: game/map.tmx
-	nim r game/map.nim game/map.tmx game/map.bin
-
-gb.gb: slam-gb lib/gblib.slm game/gb.slm
-	./slam-gb -i lib/gblib.slm -o gb.gb game/gb.slm; exit 0
-
-run-gb: gb.gb
-	mgba-qt gb.gb
+s2.asm: slam2
+	./slam2 -o s2 slam2.slm	

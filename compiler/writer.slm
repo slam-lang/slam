@@ -3,6 +3,8 @@ inc "stdlib/os.slm"
 class writer
   var fd int.SIZE
   var strings int.SIZE
+  var tmem int.SIZE
+  var tmpstr int.SIZE
 
   proc write 1 0
     copy (cstr.len) swap writer.fd read (os.write)
@@ -22,12 +24,63 @@ class writer
 
     ret
   end
+  
+  var len int.SIZE
+
+  proc getlen 1 1
+    writer.tmpstr swap put disc
+
+    0
+    do
+      writer.tmpstr read str.data . covr + readc
+      '\' != if [
+        writer.len copy
+        read 1 +
+        put disc
+      ]
+      1 +
+      copy writer.tmpstr read str.size . read 1 - <
+    end
+    disc
+    
+    writer.len read
+
+    ret
+  end
 
   proc addstr 1 0
-    writer.strings read swap (llist.append) disc
+    writer.tmpstr swap put disc
 
-    writer.strings read (llist.len) 
-    1 - (int.cstr) (writer.write)
+    writer.strings read (llist.len) 0 == if [
+      writer.strings read 
+      writer.tmpstr read (llist.append) disc
+
+      writer.strings read (llist.len) 1 -
+      (int.cstr) (writer.write)
+      ret
+    ]
+
+    -1
+    do
+      1 +
+      writer.strings read 
+      covr (llist.ptrat) read
+
+      writer.tmpstr read read (str.seq) !
+      covr writer.strings read (llist.len) 1 - != &&
+    end
+
+    writer.strings read (llist.len) 1 - covr == if [
+      writer.strings read 
+      writer.tmpstr read (llist.append) disc
+
+      writer.strings read (llist.len) 1 -
+      (int.cstr) (writer.write)
+      disc
+      ret
+    ]
+
+    (int.cstr) (writer.write)
 
     ret
   end
@@ -51,6 +104,39 @@ class writer
     ret
   end
 
+  var escape int.SIZE
+
+  proc getescape 1 1
+    copy 'n' == if [ disc 10 ret ]
+    copy 't' == if [ disc 9 ret ]
+
+    ret
+  end
+
+  proc writestring 1 0
+    writer.tmpstr swap put disc
+    0
+    do
+      writer.tmpstr read str.data . covr + readc
+      writer.escape read if [
+        (writer.getescape)
+      ]
+      writer.escape bool.true put disc
+      copy '\' != if [
+        writer.escape bool.false put disc
+        (int.cstr) (writer.write)
+
+        ", " (writer.write) 0
+      ]
+      disc
+      1 +
+      copy writer.tmpstr read str.size . read 1 - <
+    end
+    disc
+
+    ret
+  end
+
   proc writestrings 0 0
     writer.strings read (llist.len) 0 == if [ ret ]
 
@@ -61,9 +147,9 @@ class writer
       copy NULL != if [
         "str_" (writer.write)
         covr (int.cstr) (writer.write)
-        ": rb "" (writer.write)
-        copy read str.data . (writer.write)
-        """ (writer.writeln)
+        ": db " (writer.write)
+        copy read (writer.writestring)
+        "0" (writer.writeln)
       ]
       disc
       
@@ -95,7 +181,8 @@ class writer
     "args_ptr: rq 1\n" (writer.write)
     "ret_stack_rsp: rq 1\n" (writer.write)
     "ret_stack: rb 65536\n" (writer.write)
-    "mem: rb 100\n" (writer.write)
+    "mem: rb " (writer.write)
+    writer.tmem read (int.cstr) (writer.writeln)
 
     ret
   end

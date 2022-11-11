@@ -1,5 +1,0 @@
-proc main 0 0
-  main ()
-
-  ret
-end

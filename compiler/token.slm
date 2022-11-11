@@ -13,6 +13,7 @@ enum
     STK_RET
     STK_ENUM
     STK_OPER
+    STK_PUSH
     STK_OF
     STK_QUIT
     STK_SIM

@@ -3,7 +3,7 @@ inc "compiler/writer.slm"
 inc "stdlib/maps.slm"
 
 {the size of a key for the proc, const table}
-const TAB_KEY_SIZE   64
+const TAB_KEY_SIZE  64
 
 class assembler
   const SUCCESS 0
@@ -17,7 +17,6 @@ class assembler
   var consttab int.SIZE
   var proctab int.SIZE
   var vartab int.SIZE
-  var varpos int.SIZE
 
   var classsize int.SIZE
   var curcall int.SIZE
@@ -174,8 +173,8 @@ class assembler
     copy constdata.constkind . read swap
     covr CNK_NUMBER == if [
       "    push qword " (writer.write)
-      copy constdata.constvalue . read
-      (int.cstr) (writer.write)
+      copy constdata.constvalue . read str.data . 
+      (writer.write)
       (writer.cr)
       disc
       disc
@@ -183,6 +182,17 @@ class assembler
       ret
     ]
     covr CNK_STRING == if [
+      "    push str_" (writer.write)
+      constdata.constvalue . (writer.addstr)
+      (writer.cr)
+
+      disc
+      assembler.SUCCESS
+      ret
+    ]
+    covr CNK_SSTRING == if [
+      "    push qword " (writer.write)
+      copy constdata.constvalue . read (writer.getlen) (int.cstr) (writer.writeln)
       "    push str_" (writer.write)
       constdata.constvalue . (writer.addstr)
       (writer.cr)
@@ -229,6 +239,8 @@ class assembler
     ret
   end
   
+  var tmpdef int.SIZE
+
   proc visitdef 1 1
     copy defdata.defkind . read swap
     covr CNK_NUMBER == if [
@@ -236,9 +248,12 @@ class assembler
       copy defdata.defname . read str.data .
       (assembler.getfullname)
 
+      copy defdata.defvalue . read str.data . (cstr.tonum)
+      assembler.tmpdef swap put disc
+
       assembler.consttab read
-      covr defdata.defvalue . read
-      assembler.tmpstr read swap
+      assembler.tmpstr read
+      assembler.tmpdef
       (map.putat)
       disc
       disc
@@ -247,7 +262,8 @@ class assembler
       assembler.SUCCESS
       ret
     ]
-    covr CNK_STRING == if [
+    covr CNK_WORD == if [
+      
 
       disc
       disc
@@ -319,13 +335,13 @@ class assembler
 
       assembler.vartab read
       assembler.tmpstr read
-      assembler.varpos
+      writer.tmem
       (map.putat)
       disc
 
-      assembler.varpos
+      writer.tmem
       covr vardata.varvalue . read read
-      assembler.varpos read +
+      writer.tmem read +
       put disc
       
       disc
@@ -339,15 +355,15 @@ class assembler
       
       assembler.vartab read
       assembler.tmpstr read
-      assembler.varpos
+      writer.tmem
       (map.putat)
       disc
 
-      assembler.varpos
+      writer.tmem
       covr vardata.varvalue . read str.data . 
       (assembler.getconst)
       
-      assembler.varpos read +
+      writer.tmem read +
       put disc
       
       disc
@@ -452,7 +468,7 @@ class assembler
     ]
     covr INK_ENVP == if [
       "    mov rax, [args_ptr]\n" (writer.write)
-      "    add rax, [rax]\n" (writer.write)
+      "    mov rax, [rax]\n" (writer.write)
       "    add rax, 2\n" (writer.write)
       "    shl rax, 3\n" (writer.write)
       "    mov rbx, [args_ptr]\n" (writer.write)
@@ -667,10 +683,10 @@ class assembler
       ret
     ]
     covr INK_SUB == if [
-      "    pop rax\n" (writer.write)
       "    pop rbx\n" (writer.write)
-      "    sub rbx, rax\n" (writer.write)
-      "    push rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
+      "    sub rax, rbx\n" (writer.write)
+      "    push rax\n" (writer.write)
       disc
       disc
       assembler.SUCCESS
@@ -941,7 +957,7 @@ class assembler
       slmnode.data . read
       copy constdata.constkind . read swap
       covr CNK_NUMBER == if [
-        assembler.enumval covr constdata.constvalue . read put disc
+        copy constdata.constvalue . read str.data . (cstr.tonum) assembler.enumval swap put disc
       ]
       covr CNK_WORD == if [
         copy constdata.constvalue . read str.data .
@@ -951,6 +967,8 @@ class assembler
         assembler.tmpstr read
         assembler.enumval
         (map.putat) disc
+
+        assembler.enumval copy read 1 + put disc
       ]
       disc
       disc
