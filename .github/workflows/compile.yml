@@ -21,6 +21,7 @@ jobs:
           fasm -m 524288 spakig.fasm temp.o
           ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
           ./spakig init
+          ./spakig install slam-lang/slam
           cd ..
       - name: Run slam1 tests
         id: tests
@@ -41,6 +42,7 @@ jobs:
           fasm -m 524288 spakig.fasm temp.o
           ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
           ./spakig init
+          ./spakig install slam-lang/slam
           cd ..
       - name: Run slam2 tests
         id: tests2
