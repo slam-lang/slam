@@ -22,10 +22,10 @@ clean:
 	rm -f s2
 
 tests/test: slam
-	slam -o tests/test tests/test.slm
+	./slam -o tests/test tests/test.slm
 
 tests/slam2/test: slam2
-	slam2 -o tests/slam2/test tests/slam2/test.slm
+	./slam2 -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/test
 	rm tests/test.asm
