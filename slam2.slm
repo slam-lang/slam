@@ -32,6 +32,7 @@ var targetfile int.SIZE
 var targetout int.SIZE
 var targetoutasm int.SIZE
 var targetoutsla int.SIZE
+var cmdtmpbuffer 64
 
 {
 args: int
@@ -186,6 +187,33 @@ push proc main 0 0
     disc
     
     (writer.footer)
+
+    cmdtmpbuffer
+    "/usr/bin/fasm" put int.SIZE +
+    "-m" put int.SIZE +
+    "524288" put int.SIZE +
+    targetoutasm read str.data .
+    put int.SIZE +
+    "temp.o" put int.SIZE +
+    NULL put disc
+
+    cmdtmpbuffer
+    (os.execcmdecho)
+
+    cmdtmpbuffer
+    "/usr/bin/ld" put int.SIZE +
+    "-dynamic-linker" put int.SIZE +
+    "/lib64/ld-linux-x86-64.so.2" put int.SIZE +
+    "-o" put int.SIZE +
+    targetout read
+    put int.SIZE +
+    "-lc" put int.SIZE +
+    "-melf_x86_64" put int.SIZE +
+    "temp.o" put int.SIZE +
+    NULL put disc
+
+    cmdtmpbuffer
+    (os.execcmdecho)
     
     0 quit
   ]

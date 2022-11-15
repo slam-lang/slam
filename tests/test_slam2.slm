@@ -12,28 +12,33 @@ var passed 1
 
 push proc runcmdstdout 1 0
   (os.fork)
-  copy 0 == if [
+  copy 0 == if 
     covr envp swap copy read
   
     sysc.EXECVE sys3 disc
     disc disc
     -1
     quit
-  ]
-  copy 0 > if [
+  end
+
+  copy 0 > if 
     {parent}
   
     NULL
     0
     os.waitsig
     -1
-    sysc.WAIT4 sys4 0 < if (os.deverr)
+    sysc.WAIT4 sys4 (os.chkdeverr)
+
     disc disc
+
     ret
-  ]
-  0 != if [
+  end
+
+  0 != if 
     "ERROR" (cstr.println)
-  ]
+  end
+
   disc
   ret
 end
@@ -62,7 +67,7 @@ push proc runtest 1 0
 
   tmpbuffer (os.execcmd)
   
-  os.waitsig read 0 != if [
+  os.waitsig read 0 != if 
     "- Test Failed to compile, code="  (cstr.print)
     os.waitsig read (int.print)
     
@@ -75,7 +80,7 @@ push proc runtest 1 0
     putc disc
 
     ret
-  ]
+  end
   
   tmpbuffer
   "tester" put int.SIZE +
@@ -83,7 +88,7 @@ push proc runtest 1 0
 
   tmpbuffer (runcmdstdout)
   
-  os.waitsig read 0 != if [
+  os.waitsig read 0 != if 
     "- Test Failed, code=" (cstr.print)
     os.waitsig read (int.cstr) (cstr.println)
 
@@ -92,7 +97,7 @@ push proc runtest 1 0
     putc disc
 
     ret
-  ]
+  end
   passed
   copy readc 1 +
   putc disc
@@ -102,7 +107,7 @@ end
 
 push proc main 0 0
   slamexec "HOME" (os.env) (cstr.cpy) disc
-  "/.local/slam/bin/slam" (cstr.cat) disc
+  "/.local/slam/bin/slam2" (cstr.cat) disc
 
   0
   do

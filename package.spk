@@ -1,3 +1,4 @@
 "" src
-"slam" bin
 "compiler" libd
+"slam" bin
+"slam2" bin
