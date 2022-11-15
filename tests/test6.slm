@@ -1,13 +1,13 @@
 inc stdlib/testin.slm
 
 class foo
-  proc get 0 1
+  push proc get 0 1
     "get"
 
     ret
   end
 
-  proc name 0 1
+  push proc name 0 1
     "foo"
     @
     ret
@@ -15,7 +15,7 @@ class foo
 end
 
 class bar of foo
-  proc name 0 1
+  push proc name 0 1
     "bar"
 
     ret
