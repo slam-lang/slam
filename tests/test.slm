@@ -27,7 +27,7 @@ push proc runcmdstdout 1 0
     0
     os.waitsig
     -1
-    sysc.WAIT4 sys4 0 < if (os.deverr)
+    sysc.WAIT4 sys4 0 < (os.chkdeverr)
     disc disc
     ret
   ]
