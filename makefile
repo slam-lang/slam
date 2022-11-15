@@ -28,13 +28,13 @@ tests/slam2/test: slam2
 	./slam2 -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/test
-	rm tests/temp.fasm
+	rm -f tests/temp.fasm
 	cd tests; ./test
 	rm tests/test -rf
 	rm tests/tester
 
 test2: tests/slam2/test
-	rm tests/slam2/test.asm
+	rm -f tests/slam2/test.asm
 	cd tests/slam2; ./test
 	rm tests/slam2/test -rf
 	rm tests/slam2/tester
