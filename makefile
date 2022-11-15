@@ -18,6 +18,8 @@ clean:
 	rm -f s2.asm
 	rm -f slam
 	rm -f slam-pyc
+	rm -f temp.fasm
+	rm -f s2
 
 tester: slam
 	slam -o tests/test tests/test.slm

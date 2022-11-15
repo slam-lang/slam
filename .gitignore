@@ -12,4 +12,6 @@ temp.fasm
 tests/tester
 tests/test
 s2.*
+s2
 sl2.*
+**/*.asm
