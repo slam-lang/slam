@@ -1,0 +1,57 @@
+inc "stdlib/testin.slm"
+inc "stdlib/mem.slm"
+inc "stdlib/string.slm"
+
+proc main 0 0
+  "Allocate 1024 bytes" (testin.setup)
+  
+    1024 (heap.alloc)
+  
+  "Allocate 64 more bytes" (testin.next)
+  
+    64 (heap.alloc)
+  
+  "Free those" (testin.next)
+  
+    (heap.free)
+    (heap.free)
+
+  "Allocate 64 bytes twice" (testin.next)
+
+    64 (heap.alloc)
+    64 (heap.alloc)
+
+  "Free the first one" (testin.next)
+  
+    swap (heap.free)
+  
+  "Allocate 1024 bytes" (testin.next)
+
+    1024 (heap.alloc)
+ 
+  "Free everything" (testin.next)
+  
+    (heap.free)
+    (heap.free)
+
+  "Allocate too many bytes" (testin.next)
+  
+    1280000 (heap.alloc)
+  
+  "Free that" (testin.next)
+  
+    (heap.free)
+
+  "Realloc" (testin.next)
+
+    1000 (heap.alloc)
+    5000 (heap.realloc)
+  
+  "Free that" (testin.next)
+
+    (heap.free)
+  
+  (testin.done)
+
+  ret
+end

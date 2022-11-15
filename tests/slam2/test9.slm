@@ -1,0 +1,22 @@
+inc "stdlib/testin.slm"
+inc "stdlib.slm"
+
+proc foo 0 0
+  "Called" (testin.next)
+  
+  ret
+end
+
+proc main 0 0
+  "Create first class func" (testin.setup)
+  
+    foo
+
+  "Call it" (testin.next)
+
+    ()
+
+  (testin.done)
+  
+  ret
+end

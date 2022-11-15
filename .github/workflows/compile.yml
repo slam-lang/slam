@@ -22,10 +22,14 @@ jobs:
           ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
           ./spakig init
           cd ..
-      - name: Run tests
+      - name: Run slam1 tests
         id: tests
         run: |
           git clone http://github.com/slam-lang/slam
           cd slam/tests
           ~/.local/slam/bin/slam -o test test.slm
           ./test >> $GITHUB_STEP_SUMMARY
+      - name: Run slam2 tests
+        id: tests2
+        run: |
+          make test2 >> $GITHUB_STEP_SUMMARY

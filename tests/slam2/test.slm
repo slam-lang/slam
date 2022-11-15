@@ -48,7 +48,7 @@ push proc runtest 1 0
   "/usr/bin/rm" put int.SIZE +
   "-f" put int.SIZE +
   "tester" put int.SIZE +
-  "temp.fasm" put int.SIZE +
+  "tester.asm" put int.SIZE +
   NULL put disc
 
   tmpbuffer (os.execcmd)

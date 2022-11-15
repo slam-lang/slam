@@ -1,0 +1,66 @@
+inc "stdlib/testin.slm"
+inc "stdlib/string.slm"
+inc "stdlib/strutils.slm"
+inc "stdlib.slm"
+
+var temp 32
+var str1 int.SIZE
+var str2 int.SIZE
+
+proc main 0 0
+
+  "Split a string" (testin.setup)
+
+    "lol1 lol2" ' ' temp (cstr.split)
+    
+    "lol1" (testin.cstreq)
+    "lol2" (testin.cstreq)
+  
+    temp "lol1" (testin.cstreq)
+
+  "Create a string" (testin.next)
+  
+    (str.new)
+    (str.new)
+
+  "Put Values into strings" (testin.next)
+
+    swap `nope ` (str.sput)
+    swap `lol ` (str.sput)
+  
+  "Concat strings" (testin.next)
+
+    (str.cat)
+ 
+  "Check vals" (testin.next)
+
+    copy str.data .
+    "nope lol " (testin.cstreq)
+    copy (str.len) 9 (testin.eq)
+ 
+  "Concat a cstring" (testin.next)
+
+    "boi" (str.catc)
+
+  "Check vals" (testin.next)
+
+    copy str.data .
+    "nope lol boi" (testin.cstreq)
+    copy (str.len) 12 (testin.eq)
+
+  "Free the string" (testin.next)
+  
+    (str.free)
+
+  (testin.done)
+
+  {
+  "lol" "fdsafdsa" (strutil.starts) (int.print)
+  "lol" "lol" (strutil.starts) (int.print)
+  "lolf" "lol" (strutil.starts) (int.print)
+  "lol" "lolf" (strutil.starts) (int.print)
+  "fdsa" "lolf" (strutil.starts) (int.print)
+  }
+
+  ret
+end

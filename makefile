@@ -21,15 +21,25 @@ clean:
 	rm -f temp.fasm
 	rm -f s2
 
-tester: slam
+tests/test: slam
 	slam -o tests/test tests/test.slm
 
-test: tester
+tests/slam2/test: slam2
+	slam2 -o tests/slam2/test tests/slam2/test.slm
+
+test: tests/test
+	rm tests/test.asm
 	cd tests; ./test
 	rm tests/test -rf
 	rm tests/tester
 
-slam2:
+test2: tests/slam2/test
+	rm tests/slam2/test.asm
+	cd tests/slam2; ./test
+	rm tests/slam2/test -rf
+	rm tests/slam2/tester
+
+slam2: slam
 	cp -r compiler ~/.local/slam/lib/
 	./slam -o slam2 slam2.slm	
 

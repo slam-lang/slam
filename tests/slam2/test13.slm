@@ -1,0 +1,17 @@
+inc "stdlib/testin.slm"
+inc "fmath.slm"
+inc "stdlib.slm"
+
+proc main 0 0
+  "Create float" (testin.setup)
+
+    10000 (float.fromint)
+
+  "Check value" (testin.next)
+  
+    1176256512 (testin.eq)
+  
+  (testin.done)
+
+  ret
+end
