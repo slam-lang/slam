@@ -8,7 +8,7 @@ on:
   pull_request:
 
 jobs:
-  test:
+  test-slam1:
     runs-on: ubuntu-latest
     steps:
       - uses: stevenwdv/setup-fasm@v1
@@ -26,11 +26,25 @@ jobs:
         id: tests
         run: |
           git clone http://github.com/slam-lang/slam
-          cd slam/tests
-          ~/.local/slam/bin/slam -o test test.slm
-          ./test >> $GITHUB_STEP_SUMMARY
+          cd slam
+          make test
+  test-slam2:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: stevenwdv/setup-fasm@v1
+      - name: Create slam executable
+        id: compile
+        run: |
+          sudo cp $(which fasm) /usr/bin/fasm
+          git clone http://github.com/slam-lang/spakig
+          cd spakig
+          fasm -m 524288 spakig.fasm temp.o
+          ld -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o ./spakig -lc -melf_x86_64 temp.o
+          ./spakig init
+          cd ..
       - name: Run slam2 tests
         id: tests2
         run: |
+          git clone http://github.com/slam-lang/slam
           cd slam
           make test2 >> $GITHUB_STEP_SUMMARY
