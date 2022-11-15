@@ -819,6 +819,9 @@ def parse_program(text, consts = {}, multi = False):
         
         elif func == "oper":
             oper = True
+        
+        elif func == "push":
+            oper = False
 
         elif func == "prop":
             name = data[idx]

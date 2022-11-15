@@ -17,7 +17,7 @@ class parser
   var startstack int.SIZE
   var tmp int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     parser.tmp
     int.SIZE 3 *
     (heap.alloc) put disc
@@ -30,8 +30,8 @@ class parser
     ret
   end
 
-  proc free 1 0
-    copy parser.tokens . read (llist.free)
+  push proc free 1 0
+    copy parser.tokens . read (dlist.free)
     (heap.free)
 
     parser.startstack read (seq.free)
@@ -39,7 +39,7 @@ class parser
     ret
   end
 
-  proc advance 1 1
+  push proc advance 1 1
     parser.tmp swap put disc
 
     parser.tmp read parser.idx .
@@ -50,11 +50,11 @@ class parser
     parser.tmp read parser.current . NULL put disc
 
     parser.tmp read parser.idx . read
-    parser.tmp read parser.tokens . read (llist.len) < if [
+    parser.tmp read parser.tokens . read (dlist.len) < if [
       parser.tmp read parser.current .
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      (llist.ptrat)
+      (dlist.ptrat)
       put disc
     ]
     parser.tmp read
@@ -62,7 +62,7 @@ class parser
     ret
   end
 
-  proc parseret 0 1
+  push proc parseret 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -80,7 +80,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     INK_RETURN
@@ -93,11 +93,11 @@ class parser
     ret
   end
   
-  proc subintr 2 1
+  push proc subintr 2 1
     parser.tmp read parser.current . read slmtoken.type . read
     == if [
       parser.tmp read parser.tokens . read
-      parser.tmp read parser.idx . read 1 - (llist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
       parser.tmp read parser.current . read slmtoken.stop . swap
       
       (intrdata.new)
@@ -113,7 +113,7 @@ class parser
     ret
   end
   
-  proc parseintr 0 1
+  push proc parseintr 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -161,7 +161,7 @@ class parser
     ret
   end
 
-  proc parsenum 0 1
+  push proc parsenum 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -179,7 +179,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_NUMBER
@@ -193,7 +193,7 @@ class parser
     ret
   end
 
-  proc parsestring 0 1
+  push proc parsestring 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -211,7 +211,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_STRING
@@ -225,7 +225,7 @@ class parser
     ret
   end
 
-  proc parsesstring 0 1
+  push proc parsesstring 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -243,7 +243,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_SSTRING
@@ -257,7 +257,7 @@ class parser
     ret
   end
 
-  proc parseword 0 1
+  push proc parseword 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -275,7 +275,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     CNK_WORD
@@ -289,7 +289,7 @@ class parser
     ret
   end
 
-  proc parsecall 0 1
+  push proc parsecall 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -307,7 +307,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     parser.tmp read parser.current . read slmtoken.value . read 
@@ -320,7 +320,7 @@ class parser
     ret
   end
 
-  proc parseinc 0 1
+  push proc parseinc 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -349,7 +349,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
 
     parser.tmp read parser.current . read slmtoken.value . read 
@@ -362,7 +362,7 @@ class parser
     ret
   end
 
-  proc parseasm 0 1
+  push proc parseasm 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -391,7 +391,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
 
     parser.tmp read parser.current . read slmtoken.value . read 
@@ -404,7 +404,7 @@ class parser
     ret
   end
 
-  proc parseof 0 1
+  push proc parseof 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -433,7 +433,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    1 - (llist.ptrat) slmtoken.start .
+    1 - (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
 
     parser.tmp read parser.current . read slmtoken.value . read 
@@ -446,7 +446,7 @@ class parser
     ret
   end
 
-  proc parsecomment 0 1
+  push proc parsecomment 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -464,7 +464,7 @@ class parser
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
-    (llist.ptrat) slmtoken.start .
+    (dlist.ptrat) slmtoken.start .
     parser.tmp read parser.current . read slmtoken.stop .
     
     (commentdata.new)
@@ -476,7 +476,7 @@ class parser
     ret
   end
 
-  proc parseif 0 1
+  push proc parseif 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -492,8 +492,8 @@ class parser
       NULL ret
     ]
 
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
     
     NULL
     0
@@ -528,7 +528,7 @@ class parser
     ret
   end
 
-  proc parsedo 0 1
+  push proc parsedo 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -544,8 +544,8 @@ class parser
       NULL ret
     ]
 
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
     
     NULL
     0
@@ -584,7 +584,7 @@ class parser
   var procout int.SIZE
   var prockind int.SIZE
 
-  proc parseproc 0 1
+  push proc parseproc 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -661,8 +661,8 @@ class parser
     parser.tmp read parser.current . read slmtoken.value . read
     put disc
 
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
   
     parser.procname read
     parser.procin read
@@ -696,7 +696,7 @@ class parser
     ret
   end
 
-  proc parseenum 0 1
+  push proc parseenum 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -712,8 +712,8 @@ class parser
       NULL ret
     ]
 
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
     
     NULL
     0
@@ -749,7 +749,7 @@ class parser
 
   var varname int.SIZE
 
-  proc parseprop 0 1
+  push proc parseprop 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -789,7 +789,7 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
 
       parser.varname read
@@ -809,7 +809,7 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
       
       parser.varname read
@@ -831,7 +831,7 @@ class parser
     ret
   end
 
-  proc parseconst 0 1
+  push proc parseconst 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -871,7 +871,7 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
 
       parser.varname read
@@ -891,7 +891,7 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
       
       parser.varname read
@@ -912,7 +912,7 @@ class parser
     ret
   end
 
-  proc parsevar 0 1
+  push proc parsevar 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -952,7 +952,7 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
 
       parser.varname read
@@ -972,12 +972,13 @@ class parser
       disc
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
-      1 - (llist.ptrat) slmtoken.start .
+      1 - (dlist.ptrat) slmtoken.start .
       parser.tmp read parser.current . read slmtoken.stop .
       
       parser.varname read
       CNK_NUMBER
       parser.tmp read parser.current . read slmtoken.value . read
+      str.data . (cstr.tonum)
       (vardata.new)
 
       (slmnode.new)
@@ -996,7 +997,7 @@ class parser
 
   var classname int.SIZE
 
-  proc parseclass 0 1
+  push proc parseclass 0 1
     parser.startstack read
     parser.tmp read parser.idx . read
     (seq.pushint) disc
@@ -1027,8 +1028,8 @@ class parser
     parser.tmp read parser.current . read slmtoken.value . read
     put disc
 
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
     
     parser.classname read
     0
@@ -1067,11 +1068,11 @@ class parser
     ret
   end
 
-  proc parsefile 0 1
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start .
-    parser.tmp read parser.tokens . read (llist.last) slmtoken.stop .
+  push proc parsefile 0 1
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start .
+    parser.tmp read parser.tokens . read (dlist.last) slmtoken.stop .
     
-    parser.tmp read parser.tokens . read 0 (llist.ptrat) slmtoken.start . filepos.filename . read
+    parser.tmp read parser.tokens . read 0 (dlist.ptrat) slmtoken.start . filepos.filename . read
     (filedata.new)
 
     do
@@ -1092,7 +1093,7 @@ class parser
     ret
   end
 
-  proc parseinblock 1 1
+  push proc parseinblock 1 1
     copy NULL == if [ disc (parser.parsenum) ]
     copy NULL == if [ disc (parser.parsecall) ]
     copy NULL == if [ disc (parser.parsecomment) ]
@@ -1108,9 +1109,9 @@ class parser
     ret
   end
 
-  proc run 1 1
+  push proc run 1 1
     "[PRS] " (cstr.print)
-    copy parser.tokens . read (llist.len)
+    copy parser.tokens . read (dlist.len)
     (int.cstr) (cstr.print)
     " tokens" (cstr.println)
 

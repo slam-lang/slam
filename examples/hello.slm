@@ -5,7 +5,6 @@ prints "Hello World!"
 }
 proc main 0 0
   "Hello World!" (cstr.println)
-  "Hello World!" (cstr.println)
 
   ret
 end

@@ -85,7 +85,7 @@ class calldata of nodedata
   prop kind int.SIZE
   prop callee int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 2 *
     (heap.alloc)
@@ -99,7 +99,7 @@ class calldata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     """ (cstr.print)
     calldata.callee . read (str.print)
     """ (cstr.print)
@@ -111,7 +111,7 @@ class asmdata of nodedata
   prop kind int.SIZE
   prop raw int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 2 *
     (heap.alloc)
@@ -125,7 +125,7 @@ class asmdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     """ (cstr.print)
     asmdata.raw . read (str.print)
     """ (cstr.print)
@@ -137,7 +137,7 @@ class incdata of nodedata
   prop kind int.SIZE
   prop include int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 2 *
     (heap.alloc)
@@ -151,7 +151,7 @@ class incdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     """ (cstr.print)
     incdata.include . read (str.print)
     """ (cstr.print)
@@ -163,7 +163,7 @@ class ofdata of nodedata
   prop kind int.SIZE
   prop inherit int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 2 *
     (heap.alloc)
@@ -177,7 +177,7 @@ class ofdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     """ (cstr.print)
     ofdata.inherit . read (str.print)
     """ (cstr.print)
@@ -188,7 +188,7 @@ end
 class commentdata of nodedata
   prop kind int.SIZE
 
-  proc new 0 1
+  push proc new 0 1
     nodedata.tmp
     int.SIZE 1 *
     (heap.alloc)
@@ -206,7 +206,7 @@ class intrdata of nodedata
   prop kind int.SIZE
   prop intrkind int.SIZE
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 2 *
     (heap.alloc)
@@ -220,7 +220,7 @@ class intrdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
     nodedata.tmp swap put disc
 
@@ -254,7 +254,7 @@ class vardata of nodedata
   prop varkind int.SIZE
   prop varvalue int.SIZE
 
-  proc new 3 1
+  push proc new 3 1
     nodedata.tmp
     int.SIZE 4 *
     (heap.alloc)
@@ -270,7 +270,7 @@ class vardata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
     nodedata.tmp swap put disc
 
@@ -298,7 +298,7 @@ class defdata of nodedata
   prop defkind int.SIZE
   prop defvalue int.SIZE
 
-  proc new 3 1
+  push proc new 3 1
     nodedata.tmp
     int.SIZE 4 *
     (heap.alloc)
@@ -313,7 +313,7 @@ class defdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
     nodedata.tmp swap put disc
 
@@ -342,7 +342,7 @@ class propdata of nodedata
   prop propkind int.SIZE
   prop propvalue int.SIZE
 
-  proc new 3 1
+  push proc new 3 1
     nodedata.tmp
     int.SIZE 4 *
     (heap.alloc)
@@ -358,7 +358,7 @@ class propdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
     nodedata.tmp swap put disc
 
@@ -385,7 +385,7 @@ class constdata of nodedata
   prop constkind int.SIZE
   prop constvalue int.SIZE
 
-  proc new 2 1
+  push proc new 2 1
     nodedata.tmp
     int.SIZE 3 *
     (heap.alloc)
@@ -400,7 +400,7 @@ class constdata of nodedata
     ret
   end
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
     nodedata.tmp swap put disc
 
@@ -432,7 +432,7 @@ class filedata of nodedata
   prop childcount int.SIZE
   prop children 0
 
-  proc new 1 1
+  push proc new 1 1
     nodedata.tmp
     int.SIZE 3 *
     (heap.alloc)
@@ -447,7 +447,7 @@ class filedata of nodedata
     ret
   end
 
-  proc append 2 1
+  push proc append 2 1
     swap nodedata.tmp swap put disc
 
     int.SIZE 6 *
@@ -466,7 +466,7 @@ class filedata of nodedata
     ret
   end
 
-  proc print 2 0
+  push proc print 2 0
     copy NULL == if [ disc disc ret ]
 
     nodedata.tmp swap put disc
@@ -512,7 +512,7 @@ class blockdata of nodedata
   prop childcount int.SIZE
   prop children 0
 
-  proc new 4 1
+  push proc new 4 1
     nodedata.tmp
     int.SIZE 3 *
     (heap.alloc)
@@ -530,7 +530,7 @@ class blockdata of nodedata
     ret
   end
 
-  proc append 2 1
+  push proc append 2 1
     swap nodedata.tmp swap put disc
 
     int.SIZE 4 *
@@ -549,7 +549,7 @@ class blockdata of nodedata
     ret
   end
 
-  proc print 2 0
+  push proc print 2 0
     copy NULL == if [ disc disc ret ]
 
     nodedata.tmp swap put disc
@@ -602,7 +602,7 @@ class slmnode
 
   var tmp int.SIZE
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [
       "ERR" "Could not convert node NULL to string " (log.msg)
       (log.log)
@@ -732,7 +732,7 @@ class slmnode
 
   var result int.SIZE
 
-  proc new 3 1
+  push proc new 3 1
     int.SIZE 1 *
     filepos.SIZE 2 * +
     (heap.alloc)

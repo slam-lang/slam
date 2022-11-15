@@ -29,7 +29,7 @@ test: tester
 
 slam2:
 	cp -r compiler ~/.local/slam/lib/
-	slam -o slam2 slam2.slm	
+	./slam -o slam2 slam2.slm	
 
 s2.asm: slam2
 	./slam2 -o s2 slam2.slm	

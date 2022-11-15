@@ -6,9 +6,10 @@ inc "compiler/parser.slm"
 inc "compiler/simulator.slm"
 inc "compiler/assembler.slm"
 inc "compiler/writer.slm"
+inc "compiler/asmtovm.slm"
 inc "stdlib/mem.slm"
 
-proc version 0 1
+push proc version 0 1
   "2.0.0" ret
 end
 
@@ -20,14 +21,17 @@ enum
 end
 
 enum
-0   TARGET_ASM
+0   TARGET_BIN
+    TARGET_ASM
     TARGET_SIM
+    TARGET_SJS
 end
 
 var target int.SIZE
 var targetfile int.SIZE
 var targetout int.SIZE
 var targetoutasm int.SIZE
+var targetoutsla int.SIZE
 
 {
 args: int
@@ -35,7 +39,7 @@ result:
 
 prints a help string
 }
-proc help 1 0
+push proc help 1 0
   copy HELP_VERSION == if [
     "slam compiler v" (cstr.print) (version) (cstr.println)
     disc 0 quit
@@ -56,6 +60,7 @@ proc help 1 0
   "-h, --help    shows this help message."          (cstr.println)
   "-s, --sim     runs the file with the simulator." (cstr.println)
   "-a, --asm     assembles the file."               (cstr.println)
+  "-j, --sjs     assembles the file to a sjs file." (cstr.println)
   "-o, --output  selects the output file."          (cstr.println)
   disc
   
@@ -64,7 +69,7 @@ proc help 1 0
   ret
 end
 
-proc setinput 1 0
+push proc setinput 1 0
   targetfile read NULL != if [ disc ret ]
   targetfile swap (os.args) put disc
 
@@ -77,7 +82,7 @@ result: int
 
 sets the output flag to the argument
 }
-proc setoutput 1 1
+push proc setoutput 1 1
     copy argc 1 - > if [ HELP_OUTPUT (help) ]
 
     targetout
@@ -87,6 +92,11 @@ proc setoutput 1 1
     targetoutasm read
     targetout read copy (cstr.len) swap (str.sput)
     ".asm" (str.catc)
+    disc
+
+    targetoutsla read
+    targetout read copy (cstr.len) swap (str.sput)
+    ".sla" (str.catc)
     disc
 
     ret
@@ -100,7 +110,7 @@ checks the string for a match with an argument
 if so returns 0 and runs argument
 otherwise returns 1
 }
-proc applyarg 2 2
+push proc applyarg 2 2
   copy "-h" (cstr.eq)
   if [ disc HELP_SHOW (help) 0 ret ]
   copy "--help" (cstr.eq)
@@ -115,22 +125,27 @@ proc applyarg 2 2
   if [ disc target TARGET_ASM put disc 0 ret ]
   copy "-a" (cstr.eq)
   if [ disc target TARGET_ASM put disc 0 ret ]
+  copy "--sjs" (cstr.eq)
+  if [ disc target TARGET_SJS put disc 0 ret ]
+  copy "-j" (cstr.eq)
+  if [ disc target TARGET_SJS put disc 0 ret ]
   copy "-o" (cstr.eq)
   if [ disc 1 + (setoutput) 0 ret ]
   disc
   1 ret
 end
 
-proc main 0 0
+push proc main 0 0
   { only cmd, then show help }
   1 argc == if [ HELP_ARGS (help) ]
 
   targetout "out" put disc
 
-  targetoutasm (str.new) put disc
-
-  targetoutasm read
+  targetoutasm (str.new) put read
   `out.asm` (str.sput)
+  disc
+  targetoutsla (str.new) put read
+  `out.sla` (str.sput)
   disc
 
   { iterate through args }
@@ -153,6 +168,27 @@ proc main 0 0
   targetfile read NULL == if [ HELP_ARGS (help) ]
   
   target read
+  copy TARGET_BIN == if [
+    disc
+
+    targetfile read
+
+    bool.false
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+    
+    targetoutasm read str.data .
+    (writer.open)
+
+    (writer.header)
+
+    (assembler.visitnode)
+    disc
+    
+    (writer.footer)
+    
+    0 quit
+  ]
   copy TARGET_ASM == if [
     disc
 
@@ -172,6 +208,45 @@ proc main 0 0
     
     (writer.footer)
     
+    0 quit
+  ]
+  copy TARGET_SIM == if [
+    disc
+
+    targetfile read
+
+    bool.false
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+
+    (simulator.visitnode)
+    disc
+
+    0 quit
+  ]
+  copy TARGET_SJS == if [
+    disc
+
+    targetfile read
+
+    bool.false
+    (lexer.new) (lexer.run)
+    (parser.new) (parser.run)
+    
+    targetoutasm read str.data .
+    (writer.open)
+
+    (writer.header)
+
+    (assembler.visitnode)
+    disc
+    
+    (writer.footer)
+
+    targetoutasm read str.data .
+    targetoutsla read str.data .
+    (tovm.run)
+
     0 quit
   ]
   disc

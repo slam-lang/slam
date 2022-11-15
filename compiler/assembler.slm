@@ -13,7 +13,6 @@ class assembler
   var visit int.SIZE
   var file int.SIZE
 
-  var blockstack int.SIZE
   var consttab int.SIZE
   var proctab int.SIZE
   var vartab int.SIZE
@@ -34,7 +33,7 @@ class assembler
   var procnamecstr TAB_KEY_SIZE
 
 
-  proc getconst 1 1
+  push proc getconst 1 1
     assembler.consttab read covr (map.in) if [
       covr (map.get) read
       swap disc
@@ -47,7 +46,7 @@ class assembler
 
   var itemp int.SIZE
 
-  proc internalname 1 1
+  push proc internalname 1 1
     assembler.itemp swap put disc
 
     assembler.tmpname read
@@ -101,7 +100,7 @@ class assembler
     ret
   end
 
-  proc visitof 1 1
+  push proc visitof 1 1
     disc
 
     assembler.SUCCESS
@@ -111,7 +110,7 @@ class assembler
 
   var blockprocname int.SIZE
 
-  proc visitword 1 1
+  push proc visitword 1 1
     assembler.blockprocname read covr copy (cstr.len) swap (str.sput) disc
     assembler.blockprocname read (assembler.internalname) disc
 
@@ -169,7 +168,7 @@ class assembler
     ret
   end
 
-  proc visitconst 1 1
+  push proc visitconst 1 1
     copy constdata.constkind . read swap
     covr CNK_NUMBER == if [
       "    push qword " (writer.write)
@@ -216,7 +215,7 @@ class assembler
   var tmp int.SIZE
   var tmpstr int.SIZE
 
-  proc getfullname 1 0
+  push proc getfullname 1 0
     assembler.tmpstr read 0 != if [
       assembler.tmpstr read 
       (heap.free)
@@ -241,10 +240,9 @@ class assembler
   
   var tmpdef int.SIZE
 
-  proc visitdef 1 1
+  push proc visitdef 1 1
     copy defdata.defkind . read swap
     covr CNK_NUMBER == if [
-      
       copy defdata.defname . read str.data .
       (assembler.getfullname)
 
@@ -277,7 +275,7 @@ class assembler
     ret
   end
 
-  proc visitprop 1 1
+  push proc visitprop 1 1
     copy propdata.propkind . read swap
     covr CNK_NUMBER == if [
       copy propdata.propname . read str.data .
@@ -327,7 +325,7 @@ class assembler
     ret
   end
 
-  proc visitvar 1 1
+  push proc visitvar 1 1
     copy vardata.varkind . read swap
     covr CNK_NUMBER == if [
       copy vardata.varname . read str.data .
@@ -340,7 +338,7 @@ class assembler
       disc
 
       writer.tmem
-      covr vardata.varvalue . read read
+      covr vardata.varvalue . read
       writer.tmem read +
       put disc
       
@@ -360,7 +358,7 @@ class assembler
       disc
 
       writer.tmem
-      covr vardata.varvalue . read str.data . 
+      covr vardata.varvalue . read str.data .
       (assembler.getconst)
       
       writer.tmem read +
@@ -376,7 +374,7 @@ class assembler
     ret
   end
 
-  proc visitcall 1 1
+  push proc visitcall 1 1
     calldata.callee . read
     copy str.data . "" (cstr.eq) if [
       disc
@@ -420,7 +418,7 @@ class assembler
     ret
   end
 
-  proc visitintr 1 1
+  push proc visitintr 1 1
     copy intrdata.intrkind . read swap
     covr INK_RETURN == if [
       "    mov rax, [ret_stack_rsp]\n" (writer.write)
@@ -565,8 +563,8 @@ class assembler
     covr INK_NEQ == if [
       "    mov rcx, 0\n" (writer.write)
       "    mov rdx, 1\n" (writer.write)
-      "    pop rax\n" (writer.write)
       "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
       "    cmp rax, rbx\n" (writer.write)
       "    cmovne rcx, rdx\n" (writer.write)
       "    push rcx\n" (writer.write)
@@ -671,8 +669,8 @@ class assembler
     ]
     covr INK_DIVMOD == if [
       "    xor rdx, rdx\n" (writer.write)
-      "    pop rax\n" (writer.write)
       "    pop rbx\n" (writer.write)
+      "    pop rax\n" (writer.write)
       "    idiv rbx\n" (writer.write)
       "    push rax\n" (writer.write)
       "    push rdx\n" (writer.write)
@@ -809,7 +807,7 @@ class assembler
     ret
   end
 
-  proc visitasm 1 1
+  push proc visitasm 1 1
     "    " (writer.write)
     asmdata.raw . read str.data . (writer.write)
     (writer.cr)
@@ -818,7 +816,7 @@ class assembler
     ret
   end
 
-  proc visitinc 1 1
+  push proc visitinc 1 1
     assembler.file read
 
     covr incdata.include . read
@@ -846,7 +844,7 @@ class assembler
     ret
   end
 
-  proc visitfile 1 1
+  push proc visitfile 1 1
     "[ASM] " (cstr.print)
     copy filedata.name . read
     (cstr.println)
@@ -895,12 +893,13 @@ class assembler
   var procdata int.SIZE
   var procname int.SIZE
 
-  proc addprochead 2 2
+  push proc addprochead 2 2
     assembler.procname read str.size . 0 put disc
     assembler.procdata 1 put disc
 
     assembler.curcall 0 put disc
     assembler.curif 0 put disc
+    assembler.curdo 0 put disc
     "proc_" (writer.write)
     
     assembler.classname read
@@ -940,7 +939,7 @@ class assembler
 
   var enumval int.SIZE
 
-  proc visitenum 1 1
+  push proc visitenum 1 1
     copy blockdata.childcount . read
     0 == if [
       disc
@@ -987,7 +986,7 @@ class assembler
 
   var blockends int.SIZE
 
-  proc visitblock 1 1
+  push proc visitblock 1 1
     copy blockdata.blockkind . read
     copy BNK_CLASS == if [
       assembler.classsize 0 put disc
@@ -1095,9 +1094,8 @@ class assembler
     ret
   end
 
-  proc visitnode 1 1
-    assembler.blockstack read NULL == if [
-      assembler.blockstack int.SIZE (llist.new) put disc
+  push proc visitnode 1 1
+    assembler.blockends read NULL == if [
       assembler.blockends int.SIZE 256 (seq.new) put disc
       assembler.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.proctab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc

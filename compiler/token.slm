@@ -79,7 +79,7 @@ class filepos
 
   var tmp int.SIZE
 
-  proc print 1 0
+  push proc print 1 0
     copy NULL == if [ disc ret ]
       
     "<" (cstr.print)
@@ -96,7 +96,7 @@ class filepos
     ret
   end
 
-  proc advance 2 1
+  push proc advance 2 1
     swap
     filepos.tmp swap put disc
 
@@ -130,7 +130,7 @@ class slmtoken
   prop start filepos.SIZE
   prop stop filepos.SIZE
 
-  proc print 1 1
+  push proc print 1 1
     "\n  (" (cstr.print)
     copy slmtoken.type . read
     ""

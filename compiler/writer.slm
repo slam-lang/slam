@@ -5,20 +5,22 @@ class writer
   var strings int.SIZE
   var tmem int.SIZE
   var tmpstr int.SIZE
+  var tmpwrite int.SIZE
+  var _ int.SIZE
 
-  proc write 1 0
+  push proc write 1 0
     copy (cstr.len) swap writer.fd read (os.write)
 
     ret
   end
 
-  proc cr 0 0
+  push proc cr 0 0
     "\n" (writer.write)
 
     ret
   end
 
-  proc writeln 1 0
+  push proc writeln 1 0
     (writer.write)
     (writer.cr)
 
@@ -27,7 +29,7 @@ class writer
   
   var len int.SIZE
 
-  proc getlen 1 1
+  push proc getlen 1 1
     writer.tmpstr swap put disc
 
     0
@@ -48,33 +50,35 @@ class writer
     ret
   end
 
-  proc addstr 1 0
+  push proc addstr 1 0
     writer.tmpstr swap put disc
 
-    writer.strings read (llist.len) 0 == if [
+    writer.strings read (dlist.len) 0 == if [
       writer.strings read 
-      writer.tmpstr read (llist.append) disc
+      writer.tmpstr read (dlist.append) 
+      writer.strings swap put disc
 
-      writer.strings read (llist.len) 1 -
+      writer.strings read (dlist.len) 1 -
       (int.cstr) (writer.write)
       ret
     ]
 
+    {
     -1
     do
       1 +
       writer.strings read 
-      covr (llist.ptrat) read
+      covr (dlist.ptrat) read
 
-      writer.tmpstr read read (str.seq) !
-      covr writer.strings read (llist.len) 1 - != &&
+      writer.tmpstr read (str.seq) !
+      covr writer.strings read (dlist.len) 1 - != &&
     end
 
-    writer.strings read (llist.len) 1 - covr == if [
+    writer.strings read (dlist.len) covr == if [
       writer.strings read 
-      writer.tmpstr read (llist.append) disc
+      writer.tmpstr read (dlist.append) disc
 
-      writer.strings read (llist.len) 1 -
+      writer.strings read (dlist.len)
       (int.cstr) (writer.write)
       disc
       ret
@@ -82,38 +86,35 @@ class writer
 
     (int.cstr) (writer.write)
 
+    }
+    writer.strings read 
+    writer.tmpstr read (dlist.append) 
+    writer.strings swap put disc
+
+    writer.strings read (dlist.len) 1 -
+    (int.cstr) (writer.write)
+    
     ret
   end
 
-  proc header 0 0
+  push proc header 0 0
     "format ELF64\n" (writer.write)
     "section '.text' executable\n" (writer.write)
-    "public _start\n\n" (writer.write)
-    "print:\n" (writer.write)
-    "    mov r10, rsp\n" (writer.write)
-    "    sub rsp, 8\n" (writer.write)
-    "    mov [rsp], al\n" (writer.write)
-    "    mov edi, 1\n" (writer.write)
-    "    mov rsi, rsp\n" (writer.write)
-    "    mov edx, 1\n" (writer.write)
-    "    mov eax, 1\n" (writer.write)
-    "    syscall\n" (writer.write)
-    "    mov rsp, r10\n" (writer.write)
-    "    ret\n" (writer.write)
+    "public _start\n" (writer.write)
 
     ret
   end
 
   var escape int.SIZE
 
-  proc getescape 1 1
+  push proc getescape 1 1
     copy 'n' == if [ disc 10 ret ]
     copy 't' == if [ disc 9 ret ]
 
     ret
   end
 
-  proc writestring 1 0
+  push proc writestring 1 0
     writer.tmpstr swap put disc
     0
     do
@@ -137,32 +138,33 @@ class writer
     ret
   end
 
-  proc writestrings 0 0
-    writer.strings read (llist.len) 0 == if [ ret ]
+  push proc writestrings 0 0
+    writer.strings read (dlist.len) 0 == if [ ret ]
 
     0
     do
       writer.strings read 
-      covr (llist.ptrat)
+      covr (dlist.ptrat)
       copy NULL != if [
         "str_" (writer.write)
         covr (int.cstr) (writer.write)
         ": db " (writer.write)
         copy read (writer.writestring)
-        "0" (writer.writeln)
+        "0 ;" (writer.write)
+        writer.tmpstr read str.data . (writer.writeln)
       ]
       disc
       
       1 +
 
-      writer.strings read (llist.len) covr !=
+      writer.strings read (dlist.len) covr !=
     end
     disc
 
     ret
   end
 
-  proc footer 0 0
+  push proc footer 0 0
     "_start:\n" (writer.write)
     "    mov qword [args_ptr], rsp\n" (writer.write)
     "    mov qword [ret_stack_rsp], ret_stack\n" (writer.write)
@@ -187,14 +189,28 @@ class writer
     ret
   end
 
-  proc open 1 0
+  push proc write32 1 0
+    65535 && writer.tmpwrite swap put disc
+    writer.tmpwrite 4 + 4 swap writer.fd read (os.write)
+
+    ret
+  end
+
+  push proc write64 1 0
+    writer.tmpwrite swap put disc
+    writer.tmpwrite 8 swap writer.fd read (os.write)
+
+    ret
+  end
+
+  push proc open 1 0
     511 swap
     65 swap
     -100
     (os.open)
     writer.fd swap put disc
 
-    writer.strings int.SIZE (llist.new) put disc
+    writer.strings int.SIZE (dlist.new) put disc
     ret
   end
 end
