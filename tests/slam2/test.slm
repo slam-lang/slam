@@ -106,8 +106,7 @@ push proc runtest 1 0
 end
 
 push proc main 0 0
-  slamexec "HOME" (os.env) (cstr.cpy) disc
-  "/.local/slam/bin/slam2" (cstr.cat) disc
+  "../../slam2" (cstr.cat) disc
 
   0
   do
