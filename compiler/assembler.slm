@@ -23,15 +23,26 @@ class assembler
   var curdo int.SIZE
   var laststring int.SIZE
   var classname int.SIZE
+  var inherits int.SIZE
 
   var includedtab int.SIZE
-
   var tmpname int.SIZE
-
   var tmpchar 2
-
   var procnamecstr TAB_KEY_SIZE
 
+  var itemp int.SIZE
+  var blockprocname int.SIZE
+  var tmpof int.SIZE
+
+  var tmp int.SIZE
+  var tmpstr int.SIZE
+  var tmpdef int.SIZE
+
+  var procdata int.SIZE
+  var procname int.SIZE
+
+  var enumval int.SIZE
+  var blockends int.SIZE
 
   push proc getconst 1 1
     assembler.consttab read covr (map.in) if [
@@ -43,8 +54,6 @@ class assembler
 
     ret
   end
-
-  var itemp int.SIZE
 
   push proc internalname 1 1
     assembler.itemp swap put disc
@@ -100,8 +109,6 @@ class assembler
     ret
   end
 
-  var tmpof int.SIZE
-
   push proc addproctab 1 1
     copy
     assembler.tmpof read ofdata.inherit . read str.data .
@@ -140,8 +147,6 @@ class assembler
 
     ret
   end
-
-  var blockprocname int.SIZE
 
   push proc visitword 1 1
     assembler.blockprocname read covr copy (cstr.len) swap (str.sput) disc
@@ -245,9 +250,6 @@ class assembler
     ret
   end
 
-  var tmp int.SIZE
-  var tmpstr int.SIZE
-
   push proc getfullname 1 0
     assembler.tmpstr read 0 != if [
       assembler.tmpstr read 
@@ -270,8 +272,6 @@ class assembler
     disc
     ret
   end
-  
-  var tmpdef int.SIZE
 
   push proc visitdef 1 1
     copy defdata.defkind . read swap
@@ -923,9 +923,6 @@ class assembler
     ret
   end
 
-  var procdata int.SIZE
-  var procname int.SIZE
-
   push proc addprochead 2 2
     assembler.procname read str.size . 0 put disc
     assembler.procdata 1 put disc
@@ -969,8 +966,6 @@ class assembler
 
     ret
   end
-
-  var enumval int.SIZE
 
   push proc visitenum 1 1
     copy blockdata.childcount . read
@@ -1017,10 +1012,14 @@ class assembler
     ret
   end
 
-  var blockends int.SIZE
-
   push proc visitblock 1 1
     copy blockdata.blockkind . read
+    copy BNK_SIM == if [
+      disc disc
+      assembler.FAIL
+
+      ret
+    ]
     copy BNK_CLASS == if [
       assembler.classsize 0 put disc
       "class_" (writer.write)

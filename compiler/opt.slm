@@ -1,1 +1,20 @@
 {TODO!!!}
+
+{
+push r.x
+pop r.x
+
+:
+either
+mov r.x r.x
+or
+nothing
+}
+
+{
+push dword number
+pop r.x
+
+:
+mov r.x, number
+}

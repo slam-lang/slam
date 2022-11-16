@@ -29,6 +29,8 @@ enum
     BNK_ENUM
     BNK_DO
     BNK_IF
+    BNK_SIM
+    BNK_BLOCK
 end
 
 enum
@@ -557,9 +559,11 @@ class blockdata of nodedata
 
     nodedata.tmp read blockdata.blockkind . read
     ""
+    covr BNK_BLOCK == if [ disc "block" ]
     covr BNK_CLASS == if [ disc "class" ]
     covr BNK_PROC == if [ disc "proc" ]
     covr BNK_ENUM == if [ disc "enum" ]
+    covr BNK_SIM == if [ disc "sim" ]
     covr BNK_DO == if [ disc "do" ]
     covr BNK_IF == if [ disc "if" ]
     swap disc

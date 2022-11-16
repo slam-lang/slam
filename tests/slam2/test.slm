@@ -1,7 +1,7 @@
 inc "stdlib/os.slm"
 inc "stdlib.slm"
 
-const TEST_COUNT 12
+const TEST_COUNT 13
 
 var tmpbuffer 128
 var tmpname 64

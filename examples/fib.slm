@@ -1,0 +1,21 @@
+inc "stdlib.slm"
+
+proc fib 2 2
+  covr + swap
+  copy (int.print)
+
+  ret
+end
+
+proc main 0 0
+  1 1
+  do
+  (fib)
+  
+  1
+  end
+  disc
+  disc
+
+  ret
+end

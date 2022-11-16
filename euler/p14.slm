@@ -58,7 +58,7 @@ proc main 0 0
 
     swap (int.cstr)
     swap
-    (tab.put) disc
+    (tab.putp) disc
     
     copy 1000 / swap disc 0 == if [
       copy (int.print)

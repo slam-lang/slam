@@ -1,0 +1,42 @@
+{Macro}
+inc "compiler/node.slm"
+
+macro proc lmao 1 1
+  {do stuff}
+
+  ret
+end
+
+{sim procs}
+proc sims 1 1
+  sim 0 1
+    5 10 +
+  end
+
+  ret
+end
+
+{lambdas}
+proc lambdas 1 1
+  5
+
+  lambda 1 2
+    copy 1 +
+  end
+
+  ()
+  
+  (int.print)
+  (int.print)
+
+  ret
+end
+
+{templates}
+temp increment
+  copy read 1 + put disc
+end
+
+temp decrement
+  copy read 1 - put disc
+end

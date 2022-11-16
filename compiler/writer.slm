@@ -1,5 +1,14 @@
 inc "stdlib/os.slm"
 
+push proc max 2 1
+  covr covr < if [
+    disc ret
+  ]
+  swap disc
+
+  ret
+end
+
 class writer
   var fd int.SIZE
   var strings int.SIZE
@@ -63,36 +72,43 @@ class writer
       ret
     ]
 
-    {
     -1
     do
       1 +
       writer.strings read 
       covr (dlist.ptrat) read
 
-      writer.tmpstr read (str.seq) !
+      writer.tmpstr read
+      covr (str.len) str.data +
+      covr (str.len) str.data +
+      (max)
+
+      (mem.eq) !
       covr writer.strings read (dlist.len) 1 - != &&
     end
 
-    writer.strings read (dlist.len) covr == if [
-      writer.strings read 
-      writer.tmpstr read (dlist.append) disc
+    writer.strings read (dlist.len) 1 - covr == if [
+      writer.strings read
+      writer.tmpstr read (dlist.append)
+      writer.strings swap put disc
 
-      writer.strings read (dlist.len)
+      writer.strings read (dlist.len) 1 -
       (int.cstr) (writer.write)
       disc
       ret
     ]
+    "lol" (cstr.println)
 
     (int.cstr) (writer.write)
 
-    }
+    {
     writer.strings read 
     writer.tmpstr read (dlist.append) 
     writer.strings swap put disc
 
     writer.strings read (dlist.len) 1 -
     (int.cstr) (writer.write)
+    }
     
     ret
   end

@@ -11,17 +11,17 @@ proc main 0 0
   "Add to Table" (testin.next)
   
     "lol" 32
-    (tab.put)
+    (tab.putp)
 
   "Add more to Table" (testin.next)
 
     "lmao" 69
-    (tab.put)
+    (tab.putp)
   
   "Change value in Table" (testin.next)
 
     "lmao" 42
-    (tab.put)
+    (tab.putp)
   
   "Get value in Table" (testin.next)
   
