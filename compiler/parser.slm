@@ -141,6 +141,7 @@ class parser
     INK_NEQ STK_NEQ (parser.subintr) copy NULL != if [ ret ] disc
     INK_LT STK_LT (parser.subintr) copy NULL != if [ ret ] disc
     INK_GT STK_GT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_BRK STK_BRK (parser.subintr) copy NULL != if [ ret ] disc
     INK_ARGV STK_ARGV (parser.subintr) copy NULL != if [ ret ] disc
     INK_ARGC STK_ARGC (parser.subintr) copy NULL != if [ ret ] disc
     INK_ENVP STK_ENVP (parser.subintr) copy NULL != if [ ret ] disc

@@ -23,7 +23,7 @@ jobs:
           ./spakig init
           ./spakig install slam-lang/slam
           cd ..
-      - name: Run slam1 tests
+      - name: Run slam1 testzs
         id: tests
         run: |
           git clone http://github.com/slam-lang/slam

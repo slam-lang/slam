@@ -136,6 +136,15 @@ push proc applyarg 2 2
   1 ret
 end
 
+push proc checksuccess 1 0
+  assembler.SUCCESS != if [
+    -1 quit
+  ]
+
+  ret
+end
+
+
 push proc main 0 0
   { only cmd, then show help }
   1 argc == if [ HELP_ARGS (help) ]
@@ -184,7 +193,7 @@ push proc main 0 0
     (writer.header)
 
     (assembler.visitnode)
-    disc
+    (checksuccess)
     
     (writer.footer)
 
@@ -232,7 +241,7 @@ push proc main 0 0
     (writer.header)
 
     (assembler.visitnode)
-    disc
+    (checksuccess)
     
     (writer.footer)
     

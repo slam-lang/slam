@@ -13,6 +13,7 @@ class simulator
   var visit int.SIZE
   var file int.SIZE
 
+  var simstack int.SIZE
   var blockstack int.SIZE
   var consttab int.SIZE
   var vartab int.SIZE
@@ -26,6 +27,7 @@ class simulator
   var includedtab int.SIZE
 
   var tmpname int.SIZE
+  var tmpnum int.SIZE
 
   var tmpchar 2
 
@@ -94,35 +96,28 @@ class simulator
   push proc visitconst 1 1
     copy constdata.constkind . read swap
     covr CNK_NUMBER == if [
-      "    push qword " (writer.write)
-      copy constdata.constvalue . read
-      (int.cstr) (writer.write)
-      (writer.cr)
+      simulator.simstack read
+      covr constdata.constvalue . read str.data . (cstr.tonum)
+      simulator.tmpnum
+      swap put
+      (dlist.append)
+      disc
+
       disc
       disc
       simulator.SUCCESS
       ret
     ]
     covr CNK_STRING == if [
-      "    push str_" (writer.write)
-      simulator.laststring read (int.cstr) (writer.writeln)
-
-      simulator.laststring copy
-      read 1 +
-      put disc
-
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     covr CNK_WORD == if [
-      "    ; Word " (writer.write)
-      copy constdata.constvalue . read str.data . (writer.writeln)
-
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     disc
@@ -136,19 +131,12 @@ class simulator
   push proc visitdef 1 1
     copy defdata.defkind . read swap
     covr CNK_NUMBER == if [
-      simulator.consttab read
-      covr defdata.defname . read str.data .
-      covr defdata.defvalue .
-      (map.putat)
       disc
       disc
-      disc
-
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     covr CNK_STRING == if [
-
       disc
       disc
       simulator.FAIL
@@ -164,39 +152,15 @@ class simulator
   push proc visitprop 1 1
     copy propdata.propkind . read swap
     covr CNK_NUMBER == if [
-      simulator.consttab read
-      covr propdata.propname . read str.data .
-      simulator.classsize
-      (map.putat)
-      disc
-      
-      simulator.classsize
-      covr propdata.propvalue . read
-      simulator.classsize read +
-      put disc
-      
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     covr CNK_WORD == if [
-      simulator.consttab read
-      covr propdata.propname . read str.data .
-      simulator.classsize
-      (map.putat)
-      disc
-      
-      simulator.classsize
-      covr propdata.propvalue . read str.data . 
-      (simulator.getconst)
-
-      simulator.classsize read +
-      put disc
-      
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     disc
@@ -208,39 +172,15 @@ class simulator
   push proc visitvar 1 1
     copy vardata.varkind . read swap
     covr CNK_NUMBER == if [
-      simulator.vartab read
-      covr vardata.varname . read str.data .
-      simulator.varpos
-      (map.putat)
-      disc
-
-      simulator.varpos
-      covr vardata.varvalue . read
-      simulator.varpos read +
-      put disc
-      
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     covr CNK_WORD == if [
-      simulator.vartab read
-      covr vardata.varname . read str.data .
-      simulator.varpos
-      (map.putat)
-      disc
-
-      simulator.varpos
-      covr vardata.varvalue . read str.data . 
-      (simulator.getconst)
-      
-      simulator.varpos read +
-      put disc
-      
       disc
       disc
-      simulator.SUCCESS
+      simulator.FAIL
       ret
     ]
     swap disc
@@ -249,33 +189,15 @@ class simulator
   end
 
   push proc visitcall 1 1
-    calldata.callee . read
-    "    mov rax, [ret_stack_rsp]\n" (writer.write)
-    "    add rax, 8\n" (writer.write)
-    "    mov qword [ret_stack_rsp], rax\n" (writer.write)
-    "    mov qword [rax], .call_" (writer.write)
-    simulator.curcall read (int.cstr) (writer.writeln)
-    "    jmp proc_" (writer.write)
-    (simulator.internalname)
-    str.data . (writer.writeln)
-    ".call_" (writer.write)
-    simulator.curcall read (int.cstr) (writer.write)
-    ":" (writer.writeln)
+    disc
+    simulator.FAIL
 
-    simulator.curcall copy
-    read 1 +
-    put disc
-
-    simulator.SUCCESS
-    
     ret
   end
 
   push proc visitword 1 1
     disc
-    "    ; Word" (writer.writeln)
-
-    simulator.SUCCESS
+    simulator.FAIL
     
     ret
   end
@@ -283,332 +205,21 @@ class simulator
   push proc visitintr 1 1
     copy intrdata.intrkind . read swap
     covr INK_RETURN == if [
-      "    mov rax, [ret_stack_rsp]\n" (writer.write)
-      "    sub rax, 8\n" (writer.write)
-      "    mov qword [ret_stack_rsp], rax\n" (writer.write)
-      "    add rax, 8\n" (writer.write)
-      "    jmp qword [rax]\n" (writer.write)
       disc
       disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_COPY == if [
-      "    pop rax\n" (writer.write)
-      "    push rax\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SWAP == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_COVR == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_READ == if [
-      "    pop rax\n" (writer.write)
-      "    xor rbx, rbx\n" (writer.write)
-      "    mov rbx, [rax]\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_READC == if [
-      "    pop rax\n" (writer.write)
-      "    xor rbx, rbx\n" (writer.write)
-      "    mov bl, [rax]\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_PUT == if [
-      "    pop rbx\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    mov qword [rax], rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_PUTC == if [
-      "    pop rbx\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    mov byte [rax], bl\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_EQ == if [
-      "    mov rcx, 0\n" (writer.write)
-      "    mov rdx, 1\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    cmp rax, rbx\n" (writer.write)
-      "    cmove rcx, rdx\n" (writer.write)
-      "    push rcx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_NEQ == if [
-      "    mov rcx, 0\n" (writer.write)
-      "    mov rdx, 1\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    cmp rax, rbx\n" (writer.write)
-      "    cmovne rcx, rdx\n" (writer.write)
-      "    push rcx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_LT == if [
-      "    mov rcx, 0\n" (writer.write)
-      "    mov rdx, 1\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    cmp rax, rbx\n" (writer.write)
-      "    cmovl rcx, rdx\n" (writer.write)
-      "    push rcx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_GT == if [
-      "    mov rcx, 0\n" (writer.write)
-      "    mov rdx, 1\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    cmp rax, rbx\n" (writer.write)
-      "    cmovg rcx, rdx\n" (writer.write)
-      "    push rcx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_AND == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    and rax, rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_OR == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    or rax, rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
+      simulator.FAIL
 
       ret
     ]
     covr INK_ADD == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    add rax, rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
+      simulator.simstack read
+      copy (dlist.pop) read
+      covr (dlist.pop) read
+      +
+      simulator.tmpnum swap put
+      (dlist.append)
       disc
-      disc
-      simulator.SUCCESS
 
-      ret
-    ]
-    covr INK_ACCESS == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    add rax, rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_MUL == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    imul rax, rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_DIVMOD == if [
-      "    xor rdx, rdx\n" (writer.write)
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    idiv rbx\n" (writer.write)
-      "    push rax\n" (writer.write)
-      "    push rdx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SUB == if [
-      "    pop rax\n" (writer.write)
-      "    pop rbx\n" (writer.write)
-      "    sub rbx, rax\n" (writer.write)
-      "    push rbx\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS0 == if [
-      "    pop rax\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS1 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS2 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    pop rsi\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS3 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    pop rsi\n" (writer.write)
-      "    pop rdx\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS4 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    pop rsi\n" (writer.write)
-      "    pop rdx\n" (writer.write)
-      "    pop r10\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS5 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    pop rsi\n" (writer.write)
-      "    pop rdx\n" (writer.write)
-      "    pop r10\n" (writer.write)
-      "    pop r8\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_SYS5 == if [
-      "    pop rax\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    pop rsi\n" (writer.write)
-      "    pop rdx\n" (writer.write)
-      "    pop r10\n" (writer.write)
-      "    pop r8\n" (writer.write)
-      "    pop r9\n" (writer.write)
-      "    syscall\n" (writer.write)
-      "    push rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_DISC == if [
-      "    pop rax\n" (writer.write)
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    covr INK_QUIT == if [
-      "    mov rax, 60\n" (writer.write)
-      "    pop rdi\n" (writer.write)
-      "    syscall\n" (writer.write)
       disc
       disc
       simulator.SUCCESS
@@ -671,7 +282,6 @@ class simulator
       copy simulator.visit read ()
       simulator.SUCCESS != if [
         (slmnode.print)
-        (writer.cr)
         disc
         disc
         simulator.FAIL
@@ -693,18 +303,6 @@ class simulator
   end
 
   push proc addprochead 2 2
-    simulator.curcall 0 put disc
-    "proc_" (writer.write)
-    simulator.classname read
-    copy NULL != if [
-      (simulator.internalname)
-      str.data . (writer.write) 0
-      "_" (writer.write)
-    ] disc
-    covr blockdata.blockname . read
-    (simulator.internalname)
-    str.data . (writer.write)
-    ":" (writer.writeln)
 
     ret
   end
@@ -712,15 +310,7 @@ class simulator
   push proc visitblock 1 1
     copy blockdata.blockkind . read
     copy BNK_CLASS == if [
-      simulator.classsize 0 put disc
-      "class_" (writer.write)
-      covr blockdata.blockname . read
-      (simulator.internalname)
-      str.data . (writer.write)
-      ":" (writer.writeln)
-      covr blockdata.blockname . read
-      simulator.classname swap
-      put disc
+
     ]
     copy BNK_PROC == if [
       (simulator.addprochead)
@@ -743,7 +333,6 @@ class simulator
       copy simulator.visit read ()
       simulator.SUCCESS != if [
         (slmnode.print)
-        (writer.cr)
         disc
         disc
         simulator.FAIL
@@ -773,6 +362,7 @@ class simulator
   push proc visitnode 1 1
     simulator.blockstack read NULL == if [
       simulator.blockstack int.SIZE (llist.new) put disc
+      simulator.simstack int.SIZE (dlist.new) put disc
       simulator.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       simulator.vartab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       simulator.includedtab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc

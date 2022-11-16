@@ -181,6 +181,7 @@ class writer
   end
 
   push proc footer 0 0
+    "jmp quit\n" (writer.write)
     "_start:\n" (writer.write)
     "    mov qword [args_ptr], rsp\n" (writer.write)
     "    mov qword [ret_stack_rsp], ret_stack\n" (writer.write)

@@ -11,6 +11,7 @@ enum
     STK_VAR
     STK_PROP
     STK_RET
+    STK_BRK
     STK_ENUM
     STK_OPER
     STK_PUSH

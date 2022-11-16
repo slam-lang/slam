@@ -6,7 +6,6 @@ class tovm
 
   push proc getproclocs 0 0
     
-
     ret
   end
 

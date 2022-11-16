@@ -1,11 +1,17 @@
 inc "stdlib/testin.slm"
 
 proc main 0 0
-  sim 0 1
-    5 10 +
-  end
+  5
+  do
+    copy 0 == if
+      brk
+    end
 
-  (int.print)
+    1 -
+    copy (int.print)
+
+    1
+  end
 
   ret
 end

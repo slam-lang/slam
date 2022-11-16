@@ -40,3 +40,49 @@ end
 temp decrement
   copy read 1 - put disc
 end
+
+{string case}
+proc cases 0 0
+  "word"
+
+  copy
+  case "lol"
+    "lmao" (cstr.println) 0
+    brk
+  case "word"
+    brk
+  else
+    (cstr.println) 0
+    brk
+  end
+  disc
+
+  ret
+end
+
+{int case}
+proc cases 0 0
+  0
+
+  copy
+  case 1
+    "lmao" (cstr.println) 0
+    brk
+  case 2
+    brk
+  else
+    (cstr.println) 0
+    brk
+  end
+  disc
+
+  ret
+end
+
+{ifelse}
+proc elses 0 0
+  1 if
+    "lol" (cstr.println)
+  end
+
+end

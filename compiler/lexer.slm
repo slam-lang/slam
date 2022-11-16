@@ -175,6 +175,9 @@ class lexer
     copy "ret" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_RET put disc disc ret
     ]
+    copy "brk" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_BRK put disc disc ret
+    ]
     copy "const" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_CONST put disc disc ret
     ]

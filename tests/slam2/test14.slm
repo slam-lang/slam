@@ -1,0 +1,17 @@
+inc "stdlib/testin.slm"
+
+proc main 0 0
+  "Run a sim block" (testin.setup)
+
+    sim
+      5 10 +
+    end
+
+  "Make sure it worked" (testin.next)
+
+    15 (testin.eq)
+
+  (testin.done)
+
+  ret
+end

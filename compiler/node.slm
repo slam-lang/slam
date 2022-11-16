@@ -54,6 +54,7 @@ enum
     INK_AND
     INK_NOT
     INK_OR
+    INK_BRK
     INK_DIVMOD
     INK_QUIT
     INK_ARGV
@@ -227,9 +228,10 @@ class intrdata of nodedata
     nodedata.tmp swap put disc
 
     nodedata.tmp read intrdata.intrkind . read
-    ""
+    copy (int.cstr)
     covr INK_RETURN == if [ disc "ret" ]
     covr INK_COPY == if [ disc "copy" ]
+    covr INK_BRK == if [ disc "brk" ]
     covr INK_DISC == if [ disc "disc" ]
     covr INK_READ == if [ disc "read" ]
     covr INK_READC == if [ disc "readc" ]
