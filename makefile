@@ -20,6 +20,7 @@ clean:
 	rm -f slam-pyc
 	rm -f temp.fasm
 	rm -f s2
+	rm -f tests/slam2/test
 
 tests/test: slam
 	./slam -o tests/test tests/test.slm

@@ -106,7 +106,8 @@ push proc runtest 1 0
 end
 
 push proc main 0 0
-  "../../slam2" (cstr.cat) disc
+  slamexec
+  "../../slam2" (cstr.cpy) disc
 
   0
   do

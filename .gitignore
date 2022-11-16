@@ -9,7 +9,8 @@ slam-pyc
 gb.gb
 gb.sav
 temp.fasm
-tests/tester
+tests/tester*
+tests/slam2/tester*
 tests/test
 s2.*
 s2

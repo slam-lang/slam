@@ -100,8 +100,41 @@ class assembler
     ret
   end
 
+  var tmpof int.SIZE
+
+  push proc addproctab 1 1
+    copy
+    assembler.tmpof read ofdata.inherit . read str.data .
+    copy 
+    (cstr.len) (mem.eq)
+    ! if [
+      ret
+    ]
+  
+    "proc_" (writer.write)
+    assembler.classname read str.data . (writer.write)
+    copy
+    do
+      1 +
+      copy readc '_' !=
+    end
+    (writer.write)
+
+    ":" (writer.write)
+
+    copy
+    "  jmp proc_" (writer.write)
+    (writer.writeln)
+
+    ret
+  end
+
   push proc visitof 1 1
-    disc
+    assembler.tmpof swap put disc
+
+    assembler.proctab read
+    assembler.addproctab
+    (map.foreach)
 
     assembler.SUCCESS
 

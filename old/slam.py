@@ -689,7 +689,7 @@ def check_proc(program, args, rets, values):
             if res[2] != "OK":
                 return idx, stackoffset, res
             if stackoffset != stackoffset2: 
-                print("internal unbalanced, " + str(stackoffset2) + ", " + str(stackoffset))
+                print("If unbalanced, " + str(stackoffset2) + ", " + str(stackoffset))
                 print(program[idx])
                 quit()
         elif op[0] == OP_QUIT:
@@ -702,10 +702,10 @@ def check_proc(program, args, rets, values):
         elif op[0] == OP_MULTI:
             bal = check_proc(op[1], stackoffset, rets, values)
             if bal[2] != "OK":
-                print("internal unbalanced, " + str(bal[0]) + ", " + bal[2])
+                print("Multi unbalanced, " + str(program) + str(bal[0]) + ", " + bal[2])
                 quit()
             if bal[0] != stackoffset and not(op[1][-1][0] in [OP_RET, OP_QUIT]):
-                print("internal unbalanced, " + str(bal[0]) + ", " + str(stackoffset))
+                print("Multi unbalanced, " + str(bal[0]) + ", " + str(stackoffset))
                 quit()
         elif op[0] == OP_CALL:
             stackoffset -= values[op[1]][0]
