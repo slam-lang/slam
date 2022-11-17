@@ -1,6 +1,8 @@
 inc "stdlib/testin.slm"
 
 proc main 0 0
+  "Break a loop" (testin.setup)
+
   5
   do
     copy 0 == if
@@ -8,10 +10,15 @@ proc main 0 0
     end
 
     1 -
-    copy (int.print)
 
     1
   end
+
+  "Check that it broke" (testin.setup)
+
+    0 (testin.eq)
+  
+  (testin.done)
 
   ret
 end

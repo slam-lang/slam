@@ -1,7 +1,7 @@
 inc "stdlib/testin.slm"
 inc "stdlib.slm"
 
-proc foo 0 0
+push proc foo 0 0
   "Called" (testin.next)
   
   ret

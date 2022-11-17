@@ -76,6 +76,10 @@ enum
     CNK_WORD
 end
 
+enum
+0   PNK_PUSH
+    PNK_OPER
+end
 
 class nodedata
   prop kind int.SIZE
@@ -511,19 +515,21 @@ class blockdata of nodedata
   prop blockname int.SIZE
   prop blockin int.SIZE
   prop blockout int.SIZE
+  prop blockmisc int.SIZE
 
   {child array}
   prop childcount int.SIZE
   prop children 0
 
-  push proc new 4 1
+  push proc new 5 1
     nodedata.tmp
-    int.SIZE 3 *
+    int.SIZE 7 *
     (heap.alloc)
     put disc
 
     nodedata.tmp read blockdata.kind . SNK_BLOCK put disc
     nodedata.tmp read blockdata.childcount . 0 put disc
+    nodedata.tmp read blockdata.blockmisc . swap put disc
     nodedata.tmp read blockdata.blockkind . swap put disc
     nodedata.tmp read blockdata.blockout . swap put disc
     nodedata.tmp read blockdata.blockin . swap put disc

@@ -43,6 +43,8 @@ class assembler
   var enumval int.SIZE
   var blockends int.SIZE
 
+  var tmpcallee TAB_KEY_SIZE
+
   push proc getconst 1 1
     assembler.consttab read covr (map.in) if [
       covr (map.get) read
@@ -80,6 +82,11 @@ class assembler
       copy '.' == if [
         assembler.tmpname read
         "_" (str.catc)
+        disc disc 0
+      ]
+      copy '_' == if [
+        assembler.tmpname read
+        "under" (str.catc)
         disc disc 0
       ]
       copy 0 != if [
@@ -147,6 +154,38 @@ class assembler
     ret
   end
 
+  push proc addwordproc 0 1
+    assembler.proctab read assembler.procnamecstr (map.get) swap disc read PNK_PUSH == if [
+      "    push proc_" (writer.write)
+      assembler.procnamecstr (writer.writeln)
+
+      assembler.SUCCESS
+      ret
+    ]
+
+    ".blockstart_" (writer.write)
+    assembler.curblock read (int.cstr) (writer.write)
+    ": ; call" (writer.writeln)
+    "    mov rax, [ret_stack_rsp]\n" (writer.write)
+    "    add rax, 8\n" (writer.write)
+    "    mov qword [ret_stack_rsp], rax\n" (writer.write)
+    "    mov qword [rax], .blockend_" (writer.write)
+    assembler.curblock read (int.cstr) (writer.writeln)
+    "    jmp proc_" (writer.write)
+    assembler.procnamecstr (writer.writeln)
+    ".blockend_" (writer.write)
+    assembler.curblock read (int.cstr) (writer.write)
+    ": ; call" (writer.writeln)
+
+    assembler.curblock copy
+    read 1 +
+    put disc
+
+    assembler.SUCCESS
+
+    ret
+  end
+
   push proc visitword 1 1
     assembler.blockprocname read covr copy (cstr.len) swap (str.sput) disc
     assembler.blockprocname read (assembler.internalname) disc
@@ -182,16 +221,9 @@ class assembler
       ret
     ] disc
     assembler.proctab read assembler.procnamecstr (map.in) if [
-      "    push proc_" (writer.write)
-
-      assembler.procnamecstr
-      (writer.write)
-      (writer.cr)
-
       disc
       disc
-
-      assembler.SUCCESS
+      (assembler.addwordproc)
 
       ret
     ] disc
@@ -424,6 +456,23 @@ class assembler
 
       ret
     ]
+    (assembler.internalname)
+    assembler.tmpcallee TAB_KEY_SIZE (mem.zero)
+    assembler.tmpcallee swap str.data . (cstr.cpy) disc disc
+
+    assembler.proctab read assembler.tmpcallee (map.in) swap disc ! if [
+      assembler.tmpcallee (cstr.println)
+      assembler.FAIL
+      ret
+    ]
+    assembler.proctab read assembler.tmpcallee (map.get) swap disc read PNK_OPER == if [
+      "    push proc_" (writer.write)
+      assembler.tmpcallee (writer.writeln)
+
+      assembler.SUCCESS
+      ret
+    ]
+
     ".blockstart_" (writer.write)
     assembler.curblock read (int.cstr) (writer.write)
     ": ; call" (writer.writeln)
@@ -433,8 +482,7 @@ class assembler
     "    mov qword [rax], .blockend_" (writer.write)
     assembler.curblock read (int.cstr) (writer.writeln)
     "    jmp proc_" (writer.write)
-    (assembler.internalname)
-    str.data . (writer.writeln)
+    assembler.tmpcallee (writer.writeln)
     ".blockend_" (writer.write)
     assembler.curblock read (int.cstr) (writer.write)
     ": ; call" (writer.writeln)
@@ -935,7 +983,7 @@ class assembler
 
   push proc addprochead 2 2
     assembler.procname read str.size . 0 put disc
-    assembler.procdata 1 put disc
+    covr assembler.procdata swap blockdata.blockmisc . read put disc
     
     assembler.curblock 0 put disc
     "proc_" (writer.write)
@@ -961,8 +1009,6 @@ class assembler
     assembler.procnamecstr TAB_KEY_SIZE (mem.zero)
     assembler.procnamecstr
     assembler.procname read str.data . (cstr.cpy) disc disc
-
-
 
     assembler.proctab read
     assembler.procnamecstr
