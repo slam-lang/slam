@@ -41,6 +41,8 @@ class writer
   push proc getlen 1 1
     writer.tmpstr swap put disc
 
+    writer.len 0 put disc
+
     0
     do
       writer.tmpstr read str.data . covr + readc
