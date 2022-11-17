@@ -9,7 +9,7 @@ end
 
 {sim procs}
 proc sims 1 1
-  sim 0 1
+  sim
     5 10 +
   end
 
@@ -41,34 +41,36 @@ temp decrement
   copy read 1 - put disc
 end
 
-{string case}
+{int case}
 proc cases 0 0
-  "word"
+  0
 
   copy
-  case "lol"
-    "lmao" (cstr.println) 0
-    brk
-  case "word"
-    brk
-  else
-    (cstr.println) 0
-    brk
+  switch
+    cas 1
+      "lmao" (cstr.println) 0
+      brk
+    cas 2
+      brk
+    els
+      (cstr.println) 0
+      brk
   end
   disc
 
   ret
 end
 
-{int case}
+{string case}
 proc cases 0 0
-  0
+  "word"
 
   copy
-  case 1
+  objswitch
+  case "lol"
     "lmao" (cstr.println) 0
     brk
-  case 2
+  case "word"
     brk
   else
     (cstr.println) 0

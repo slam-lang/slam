@@ -20,6 +20,13 @@ enum
     STK_SIM
     STK_ASM
 
+    STK_SWITCH
+    STK_CASE
+    STK_ELSE
+
+    STK_LAMBDA
+    STK_NAMED
+
     STK_READ
     STK_READC
     STK_PUT
@@ -43,8 +50,6 @@ enum
     STK_LT
     STK_GT
 
-    STK_BLOCK_START
-    STK_BLOCK_END
     STK_END
     
     STK_CONST_NUMBER
@@ -142,8 +147,6 @@ class slmtoken
     covr STK_VAR == if [ disc "VAR" ]
     covr STK_IF == if [ disc "IF" ]
     covr STK_ENUM == if [ disc "ENUM" ]
-    covr STK_BLOCK_START == if [ disc "BLOCK START" ]
-    covr STK_BLOCK_END == if [ disc "BLOCK END" ]
     covr STK_END == if [ disc "END" ]
     covr STK_CONST_NUMBER == if [ disc "NUMBER" ]
     covr STK_CONST_STRING == if [ disc "STRING" ]

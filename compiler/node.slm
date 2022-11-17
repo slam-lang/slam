@@ -21,20 +21,25 @@ enum
     SNK_DEF
     SNK_PROP
     SNK_COMMENT
+    SNK_CASE
 end
 
 enum
 0   BNK_CLASS
     BNK_PROC
+    BNK_LAMBDA
+    BNK_PLAMBDA
     BNK_ENUM
     BNK_DO
     BNK_IF
     BNK_SIM
     BNK_BLOCK
+    BNK_SWITCH
 end
 
 enum
 0   INK_RETURN
+    INK_ELSE
     INK_COPY
     INK_READ
     INK_READC
@@ -192,6 +197,32 @@ class ofdata of nodedata
   end
 end
 
+class casedata of nodedata
+  prop kind int.SIZE
+  prop value int.SIZE
+
+  push proc new 1 1
+    nodedata.tmp
+    int.SIZE 2 *
+    (heap.alloc)
+    put disc
+
+    nodedata.tmp read casedata.kind . SNK_CASE put disc
+    nodedata.tmp read casedata.value . swap put disc
+
+    nodedata.tmp read
+
+    ret
+  end
+
+  push proc print 1 0
+    """ (cstr.print)
+    casedata.value . read (str.print)
+    """ (cstr.print)
+    ret
+  end
+end
+
 class commentdata of nodedata
   prop kind int.SIZE
 
@@ -234,6 +265,7 @@ class intrdata of nodedata
     nodedata.tmp read intrdata.intrkind . read
     copy (int.cstr)
     covr INK_RETURN == if [ disc "ret" ]
+    covr INK_ELSE == if [ disc "els" ]
     covr INK_COPY == if [ disc "copy" ]
     covr INK_BRK == if [ disc "brk" ]
     covr INK_DISC == if [ disc "disc" ]
@@ -292,7 +324,7 @@ class vardata of nodedata
 
     nodedata.tmp read vardata.varkind . read
     nodedata.tmp read vardata.varvalue . read
-    covr CNK_NUMBER == if [ (str.print) disc ret ]
+    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
     disc disc
 
@@ -335,7 +367,7 @@ class defdata of nodedata
 
     nodedata.tmp read defdata.defkind . read
     nodedata.tmp read defdata.defvalue . read
-    covr CNK_NUMBER == if [ (str.print) disc ret ]
+    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
     disc disc
 
@@ -380,7 +412,7 @@ class propdata of nodedata
 
     nodedata.tmp read propdata.propkind . read
     nodedata.tmp read propdata.propvalue . read
-    covr CNK_NUMBER == if [ (int.cstr) (cstr.print) disc ret ]
+    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
     disc disc
 
@@ -423,7 +455,7 @@ class constdata of nodedata
 
     nodedata.tmp read constdata.constkind . read
     nodedata.tmp read constdata.constvalue . read
-    covr CNK_NUMBER == if [ (int.cstr) (cstr.print) disc ret ]
+    covr CNK_NUMBER == if [ (str.print) disc ret ]
     covr CNK_STRING == if [ (str.print) disc """ (cstr.print) ret ]
     covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
     disc disc
@@ -673,6 +705,15 @@ class slmnode
       slmnode.tmp read
       slmnode.data . read
       (ofdata.print)
+
+      ">" (cstr.print)
+      disc ret
+    ]
+    copy SNK_CASE == if [
+      "<CASE: " (cstr.print)
+      slmnode.tmp read
+      slmnode.data . read
+      (casedata.print)
 
       ">" (cstr.print)
       disc ret

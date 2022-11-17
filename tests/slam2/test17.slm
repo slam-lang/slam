@@ -1,0 +1,51 @@
+inc "stdlib/testin.slm"
+inc "stdlib/range.slm"
+inc "stdlib/loops.slm"
+
+var total int.SIZE
+
+proc main 0 0
+  "Create a range" (testin.setup)
+
+    0 10 range.new
+
+  "Run a loop" (testin.next)
+
+    range.iter 
+    loop.foreach : 1 0
+      read
+      total read
+      (testin.eq)
+      total read 1 +
+      total swap put disc
+
+      ret
+    end
+
+  "Make sure it ran" (testin.next)
+
+    total read 11 (testin.eq)
+
+  "run a range.for loop" (testin.next)
+
+    total 0 put disc
+
+    0 10
+    range.for : 1 0
+      read
+      total read
+      (testin.eq)
+      total read 1 +
+      total swap put disc
+
+      ret
+    end
+
+  "Make sure it ran" (testin.next)
+
+    total read 11 (testin.eq)
+
+  (testin.done)
+
+  ret
+end

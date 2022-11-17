@@ -1,0 +1,20 @@
+inc "stdlib/testin.slm"
+
+proc main 0 0
+  0
+
+  copy
+  switch
+    cas 1
+      "lmao" (cstr.println) 0
+      brk
+    cas 2
+      brk
+    els
+      (int.print) 0
+      brk
+  end
+  disc
+
+  ret
+end

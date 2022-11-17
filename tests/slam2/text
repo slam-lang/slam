@@ -1,0 +1,21 @@
+[LEX] test17.slm
+[PRS] 80 tokens
+[ASM] test17.slm
+[LEX] stdlib/testin.slm
+[PRS] 134 tokens
+[ASM] stdlib/testin.slm
+[LEX] stdlib/log.slm
+[PRS] 175 tokens
+[ASM] stdlib/log.slm
+[LEX] stdlib/mem.slm
+[PRS] 557 tokens
+[ASM] stdlib/mem.slm
+[LEX] stdlib.slm
+[PRS] 734 tokens
+[ASM] stdlib.slm
+[LEX] stdlib/range.slm
+[PRS] 133 tokens
+[ASM] stdlib/range.slm
+[LEX] stdlib/loops.slm
+[PRS] 46 tokens
+[ASM] stdlib/loops.slm

@@ -44,5 +44,5 @@ slam2: slam
 	cp -r compiler ~/.local/slam/lib/
 	./slam -o slam2 slam2.slm	
 
-s2.asm: slam2
-	./slam2 -o s2 slam2.slm	
+slam.asm: slam2
+	./slam2 -a -o slam slam2.slm	

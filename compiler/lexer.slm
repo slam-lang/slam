@@ -157,6 +157,21 @@ class lexer
     copy "sim" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_SIM put disc disc ret
     ]
+    copy "lambda" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_LAMBDA put disc disc ret
+    ]
+    copy ":" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_NAMED put disc disc ret
+    ]
+    copy "els" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_ELSE put disc disc ret
+    ]
+    copy "cas" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_CASE put disc disc ret
+    ]
+    copy "switch" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_SWITCH put disc disc ret
+    ]
     copy "asm" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_ASM put disc disc ret
     ]

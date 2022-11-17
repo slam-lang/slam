@@ -1119,6 +1119,7 @@ class assembler
   end
 
   push proc visitblock 1 1
+
     copy blockdata.blockkind . read
     copy BNK_SIM == if [
       disc (assembler.visitsim)
@@ -1166,6 +1167,36 @@ class assembler
       read 1 +
       put disc
     ]
+    copy BNK_LAMBDA == if [
+      "    jmp .blockend_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.writeln)
+      ".blockstart_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.write)
+      ": ; lambda" (writer.writeln)
+      assembler.blockends read
+      assembler.curblock read (seq.pushint) disc
+      assembler.curblock copy
+      read 1 +
+      put disc
+    ]
+    copy BNK_PLAMBDA == if [
+      "    jmp .blockend_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.writeln)
+      ".blockstart_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.write)
+      ": ; lambda" (writer.writeln)
+      assembler.blockends read
+      assembler.curblock read (seq.pushint) disc
+      assembler.curblock copy
+      read 1 +
+      put disc
+    ]
+    copy BNK_SWITCH == if [
+      disc disc
+      assembler.FAIL
+
+      ret
+    ]
     disc
 
     copy blockdata.childcount . read
@@ -1198,7 +1229,7 @@ class assembler
       covr >
     end
     disc
-    blockdata.blockkind . read
+    copy blockdata.blockkind . read
     copy BNK_CLASS == if [
       "SIZE"
       (assembler.getfullname)
@@ -1219,6 +1250,42 @@ class assembler
       ": ; if" (writer.writeln)
       disc
     ]
+    copy BNK_LAMBDA == if [
+      assembler.blockends read (seq.popaddr) read 
+      ".blockend_" (writer.write)
+      copy (int.cstr) (writer.write)
+      ": ; lambda" (writer.writeln)
+      "    push .blockstart_" (writer.write)
+      copy (int.cstr) (writer.writeln)
+      disc
+      disc
+    ]
+    copy BNK_PLAMBDA == if [
+      assembler.blockends read (seq.popaddr) read 
+      ".blockend_" (writer.write)
+      copy (int.cstr) (writer.write)
+      ": ; lambda" (writer.writeln)
+      "    push .blockstart_" (writer.write)
+      copy (int.cstr) (writer.writeln)
+      disc
+      disc
+      
+      "    mov rax, [ret_stack_rsp]\n" (writer.write)
+      "    add rax, 8\n" (writer.write)
+      "    mov qword [ret_stack_rsp], rax\n" (writer.write)
+      "    mov qword [rax], .blockend_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.writeln)
+      "    jmp proc_" (writer.write)
+      covr blockdata.blockname . read
+      (assembler.internalname) str.data .
+      (writer.writeln)
+      ".blockend_" (writer.write)
+      assembler.curblock read (int.cstr) (writer.write)
+      ": ; call" (writer.writeln)
+      assembler.curblock copy
+      read 1 +
+      put disc
+    ]
     copy BNK_DO == if [
       "    pop rbx\n" (writer.write)
       "    test rbx, rbx\n" (writer.write)
@@ -1228,6 +1295,7 @@ class assembler
       ": ; do" (writer.writeln)
       disc
     ]
+    disc
     disc
 
     assembler.SUCCESS
