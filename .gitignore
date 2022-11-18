@@ -1,5 +1,4 @@
 *.nasm
-*.asm
 *.o
 /slam
 /slam2
@@ -17,4 +16,3 @@ tests/test
 s2.*
 s2
 sl2.*
-**/*.asm

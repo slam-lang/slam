@@ -874,7 +874,7 @@ class assembler
       ret
     ]
     covr INK_DISC == if [
-      "    pop rax\n" (writer.write)
+      "    add rsp, 8\n" (writer.write)
       disc
       disc
       assembler.SUCCESS

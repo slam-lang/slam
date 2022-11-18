@@ -46596,29 +46596,6 @@ proc_applyarg:
     mov qword [ret_stack_rsp], rax
     add rax, 8
     jmp qword [rax]
-proc_checksuccess:
-    push qword 0
-    mov rcx, 0
-    mov rdx, 1
-    pop rbx
-    pop rax
-    cmp rax, rbx
-    cmovne rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_0: ; if
-    jz .blockend_0
-    push qword -1
-    mov rax, 60
-    pop rdi
-    syscall
-.blockend_0: ; if
-    mov rax, [ret_stack_rsp]
-    sub rax, 8
-    mov qword [ret_stack_rsp], rax
-    add rax, 8
-    jmp qword [rax]
 proc_main:
     push qword 1
     mov rax, [args_ptr]
@@ -46877,13 +46854,23 @@ proc_main:
     mov qword [rax], .blockend_20
     jmp proc_assembler_visitnode
 .blockend_20: ; call
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 8
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_checksuccess
-.blockend_21: ; call
+    push qword 0
+    mov rcx, 0
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_21: ; if
+    jz .blockend_21
+    push qword -1
+    mov rax, 60
+    pop rdi
+    syscall
+.blockend_21: ; if
 .blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 8
@@ -47150,13 +47137,23 @@ proc_main:
     mov qword [rax], .blockend_32
     jmp proc_assembler_visitnode
 .blockend_32: ; call
-.blockstart_33: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 8
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_33
-    jmp proc_checksuccess
-.blockend_33: ; call
+    push qword 0
+    mov rcx, 0
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_33: ; if
+    jz .blockend_33
+    push qword -1
+    mov rax, 60
+    pop rdi
+    syscall
+.blockend_33: ; if
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 8
@@ -47830,7 +47827,7 @@ str_451: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 56, 10, 0 ;    pop r8\n
 str_452: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 57, 10, 0 ;    pop r9\n
 str_453: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0 ;    syscall\n
 str_454: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 97, 120, 10, 0 ;    push rax\n
-str_455: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 115, 112, 44, 32, 56, 10, 0 ;    add rsp, 8\n
+str_455: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 97, 120, 10, 0 ;    pop rax\n
 str_456: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 97, 120, 44, 32, 54, 48, 10, 0 ;    mov rax, 60\n
 str_457: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0 ;    pop rdi\n
 str_458: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0 ;    syscall\n
