@@ -18,8 +18,8 @@ jobs:
           sudo cp $(which fasm) /usr/bin/fasm
           git clone http://github.com/slam-lang/spakig
           cd spakig
+          chmod +x ./install.sh
           ./install.sh
-          ./spakig install slam-lang/slam
           cd ..
       - name: Run slam1 testzs
         id: tests
