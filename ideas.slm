@@ -26,8 +26,8 @@ proc lambdas 1 1
 
   ()
   
-  (int.print)
-  (int.print)
+  int.print
+  int.print
 
   ret
 end
@@ -48,12 +48,12 @@ proc cases 0 0
   copy
   switch
     cas 1
-      "lmao" (cstr.println) 0
+      "lmao" cstr.println 0
       brk
     cas 2
       brk
     els
-      (cstr.println) 0
+      cstr.println 0
       brk
   end
   disc
@@ -68,12 +68,12 @@ proc cases 0 0
   copy
   objswitch
   case "lol"
-    "lmao" (cstr.println) 0
+    "lmao" cstr.println 0
     brk
   case "word"
     brk
   else
-    (cstr.println) 0
+    cstr.println 0
     brk
   end
   disc
@@ -84,7 +84,7 @@ end
 {ifelse}
 proc elses 0 0
   1 if
-    "lol" (cstr.println)
+    "lol" cstr.println
   end
 
 end

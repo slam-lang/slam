@@ -88,14 +88,14 @@ class filepos
   push proc print 1 0
     copy NULL == if [ disc ret ]
       
-    "<" (cstr.print)
-    copy filepos.row . read (int.cstr) (cstr.print)
-    ":" (cstr.print)
-    copy filepos.col . read (int.cstr) (cstr.print)
-    "@" (cstr.print)
+    "<" cstr.print
+    copy filepos.row . read int.cstr cstr.print
+    ":" cstr.print
+    copy filepos.col . read int.cstr cstr.print
+    "@" cstr.print
     copy filepos.filename . read
-    copy NULL != if [ (cstr.print) 0 ]
-    ">" (cstr.print)
+    copy NULL != if [ cstr.print 0 ]
+    ">" cstr.print
     disc
     disc
 
@@ -137,7 +137,7 @@ class slmtoken
   prop stop filepos.SIZE
 
   push proc print 1 1
-    "\n  (" (cstr.print)
+    "\n  (" cstr.print
     copy slmtoken.type . read
     ""
     covr STK_NULL == if [ disc "NULL" ]
@@ -165,15 +165,15 @@ class slmtoken
     covr STK_ACCESS == if [ disc "ACCESS" ]
     covr STK_CONST == if [ disc "CONST" ]
     swap disc
-    (cstr.print)
+    cstr.print
 
-    ": " (cstr.print)
+    ": " cstr.print
 
     copy slmtoken.start . (filepos.print)
-    "-" (cstr.print)
+    "-" cstr.print
     copy slmtoken.stop . (filepos.print)
 
-    ")" (cstr.print)
+    ")" cstr.print
     ret
   end
 end

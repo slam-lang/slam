@@ -124,9 +124,9 @@ proc main 0 0
   (f)
   RES RES W H * * *
   /% swap
-  (int.cstr) (cstr.print)
-  "." (cstr.print)
-  (int.print)
+  int.cstr cstr.print
+  "." cstr.print
+  int.print
 
   ret
 end

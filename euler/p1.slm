@@ -15,7 +15,7 @@ proc main 0 0
   end
   disc
 
-  temp read (int.print)
+  temp read int.print
   
   ret
 end

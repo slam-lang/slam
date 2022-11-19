@@ -112,9 +112,9 @@ class calldata of nodedata
   end
 
   push proc print 1 0
-    """ (cstr.print)
+    """ cstr.print
     calldata.callee . read (str.print)
-    """ (cstr.print)
+    """ cstr.print
     ret
   end
 end
@@ -138,9 +138,9 @@ class asmdata of nodedata
   end
 
   push proc print 1 0
-    """ (cstr.print)
+    """ cstr.print
     asmdata.raw . read (str.print)
-    """ (cstr.print)
+    """ cstr.print
     ret
   end
 end
@@ -164,9 +164,9 @@ class incdata of nodedata
   end
 
   push proc print 1 0
-    """ (cstr.print)
+    """ cstr.print
     incdata.include . read (str.print)
-    """ (cstr.print)
+    """ cstr.print
     ret
   end
 end
@@ -190,9 +190,9 @@ class ofdata of nodedata
   end
 
   push proc print 1 0
-    """ (cstr.print)
+    """ cstr.print
     ofdata.inherit . read (str.print)
-    """ (cstr.print)
+    """ cstr.print
     ret
   end
 end
@@ -216,9 +216,9 @@ class casedata of nodedata
   end
 
   push proc print 1 0
-    """ (cstr.print)
+    """ cstr.print
     casedata.value . read (str.print)
-    """ (cstr.print)
+    """ cstr.print
     ret
   end
 end
@@ -263,7 +263,7 @@ class intrdata of nodedata
     nodedata.tmp swap put disc
 
     nodedata.tmp read intrdata.intrkind . read
-    copy (int.cstr)
+    copy int.cstr
     covr INK_RETURN == if [ disc "ret" ]
     covr INK_ELSE == if [ disc "els" ]
     covr INK_COPY == if [ disc "copy" ]
@@ -282,7 +282,7 @@ class intrdata of nodedata
     covr INK_QUIT == if [ disc "quit" ]
     swap disc
 
-    (cstr.print)
+    cstr.print
 
     ret
   end
@@ -320,12 +320,12 @@ class vardata of nodedata
     covr CNK_WORD == if [ disc "WORD: "" ]
     swap disc
 
-    (cstr.print)
+    cstr.print
 
     nodedata.tmp read vardata.varkind . read
     nodedata.tmp read vardata.varvalue . read
-    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
-    covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
+    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
     ret
@@ -363,12 +363,12 @@ class defdata of nodedata
     covr CNK_WORD == if [ disc "WORD: "" ]
     swap disc
 
-    (cstr.print)
+    cstr.print
 
     nodedata.tmp read defdata.defkind . read
     nodedata.tmp read defdata.defvalue . read
-    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
-    covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
+    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
     ret
@@ -408,12 +408,12 @@ class propdata of nodedata
     covr CNK_WORD == if [ disc "WORD: "" ]
     swap disc
 
-    (cstr.print)
+    cstr.print
 
     nodedata.tmp read propdata.propkind . read
     nodedata.tmp read propdata.propvalue . read
-    covr CNK_NUMBER == if [ read (int.cstr) (cstr.print) disc ret ]
-    covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
+    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
     ret
@@ -451,13 +451,13 @@ class constdata of nodedata
     covr CNK_WORD == if [ disc "WORD: "" ]
     swap disc
 
-    (cstr.print)
+    cstr.print
 
     nodedata.tmp read constdata.constkind . read
     nodedata.tmp read constdata.constvalue . read
     covr CNK_NUMBER == if [ (str.print) disc ret ]
-    covr CNK_STRING == if [ (str.print) disc """ (cstr.print) ret ]
-    covr CNK_WORD == if [ (str.print) disc """ (cstr.print) ret ]
+    covr CNK_STRING == if [ (str.print) disc """ cstr.print ret ]
+    covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
     ret
@@ -512,11 +512,11 @@ class filedata of nodedata
     nodedata.tmp swap put disc
     nodedata.printnode swap put disc
 
-    """ (cstr.print)
+    """ cstr.print
     nodedata.tmp read
     filedata.name . read
-    (cstr.print)
-    ""\ " (cstr.print)
+    cstr.print
+    ""\ " cstr.print
 
     nodedata.tmp read
     filedata.childcount . read
@@ -608,8 +608,8 @@ class blockdata of nodedata
     covr BNK_IF == if [ disc "if" ]
     swap disc
 
-    (cstr.print)
-    " " (cstr.print)
+    cstr.print
+    " " cstr.print
 
     nodedata.tmp read
     blockdata.childcount . read
@@ -658,126 +658,126 @@ class slmnode
     slmnode.tmp read
     slmnode.data . read nodedata.kind . read
     copy SNK_NULL == if [
-      "<NULL>" (cstr.print)
+      "<NULL>" cstr.print
 
       disc ret
     ]
     copy SNK_FILE == if [
-      "<FILE: " (cstr.print)
+      "<FILE: " cstr.print
       slmnode.tmp read
       slmnode.data . read 
       slmnode.print swap
       (filedata.print)
 
-      ">" (cstr.println)
+      ">" cstr.println
       disc ret
     ]
     copy SNK_BLOCK == if [
-      "<BLOCK: " (cstr.print)
+      "<BLOCK: " cstr.print
       slmnode.tmp read
       slmnode.data . read 
       slmnode.print swap
       (blockdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_INC == if [
-      "<INC: " (cstr.print)
+      "<INC: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (incdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_ASM == if [
-      "<ASM: " (cstr.print)
+      "<ASM: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (asmdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_OF == if [
-      "<OF: " (cstr.print)
+      "<OF: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (ofdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_CASE == if [
-      "<CASE: " (cstr.print)
+      "<CASE: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (casedata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_CALL == if [
-      "<CALL: " (cstr.print)
+      "<CALL: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (calldata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_INTR == if [
-      "<INTR: " (cstr.print)
+      "<INTR: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (intrdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_CONST == if [
-      "<CONST: " (cstr.print)
+      "<CONST: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (constdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_VAR == if [
-      "<VAR: " (cstr.print)
+      "<VAR: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (vardata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_DEF == if [
-      "<DEF: " (cstr.print)
+      "<DEF: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (defdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_PROP == if [
-      "<PROP: " (cstr.print)
+      "<PROP: " cstr.print
       slmnode.tmp read
       slmnode.data . read
       (propdata.print)
 
-      ">" (cstr.print)
+      ">" cstr.print
       disc ret
     ]
     copy SNK_COMMENT == if [
-      "<COMMENT>" (cstr.print)
+      "<COMMENT>" cstr.print
       disc ret
     ]
     "ERR" "Could not convert node " (log.msg)
-    copy (int.cstr) (log.cat)
+    copy int.cstr (log.cat)
     " to string" (log.cat)
     (log.log)
     1 quit

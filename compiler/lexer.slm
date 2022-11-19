@@ -20,15 +20,15 @@ class lexer
   var includepath int.SIZE
 
   push proc new 2 1
-    "[LEX] " (cstr.print)
+    "[LEX] " cstr.print
     swap covr if [
       lexer.includepath
       (str.new) put disc
 
       lexer.includepath read
       "HOME" (os.env)
-      copy (cstr.len) swap (str.sput)
-      covr (cstr.println)
+      copy cstr.len swap (str.sput)
+      covr cstr.println
       "/.local/slam/lib/" (str.catc)
       covr (str.catc) disc
     ]
@@ -38,7 +38,7 @@ class lexer
 
       lexer.includepath read
       covr
-      copy (cstr.len) swap (str.sput)
+      copy cstr.len swap (str.sput)
       (str.println)
     ]
 
@@ -321,7 +321,7 @@ class lexer
     ]
 
     str.data .
-    copy (cstr.isnum) if [
+    copy cstr.isnum if [
       lexer.tmp read lexer.token . slmtoken.type . STK_CONST_NUMBER put disc disc ret
     ]
     readc
@@ -360,8 +360,8 @@ class lexer
 
       lexer.tmp read lexer.token . slmtoken.value . read
       lexer.tmp read lexer.word . read
-      str.data . 1 + readc (int.cstr)
-      copy (cstr.len) swap
+      str.data . 1 + readc int.cstr
+      copy cstr.len swap
       (str.sput) disc
     ]
     copy '(' == if [

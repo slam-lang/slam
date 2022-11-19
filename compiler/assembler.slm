@@ -119,7 +119,7 @@ class assembler
     copy
     assembler.tmpof read ofdata.inherit . read str.data .
     copy 
-    (cstr.len) (mem.eq)
+    cstr.len (mem.eq)
     ! if [
       ret
     ]
@@ -164,17 +164,17 @@ class assembler
     ]
 
     ".blockstart_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.write)
+    assembler.curblock read int.cstr (writer.write)
     ": ; call" (writer.writeln)
     "    mov rax, [ret_stack_rsp]\n" (writer.write)
     "    add rax, 8\n" (writer.write)
     "    mov qword [ret_stack_rsp], rax\n" (writer.write)
     "    mov qword [rax], .blockend_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.writeln)
+    assembler.curblock read int.cstr (writer.writeln)
     "    jmp proc_" (writer.write)
     assembler.procnamecstr (writer.writeln)
     ".blockend_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.write)
+    assembler.curblock read int.cstr (writer.write)
     ": ; call" (writer.writeln)
 
     assembler.curblock copy
@@ -187,17 +187,17 @@ class assembler
   end
 
   push proc visitword 1 1
-    assembler.blockprocname read covr copy (cstr.len) swap (str.sput) disc
+    assembler.blockprocname read covr copy cstr.len swap (str.sput) disc
     assembler.blockprocname read (assembler.internalname) disc
 
     assembler.procnamecstr TAB_KEY_SIZE (mem.zero)
     assembler.procnamecstr
-    assembler.tmpname read str.data . (cstr.cpy) disc disc
+    assembler.tmpname read str.data . cstr.cpy disc disc
 
     assembler.consttab read covr (map.in) if [
       covr (map.get) read
       "    push qword " (writer.write)
-      (int.cstr) (writer.write)
+      int.cstr (writer.write)
       (writer.cr)
 
       disc
@@ -210,7 +210,7 @@ class assembler
     assembler.vartab read covr (map.in) if [
       covr (map.get) read
       "    push mem+" (writer.write)
-      (int.cstr) (writer.write)
+      int.cstr (writer.write)
       (writer.cr)
 
       disc
@@ -260,7 +260,7 @@ class assembler
     ]
     covr CNK_SSTRING == if [
       "    push qword " (writer.write)
-      copy constdata.constvalue . read (writer.getlen) (int.cstr) (writer.writeln)
+      copy constdata.constvalue . read (writer.getlen) int.cstr (writer.writeln)
       "    push str_" (writer.write)
       constdata.constvalue . (writer.addstr)
       (writer.cr)
@@ -291,14 +291,14 @@ class assembler
     assembler.tmpstr read
     assembler.classname read
     copy NULL != if [
-      str.data . (cstr.cpy)
+      str.data . cstr.cpy
 
       assembler.tmpstr read
-      "." (cstr.cat) disc
+      "." cstr.cat disc
     ] disc disc
 
     assembler.tmpstr read
-    covr (cstr.cat)
+    covr cstr.cat
     disc
     disc
     ret
@@ -310,7 +310,7 @@ class assembler
       copy defdata.defname . read str.data .
       (assembler.getfullname)
 
-      copy defdata.defvalue . read str.data . (cstr.tonum)
+      copy defdata.defvalue . read str.data . cstr.int
       assembler.tmpdef swap put disc
 
       assembler.consttab read
@@ -432,21 +432,21 @@ class assembler
 
   push proc visitcall 1 1
     calldata.callee . read
-    copy str.data . "" (cstr.eq) if [
+    copy str.data . "" cstr.eq if [
       disc
 
       ".blockstart_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; call" (writer.writeln)
       "    pop rbx\n" (writer.write)
       "    mov rax, [ret_stack_rsp]\n" (writer.write)
       "    add rax, 8\n" (writer.write)
       "    mov qword [ret_stack_rsp], rax\n" (writer.write)
       "    mov qword [rax], .blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.writeln)
+      assembler.curblock read int.cstr (writer.writeln)
       "    jmp qword rbx\n" (writer.write)
       ".blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; call" (writer.writeln)
       assembler.curblock copy
       read 1 +
@@ -458,10 +458,10 @@ class assembler
     ]
     (assembler.internalname)
     assembler.tmpcallee TAB_KEY_SIZE (mem.zero)
-    assembler.tmpcallee swap str.data . (cstr.cpy) disc disc
+    assembler.tmpcallee swap str.data . cstr.cpy disc disc
 
     assembler.proctab read assembler.tmpcallee (map.in) swap disc ! if [
-      assembler.tmpcallee (cstr.println)
+      assembler.tmpcallee cstr.println
       assembler.FAIL
       ret
     ]
@@ -474,17 +474,17 @@ class assembler
     ]
 
     ".blockstart_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.write)
+    assembler.curblock read int.cstr (writer.write)
     ": ; call" (writer.writeln)
     "    mov rax, [ret_stack_rsp]\n" (writer.write)
     "    add rax, 8\n" (writer.write)
     "    mov qword [ret_stack_rsp], rax\n" (writer.write)
     "    mov qword [rax], .blockend_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.writeln)
+    assembler.curblock read int.cstr (writer.writeln)
     "    jmp proc_" (writer.write)
     assembler.tmpcallee (writer.writeln)
     ".blockend_" (writer.write)
-    assembler.curblock read (int.cstr) (writer.write)
+    assembler.curblock read int.cstr (writer.write)
     ": ; call" (writer.writeln)
 
     assembler.curblock copy
@@ -512,11 +512,11 @@ class assembler
     ]
     covr INK_BRK == if [
       assembler.blockends read 
-      copy (seq.len) swap disc 2 -
-      (seq.getaddr) read
+      copy seq.len swap disc 2 -
+      seq.getaddr read
       swap disc
       "    jmp .blockend_" (writer.write)
-      (int.cstr) (writer.writeln)
+      int.cstr (writer.writeln)
       disc
       disc
       assembler.SUCCESS
@@ -936,9 +936,9 @@ class assembler
   end
 
   push proc visitfile 1 1
-    "[ASM] " (cstr.print)
+    "[ASM] " cstr.print
     copy filedata.name . read
-    (cstr.println)
+    cstr.println
 
     assembler.file
     covr filedata.name . read
@@ -960,7 +960,7 @@ class assembler
       copy assembler.visit read ()
       assembler.SUCCESS != if [
         (slmnode.print)
-        (cstr.cr)
+        cstr.cr
         disc
         disc
         assembler.FAIL
@@ -1008,7 +1008,7 @@ class assembler
 
     assembler.procnamecstr TAB_KEY_SIZE (mem.zero)
     assembler.procnamecstr
-    assembler.procname read str.data . (cstr.cpy) disc disc
+    assembler.procname read str.data . cstr.cpy disc disc
 
     assembler.proctab read
     assembler.procnamecstr
@@ -1038,7 +1038,7 @@ class assembler
       slmnode.data . read
       copy constdata.constkind . read swap
       covr CNK_NUMBER == if [
-        copy constdata.constvalue . read str.data . (cstr.tonum) assembler.enumval swap put disc
+        copy constdata.constvalue . read str.data . cstr.int assembler.enumval swap put disc
       ]
       covr CNK_WORD == if [
         copy constdata.constvalue . read str.data .
@@ -1083,7 +1083,7 @@ class assembler
       copy (simulator.visitnode)
       simulator.SUCCESS != if [
         (slmnode.print)
-        (cstr.cr)
+        cstr.cr
         disc
         disc
         assembler.FAIL
@@ -1102,13 +1102,23 @@ class assembler
     do
       0 
       covr (dlist.pop)
-      copy NULL != if [
-        swap disc
-        "    push qword " (writer.write)
-        read (int.cstr) (writer.writeln)
+      copy NULL != if
+        copy simstackentry.kind . read
+        copy simstackentry.SE_NUMBER == if
+          disc
+          "    push qword " (writer.write)
+          copy simstackentry.data . read int.cstr (writer.writeln)
+
+          -1
+        end
+        -1 != if
+          disc disc disc assembler.FAIL ret
+        end
+        disc
+        disc
 
         0 1
-      ]
+      end
       disc
     end
     disc
@@ -1147,46 +1157,46 @@ class assembler
       "    pop rbx\n" (writer.write)
       "    test rbx, rbx\n" (writer.write)
       ".blockstart_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; if" (writer.writeln)
       "    jz .blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.writeln)
+      assembler.curblock read int.cstr (writer.writeln)
       assembler.blockends read
-      assembler.curblock read (seq.pushint) disc
+      assembler.curblock read seq.pushint disc
       assembler.curblock copy
       read 1 +
       put disc
     ]
     copy BNK_DO == if [
       ".blockstart_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; do" (writer.writeln)
       assembler.blockends read
-      assembler.curblock read (seq.pushint) disc
+      assembler.curblock read seq.pushint disc
       assembler.curblock copy
       read 1 +
       put disc
     ]
     copy BNK_LAMBDA == if [
       "    jmp .blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.writeln)
+      assembler.curblock read int.cstr (writer.writeln)
       ".blockstart_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; lambda" (writer.writeln)
       assembler.blockends read
-      assembler.curblock read (seq.pushint) disc
+      assembler.curblock read seq.pushint disc
       assembler.curblock copy
       read 1 +
       put disc
     ]
     copy BNK_PLAMBDA == if [
       "    jmp .blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.writeln)
+      assembler.curblock read int.cstr (writer.writeln)
       ".blockstart_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; lambda" (writer.writeln)
       assembler.blockends read
-      assembler.curblock read (seq.pushint) disc
+      assembler.curblock read seq.pushint disc
       assembler.curblock copy
       read 1 +
       put disc
@@ -1215,7 +1225,7 @@ class assembler
       copy assembler.visit read ()
       assembler.SUCCESS != if [
         (slmnode.print)
-        (cstr.cr)
+        cstr.cr
         disc
         disc
         assembler.FAIL
@@ -1246,27 +1256,27 @@ class assembler
     ]
     copy BNK_IF == if [
       ".blockend_" (writer.write)
-      assembler.blockends read (seq.popaddr) read (int.cstr) (writer.write)
+      assembler.blockends read seq.popaddr read int.cstr (writer.write)
       ": ; if" (writer.writeln)
       disc
     ]
     copy BNK_LAMBDA == if [
-      assembler.blockends read (seq.popaddr) read 
+      assembler.blockends read seq.popaddr read 
       ".blockend_" (writer.write)
-      copy (int.cstr) (writer.write)
+      copy int.cstr (writer.write)
       ": ; lambda" (writer.writeln)
       "    push .blockstart_" (writer.write)
-      copy (int.cstr) (writer.writeln)
+      copy int.cstr (writer.writeln)
       disc
       disc
     ]
     copy BNK_PLAMBDA == if [
-      assembler.blockends read (seq.popaddr) read 
+      assembler.blockends read seq.popaddr read 
       ".blockend_" (writer.write)
-      copy (int.cstr) (writer.write)
+      copy int.cstr (writer.write)
       ": ; lambda" (writer.writeln)
       "    push .blockstart_" (writer.write)
-      copy (int.cstr) (writer.writeln)
+      copy int.cstr (writer.writeln)
       disc
       disc
       
@@ -1274,13 +1284,13 @@ class assembler
       "    add rax, 8\n" (writer.write)
       "    mov qword [ret_stack_rsp], rax\n" (writer.write)
       "    mov qword [rax], .blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.writeln)
+      assembler.curblock read int.cstr (writer.writeln)
       "    jmp proc_" (writer.write)
       covr blockdata.blockname . read
       (assembler.internalname) str.data .
       (writer.writeln)
       ".blockend_" (writer.write)
-      assembler.curblock read (int.cstr) (writer.write)
+      assembler.curblock read int.cstr (writer.write)
       ": ; call" (writer.writeln)
       assembler.curblock copy
       read 1 +
@@ -1290,7 +1300,7 @@ class assembler
       "    pop rbx\n" (writer.write)
       "    test rbx, rbx\n" (writer.write)
       "    jnz .blockstart_" (writer.write)
-      assembler.blockends read (seq.popaddr) read (int.cstr) copy (writer.writeln)
+      assembler.blockends read seq.popaddr read int.cstr copy (writer.writeln)
       ".blockend_" (writer.write) (writer.write)
       ": ; do" (writer.writeln)
       disc
@@ -1305,7 +1315,7 @@ class assembler
 
   push proc visitnode 1 1
     assembler.blockends read NULL == if [
-      assembler.blockends int.SIZE 256 (seq.new) put disc
+      assembler.blockends int.SIZE 256 seq.new put disc
       assembler.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.proctab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       assembler.vartab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
@@ -1402,7 +1412,7 @@ class assembler
       ret
     ]
     disc (slmnode.print)
-    (cstr.cr)
+    cstr.cr
 
     assembler.FAIL
     ret

@@ -12,7 +12,7 @@ proc checkprime 1 1
     copy 2 !=
   end
   disc
-  (int.print)
+  int.print
   
   0
   quit

@@ -1,7 +1,8 @@
-default: clean slam.asm slam
+default: clean slam slam.asm
 
 slam: slam.slm
-	slam -o slam slam.slm
+	cp -r compiler ~/.local/slam/lib/
+	slam -o ./slam slam.slm
 
 install: slam
 	cp slam /usr/bin
@@ -10,7 +11,7 @@ install: slam
 
 clean:
 	rm -f slam2
-	rm -f s2.asm
+	rm -f slam.asm
 	rm -f slam
 	rm -f slam-pyc
 	rm -f temp.fasm
@@ -26,6 +27,6 @@ test: tests/slam2/test
 	rm tests/slam2/test -rf
 	rm tests/slam2/tester
 
-slam.asm:
+slam.asm: slam
 	rm -f slam.asm
-	slam -a -o slam slam.slm	
+	./slam -a -o slam slam.slm

@@ -19,9 +19,9 @@ proc main 0 0
       covr (imath.squared)
 
       == if [
-        covr covr (int.print) (int.print)
-        covr covr + 1000 swap - (int.print)
-        covr covr + 1000 swap - * * (int.print) 0 quit
+        covr covr int.print int.print
+        covr covr + 1000 swap - int.print
+        covr covr + 1000 swap - * * int.print 0 quit
       ]
 
       copy 0 > 
@@ -32,7 +32,7 @@ proc main 0 0
   end
   disc
 
-  "no solution found" (cstr.println)
+  "no solution found" cstr.println
 
   ret
 end

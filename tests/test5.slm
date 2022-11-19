@@ -11,8 +11,8 @@ proc main 0 0
   
   "Concat to the string" (testin.next)
 
-    "foo" (cstr.cat)  
-    "bar" (cstr.cat)  
+    "foo" cstr.cat  
+    "bar" cstr.cat  
   
   "Check that its correct" (testin.next)
   

@@ -19,10 +19,10 @@ proc main 0 0
       1
       covr thirteen +
       inputfd read (os.readf) 0 == if [
-        maxval read (int.print)
+        maxval read int.print
         quit
       ]
-      thirteen (cstr.isnum) !
+      thirteen cstr.isnum !
     end
     thirteen
     1

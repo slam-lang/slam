@@ -19,8 +19,8 @@ proc collatz 1 1
 
     val swap put disc
     
-    valtab read val read (int.cstr) (tab.in) if [
-      val read (int.cstr) (tab.get) swap disc + 1 + ret
+    valtab read val read int.cstr (tab.in) if [
+      val read int.cstr (tab.get) swap disc + 1 + ret
     ]
     disc
 
@@ -49,26 +49,26 @@ proc main 0 0
     copy (collatz)
 
     copy max read > if [
-      "  " (cstr.print)
-      covr (int.cstr) (cstr.print)
-      ":" (cstr.print)
-      copy (int.cstr) (cstr.println)
+      "  " cstr.print
+      covr int.cstr cstr.print
+      ":" cstr.print
+      copy int.cstr cstr.println
       covr max swap put disc
     ]
 
-    swap (int.cstr)
+    swap int.cstr
     swap
     (tab.putp) disc
     
     copy 1000 / swap disc 0 == if [
-      copy (int.print)
+      copy int.print
     ]
 
     copy 1000000 <
   end
   disc
 
-  max read (int.print)
+  max read int.print
 
   ret
 end

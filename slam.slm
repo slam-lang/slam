@@ -42,27 +42,27 @@ prints a help string
 }
 push proc help 1 0
   copy HELP_VERSION == if
-    "slam compiler v" (cstr.print) (version) (cstr.println)
+    "slam compiler v" cstr.print (version) cstr.println
     disc 0 quit
   end
   copy HELP_ARGS == if
     "ERROR: You must compile exactly 1 file"
-    (cstr.println)
+    cstr.println
   end
   copy HELP_OUTPUT == if
     "ERROR: Last argument supplied requires a parameter"
-    (cstr.println)
+    cstr.println
   end
-  "slam compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
-  (cstr.cr)
-  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
-  (cstr.cr)
-  "-v            shows the version and exits."      (cstr.println)
-  "-h, --help    shows this help message."          (cstr.println)
-  "-s, --sim     runs the file with the simulator." (cstr.println)
-  "-a, --asm     assembles the file."               (cstr.println)
-  "-j, --sjs     assembles the file to a sjs file." (cstr.println)
-  "-o, --output  selects the output file."          (cstr.println)
+  "slam compiler v" cstr.print (version) cstr.print " usage:" cstr.println
+  cstr.cr
+  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" cstr.println
+  cstr.cr
+  "-v            shows the version and exits."      cstr.println
+  "-h, --help    shows this help message."          cstr.println
+  "-s, --sim     runs the file with the simulator." cstr.println
+  "-a, --asm     assembles the file."               cstr.println
+  "-j, --sjs     assembles the file to a sjs file." cstr.println
+  "-o, --output  selects the output file."          cstr.println
   disc
   
   0 quit
@@ -91,12 +91,12 @@ push proc setoutput 1 1
     put disc
 
     targetoutasm read
-    targetout read copy (cstr.len) swap (str.sput)
+    targetout read copy cstr.len swap (str.sput)
     ".asm" (str.catc)
     disc
 
     targetoutsla read
-    targetout read copy (cstr.len) swap (str.sput)
+    targetout read copy cstr.len swap (str.sput)
     ".sla" (str.catc)
     disc
 
@@ -112,25 +112,25 @@ if so returns 0 and runs argument
 otherwise returns 1
 }
 push proc applyarg 2 2
-  copy "-h" (cstr.eq)
+  copy "-h" cstr.eq
   if disc HELP_SHOW (help) 0 ret end
-  copy "--help" (cstr.eq)
+  copy "--help" cstr.eq
   if disc HELP_SHOW (help) 0 ret end
-  copy "-v" (cstr.eq)
+  copy "-v" cstr.eq
   if disc HELP_VERSION (help) 0 ret end
-  copy "--sim" (cstr.eq)
+  copy "--sim" cstr.eq
   if disc target TARGET_SIM put disc 0 ret end
-  copy "-s" (cstr.eq)
+  copy "-s" cstr.eq
   if disc target TARGET_SIM put disc 0 ret end
-  copy "--asm" (cstr.eq)
+  copy "--asm" cstr.eq
   if disc target TARGET_ASM put disc 0 ret end
-  copy "-a" (cstr.eq)
+  copy "-a" cstr.eq
   if disc target TARGET_ASM put disc 0 ret end
-  copy "--sjs" (cstr.eq)
+  copy "--sjs" cstr.eq
   if disc target TARGET_SJS put disc 0 ret end
-  copy "-j" (cstr.eq)
+  copy "-j" cstr.eq
   if disc target TARGET_SJS put disc 0 ret end
-  copy "-o" (cstr.eq)
+  copy "-o" cstr.eq
   if disc 1 + (setoutput) 0 ret end
   disc
   1 ret

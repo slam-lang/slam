@@ -30,7 +30,7 @@ proc main 0 0
 
     covr 0 !=
   end
-  (int.print)
+  int.print
   disc
 
   ret

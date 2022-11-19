@@ -42,19 +42,19 @@ proc main 0 0
   five read
   two read
    > if [
-    "5 " (cstr.print)
+    "5 " cstr.print
     five read two read -
-    (int.print)
+    int.print
   ]
   five read
   two read
   < if [
-    "2 " (cstr.print)
+    "2 " cstr.print
     two read five read -
-    (int.print)
+    int.print
   ]
   
-  (int.print)
+  int.print
 
   ret
 end

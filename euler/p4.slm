@@ -5,9 +5,9 @@ gvar max 8
 proc checkpal 1 0
   copy max read < if [disc ret]
   
-  copy (int.cstr)
+  copy int.cstr
   copy
-  copy (cstr.len) + 1 -
+  copy cstr.len + 1 -
   swap 1 -
   swap 1 +
   
@@ -60,7 +60,7 @@ proc main 0 0
     copy 999 <
   end
   disc
-  max read (int.print)
+  max read int.print
 
   ret
 end

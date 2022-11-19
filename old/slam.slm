@@ -313,11 +313,11 @@ push proc lineappend 0 0
   "@" (log.cat)
   linestats read
   linedata.line . read
-  (int.cstr) (log.cat)
+  int.cstr (log.cat)
   ":" (log.cat)
   linestats read
   linedata.column . read
-  (int.cstr) (log.cat)
+  int.cstr (log.cat)
   ">" (log.cat)
 
   ret
@@ -331,7 +331,7 @@ opens a file for writing
 }
 push proc openinput 1 1
   linestats linedata.SIZE (heap.zalloc) put disc
-  linestats read linedata.file . covr (cstr.cpy) disc disc
+  linestats read linedata.file . covr cstr.cpy disc disc
 
   inputfd read
   copy NULL != if [ (os.close) 0 ]
@@ -376,62 +376,62 @@ gets a operation from a string name
 }
 push proc getopfromname 1 1
   OP_BAD
-  covr "proc"  (cstr.eq) if [disc IDENT_PROC]
-  covr "oper"  (cstr.eq) if [disc IDENT_OPER]
-  covr "push"  (cstr.eq) if [disc IDENT_PUSH]
-  covr "cproc" (cstr.eq) if [disc IDENT_CPROC]
-  covr "do"    (cstr.eq) if [disc IDENT_DO]
-  covr "end"   (cstr.eq) if [disc IDENT_END]
-  covr "inc"   (cstr.eq) if [disc IDENT_INC]
-  covr "lnk"   (cstr.eq) if [disc IDENT_LNK]
-  covr "enum"  (cstr.eq) if [disc IDENT_ENUM]
-  covr "var"   (cstr.eq) if [disc IDENT_VAR]
-  covr "gvar"  (cstr.eq) if [disc IDENT_GVAR]
-  covr "const" (cstr.eq) if [disc IDENT_CONST]
-  covr "class" (cstr.eq) if [disc IDENT_CLASS]
-  covr "of"    (cstr.eq) if [disc IDENT_OF]
-  covr "asm"   (cstr.eq) if [disc IDENT_ASM]
-  covr "prop"  (cstr.eq) if [disc IDENT_PROP]
+  covr "proc"  cstr.eq if [disc IDENT_PROC]
+  covr "oper"  cstr.eq if [disc IDENT_OPER]
+  covr "push"  cstr.eq if [disc IDENT_PUSH]
+  covr "cproc" cstr.eq if [disc IDENT_CPROC]
+  covr "do"    cstr.eq if [disc IDENT_DO]
+  covr "end"   cstr.eq if [disc IDENT_END]
+  covr "inc"   cstr.eq if [disc IDENT_INC]
+  covr "lnk"   cstr.eq if [disc IDENT_LNK]
+  covr "enum"  cstr.eq if [disc IDENT_ENUM]
+  covr "var"   cstr.eq if [disc IDENT_VAR]
+  covr "gvar"  cstr.eq if [disc IDENT_GVAR]
+  covr "const" cstr.eq if [disc IDENT_CONST]
+  covr "class" cstr.eq if [disc IDENT_CLASS]
+  covr "of"    cstr.eq if [disc IDENT_OF]
+  covr "asm"   cstr.eq if [disc IDENT_ASM]
+  covr "prop"  cstr.eq if [disc IDENT_PROP]
   
-  covr "nop"   (cstr.eq) if [disc OP_NOP]
-  covr "-"     (cstr.eq) if [disc OP_SUB]
-  covr "*"     (cstr.eq) if [disc OP_MUL]
-  covr "/%"    (cstr.eq) if [disc OP_DIV]
-  covr "+"     (cstr.eq) if [disc OP_PLUS]
-  covr "^"     (cstr.eq) if [disc OP_XOR]
-  covr "."     (cstr.eq) if [disc OP_PLUS]
-  covr "swap"  (cstr.eq) if [disc OP_SWAP]
-  covr "dump"  (cstr.eq) if [disc OP_DUMP]
-  covr "copy"  (cstr.eq) if [disc OP_COPY]
-  covr "covr"  (cstr.eq) if [disc OP_COVR]
-  covr "readc" (cstr.eq) if [disc OP_READC]
-  covr "read"  (cstr.eq) if [disc OP_READ]
-  covr "@"     (cstr.eq) if [disc OP_READ]
-  covr "putc"  (cstr.eq) if [disc OP_PUTC]
-  covr "put"   (cstr.eq) if [disc OP_PUT]
-  covr "="     (cstr.eq) if [disc OP_PUT]
-  covr "disc"  (cstr.eq) if [disc OP_DISC]
-  covr "argv"  (cstr.eq) if [disc OP_ARGV]
-  covr "argc"  (cstr.eq) if [disc OP_ARGC]
-  covr "envp"  (cstr.eq) if [disc OP_ENVP]
-  covr "()"    (cstr.eq) if [disc OP_CALLS]
-  covr "ret"   (cstr.eq) if [disc OP_RET]
-  covr "quit"  (cstr.eq) if [disc OP_QUIT]
-  covr "if"    (cstr.eq) if [disc OP_IF]
-  covr "!="    (cstr.eq) if [disc OP_NQ]
-  covr "=="    (cstr.eq) if [disc OP_EQ]
-  covr "<"     (cstr.eq) if [disc OP_LT]
-  covr ">"     (cstr.eq) if [disc OP_GT]
-  covr "&&"    (cstr.eq) if [disc OP_AND]
-  covr "||"    (cstr.eq) if [disc OP_OR]
-  covr "!"     (cstr.eq) if [disc OP_NOT]
-  covr "sys0"  (cstr.eq) if [disc OP_SYS0]
-  covr "sys1"  (cstr.eq) if [disc OP_SYS1]
-  covr "sys2"  (cstr.eq) if [disc OP_SYS2]
-  covr "sys3"  (cstr.eq) if [disc OP_SYS3]
-  covr "sys4"  (cstr.eq) if [disc OP_SYS4]
-  covr "sys5"  (cstr.eq) if [disc OP_SYS5]
-  covr "sys6"  (cstr.eq) if [disc OP_SYS6]
+  covr "nop"   cstr.eq if [disc OP_NOP]
+  covr "-"     cstr.eq if [disc OP_SUB]
+  covr "*"     cstr.eq if [disc OP_MUL]
+  covr "/%"    cstr.eq if [disc OP_DIV]
+  covr "+"     cstr.eq if [disc OP_PLUS]
+  covr "^"     cstr.eq if [disc OP_XOR]
+  covr "."     cstr.eq if [disc OP_PLUS]
+  covr "swap"  cstr.eq if [disc OP_SWAP]
+  covr "dump"  cstr.eq if [disc OP_DUMP]
+  covr "copy"  cstr.eq if [disc OP_COPY]
+  covr "covr"  cstr.eq if [disc OP_COVR]
+  covr "readc" cstr.eq if [disc OP_READC]
+  covr "read"  cstr.eq if [disc OP_READ]
+  covr "@"     cstr.eq if [disc OP_READ]
+  covr "putc"  cstr.eq if [disc OP_PUTC]
+  covr "put"   cstr.eq if [disc OP_PUT]
+  covr "="     cstr.eq if [disc OP_PUT]
+  covr "disc"  cstr.eq if [disc OP_DISC]
+  covr "argv"  cstr.eq if [disc OP_ARGV]
+  covr "argc"  cstr.eq if [disc OP_ARGC]
+  covr "envp"  cstr.eq if [disc OP_ENVP]
+  covr "()"    cstr.eq if [disc OP_CALLS]
+  covr "ret"   cstr.eq if [disc OP_RET]
+  covr "quit"  cstr.eq if [disc OP_QUIT]
+  covr "if"    cstr.eq if [disc OP_IF]
+  covr "!="    cstr.eq if [disc OP_NQ]
+  covr "=="    cstr.eq if [disc OP_EQ]
+  covr "<"     cstr.eq if [disc OP_LT]
+  covr ">"     cstr.eq if [disc OP_GT]
+  covr "&&"    cstr.eq if [disc OP_AND]
+  covr "||"    cstr.eq if [disc OP_OR]
+  covr "!"     cstr.eq if [disc OP_NOT]
+  covr "sys0"  cstr.eq if [disc OP_SYS0]
+  covr "sys1"  cstr.eq if [disc OP_SYS1]
+  covr "sys2"  cstr.eq if [disc OP_SYS2]
+  covr "sys3"  cstr.eq if [disc OP_SYS3]
+  covr "sys4"  cstr.eq if [disc OP_SYS4]
+  covr "sys5"  cstr.eq if [disc OP_SYS5]
+  covr "sys6"  cstr.eq if [disc OP_SYS6]
   swap disc
   
   ret
@@ -444,7 +444,7 @@ returns: int[value]
 gets a operation name from a enum
 }
 push proc getopname 1 1
-  (int.cstr)
+  int.cstr
   {TODO: reimplement}
 
   ret
@@ -474,7 +474,7 @@ push proc clean 0 0
   classtab     read (map.free)
   includedtab  read (map.free)
 
-  identstack   read (seq.free)
+  identstack   read seq.free
 
   stringbuffer read (heap.free)
   
@@ -571,7 +571,7 @@ returns:
 pushes an ident to the ident stack
 }
 push proc identstackpush 1 0
-  identstack read swap (seq.pushint)
+  identstack read swap seq.pushint
   disc
 
   ret
@@ -584,7 +584,7 @@ returns: int[push]
 pop from the ident stack
 }
 push proc identstackpop 0 1
-  identstack read (seq.popaddr) read swap disc
+  identstack read seq.popaddr read swap disc
 
   ret
 end
@@ -598,7 +598,7 @@ removes the first and last char from a string
 }
 push proc inner 1 1
   1 + copy
-  copy (cstr.len) 1 - + 0 putc disc
+  copy cstr.len 1 - + 0 putc disc
   ret
 end
 
@@ -741,8 +741,8 @@ returns:
 sets the current class name
 }
 push proc setclassname 0 0
-  classstats (cstr.clear) disc
-  cmdbuffer classname swap (cstr.cpy) disc disc
+  classstats cstr.clear disc
+  cmdbuffer classname swap cstr.cpy disc disc
 
   IDENT_CLASS (identstackpush)
 
@@ -776,7 +776,7 @@ end
 
 push proc setclassinherits 0 0
   classstats
-  cmdbuffer (cstr.cpy) disc disc
+  cmdbuffer cstr.cpy disc disc
 
   classtab read
   classname
@@ -799,14 +799,14 @@ gets the class proc name of a proc
 }
 push proc getexpandedname 1 1
   tmpprocbuffer 64 (mem.zero)
-  classname (cstr.len) 0 != if [
-    tmpprocbuffer copy (cstr.len) +
-    classname (cstr.cpy) disc disc
-    tmpprocbuffer copy (cstr.len) +
-    "." (cstr.cpy) disc disc
+  classname cstr.len 0 != if [
+    tmpprocbuffer copy cstr.len +
+    classname cstr.cpy disc disc
+    tmpprocbuffer copy cstr.len +
+    "." cstr.cpy disc disc
   ]
-  tmpprocbuffer copy (cstr.len) +
-  swap (cstr.cpy) disc disc
+  tmpprocbuffer copy cstr.len +
+  swap cstr.cpy disc disc
   tmpprocbuffer
 
   ret
@@ -820,7 +820,7 @@ gets the value of a const in the cmd buffer or returns the input
 }
 push proc getconst 0 1
   NULL
-  consttab read cmdbuffer (map.in) swap disc ! if [ disc cmdbuffer (cstr.tonum) ret ]
+  consttab read cmdbuffer (map.in) swap disc ! if [ disc cmdbuffer cstr.int ret ]
   disc
   consttab read cmdbuffer (map.get) read
   swap disc
@@ -842,24 +842,24 @@ push proc addcproc 0 0
     procdata.addr .
     0
     put disc
-    procname (cstr.clear) cmdbuffer (cstr.cpy) disc disc
+    procname cstr.clear cmdbuffer cstr.cpy disc disc
     `extrn ` (writeout)
-    procname copy (cstr.len) swap (writeout)
+    procname copy cstr.len swap (writeout)
     `;` (writeout)
   ] copy CF_CPROC_IN == if [
-    cmdbuffer copy (cstr.len) swap (writeout)
+    cmdbuffer copy cstr.len swap (writeout)
     procstats
     procdata.in .
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     putc disc
     parsestack
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     put disc
   ] copy CF_CPROC_OUT == if [
-    cmdbuffer copy (cstr.len) swap (writeout)
+    cmdbuffer copy cstr.len swap (writeout)
     procstats
     procdata.out .
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     putc disc
     cproctab read
     procname (getexpandedname) procstats (map.putat) disc
@@ -891,23 +891,23 @@ adds a proc
 }
 push proc addproc 0 0
   ` ` (writeout)
-  cmdbuffer copy (cstr.len) swap (writeout)
+  cmdbuffer copy cstr.len swap (writeout)
   parseflags copy read
   copy CF_PROC_NAME == if [
-    procname (cstr.clear) cmdbuffer (cstr.cpy) disc disc
+    procname cstr.clear cmdbuffer cstr.cpy disc disc
     procstats procdata.addr .
     parseaddr read
     put disc
   ] copy CF_PROC_IN == if [
     procstats procdata.in .
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     putc disc
     parsestack
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     put disc
   ] copy CF_PROC_OUT == if [
     procstats procdata.out .
-    cmdbuffer (cstr.tonum) 255 &&
+    cmdbuffer cstr.int 255 &&
     putc disc
     proctab read
     procname (getexpandedname)
@@ -943,7 +943,7 @@ push proc addprop 0 0
 
     disc CF_NONE
   ] copy CF_PROP_NAME 1 - == if [
-    cmdbuffer constname (cstr.clear) swap (cstr.cpy) disc disc
+    cmdbuffer constname cstr.clear swap cstr.cpy disc disc
   ]
   put disc
 
@@ -964,7 +964,7 @@ push proc addconst 0 0
     consttab read constname (getexpandedname) maptemp (map.putat) disc
     disc CF_NONE
   ] copy CF_CONST_NAME 1 - == if [
-    cmdbuffer constname (cstr.clear) swap (cstr.cpy) disc disc
+    cmdbuffer constname cstr.clear swap cstr.cpy disc disc
   ]
   put disc
 
@@ -987,7 +987,7 @@ push proc addgvar 0 0
     parsememory swap put disc
     disc CF_NONE
   ] copy CF_GVAR_NAME 1 - == if [
-    cmdbuffer constname (cstr.clear) swap (cstr.cpy) disc disc
+    cmdbuffer constname cstr.clear swap cstr.cpy disc disc
   ]
   put disc
 
@@ -1002,7 +1002,7 @@ inits the enum value
 }
 push proc addenumstart 0 0
   enumvalue
-  cmdbuffer (cstr.tonum)
+  cmdbuffer cstr.int
   put disc
 
   parseflags
@@ -1019,15 +1019,15 @@ returns:
 adds a enum value 
 }
 push proc addenum 0 0 
-  cmdbuffer (cstr.isnum) if [
+  cmdbuffer cstr.isnum if [
     enumvalue
-    cmdbuffer (cstr.tonum)
+    cmdbuffer cstr.int
     put disc
 
     ret
   ]
 
-  cmdbuffer "end" (cstr.eq) if [
+  cmdbuffer "end" cstr.eq if [
     parseflags
     CF_NONE
     put disc
@@ -1051,11 +1051,11 @@ include a file
 }
 push proc addinc 0 0 
   includebuffer
-  includepath (cstr.cpy) disc
-  "/" (cstr.cat)
+  includepath cstr.cpy disc
+  "/" cstr.cat
   cmdbuffer copy readc '"' == if [
     (inner)
-  ] (cstr.cat)
+  ] cstr.cat
   disc
 
   parseflags
@@ -1078,8 +1078,8 @@ push proc addlnk 0 0
   "-l" put
   int.SIZE +
   cmdbuffer
-  copy (cstr.len) (heap.zalloc)
-  swap (cstr.cpy) disc
+  copy cstr.len (heap.zalloc)
+  swap cstr.cpy disc
   put disc
   
   linkcount
@@ -1102,10 +1102,10 @@ adds a variable, static and bad
 push proc addvar 0 0
   1 (addstack)
   `    push mem+` (writeout)
-  parsememory read (int.cstr) copy (cstr.len) swap (writeout)
+  parsememory read int.cstr copy cstr.len swap (writeout)
   (writeoutln)
 
-  cmdbuffer (cstr.tonum)
+  cmdbuffer cstr.int
   parsememory read +
   parsememory swap put
   disc
@@ -1139,7 +1139,7 @@ adds the footer to the current output
 }
 push proc asmfooter 0 0
   `addr_` (writeout)
-  (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
+  (getaddr) int.cstr copy cstr.len swap (writeout)
   `:\n` (writeout)
   `    ret\n` (writeout)
   `_start:\n` (writeout)
@@ -1149,7 +1149,7 @@ push proc asmfooter 0 0
   `    mov qword [rax], quit\n` (writeout)
   `    jmp addr_` (writeout)
   proctab read
-  maptempstr "main" (cstr.cpy) disc disc
+  maptempstr "main" cstr.cpy disc disc
   maptempstr (map.in) ! if [
     0 1 (log.level)
     "ERR" "no main proc defined" (log.msg)
@@ -1158,7 +1158,7 @@ push proc asmfooter 0 0
     (log.log)
     (exit)
   ]
-  maptempstr (map.get) procdata.addr . read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+  maptempstr (map.get) procdata.addr . read 1 - int.cstr copy cstr.len swap (writeout)
   (writeoutln)
   `quit:\n` (writeout)
   `    mov rax, 60\n` (writeout)
@@ -1171,17 +1171,17 @@ push proc asmfooter 0 0
   `ret_stack_rsp: rq 1\n` (writeout)
   `ret_stack: rb 65536` (writeout) (writeoutln)
   `mem: rb ` (writeout)
-  parsememory read (int.cstr) copy (cstr.len) swap (writeout)
+  parsememory read int.cstr copy cstr.len swap (writeout)
   (writeoutln)
   disc
   
   {debug logging}
   3 1 (log.level)
   "INF" "Total procs: " (log.msg)
-  proctab read (map.len) (int.cstr) (log.cat) disc
+  proctab read (map.len) int.cstr (log.cat) disc
   (log.log)
   "INF" "Global memory footprint: " (log.msg)
-  parsememory read (int.cstr) (log.cat)
+  parsememory read int.cstr (log.cat)
   " bytes" (log.cat)
   (log.log)
   ret
@@ -1199,20 +1199,20 @@ push proc endopasm 1 0
     `    pop rbx\n` (writeout)
     `    test rbx, rbx\n` (writeout)
     `    jz addr_` (writeout)
-    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
-    (identstackpop) (int.cstr) copy (cstr.len) swap (writeout)
+    (identstackpop) int.cstr copy cstr.len swap (writeout)
     (writeoutln)
   ]
   copy IDENT_CLASS == if [
     consttab read
     "SIZE" (getexpandedname) propsize (map.putat)
     disc
-    classname (cstr.clear) disc
+    classname cstr.clear disc
   ]
   copy IDENT_PROC == if [
-    procname (cstr.clear) disc
+    procname cstr.clear disc
   ]
   disc
   ret
@@ -1230,14 +1230,14 @@ push proc endopblockasm 1 0
     `    pop rbx\n` (writeout)
     `    test rbx, rbx\n` (writeout)
     `    jz addr_` (writeout)
-    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read 1 - int.cstr copy cstr.len swap (writeout)
     `_` (writeout)
-    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parsesubaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
-    (identstackpop) (int.cstr) copy (cstr.len) swap (writeout)
+    (identstackpop) int.cstr copy cstr.len swap (writeout)
     `_` (writeout)
-    (identstackpop) (int.cstr) copy (cstr.len) swap (writeout)
+    (identstackpop) int.cstr copy cstr.len swap (writeout)
     (writeoutln)
   ]
   disc
@@ -1252,7 +1252,7 @@ writes the current address to the output
 }
 push proc writeaddr 0 0
   `addr_` (writeout)
-  (getaddr) (int.cstr) copy (cstr.len) swap (writeout)
+  (getaddr) int.cstr copy cstr.len swap (writeout)
   `:` (writeout)
   (writeoutln)
 
@@ -1267,9 +1267,9 @@ writes the current sub address to the output
 }
 push proc writesubaddr 0 0
   `addr_` (writeout)
-  parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+  parseaddr read 1 - int.cstr copy cstr.len swap (writeout)
   `_` (writeout)
-  (getsubaddr) (int.cstr) copy (cstr.len) swap (writeout)
+  (getsubaddr) int.cstr copy cstr.len swap (writeout)
   `:` (writeout)
   (writeoutln)
 
@@ -1289,13 +1289,13 @@ push proc addpushblock 1 1
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
     proctab read
     blockbuffer (map.get)
     procdata.addr .
-    read (int.cstr) copy (cstr.len) swap (writeout)
+    read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     
     blockbuffer (map.get)
@@ -1313,13 +1313,13 @@ end
 
 
 push proc checkbadblock 1 1
-  blockbuffer (cstr.len) 3 ==
+  blockbuffer cstr.len 3 ==
   blockbuffer readc ''' == &&
-  blockbuffer (cstr.last) ''' == && if [
+  blockbuffer cstr.last ''' == && if [
     blockbuffer 1 + readc
-    (int.cstr)
+    int.cstr
 
-    blockbuffer (cstr.clear) swap (cstr.cpy) disc disc
+    blockbuffer cstr.clear swap cstr.cpy disc disc
 
     disc OP_PUSH
     ret
@@ -1331,8 +1331,8 @@ push proc checkbadblock 1 1
   ] disc
   consttab read blockbuffer (map.in) if [
     blockbuffer (map.get) read swap disc
-    (int.cstr)
-    blockbuffer (cstr.clear) swap (cstr.cpy) disc disc
+    int.cstr
+    blockbuffer cstr.clear swap cstr.cpy disc disc
     
     disc OP_PUSH
     ret
@@ -1340,7 +1340,7 @@ push proc checkbadblock 1 1
   gvartab read blockbuffer (map.in) if [
     1 (addstackb)
     `    push mem+` (writeout)
-    gvartab read blockbuffer (map.get) read swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    gvartab read blockbuffer (map.get) read swap disc int.cstr copy cstr.len swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
@@ -1363,7 +1363,7 @@ push proc badret 0 0
 end
 
 push proc getblockasm 1 1
-  blockbuffer (cstr.isnum) if [
+  blockbuffer cstr.isnum if [
     disc
     OP_PUSH
   ]
@@ -1379,7 +1379,7 @@ push proc getblockasm 1 1
     "push" 0 (checkpopb)
     1 (addstackb)
     `    mov qword rax, ` (writeout)
-    blockbuffer copy (cstr.len) swap (writeout)
+    blockbuffer copy cstr.len swap (writeout)
     (writeoutln)
     `    push rax\n` (writeout)
     ret
@@ -1390,9 +1390,9 @@ push proc getblockasm 1 1
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read 1 - int.cstr copy cstr.len swap (writeout)
     `_` (writeout)
-    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parsesubaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    pop rax\n` (writeout)
     `    jmp rax\n` (writeout)
@@ -1401,7 +1401,7 @@ push proc getblockasm 1 1
     "pushp" 0 (checkpopb)
     1 (addstackb)
     `    push addr_` (writeout)
-    proctab read blockbuffer (map.get) procdata.addr . read (int.cstr) copy (cstr.len) swap (writeout)
+    proctab read blockbuffer (map.get) procdata.addr . read int.cstr copy cstr.len swap (writeout)
     {TODO: assert return is same}
     (writeoutln)
     disc
@@ -1628,9 +1628,9 @@ push proc getblockasm 1 1
     `    pop rbx\n` (writeout)
     `    test rbx, rbx\n` (writeout)
     `    jz addr_` (writeout)
-    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read 1 - int.cstr copy cstr.len swap (writeout)
     `_` (writeout)
-    parsesubaddr read 1 + (int.cstr) copy (cstr.len) swap (writeout)
+    parsesubaddr read 1 + int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     ret
   ] copy OP_SYS0 == if [
@@ -1749,9 +1749,9 @@ push proc getblockasm 1 1
   (log.log)
 
   `; unimp ` (writeout)
-  copy (getopname) copy (cstr.len) swap (writeout)
+  copy (getopname) copy cstr.len swap (writeout)
   ` ` (writeout)
-  cmdbuffer copy (cstr.len) swap (writeout)
+  cmdbuffer copy cstr.len swap (writeout)
   (writeoutln)
   ret
 end
@@ -1761,26 +1761,26 @@ push proc parsestring 0 0
   { add code }
   1 (addstackb)
   `    push str_` (writeout)
-  (getstringidx) (int.cstr) copy (cstr.len) swap (writeout)
+  (getstringidx) int.cstr copy cstr.len swap (writeout)
   (writeoutln)
 
   { put the header }
   `str_`
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
-  parsestringidx read 1 - (int.cstr)
-  copy (cstr.len) swap
+  parsestringidx read 1 - int.cstr
+  copy cstr.len swap
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
   `: db `
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
@@ -1788,10 +1788,10 @@ push proc parsestring 0 0
 
   { put the first char }
   copy readc
-  (int.cstr)
-  copy (cstr.len) swap
+  int.cstr
+  copy cstr.len swap
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
   do
@@ -1800,27 +1800,27 @@ push proc parsestring 0 0
     { comma }
     `, `
     stringbuffer read stringbufferlen read +
-    swap (cstr.cpy) disc disc
+    swap cstr.cpy disc disc
     stringbufferlen read +
     stringbufferlen swap put disc
 
     { put the next char }
     copy readc
-    copy (int.cstr)
-    copy (cstr.len) swap
+    copy int.cstr
+    copy cstr.len swap
     stringbuffer read stringbufferlen read +
-    swap (cstr.cpy) disc disc
+    swap cstr.cpy disc disc
     stringbufferlen read +
     stringbufferlen swap put disc
   end
   `\n`
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
   disc
 
-  blockbuffer (cstr.clear) disc
+  blockbuffer cstr.clear disc
   ret
 end
 
@@ -1839,15 +1839,15 @@ push proc addcallblock 0 0
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read 1 - (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read 1 - int.cstr copy cstr.len swap (writeout)
     `_` (writeout)
-    parsesubaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parsesubaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
     blockbuffer 1 + (map.get)
     procdata.addr .
-    read (int.cstr)
-    copy (cstr.len) swap
+    read int.cstr
+    copy cstr.len swap
     (writeout)
     (writeoutln)
     
@@ -1863,7 +1863,7 @@ push proc addcallblock 0 0
     (addstackb)
     disc
 
-    blockbuffer (cstr.clear) disc
+    blockbuffer cstr.clear disc
 
     disc ret
   ] disc
@@ -1873,17 +1873,17 @@ push proc addcallblock 0 0
     cproctab read
     cmdbuffer 1 + (map.get)
     readc
-    cmdbuffer 1 + swap (int.cstr) (writeout)
+    cmdbuffer 1 + swap int.cstr (writeout)
     (writeoutln)
     disc
     `    call ` (writeout)
-    cmdbuffer 1 + copy (cstr.len) swap (writeout)
+    cmdbuffer 1 + copy cstr.len swap (writeout)
     (writeoutln)
     `    add esp, 8 *` (writeout)
     cproctab read
     cmdbuffer 1 + (map.get)
     readc
-    cmdbuffer 1 + swap (int.cstr) (writeout)
+    cmdbuffer 1 + swap int.cstr (writeout)
     (writeoutln)
     `    mov esp, ebp\n` (writeout)
     `    pop ebp\n` (writeout)
@@ -1898,22 +1898,22 @@ push proc addcallblock 0 0
     disc
   ] disc
 
-  blockbuffer 1 + '.' tmpbuffer (cstr.split)
+  blockbuffer 1 + '.' tmpbuffer cstr.split
 
-  copy "" (cstr.eq) !
+  copy "" cstr.eq !
   covr classtab read swap (map.in) swap disc
   &&
   if [
     classtab read swap (map.get)
     swap disc
-    tmpbuffer (cstr.clear)
-    "(" (cstr.cat) 
-    swap (cstr.cat)
-    "." (cstr.cat)
-    swap (cstr.cat)
+    tmpbuffer cstr.clear
+    "(" cstr.cat 
+    swap cstr.cat
+    "." cstr.cat
+    swap cstr.cat
     disc
-    blockbuffer (cstr.clear)
-    tmpbuffer (cstr.cpy) disc disc
+    blockbuffer cstr.clear
+    tmpbuffer cstr.cpy disc disc
     (addcallblock)
     ret
   ]
@@ -1926,13 +1926,13 @@ push proc addcallblock 0 0
 end
 
 push proc parseblockcmd 0 0
-  blockbuffer readc '{' == blockbuffer (cstr.last) '}' == && if [
+  blockbuffer readc '{' == blockbuffer cstr.last '}' == && if [
     {comment}
 
     nop
 
-    blockbuffer (cstr.clear) disc
-  ] blockbuffer readc '"' == blockbuffer (cstr.last) '"' == && if [
+    blockbuffer cstr.clear disc
+  ] blockbuffer readc '"' == blockbuffer cstr.last '"' == && if [
     {string}
     (writesubaddr)
 
@@ -1940,19 +1940,19 @@ push proc parseblockcmd 0 0
     (parsestring)
 
     disc ret
-  ] blockbuffer readc '`' == blockbuffer (cstr.last) '`' == && if [
+  ] blockbuffer readc '`' == blockbuffer cstr.last '`' == && if [
     {string}
     (writesubaddr)
 
     blockbuffer (inner) disc
     1 (addstackb)
     `    push ` (writeout)
-    blockbuffer 1 + (cstr.len) (int.cstr) copy (cstr.len) swap (writeout)
+    blockbuffer 1 + cstr.len int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     
     (parsestring)
     ret
-  ] blockbuffer readc '(' == blockbuffer (cstr.last) ')' == && blockbuffer (cstr.len) 2 != && if [
+  ] blockbuffer readc '(' == blockbuffer cstr.last ')' == && blockbuffer cstr.len 2 != && if [
     {call}
 
     blockbuffer (inner) disc
@@ -1965,7 +1965,7 @@ push proc parseblockcmd 0 0
     covr CF_VAR == if (addvar)
     disc disc
   ]
-  blockbuffer (cstr.clear) disc
+  blockbuffer cstr.clear disc
 
   ret
 end
@@ -1983,13 +1983,13 @@ push proc addpush 1 1
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
     proctab read
     cmdbuffer (map.get)
     procdata.addr .
-    read (int.cstr) copy (cstr.len) swap (writeout)
+    read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     
     cmdbuffer (map.get)
@@ -2007,13 +2007,13 @@ end
 
 
 push proc checkbad 1 1
-  cmdbuffer (cstr.len) 3 ==
+  cmdbuffer cstr.len 3 ==
   cmdbuffer readc ''' == &&
-  cmdbuffer (cstr.last) ''' == && if [
+  cmdbuffer cstr.last ''' == && if [
     cmdbuffer 1 + readc
-    (int.cstr)
+    int.cstr
 
-    cmdbuffer (cstr.clear) swap (cstr.cpy) disc disc
+    cmdbuffer cstr.clear swap cstr.cpy disc disc
 
     disc OP_PUSH
     ret
@@ -2026,8 +2026,8 @@ push proc checkbad 1 1
   ] disc
   consttab read cmdbuffer (map.in) if [
     cmdbuffer (map.get) read swap disc
-    (int.cstr)
-    cmdbuffer (cstr.clear) swap (cstr.cpy) disc disc
+    int.cstr
+    cmdbuffer cstr.clear swap cstr.cpy disc disc
     
     disc OP_PUSH
     ret
@@ -2035,7 +2035,7 @@ push proc checkbad 1 1
   gvartab read cmdbuffer (map.in) if [
     1 (addstack)
     `    push mem+` (writeout)
-    gvartab read cmdbuffer (map.get) read swap disc (int.cstr) copy (cstr.len) swap (writeout)
+    gvartab read cmdbuffer (map.get) read swap disc int.cstr copy cstr.len swap (writeout)
     (writeoutln) disc
     
     disc OP_NOP
@@ -2046,7 +2046,7 @@ push proc checkbad 1 1
 end
 
 push proc getcmdasm 1 1
-  cmdbuffer (cstr.isnum) if [
+  cmdbuffer cstr.isnum if [
     disc
     OP_PUSH
   ]
@@ -2058,7 +2058,7 @@ push proc getcmdasm 1 1
   ] copy OP_PUSH == if [
     1 (addstack)
     `    mov qword rax, ` (writeout)
-    cmdbuffer copy (cstr.len) swap (writeout)
+    cmdbuffer copy cstr.len swap (writeout)
     (writeoutln)
     `    push rax\n` (writeout)
     ret
@@ -2069,7 +2069,7 @@ push proc getcmdasm 1 1
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    pop rax\n` (writeout)
     `    jmp rax\n` (writeout)
@@ -2078,7 +2078,7 @@ push proc getcmdasm 1 1
     "pushp" 0 (checkpop)
     1 (addstack)
     `    push addr_` (writeout)
-    proctab read cmdbuffer (map.get) procdata.addr . read (int.cstr) copy (cstr.len) swap (writeout)
+    proctab read cmdbuffer (map.get) procdata.addr . read int.cstr copy cstr.len swap (writeout)
     {TODO: assert return is same}
     (writeoutln)
     disc
@@ -2378,7 +2378,7 @@ push proc getcmdasm 1 1
     `    pop rbx\n` (writeout)
     `    test rbx, rbx\n` (writeout)
     `    jz addr_` (writeout)
-    parseaddr read 1 + (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read 1 + int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     ret
   ] copy OP_SYS0 == if [
@@ -2510,36 +2510,36 @@ push proc getcmdasm 1 1
   (log.log)
 
   `; unimp ` (writeout)
-  copy (getopname) copy (cstr.len) swap (writeout)
+  copy (getopname) copy cstr.len swap (writeout)
   ` ` (writeout)
-  cmdbuffer copy (cstr.len) swap (writeout)
+  cmdbuffer copy cstr.len swap (writeout)
   (writeoutln)
   ret
 end
 
 push proc checkcmd 0 1
-  cmdbuffer readc '"' == cmdbuffer (cstr.last) '"' != &&
-  cmdbuffer readc ''' == cmdbuffer (cstr.last) ''' != && ||
-  cmdbuffer readc '`' == cmdbuffer (cstr.last) '`' != && ||
-  cmdbuffer readc '[' == cmdbuffer (cstr.last) ']' != && ||
-  cmdbuffer readc '{' == cmdbuffer (cstr.last) '}' != && ||
-  cmdbuffer "`" (cstr.eq) ||
-  cmdbuffer """ (cstr.eq) ||
-  cmdbuffer "'" (cstr.eq) ||
+  cmdbuffer readc '"' == cmdbuffer cstr.last '"' != &&
+  cmdbuffer readc ''' == cmdbuffer cstr.last ''' != && ||
+  cmdbuffer readc '`' == cmdbuffer cstr.last '`' != && ||
+  cmdbuffer readc '[' == cmdbuffer cstr.last ']' != && ||
+  cmdbuffer readc '{' == cmdbuffer cstr.last '}' != && ||
+  cmdbuffer "`" cstr.eq ||
+  cmdbuffer """ cstr.eq ||
+  cmdbuffer "'" cstr.eq ||
   !
 
   ret
 end
 
 push proc checkblockcmd 0 1
-  blockbuffer readc '"' == blockbuffer (cstr.last) '"' != &&
-  blockbuffer readc ''' == blockbuffer (cstr.last) ''' != && ||
-  blockbuffer readc '`' == blockbuffer (cstr.last) '`' != && ||
-  blockbuffer readc '[' == blockbuffer (cstr.last) ']' != && ||
-  blockbuffer readc '{' == blockbuffer (cstr.last) '}' != && ||
-  blockbuffer "`" (cstr.eq) ||
-  blockbuffer """ (cstr.eq) ||
-  blockbuffer "'" (cstr.eq) ||
+  blockbuffer readc '"' == blockbuffer cstr.last '"' != &&
+  blockbuffer readc ''' == blockbuffer cstr.last ''' != && ||
+  blockbuffer readc '`' == blockbuffer cstr.last '`' != && ||
+  blockbuffer readc '[' == blockbuffer cstr.last ']' != && ||
+  blockbuffer readc '{' == blockbuffer cstr.last '}' != && ||
+  blockbuffer "`" cstr.eq ||
+  blockbuffer """ cstr.eq ||
+  blockbuffer "'" cstr.eq ||
   !
 
   ret
@@ -2608,10 +2608,10 @@ push proc parseblock 0 0
   blockret readc 0 ==
   parsestackblock read parsestack read != &&
   if [
-    cmdbuffer (cstr.print)
-    " Bad Block" (cstr.println)
-    parsestackblock read (int.print)
-    parsestack read (int.print)
+    cmdbuffer cstr.print
+    " Bad Block" cstr.println
+    parsestackblock read int.print
+    parsestack read int.print
     -1 quit
   ]
   blockret 0 putc disc
@@ -2623,26 +2623,26 @@ push proc parsestringblock 0 0
   { add code }
   1 (addstack)
   `    push str_` (writeout)
-  (getstringidx) (int.cstr) copy (cstr.len) swap (writeout)
+  (getstringidx) int.cstr copy cstr.len swap (writeout)
   (writeoutln)
 
   { put the header }
   `str_`
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
-  parsestringidx read 1 - (int.cstr)
-  copy (cstr.len) swap
+  parsestringidx read 1 - int.cstr
+  copy cstr.len swap
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
   `: db `
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
@@ -2650,10 +2650,10 @@ push proc parsestringblock 0 0
 
   { put the first char }
   copy readc
-  (int.cstr)
-  copy (cstr.len) swap
+  int.cstr
+  copy cstr.len swap
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
   do
@@ -2662,23 +2662,23 @@ push proc parsestringblock 0 0
     { comma }
     `, `
     stringbuffer read stringbufferlen read +
-    swap (cstr.cpy) disc disc
+    swap cstr.cpy disc disc
     stringbufferlen read +
     stringbufferlen swap put disc
 
     { put the next char }
     copy readc
-    copy (int.cstr)
-    copy (cstr.len) swap
+    copy int.cstr
+    copy cstr.len swap
     stringbuffer read stringbufferlen read +
-    swap (cstr.cpy) disc disc
+    swap cstr.cpy disc disc
     stringbufferlen read +
     stringbufferlen swap put disc
   end
   disc
   `\n`
   stringbuffer read stringbufferlen read +
-  swap (cstr.cpy) disc disc
+  swap cstr.cpy disc disc
   stringbufferlen read +
   stringbufferlen swap put disc
 
@@ -2694,7 +2694,7 @@ push proc addccall 0 0
   readc
   copy 0 == if [
     `    call ` (writeout)
-    cmdbuffer 1 + copy (cstr.len) swap (writeout)
+    cmdbuffer 1 + copy cstr.len swap (writeout)
     (writeoutln)
     disc
     disc
@@ -2709,7 +2709,7 @@ push proc addccall 0 0
   (cprocbuff)
   disc
   `    call ` (writeout)
-  cmdbuffer 1 + copy (cstr.len) swap (writeout)
+  cmdbuffer 1 + copy cstr.len swap (writeout)
   (writeoutln)
 
   cproctab read
@@ -2732,12 +2732,12 @@ push proc addcall 0 0
     `    add rax, 8\n` (writeout)
     `    mov qword [ret_stack_rsp], rax\n` (writeout)
     `    mov qword [rax], addr_` (writeout)
-    parseaddr read (int.cstr) copy (cstr.len) swap (writeout)
+    parseaddr read int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     `    jmp addr_` (writeout)
     cmdbuffer 1 + (map.get)
     procdata.addr . 
-    read (int.cstr)
+    read int.cstr
     
     proctab read
     cmdbuffer 1 + (map.get)
@@ -2751,36 +2751,36 @@ push proc addcall 0 0
     (addstack)
     disc
 
-    copy (cstr.len) swap
+    copy cstr.len swap
     (writeout)
-    cmdbuffer (cstr.clear) disc
+    cmdbuffer cstr.clear disc
     (writeoutln)
 
     disc ret
   ] disc
   cproctab read cmdbuffer 1 + (map.in) if [
   (addccall)
-  cmdbuffer (cstr.clear) disc
+  cmdbuffer cstr.clear disc
   disc ret
   ]
   disc
 
-  cmdbuffer 1 + '.' tmpbuffer (cstr.split)
+  cmdbuffer 1 + '.' tmpbuffer cstr.split
 
-  copy "" (cstr.eq) !
+  copy "" cstr.eq !
   covr classtab read swap (map.in) swap disc
   &&
   if [
     classtab read swap (map.get)
     swap disc
-    tmpbuffer (cstr.clear)
-    "(" (cstr.cat) 
-    swap (cstr.cat)
-    "." (cstr.cat)
-    swap (cstr.cat)
+    tmpbuffer cstr.clear
+    "(" cstr.cat 
+    swap cstr.cat
+    "." cstr.cat
+    swap cstr.cat
     disc
-    cmdbuffer (cstr.clear)
-    tmpbuffer (cstr.cpy) disc disc
+    cmdbuffer cstr.clear
+    tmpbuffer cstr.cpy disc disc
     (addcall)
     ret
   ]
@@ -2793,7 +2793,7 @@ push proc addcall 0 0
 end
 
 push proc addasm 0 0
-  cmdbuffer (inner) copy (cstr.len) swap (writeout)
+  cmdbuffer (inner) copy cstr.len swap (writeout)
   (writeoutln)
   
   parseflags
@@ -2804,21 +2804,21 @@ push proc addasm 0 0
 end
 
 push proc parsecmd 0 0
-  cmdbuffer copy (cstr.len) +
-  READSIZE cmdbuffer (cstr.len) -
+  cmdbuffer copy cstr.len +
+  READSIZE cmdbuffer cstr.len -
   (mem.zero)
   parseflags read CF_ASM == if [
     (addasm)
-    cmdbuffer (cstr.clear) disc
+    cmdbuffer cstr.clear disc
 
     ret
   ]
-  cmdbuffer readc '{' == cmdbuffer (cstr.last) '}' == && if [
+  cmdbuffer readc '{' == cmdbuffer cstr.last '}' == && if [
 
-    cmdbuffer (cstr.clear) disc
+    cmdbuffer cstr.clear disc
     ret
   ]
-  cmdbuffer readc '"' == cmdbuffer (cstr.last) '"' == &&
+  cmdbuffer readc '"' == cmdbuffer cstr.last '"' == &&
   parseflags read CF_NONE == &&
   if [
     (writeaddr)
@@ -2827,29 +2827,29 @@ push proc parsecmd 0 0
     (parsestringblock)
     disc ret
   ]
-  cmdbuffer readc '`' == cmdbuffer (cstr.last) '`' == && if [
+  cmdbuffer readc '`' == cmdbuffer cstr.last '`' == && if [
     {string}
     (writeaddr)
 
     cmdbuffer (inner) disc
     1 (addstack)
     `    push ` (writeout)
-    cmdbuffer 1 + (cstr.len) (int.cstr) copy (cstr.len) swap (writeout)
+    cmdbuffer 1 + cstr.len int.cstr copy cstr.len swap (writeout)
     (writeoutln)
     
     (parsestringblock)
     ret
   ]
-  cmdbuffer readc '[' == cmdbuffer (cstr.last) ']' == && if [
+  cmdbuffer readc '[' == cmdbuffer cstr.last ']' == && if [
     (writeaddr)
     cmdbuffer (inner)
-    cmdbuffer swap (cstr.cpy) disc disc
-    cmdbuffer copy (cstr.len) 1 - + 0 putc disc
+    cmdbuffer swap cstr.cpy disc disc
+    cmdbuffer copy cstr.len 1 - + 0 putc disc
     (parseblock)
-    cmdbuffer (cstr.clear) disc
+    cmdbuffer cstr.clear disc
     ret
   ]
-  cmdbuffer readc '(' == cmdbuffer (cstr.last) ')' == && cmdbuffer (cstr.len) 2 != && if [
+  cmdbuffer readc '(' == cmdbuffer cstr.last ')' == && cmdbuffer cstr.len 2 != && if [
     {call}
     cmdbuffer (inner) disc
     (addcall)
@@ -2880,7 +2880,7 @@ push proc parsecmd 0 0
     covr CF_OF == if (setclassinherits)
     disc disc
   ]
-  cmdbuffer (cstr.clear) disc
+  cmdbuffer cstr.clear disc
   ret
 end
 
@@ -2935,7 +2935,7 @@ push proc parsefile 0 0
         inputfd read
         inputfd NULL put disc
         includebuffer (openinput) disc
-        includebuffer (cstr.clear) disc
+        includebuffer cstr.clear disc
         (parsefile)
         inputfd swap put disc
         linestats swap put disc
@@ -2972,14 +2972,14 @@ push proc parsefile 0 0
     disc
     readbuffer swap put disc
 
-    readbuffer read (cstr.clear)
+    readbuffer read cstr.clear
 
-    cmdbuffer (cstr.cpy) disc disc
+    cmdbuffer cstr.cpy disc disc
 
-    READSIZE cmdbuffer (cstr.len) -
-    readbuffer read cmdbuffer (cstr.len) +
+    READSIZE cmdbuffer cstr.len -
+    readbuffer read cmdbuffer cstr.len +
     inputfd read (os.readf) copy
-    readbuffer read + cmdbuffer (cstr.len) + 1 + copy readc 0 != if (cstr.clear) disc
+    readbuffer read + cmdbuffer cstr.len + 1 + copy readc 0 != if cstr.clear disc
 
     cmdbuffer READSIZE (mem.zero)
   end
@@ -3001,27 +3001,27 @@ prints a help string
 }
 push proc help 1 0
   copy HELP_VERSION == if [
-    "slam compiler v" (cstr.print) (version) (cstr.println)
+    "slam compiler v" cstr.print (version) cstr.println
     disc 0 quit
   ]
   copy HELP_ARGS == if [
     "ERROR: You must compile exactly 1 file"
-    (cstr.println)
+    cstr.println
   ]
   copy HELP_OUTPUT == if [
     "ERROR: Last argument supplied requires a parameter"
-    (cstr.println)
+    cstr.println
   ]
-  "slam compiler v" (cstr.print) (version) (cstr.print) " usage:" (cstr.println)
-  (cstr.cr)
-  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" (cstr.println)
-  (cstr.cr)
-  "-v            shows the version and exits." (cstr.println)
-  "-h, --help    shows this help message."     (cstr.println)
-  "-i, --include includes a library."          (cstr.println)
-  "-s, --silent  disables output text."        (cstr.println)
-  "-a, --asm     keeps the assembly code."     (cstr.println)
-  "-o, --output  selects the output file."     (cstr.println)
+  "slam compiler v" cstr.print (version) cstr.print " usage:" cstr.println
+  cstr.cr
+  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" cstr.println
+  cstr.cr
+  "-v            shows the version and exits." cstr.println
+  "-h, --help    shows this help message."     cstr.println
+  "-i, --include includes a library."          cstr.println
+  "-s, --silent  disables output text."        cstr.println
+  "-a, --asm     keeps the assembly code."     cstr.println
+  "-o, --output  selects the output file."     cstr.println
   disc
   
   0 quit
@@ -3062,7 +3062,7 @@ push proc setoutput 1 1
 
     outputbuffer
     covr (os.args)
-    (cstr.cpy)
+    cstr.cpy
 
     disc
     disc
@@ -3074,7 +3074,7 @@ push proc setinclude 1 1
 
     includepath
     covr (os.args)
-    (cstr.cpy)
+    cstr.cpy
 
     disc
     disc
@@ -3088,7 +3088,7 @@ push proc setinput 1 0
   { set input to argument if its not a flag }
   inputbuffer
   covr (os.args)
-  (cstr.cpy)
+  cstr.cpy
 
   { clean that }
   disc
@@ -3107,27 +3107,27 @@ if so returns 0 and runs argument
 otherwise returns 1
 }
 push proc applyarg 2 2
-  copy "-h" (cstr.eq)
+  copy "-h" cstr.eq
   if [disc HELP_SHOW (help) 0 ret]
-  copy "--help" (cstr.eq)
+  copy "--help" cstr.eq
   if [disc HELP_SHOW (help) 0 ret]
-  copy "-v" (cstr.eq)
+  copy "-v" cstr.eq
   if [disc HELP_VERSION (help) 0 ret]
-  copy "-i" (cstr.eq)
+  copy "-i" cstr.eq
   if [disc 1 + (setinclude) 0 ret]
-  copy "--include" (cstr.eq)
+  copy "--include" cstr.eq
   if [disc 1 + (setinclude) 0 ret]
-  copy "-o" (cstr.eq)
+  copy "-o" cstr.eq
   if [disc 1 + (setoutput) 0 ret]
-  copy "--output" (cstr.eq)
+  copy "--output" cstr.eq
   if [disc 1 + (setoutput) 0 ret]
-  copy "-s" (cstr.eq)
+  copy "-s" cstr.eq
   if [disc (setsilent) 0 ret]
-  copy "--silent" (cstr.eq)
+  copy "--silent" cstr.eq
   if [disc (setsilent) 0 ret]
-  copy "-a" (cstr.eq)
+  copy "-a" cstr.eq
   if [disc (setasm) 0 ret]
-  copy "--asm" (cstr.eq)
+  copy "--asm" cstr.eq
   if [disc (setasm) 0 ret]
   disc
   1 ret
@@ -3211,7 +3211,7 @@ push proc initobjs 0 0
   classtab     256 classdata.SIZE TAB_KEY_SIZE (map.new) put disc
   includedtab  256 int.SIZE       256          (map.new) put disc
 
-  identstack   int.SIZE IDENT_CAP (seq.new) put disc
+  identstack   int.SIZE IDENT_CAP seq.new put disc
 
   stringbuffer STRING_BUF_CAP (heap.zalloc) put disc
   
@@ -3224,8 +3224,8 @@ push proc main 0 0
 
   (initobjs)
   
-  includepath "HOME" (os.env) (cstr.cpy) disc
-  "/.local/slam/lib" (cstr.cat)
+  includepath "HOME" (os.env) cstr.cpy disc
+  "/.local/slam/lib" cstr.cat
   disc
 
   { iterate through args }
@@ -3248,7 +3248,7 @@ push proc main 0 0
   {if no output, put default}
   outputbuffer
   readc 0 ==
-  if [outputbuffer "output" (cstr.cpy) disc disc]
+  if [outputbuffer "output" cstr.cpy disc disc]
 
   {if no input, write help message}
   inputbuffer

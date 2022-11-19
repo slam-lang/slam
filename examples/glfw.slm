@@ -10,15 +10,15 @@ gvar win 8
 proc main 0 0
   (glfwInit)
   ! if [
-    "lol" (cstr.println)
+    "lol" cstr.println
   ]
 
-  "Init" (cstr.println)
+  "Init" cstr.println
 
   win 0 0 "Window" NULL NULL (glfwCreateWindow)
   put disc
 
-  win (int.print)
+  win int.print
 
   ret
 end

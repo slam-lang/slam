@@ -21,8 +21,8 @@ proc main 0 0
 
   PORT (net.open)
   
-  "started on port " (cstr.print)
-  PORT (int.print)
+  "started on port " cstr.print
+  PORT int.print
 
   do
     (net.poll)
@@ -30,14 +30,14 @@ proc main 0 0
     CBUFSIZE cbuf (net.read)
     cbuflen swap put disc
 
-    "Got connection" (cstr.println)
+    "Got connection" cstr.println
 
     http
-    cbuf (http.parseurl) urlbuf (cstr.clear) swap (cstr.cpy) disc disc
+    cbuf (http.parseurl) urlbuf cstr.clear swap cstr.cpy disc disc
     respbuf 200 (http.getheader)
     swap disc
-    "got connection" (cstr.println)
-    "url: " (cstr.print) urlbuf (cstr.println)
+    "got connection" cstr.println
+    "url: " cstr.print urlbuf cstr.println
 
     (net.write)
 

@@ -5,6 +5,16 @@ inc "stdlib/maps.slm"
 {the size of a key for the proc, const table}
 const TAB_KEY_SIZE   64
 
+class simstackentry
+  enum
+  0   SE_NUMBER
+      SE_POINTER
+  end
+
+  prop kind int.SIZE
+  prop data int.SIZE
+end
+
 class simulator
   const SUCCESS 0
   const FAIL 1
@@ -27,7 +37,7 @@ class simulator
   var includedtab int.SIZE
 
   var tmpname int.SIZE
-  var tmpnum int.SIZE
+  var tmpentry simstackentry.SIZE
 
   var tmpchar 2
 
@@ -96,10 +106,13 @@ class simulator
   push proc visitconst 1 1
     copy constdata.constkind . read swap
     covr CNK_NUMBER == if [
+      simulator.tmpentry simstackentry.kind .
+      simstackentry.SE_NUMBER
+      swap put disc
       simulator.simstack read
-      covr constdata.constvalue . read str.data . (cstr.tonum)
-      simulator.tmpnum
-      swap put
+      covr constdata.constvalue . read str.data . cstr.int
+      simulator.tmpentry simstackentry.data .
+      swap put disc
       (dlist.append)
       disc
 
@@ -109,9 +122,19 @@ class simulator
       ret
     ]
     covr CNK_STRING == if [
+      simulator.tmpentry simstackentry.kind .
+      simstackentry.SE_POINTER
+      swap put disc
+      simulator.simstack read
+      covr constdata.constvalue . read str.data .
+      simulator.tmpentry simstackentry.data .
+      swap put disc
+      (dlist.append)
+      disc
+
       disc
       disc
-      simulator.FAIL
+      simulator.SUCCESS
       ret
     ]
     covr CNK_WORD == if [
@@ -212,11 +235,18 @@ class simulator
       ret
     ]
     covr INK_ADD == if [
-      simulator.simstack read
-      copy (dlist.pop) read
-      covr (dlist.pop) read
+      copy (dlist.pop)
+      copy simstackentry.kind . read
+      simulator.tmpentry simstackentry.kind .
+      swap put disc
+      
+      simstackentry.data . read
+      covr (dlist.pop) simstackentry.data . read
       +
-      simulator.tmpnum swap put
+      simulator.tmpentry simstackentry.data . swap put disc
+
+      simulator.simstack read
+      simulator.tmpentry
       (dlist.append)
       disc
 
@@ -362,7 +392,7 @@ class simulator
   push proc visitnode 1 1
     simulator.blockstack read NULL == if [
       simulator.blockstack int.SIZE (llist.new) put disc
-      simulator.simstack int.SIZE (dlist.new) put disc
+      simulator.simstack simstackentry.SIZE (dlist.new) put disc
       simulator.consttab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       simulator.vartab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc
       simulator.includedtab 256 int.SIZE TAB_KEY_SIZE (map.new) put disc

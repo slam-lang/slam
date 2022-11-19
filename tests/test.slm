@@ -32,7 +32,7 @@ push proc runcmdstdout 1 0
     ret
   ]
   0 != if [
-    "ERROR" (cstr.println)
+    "ERROR" cstr.println
   ]
   disc
   ret
@@ -48,10 +48,10 @@ push proc runtest 1 0
 
   tmpbuffer (os.execcmd)
 
-  (cstr.cr)
-  "# " (cstr.print)
-  copy (cstr.println)
-  (cstr.cr)
+  cstr.cr
+  "# " cstr.print
+  copy cstr.println
+  cstr.cr
 
   tmpbuffer
   slamexec put int.SIZE +
@@ -63,12 +63,12 @@ push proc runtest 1 0
   tmpbuffer (os.execcmd)
   
   os.waitsig read 0 != if [
-    "- Test Failed to compile, code="  (cstr.print)
-    os.waitsig read (int.print)
+    "- Test Failed to compile, code="  cstr.print
+    os.waitsig read int.print
     
-    "```" (cstr.println)
+    "```" cstr.println
     tmpbuffer (runcmdstdout)
-    "```" (cstr.println)
+    "```" cstr.println
     
     failed
     copy readc 1 +
@@ -84,8 +84,8 @@ push proc runtest 1 0
   tmpbuffer (runcmdstdout)
   
   os.waitsig read 0 != if [
-    "- Test Failed, code=" (cstr.print)
-    os.waitsig read (int.cstr) (cstr.println)
+    "- Test Failed, code=" cstr.print
+    os.waitsig read int.cstr cstr.println
 
     failed
     copy readc 1 +
@@ -101,32 +101,32 @@ push proc runtest 1 0
 end
 
 push proc main 0 0
-  slamexec "HOME" (os.env) (cstr.cpy) disc
-  "/.local/slam/bin/slam" (cstr.cat) disc
+  slamexec "HOME" (os.env) cstr.cpy disc
+  "/.local/slam/bin/slam" cstr.cat disc
 
   0
   do
     1 +
-    tmpname (cstr.clear)
-    "test" (cstr.cpy) disc
-    covr (int.cstr) (cstr.cat)
-    ".slm" (cstr.cat)
+    tmpname cstr.clear
+    "test" cstr.cpy disc
+    covr int.cstr cstr.cat
+    ".slm" cstr.cat
     (runtest)
 
     copy TEST_COUNT <
   end
   disc
-  (cstr.cr)
-  "# Results" (cstr.println)
-  (cstr.cr)
+  cstr.cr
+  "# Results" cstr.println
+  cstr.cr
 
-  "- Passed: " (cstr.print)
+  "- Passed: " cstr.print
   passed readc
-  (int.print)
+  int.print
 
-  "- Failed: " (cstr.print)
+  "- Failed: " cstr.print
   failed readc
-  (int.print)
+  int.print
 
   failed readc quit
 

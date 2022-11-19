@@ -15,9 +15,9 @@ proc main 0 0
     inputfd swap put disc
     do
       127
-      inputbuffer (cstr.clear)
+      inputbuffer cstr.clear
       inputfd read (os.readf)
-      inputbuffer (cstr.print)
+      inputbuffer cstr.print
       0 !=
     end
     inputfd read (os.close)

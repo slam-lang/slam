@@ -2,7 +2,7 @@ inc "stdlib.slm"
 
 proc fib 2 2
   covr + swap
-  copy (int.print)
+  copy int.print
 
   ret
 end

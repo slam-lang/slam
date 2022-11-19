@@ -1,3 +1,4 @@
+inc "stdlib.slm"
 inc "stdlib/testin.slm"
 inc "stdlib/range.slm"
 inc "stdlib/loops.slm"
