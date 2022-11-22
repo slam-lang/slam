@@ -1,0 +1,26 @@
+inc "stdlib.slm"
+inc "stdlib/testin.slm"
+inc "stdlib/os.slm"
+inc "stdlib/loops.slm"
+
+proc main 0 0
+  "Create a path" (testin.setup)
+
+    "." path.new
+
+  "Run a loop" (testin.next)
+
+    path.iter
+    loop.foreach : 1 0
+      copy dirent.name . "test" 4 (mem.eq) if
+        copy dirent.name . cstr.println
+      end
+      disc
+
+      ret
+    end
+
+  (testin.done)
+
+  ret
+end

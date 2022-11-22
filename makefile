@@ -19,7 +19,7 @@ clean:
 	rm -f tests/slam2/test
 
 tests/slam2/test:
-	~/.local/slam/bin/slam -o tests/slam2/test tests/slam2/test.slm
+	slam -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/slam2/test
 	rm -f tests/slam2/test.asm

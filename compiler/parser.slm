@@ -153,6 +153,7 @@ class parser
     INK_AND STK_AND (parser.subintr) copy NULL != if [ ret ] disc
     INK_OR STK_OR (parser.subintr) copy NULL != if [ ret ] disc
     INK_NOT STK_NOT (parser.subintr) copy NULL != if [ ret ] disc
+    INK_INV STK_INV (parser.subintr) copy NULL != if [ ret ] disc
     INK_READ STK_READ (parser.subintr) copy NULL != if [ ret ] disc
     INK_READC STK_READC (parser.subintr) copy NULL != if [ ret ] disc
     INK_PUT STK_PUT (parser.subintr) copy NULL != if [ ret ] disc

@@ -44,6 +44,7 @@ enum
     STK_ACCESS
     STK_AND
     STK_OR
+    STK_INV
     STK_NOT
     STK_EQ
     STK_NEQ

@@ -52,16 +52,6 @@ class lexer
     
     (filestream.new)
 
-    {
-    0 swap
-    fm.READ swap
-    0
-    covr readc '/' != if [
-      disc -100
-    ]
-    (os.open)
-    }
-
     lexer.tmp read lexer.file . swap put disc
     lexer.tmp read lexer.filename . swap put disc
 
@@ -240,6 +230,9 @@ class lexer
     ]
     copy "*" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_MUL put disc disc ret
+    ]
+    copy "~" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_INV put disc disc ret
     ]
     copy "/%" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_DIVMOD put disc disc ret

@@ -126,7 +126,9 @@ class writer
   var escape int.SIZE
 
   push proc getescape 1 1
+    copy 'e' == if [ disc 27 ret ]
     copy 'n' == if [ disc 10 ret ]
+    copy 'r' == if [ disc 13 ret ]
     copy 't' == if [ disc 9 ret ]
 
     ret

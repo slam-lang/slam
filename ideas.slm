@@ -7,37 +7,12 @@ macro proc lmao 1 1
   ret
 end
 
-{sim procs}
-proc sims 1 1
-  sim
-    5 10 +
-  end
-
-  ret
-end
-
-{lambdas}
-proc lambdas 1 1
-  5
-
-  lambda 1 2
-    copy 1 +
-  end
-
-  ()
-  
-  int.print
-  int.print
-
-  ret
-end
-
 {templates}
-temp increment
+temp proc increment
   copy read 1 + put disc
 end
 
-temp decrement
+temp proc decrement
   copy read 1 - put disc
 end
 

@@ -675,6 +675,16 @@ class assembler
 
       ret
     ]
+    covr INK_INV == if [
+      "    pop rax\n" (writer.write)
+      "    not rax\n" (writer.write)
+      "    push rax\n" (writer.write)
+      disc
+      disc
+      assembler.SUCCESS
+
+      ret
+    ]
     covr INK_LT == if [
       "    mov rcx, 0\n" (writer.write)
       "    mov rdx, 1\n" (writer.write)

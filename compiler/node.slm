@@ -57,6 +57,7 @@ enum
     INK_SUB
     INK_MUL
     INK_AND
+    INK_INV
     INK_NOT
     INK_OR
     INK_BRK
