@@ -17,32 +17,4 @@ Types are pointless.
 
 ## Usage
 
-### Intrinsics
-
-- `-` this pops the last 2 numbers and pushes a - b
-- `*` this pops the last 2 numbers and pushes the product
-- `/` this pops the last 2 numbers and pushes a / b then a mod b
-- `+`, `.` this pops the last 2 numbers and pushes the sum 
-- `swap` this swaps the last 2 numbers 
-- `copy` this pops the last number and pushes it twice 
-- `covr` this pushes the 2nd to last item in the stack
-- `readc` this derefrences the last item in the stack to a char
-- `read`, `@` this derefrences the last item in the stack to a qword
-- `putc` this writes the last item in the stack to the 2nd to last as a char
-- `put`, `=` this writes the last item in the stack to the 2nd to last as a qword
-- `disc` this removes the last item from the stack
-- `argv` this gets the argument pointer
-- `argc` this gets the argument count
-- `envp` this gets the environment pointer
-- `()` this calls the last proc on the stack
-- `ret` this returns in a proc
-- `quit` ends program execution
-- `if` pops the last item and skips next instruction if == 0
-- `!=` pops the last 2 items and pushes 1 if not equal
-- `==` pops the last 2 items and pushes 1 if equal
-- `<` pops the last 2 items and pushes 1 if a < b
-- `>` pops the last 2 items and pushes 1 if a > b
-- `&&` pops the last 2 items and ands them together
-- `||` pops the last 2 items and ands them together
-- `!` pops the last ites and inverts the first bit
-- `sys[0-6]` syscalls
+### TODO

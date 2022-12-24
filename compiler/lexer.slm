@@ -21,26 +21,27 @@ class lexer
 
   push proc new 2 1
     "[LEX] " cstr.print
-    swap covr if [
-      lexer.includepath
-      (str.new) put disc
-
+    covr cstr.println
+    
+    lexer.includepath (str.new) put disc
+    
+    covr "./" 2 (mem.eq) ! && if
       lexer.includepath read
-      "HOME" (os.env)
-      copy cstr.len swap (str.sput)
-      covr cstr.println
+      "HOME" (os.env) (str.catc)
       "/.local/slam/lib/" (str.catc)
-      covr (str.catc) disc
-    ]
-    swap ! if [
-      lexer.includepath
-      (str.new) put disc
+      lexer.includepath swap put disc
+    end
 
+    copy "./" 2 (mem.eq) if
       lexer.includepath read
-      covr
-      copy cstr.len swap (str.sput)
-      (str.println)
-    ]
+      "PWD" (os.env) (str.catc)
+      lexer.includepath swap put disc
+      1 +
+    end
+
+    lexer.includepath read
+    swap (str.catc)
+    lexer.includepath swap put disc
 
     lexer.tmp
     filepos.SIZE 2 *
@@ -53,11 +54,13 @@ class lexer
     (filestream.new)
 
     lexer.tmp read lexer.file . swap put disc
+    lexer.includepath read str.data .
     lexer.tmp read lexer.filename . swap put disc
 
     lexer.tmp read lexer.pos . filepos.filename .
     lexer.tmp read lexer.filename . read
     put disc
+    
     lexer.tmp read lexer.cstart . filepos.filename .
     lexer.tmp read lexer.filename . read
     put disc
@@ -267,6 +270,9 @@ class lexer
     copy "push" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_PUSH put disc disc ret
     ]
+    copy "head" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_HEAD put disc disc ret
+    ]
     copy "read" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_READ put disc disc ret
     ]
@@ -311,6 +317,9 @@ class lexer
     ]
     copy "sys6" (str.eq) if [
       lexer.tmp read lexer.token . slmtoken.type . STK_SYS6 put disc disc ret
+    ]
+    copy "unsafe" (str.eq) if [
+      lexer.tmp read lexer.token . slmtoken.type . STK_UNSAFE put disc disc ret
     ]
 
     str.data .

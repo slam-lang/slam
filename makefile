@@ -1,4 +1,4 @@
-default: clean slam slam.asm
+default: clean test slam.asm
 
 slam: slam.slm
 	cp -r compiler ~/.local/slam/lib/
@@ -18,8 +18,8 @@ clean:
 	rm -f s2
 	rm -f tests/slam2/test
 
-tests/slam2/test:
-	slam -o tests/slam2/test tests/slam2/test.slm
+tests/slam2/test: slam
+	./slam -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/slam2/test
 	rm -f tests/slam2/test.asm

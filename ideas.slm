@@ -1,12 +1,3 @@
-{Macro}
-inc "compiler/node.slm"
-
-macro proc lmao 1 1
-  {do stuff}
-
-  ret
-end
-
 {templates}
 temp proc increment
   copy read 1 + put disc
@@ -54,12 +45,4 @@ proc cases 0 0
   disc
 
   ret
-end
-
-{ifelse}
-proc elses 0 0
-  1 if
-    "lol" cstr.println
-  end
-
 end

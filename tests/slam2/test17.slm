@@ -5,8 +5,14 @@ inc "stdlib/loops.slm"
 
 var total int.SIZE
 
+head oper proc predef 0 1
+
 proc main 0 0
-  "Create a range" (testin.setup)
+  "Run a head proc" (testin.setup)
+
+    predef 5 (testin.eq)
+
+  "Create a range" (testin.next)
 
     0 10 range.new
 
@@ -50,3 +56,10 @@ proc main 0 0
 
   ret
 end
+
+oper proc predef 0 1
+  5
+
+  ret
+end
+

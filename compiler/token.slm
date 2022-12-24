@@ -15,6 +15,8 @@ enum
     STK_ENUM
     STK_OPER
     STK_PUSH
+    STK_UNSAFE
+    STK_HEAD
     STK_OF
     STK_QUIT
     STK_SIM

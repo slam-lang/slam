@@ -83,8 +83,14 @@ enum
 end
 
 enum
-0   PNK_PUSH
-    PNK_OPER
+0   PNK_OPER
+    PNK_PUSH
+
+10  PNK_OHEAD
+    PNK_PHEAD
+
+20  PNK_OUNSAFE
+    PNK_PUNSAFE
 end
 
 class nodedata
@@ -92,6 +98,13 @@ class nodedata
 
   var tmp int.SIZE
   var printnode int.SIZE
+
+  proc free 1 0
+    {TODO}
+    disc
+
+    ret
+  end
 end
 
 class calldata of nodedata
@@ -325,7 +338,7 @@ class vardata of nodedata
 
     nodedata.tmp read vardata.varkind . read
     nodedata.tmp read vardata.varvalue . read
-    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_NUMBER == if [ int.cstr cstr.print disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
@@ -368,7 +381,7 @@ class defdata of nodedata
 
     nodedata.tmp read defdata.defkind . read
     nodedata.tmp read defdata.defvalue . read
-    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_NUMBER == if [ int.cstr cstr.print disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
@@ -413,7 +426,7 @@ class propdata of nodedata
 
     nodedata.tmp read propdata.propkind . read
     nodedata.tmp read propdata.propvalue . read
-    covr CNK_NUMBER == if [ read int.cstr cstr.print disc ret ]
+    covr CNK_NUMBER == if [ int.cstr cstr.print disc ret ]
     covr CNK_WORD == if [ (str.print) disc """ cstr.print ret ]
     disc disc
 
@@ -529,7 +542,6 @@ class filedata of nodedata
 
       covr 8 * nodedata.tmp read filedata.children . + read
       nodedata.printnode read ()
-      asm "push 0" disc
 
       nodedata.tmp swap put disc
 
@@ -622,7 +634,6 @@ class blockdata of nodedata
       
       covr 8 * nodedata.tmp read blockdata.children . + read
       nodedata.printnode read ()
-      asm "push 0" disc
 
       nodedata.tmp swap put disc
 

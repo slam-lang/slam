@@ -1,5 +1,5 @@
-# Debugging
+## Debugging
 
-## Data Struct
+### Data Struct
 
 
