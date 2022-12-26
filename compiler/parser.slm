@@ -22,6 +22,8 @@ class parserresult
         put disc
       end
 
+      parserresult.tmp read (heap.free)
+
       parserresult.tmp read parserresult.node . read
 
       ret
@@ -95,27 +97,33 @@ class parser
 
     parser.tmp read parser.idx .
     copy read 1 +
-    copy 0 < if [ disc 0 ]
+    copy 0 < if disc 0 end
     put disc
 
     parser.tmp read parser.current . NULL put disc
 
     parser.tmp read parser.idx . read
-    parser.tmp read parser.tokens . read (dlist.len) < if [
+    parser.tmp read parser.tokens . read (dlist.len) < if
       parser.tmp read parser.current .
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read
       (dlist.ptrat)
       put disc
-    ]
+    end
     parser.tmp read
 
     ret
   end
-  
+
+  push proc initres 0 1
+    parserresult.SIZE (heap.alloc)
+
+    ret
+  end
+
   push proc subintr 2 1
     parser.tmp read parser.current . read slmtoken.type . read
-    == if [
+    == if
       parser.tmp read parser.tokens . read
       parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
       parser.tmp read parser.current . read slmtoken.stop . swap
@@ -126,7 +134,7 @@ class parser
 
       parser.startstack read seq.popaddr disc disc
       ret
-    ]
+    end
     disc
 
     NULL
@@ -134,58 +142,74 @@ class parser
   end
   
   push proc parseintr 0 1
-  
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if NULL ret end
+    parser.tmp read parser.current . read NULL == if
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      copy
+      EK_SYNTAX
+      "EOF unexpected"
+      parserresult.failure
 
-    INK_COPY STK_COPY (parser.subintr) copy NULL != if ret end disc
-    INK_COVR STK_COVR (parser.subintr) copy NULL != if ret end disc 
-    INK_DISC STK_DISC (parser.subintr) copy NULL != if ret end disc
-    INK_AND STK_AND (parser.subintr) copy NULL != if ret end disc
-    INK_OR STK_OR (parser.subintr) copy NULL != if ret end disc
-    INK_NOT STK_NOT (parser.subintr) copy NULL != if ret end disc
-    INK_INV STK_INV (parser.subintr) copy NULL != if ret end disc
-    INK_READ STK_READ (parser.subintr) copy NULL != if ret end disc
-    INK_READC STK_READC (parser.subintr) copy NULL != if ret end disc
-    INK_PUT STK_PUT (parser.subintr) copy NULL != if ret end disc
-    INK_PUTC STK_PUTC (parser.subintr) copy NULL != if ret end disc
-    INK_SWAP STK_SWAP (parser.subintr) copy NULL != if ret end disc
-    INK_ADD STK_ADD (parser.subintr) copy NULL != if ret end disc
-    INK_SUB STK_SUB (parser.subintr) copy NULL != if ret end disc
-    INK_MUL STK_MUL (parser.subintr) copy NULL != if ret end disc
-    INK_DIVMOD STK_DIVMOD (parser.subintr) copy NULL != if ret end disc
-    INK_ACCESS STK_ACCESS (parser.subintr) copy NULL != if ret end disc
-    INK_EQ STK_EQ (parser.subintr) copy NULL != if ret end disc
-    INK_NEQ STK_NEQ (parser.subintr) copy NULL != if ret end disc
-    INK_LT STK_LT (parser.subintr) copy NULL != if ret end disc
-    INK_GT STK_GT (parser.subintr) copy NULL != if ret end disc
-    INK_BRK STK_BRK (parser.subintr) copy NULL != if ret end disc
-    INK_RETURN STK_RET (parser.subintr) copy NULL != if ret end disc
-    INK_ARGV STK_ARGV (parser.subintr) copy NULL != if ret end disc
-    INK_ARGC STK_ARGC (parser.subintr) copy NULL != if ret end disc
-    INK_ENVP STK_ENVP (parser.subintr) copy NULL != if ret end disc
-    INK_QUIT STK_QUIT (parser.subintr) copy NULL != if ret end disc
-    INK_SYS0 STK_SYS0 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS1 STK_SYS1 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS2 STK_SYS2 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS3 STK_SYS3 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS4 STK_SYS4 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS5 STK_SYS5 (parser.subintr) copy NULL != if ret end disc
-    INK_SYS6 STK_SYS6 (parser.subintr) copy NULL != if ret end disc
+      ret
+    end
+
+    INK_COPY STK_COPY (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_COVR STK_COVR (parser.subintr) copy NULL != if parserresult.success ret end disc 
+    INK_DISC STK_DISC (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_AND STK_AND (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_OR STK_OR (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_NOT STK_NOT (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_INV STK_INV (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_READ STK_READ (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_READC STK_READC (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_PUT STK_PUT (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_PUTC STK_PUTC (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SWAP STK_SWAP (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_ADD STK_ADD (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SUB STK_SUB (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_MUL STK_MUL (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_DIVMOD STK_DIVMOD (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_ACCESS STK_ACCESS (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_EQ STK_EQ (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_NEQ STK_NEQ (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_LT STK_LT (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_GT STK_GT (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_BRK STK_BRK (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_RETURN STK_RET (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_ARGV STK_ARGV (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_ARGC STK_ARGC (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_ENVP STK_ENVP (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_QUIT STK_QUIT (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS0 STK_SYS0 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS1 STK_SYS1 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS2 STK_SYS2 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS3 STK_SYS3 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS4 STK_SYS4 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS5 STK_SYS5 (parser.subintr) copy NULL != if parserresult.success ret end disc
+    INK_SYS6 STK_SYS6 (parser.subintr) copy NULL != if parserresult.success ret end disc
 
     parser.tmp read parser.idx .
     parser.startstack read seq.popaddr read swap disc
     put disc
-    NULL ret
+
+    parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+    parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+    EK_SYNTAX
+    "Intrinsic expected"
+    parserresult.failure
 
     ret
   end
 
   push proc parsenum 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
@@ -194,12 +218,19 @@ class parser
     parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_NUMBER != if [
+    STK_CONST_NUMBER != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+      
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "Enums should start with a const"
+      parserresult.failure
+      
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -214,10 +245,14 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parsestring 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
@@ -226,12 +261,19 @@ class parser
     parser.tmp read parser.current . read NULL == if [ NULL ret ]
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_STRING != if [
+    STK_CONST_STRING != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "String expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -246,24 +288,34 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parsesstring 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_SSTRING != if [
+    STK_CONST_SSTRING != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "S-String expected"
+      parserresult.failure
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -278,24 +330,36 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parseword 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_WORD != if [
+    STK_WORD != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
       NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "Word expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -310,24 +374,35 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parsecall 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_PAREN != if [
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "Word expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -341,35 +416,53 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parseinc 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
     
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_INC != if [
+    STK_INC != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "Include expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_STRING != if [
+    STK_CONST_STRING != if
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "String expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -383,35 +476,53 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
   push proc parseasm 0 1
+    parser.initres
+
     parser.startstack read
     parser.tmp read parser.idx . read
     seq.pushint disc
     
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_ASM != if [
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "Asm expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
-    STK_CONST_STRING != if [
+    STK_CONST_STRING != if 
       parser.tmp read parser.idx .
       parser.startstack read seq.popaddr read swap disc
       put disc
-      NULL ret
-    ]
+
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.start . swap
+      parser.tmp read parser.idx . read 1 - (dlist.ptrat) slmtoken.stop . swap
+      EK_SYNTAX
+      "String expected"
+      parserresult.failure
+
+      ret
+    end
 
     parser.tmp read parser.tokens . read
     parser.tmp read parser.idx . read
@@ -425,6 +536,8 @@ class parser
 
     parser.startstack read seq.popaddr disc disc
 
+    parserresult.success
+
     ret
   end
 
@@ -434,7 +547,7 @@ class parser
     seq.pushint disc
     
     parser.tmp read (parser.advance) disc
-    parser.tmp read parser.current . read NULL == if [ NULL ret ]
+    parser.tmp read parser.current . read NULL == if NULL ret end
 
     parser.tmp read parser.current . read slmtoken.type . read 
     STK_OF != if [
@@ -443,6 +556,8 @@ class parser
       put disc
       NULL ret
     ]
+
+    STOPPED HERE
 
     parser.tmp read (parser.advance) disc
     parser.tmp read parser.current . read NULL == if [ NULL ret ]

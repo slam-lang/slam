@@ -470,6 +470,7 @@ class assembler
       
       assembler.classsize
       covr propdata.propvalue . read str.data . 
+      copy cstr.println
       (assembler.getconst)
 
       assembler.classsize read +
