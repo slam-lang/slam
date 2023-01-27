@@ -1,0 +1,48 @@
+inc "compiler/filepos.slh"
+
+class filepos
+  oper proc print 1 0
+    copy NULL == if disc ret end
+      
+    "<" cstr.print
+    copy filepos.row @ int.print
+    ":" cstr.print
+    copy filepos.col @ int.print
+    "@" cstr.print
+    copy filepos.filename @
+    copy NULL != if copy str.print end disc
+    ">" cstr.print
+    disc
+
+    ret
+  end
+
+  oper proc advance 2 1
+    var result 8
+
+    swap
+    result swap put disc
+
+    result read filepos.idx . copy
+    read 1 +
+    put disc
+
+    result read filepos.col . copy
+    read 1 +
+    put disc
+
+    10 == if
+      result read filepos.col .
+      0
+      put disc
+
+      result read filepos.row . copy
+      read 1 +
+      put disc
+    end
+
+    result read
+
+    ret
+  end
+end

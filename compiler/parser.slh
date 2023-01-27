@@ -1,0 +1,64 @@
+inc "compiler/error.slm"
+inc "compiler/token.slm"
+inc "compiler/nodes.slm"
+
+inc "std/cstr.slm"
+inc "std/dlist.slm"
+inc "std/heap.slm"
+inc "std/mem.slm"
+
+class parserresult
+  prop error 8
+  prop node 8
+
+  head oper proc register 2 1 
+  head oper proc success 2 1 
+  head oper proc failure 2 1 
+end
+
+class parser
+  prop tokens 8
+  prop current 8
+  prop idx 8
+
+  var running 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc advance 1 1
+  head oper proc run 1 1
+  head oper proc runinside 1 1
+
+  head oper proc subintr 2 1
+  head oper proc asserttype 1 1
+  head oper proc inblock 1 1
+
+  head oper proc setuperr 2 1
+
+  head oper proc parseintr 0 1
+  head oper proc parsenum 0 1
+  head oper proc parsestring 0 1
+  head oper proc parsesstring 0 1
+  head oper proc parseword 0 1
+  head oper proc parsecall 0 1
+  head oper proc parseinc 0 1
+  head oper proc parseasm 0 1
+  head oper proc parseof 0 1
+  head oper proc parseprop 0 1
+  head oper proc parseconst 0 1
+  head oper proc parsevar 0 1
+  {head oper proc parsecase 0 1}
+  head oper proc parsecomment 0 1
+  head oper proc parseif 0 1
+  {head oper proc parseswitch 0 1}
+  head oper proc parsesim 0 1
+  head oper proc parsedo 0 1
+  head oper proc parseproc 0 1
+  head oper proc parselambda 0 1
+  head oper proc parsenamed 0 1
+  head oper proc parseenum 0 1
+  head oper proc parseclass 0 1
+  head oper proc parsefile 0 1
+
+  head oper proc parseinside 0 1
+end

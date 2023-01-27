@@ -1,0 +1,29 @@
+#+title: Slam - Stack oriented, Low level, Confusing.
+#+subtitle: Slam is a low level untyped programming language with object oriented capabilities.
+#+author: Prestosilver
+#+date: 2022-12-31
+#+include: styles/main.css.org
+#+options: toc:nil
+
+* News
+** Now starting news - 01-25-2023
+Slam3 is almost done, it should be out by the first week of Feb at the worst.
+
+The plan for February is to finally start working out the documentation and standards for slam-stdlib.
+
+- Prestosilver
+** Now starting news - 12-10-2022
+I am going to start doing monthly updates from here on noting the changes in SLAM. Just for the 0 people who keep track.
+
+The plan for January of 23 is to get slam2 working.
+There are many bugs to work out, I am going to start listing them on gh when I get a chance, feel free to work on PRs.
+Moving on I would like to fix this page on mobile, we'll see if I have time.
+
+I also have to fix the docs on this page, shouldnt be too difficult I just have to sweep the source for comments before definitions.
+The code will have to be commented aswell at a later time.
+
+- Prestosilver
+* More links
+- [[file:examples.org][examples]]
+- [[file:future.org][the future of slam]]
+- [[file:ideas.org][ideas]]

@@ -1,0 +1,48 @@
+#+title: Ideas
+#+author: Prestosilver
+#+date: 2023-01-0
+#+todo: TODO WORK | DONE CANCELED
+#+include: styles/main.css.org
+
+* templates
+#+begin_src slam :wrap example :exports html
+temp proc increment
+  copy read 1 + put disc
+end
+
+temp proc decrement
+  copy read 1 + put disc
+end
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+#+end_example
+
+* cases
+
+#+begin_src slam :wrap example :exports html
+proc cases 0 0
+  0
+
+  copy
+  switch
+    cas 1
+      "lmao" cstr.print 0
+      brk
+    cas 2
+      brk
+    els
+      int.print 0
+  end
+  disc
+
+  ret
+end
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+#+end_example

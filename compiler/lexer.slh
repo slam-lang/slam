@@ -1,0 +1,30 @@
+inc "compiler/filepos.slm"
+inc "compiler/token.slm"
+
+inc "std/int.slm"
+inc "std/cstr.slm"
+inc "std/heap.slm"
+inc "std/fstreams.slm"
+inc "std/dlist.slm"
+inc "std/str.slm"
+inc "std/os.slm"
+
+class lexer
+  prop filename 8
+  prop file 8
+  prop pos 32
+  prop cstart 32
+  prop current 2
+  prop word 8
+  prop token 80
+
+  head oper proc new 2 1
+  head oper proc free 1 0
+  head oper proc advance 1 1
+  head oper proc isbadword 1 1
+
+  head oper proc matchword 4 3
+  head oper proc gettoken 2 2
+
+  head oper proc run 1 1
+end

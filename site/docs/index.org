@@ -1,0 +1,9 @@
+#+title: Docs
+#+author: Prestosilver
+#+date: 2023-01-02
+#+include: ../styles/main.css.org
+
+* Docs
+** stdlib
+- [[file:cstr.org][cstr.slm]]
+- [[file:dlist.org][dlist.slm]]

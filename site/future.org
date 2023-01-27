@@ -1,0 +1,24 @@
+#+title: The Future of Slam
+#+author: Prestosilver
+#+date: 2023-01-01
+#+include: styles/main.css.org
+#+todo: TODO WORK | DONE
+
+* The past of slam
+** DONE slam.py (0.0.0)
+** DONE slam 1.0.0 - self hosted
+** DONE slam 2.0.0 - objects
+* The future of slam
+** TODO slam 3.0.0 [66%]
+*** DONE rewrite [0%]
+**** DONE lexer
+**** DONE parser
+**** DONE assembler
+*** DONE fix bugs
+*** TODO more rewriting [0%]
+**** TODO simulator
+** TODO rewrite site in orgmode [0%]
+*** TODO plan
+*** TODO figure out css stuff
+** TODO slam 3.1.0
+*** doc strings

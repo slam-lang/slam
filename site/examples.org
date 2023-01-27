@@ -1,0 +1,108 @@
+#+title: Examples
+#+author: Prestosilver
+#+date: 2023-01-04
+#+include: styles/main.css.org
+
+* Examples
+** Hello World
+#+begin_src slam :wrap example :exports html
+inc "std/cstr.slm"
+
+proc main 0 0
+  {Push string to the stack}
+  "Hello World!"
+  {Print the top of the stack}
+  cstr.println
+
+  ret
+end
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Hello World!
+#+end_example
+
+** Fib
+
+#+begin_src slam :wrap example :exports html
+inc "std/cstr.slm"
+inc "std/int.slm"
+
+oper proc fib 2 2
+  covr + swap
+  copy int.print
+  " " cstr.print
+
+  ret
+end
+
+proc main 0 0
+  1 1
+  do
+    fib
+
+    copy 1000 <
+  end
+  disc
+  disc
+
+  ret
+end
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+1 2 3 5 8 13 21 34 55 89 144 233 377 610 987 1597
+#+end_example
+
+** Cat
+#+begin_src slam :wrap example :exports html
+inc "std/cstr.slm"
+inc "std/heap.slm"
+inc "std/mem.slm"
+inc "std/os.slm"
+
+proc main 0 0
+  var inputfd 8
+  var inputbuffer 128
+
+  { Make sure right number of args }
+  argc 1 == if
+    "Cannot cat 0 files" cstr.println
+    0 quit
+  end
+
+  0
+  do
+    1 +
+    copy os.args
+    0 swap 0 swap
+    -100
+    os.openf
+    inputfd swap put disc
+    do
+      inputbuffer 128 mem.zero
+      127
+      inputbuffer
+      inputfd read
+      os.readf
+      0 !=
+      inputbuffer cstr.print
+    end
+    inputfd read os.closef
+    copy argc <
+  end
+  disc
+
+  ret
+end
+
+#+end_src
+
+#+RESULTS:
+#+begin_example
+Cannot cat 0 files
+#+end_example

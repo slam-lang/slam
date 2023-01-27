@@ -1,0 +1,47 @@
+#+title: dlist.slm
+#+author: Prestosilver
+#+date: 2023-01-04
+#+include: ../styles/main.css.org
+
+* class dlist
+** Props
+- max: 8
+  - Stores the current max size of the dlist
+- size: 8
+  - Stores the current size of the dlist
+- elemsize: 8
+  - Stores the element size of the dlist
+- data: 0
+  - Stores the data of the dlist
+** Consts
+- STEP: 8
+- SIZE: 24
+** Procs
+- oper proc new 1 1
+  - Args: <Element size>
+  - Returns: <Dlist>
+  - Creates a new dlist
+- oper proc free 1 0
+  - Args: <Dlist>
+  - Returns:
+  - Frees a dlist
+- oper proc len 1 1
+  - Args: <Dlist>
+  - Returns: <Size>
+  - Gets the length of a dlist
+- oper proc getptr 2 1
+  - Args: <Dlist> <index>
+  - Returns: <Element pointer>
+  - returns the address of the nth element in a Dlist
+- oper proc pop 1 1
+  - Args: <Dlist>
+  - Returns: <Element pointer>
+  - returns the address of the last element in a Dlist and removes it
+- oper proc append 2 1
+  - Args: <Dlist> <Element pointer>
+  - Returns: <Dlist>
+  - Appends an element to a Dlist
+- oper proc last 1 2
+  - Args: <Dlist>
+  - Returns: <Element pointer>
+  - returns the address of the last element in a Dlist

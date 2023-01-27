@@ -1,24 +1,23 @@
-inc "stdlib/testin.slm"
-inc "stdlib.slm"
+inc "testin.slm"
 
 var string 128
 
 proc main 0 0
 
-  "Create a cstring" (testin.setup)
+  "Create a cstring" testin.setup
     
     string
   
-  "Concat to the string" (testin.next)
+  "Concat to the string" testin.next
 
     "foo" cstr.cat  
     "bar" cstr.cat  
   
-  "Check that its correct" (testin.next)
+  "Check that its correct" testin.next
   
-    "foobar" (testin.cstreq)
+    "foobar" testin.cstreq
 
-  (testin.done)
+  testin.done
 
   ret
 end

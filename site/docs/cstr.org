@@ -1,0 +1,59 @@
+#+title: cstr.slm
+#+author: Prestosilver
+#+date: 2023-01-04
+#+include: ../styles/main.css.org
+
+* class cstr
+** Props
+- data: 0
+** Consts
+- SIZE: 0
+** Procs
+- oper proc len 1 1
+  - Args: <cstring>
+  - Returns: <size>
+  - Gets the length of a cstring, returns 0 if string is NULL.
+- oper proc print 1 0
+  - Args: <cstring>
+  - Returns:
+  - Prints a cstring.
+- oper proc cr 0 0
+  - Args:
+  - Returns:
+  - Prints a new line.
+- oper proc println 1 0
+  - Args: <cstring>
+  - Returns:
+  - Prints a cstring followed by a new line.
+- oper proc eq 2 1
+  - Args: <cstring> <cstring>
+  - Returns: <equal>
+  - Returns true if two strings are equal
+- oper proc cpy 2 2
+  - Args: <cstring> <cstring>
+  - Returns: <cstring> <cstring>
+  - Copys a cstring to another, returns both cstrings.
+- oper proc last 1 1
+  - Args: <cstring>
+  - Returns: <char ptr>
+  - Gets the address of the last char in the cstring.
+- oper proc clear 1 1
+  - Args: <cstring>
+  - Returns: <cstring>
+  - Clears a cstring, returns the cstring.
+- oper proc cat 2 1
+  - Args: <cstring> <cstring>
+  - Returns: <cstring>
+  - Concats a cstring to a cstring, returns the first cstring.
+- oper proc isnum 1 1
+  - Args: <cstring>
+  - Returns: <is number>
+  - Returns true if the cstring is a number.
+- oper proc int 1 1
+  - Args: <cstring>
+  - Returns: <number>
+  - Converts a cstring to a number. Returns 0 if its not a number.
+- oper proc iter 1 2
+  - Args: <cstring>
+  - Returns: <nextiter> <cstring>
+  - Iterator for a cstring, iterates through characters.

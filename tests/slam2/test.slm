@@ -1,7 +1,8 @@
-inc "stdlib/os.slm"
-inc "stdlib.slm"
+inc "std/os.slm"
+inc "std/cstr.slm"
+inc "std/int.slm"
 
-const TEST_COUNT 20
+const TEST_COUNT 19
 
 var tmpbuffer 128
 var tmpname 64
@@ -10,40 +11,9 @@ var slamexec 64
 var failed 1
 var passed 1
 
-push proc runcmdstdout 1 0
-  (os.fork)
-  copy 0 == if 
-    covr envp swap copy read
-  
-    sysc.EXECVE sys3 disc
-    disc disc
-    -1
-    quit
-  end
+oper proc runtest 1 0
+  var waitsig 8
 
-  copy 0 > if 
-    {parent}
-  
-    NULL
-    0
-    os.waitsig
-    -1
-    sysc.WAIT4 sys4 (os.chkdeverr)
-
-    disc disc
-
-    ret
-  end
-
-  0 != if 
-    "ERROR" cstr.println
-  end
-
-  disc
-  ret
-end
-
-push proc runtest 1 0
   tmpbuffer
   "/usr/bin/rm" put int.SIZE +
   "-f" put int.SIZE +
@@ -51,7 +21,7 @@ push proc runtest 1 0
   "tester.asm" put int.SIZE +
   NULL put disc
 
-  tmpbuffer (os.execcmd)
+  tmpbuffer os.execcmd disc
 
   cstr.cr
   "# " cstr.print
@@ -65,14 +35,18 @@ push proc runtest 1 0
   swap put int.SIZE +
   NULL put disc
 
-  tmpbuffer (os.execcmd)
+  waitsig
+  tmpbuffer os.execcmd
+  put disc
   
-  os.waitsig read 0 != if 
+  waitsig read 0 != if
     "- Test Failed to compile, code="  cstr.print
-    os.waitsig read int.print
+    waitsig read int.print
+
+    "\n" cstr.println
     
     "```" cstr.println
-    tmpbuffer (runcmdstdout)
+    tmpbuffer os.execcmdloud disc
     "```" cstr.println
     
     failed
@@ -86,11 +60,13 @@ push proc runtest 1 0
   "tester" put int.SIZE +
   NULL put disc
 
-  tmpbuffer (runcmdstdout)
+  waitsig
+  tmpbuffer os.execcmdloud
+  put disc
   
-  os.waitsig read 0 != if 
+  waitsig read 0 != if
     "- Test Failed, code=" cstr.print
-    os.waitsig read int.cstr cstr.println
+    waitsig read int.cstr cstr.println
 
     failed
     copy readc 1 +
@@ -105,8 +81,8 @@ push proc runtest 1 0
   ret
 end
 
-push proc main 0 0
-  slamexec "HOME" (os.env) cstr.cpy disc
+oper proc main 0 0
+  slamexec "HOME" os.env cstr.cpy disc
   "/.local/slam/bin/slam" cstr.cat disc
 
   0
@@ -116,7 +92,7 @@ push proc main 0 0
     "test" cstr.cpy disc
     covr int.cstr cstr.cat
     ".slm" cstr.cat
-    (runtest)
+    runtest
 
     copy TEST_COUNT <
   end
@@ -128,10 +104,12 @@ push proc main 0 0
   "- Passed: " cstr.print
   passed readc
   int.print
+  cstr.cr
 
   "- Failed: " cstr.print
   failed readc
   int.print
+  cstr.cr
 
   failed readc quit
 

@@ -51,6 +51,7 @@ enum
     INK_LT
     INK_GT
     INK_ACCESS
+    INK_REFACCESS
     INK_COVR
     INK_SWAP
     INK_ADD

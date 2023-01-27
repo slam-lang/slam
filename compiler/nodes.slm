@@ -1,0 +1,530 @@
+inc "compiler/nodes.slh"
+
+class nodedata
+  oper proc free 1 0
+    copy nodedata.kind @
+    copy SNK_CALL == if disc calldata.free ret end
+    copy SNK_ASM == if disc asmdata.free ret end
+    copy SNK_INC == if disc incdata.free ret end
+    copy SNK_OF == if disc ofdata.free ret end
+    copy SNK_COMMENT == if disc commentdata.free ret end
+    copy SNK_INTR == if disc intrdata.free ret end
+    copy SNK_VAR == if disc vardata.free ret end
+    copy SNK_DEF == if disc defdata.free ret end
+    copy SNK_PROP == if disc propdata.free ret end
+    copy SNK_CONST == if disc constdata.free ret end
+    copy SNK_FILE == if disc filedata.free ret end
+    copy SNK_BLOCK == if disc blockdata.free ret end
+    disc disc
+
+    ret
+  end
+
+  oper proc print 1 0
+    copy nodedata.kind @
+    copy SNK_CALL == if disc calldata.print ret end
+    copy SNK_ASM == if disc asmdata.print ret end
+    copy SNK_INC == if disc incdata.print ret end
+    copy SNK_OF == if disc ofdata.print ret end
+    copy SNK_COMMENT == if disc commentdata.print ret end
+    copy SNK_INTR == if disc intrdata.print ret end
+    copy SNK_VAR == if disc vardata.print ret end
+    copy SNK_DEF == if disc defdata.print ret end
+    copy SNK_PROP == if disc propdata.print ret end
+    copy SNK_CONST == if disc constdata.print ret end
+    copy SNK_FILE == if disc filedata.print ret end
+    copy SNK_BLOCK == if disc blockdata.print ret end
+    disc disc
+
+    ret
+  end
+end
+
+class calldata
+  oper proc new 1 1
+    var result 8
+
+    result calldata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_CALL put disc
+    result read calldata.callee . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<CALL: "" cstr.print
+    calldata.callee @ str.print
+    "">" cstr.print
+
+    ret
+  end
+end
+
+class asmdata
+  oper proc new 1 1
+    var result 8
+
+    result asmdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_ASM put disc
+    result read asmdata.raw . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<ASM: "" cstr.print
+    asmdata.raw @ str.print
+    "">" cstr.print
+
+    ret
+  end
+end
+
+class incdata
+  oper proc new 1 1
+    var result 8
+
+    result incdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_INC put disc
+    result read incdata.include . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<INC: "" cstr.print
+    incdata.include @ str.print
+    "">" cstr.print
+
+    ret
+  end
+end
+
+class ofdata
+  oper proc new 1 1
+    var result 8
+
+    result ofdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_OF put disc
+    result read ofdata.inherit . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<OF: "" cstr.print
+    ofdata.inherit @ str.print
+    "">" cstr.print
+
+    ret
+  end
+end
+
+class commentdata
+  oper proc new 0 1
+    var result 8
+
+    result commentdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_COMMENT put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<COMMENT>" cstr.print
+    disc
+
+    ret
+  end
+end
+
+class intrdata
+  oper proc new 1 1
+    var result 8
+
+    result intrdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_INTR put disc
+    result read intrdata.intrkind . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<INTR: " cstr.print
+    intrdata.intrkind @ int.print
+    ">" cstr.print
+
+    ret
+  end
+end
+
+class vardata
+  oper proc new 3 1
+    var result 8
+
+    result vardata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_VAR put disc
+    result read vardata.varvalue . swap put disc
+    result read vardata.varkind . swap put disc
+    result read vardata.varname . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<VAR: "" cstr.print
+    copy vardata.varname @ str.print
+    "", size" cstr.print
+    copy vardata.varvalue @ str.print
+    ">" cstr.print
+    disc
+
+    ret
+  end
+end
+
+class defdata
+  oper proc new 3 1
+    var result 8
+
+    result defdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_DEF put disc
+    result read defdata.defvalue . swap put disc
+    result read defdata.defkind . swap put disc
+    result read defdata.defname . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<DEF: "" cstr.print
+    copy defdata.defname @ str.print
+    "", value:" cstr.print
+    copy defdata.defvalue @ str.print
+    ">" cstr.print
+    disc
+
+    ret
+  end
+end
+
+class propdata
+  oper proc new 3 1
+    var result 8
+
+    result propdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_PROP put disc
+    result read propdata.propvalue . swap put disc
+    result read propdata.propkind . swap put disc
+    result read propdata.propname . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<PROP: "" cstr.print
+    copy propdata.propname @ str.print
+    "", size:" cstr.print
+    copy propdata.propvalue @ str.print
+    ">" cstr.print
+    disc
+
+    ret
+  end
+end
+
+class constdata
+  oper proc new 2 1
+    var result 8
+
+    result constdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_CONST put disc
+    result read constdata.constvalue . swap put disc
+    result read constdata.constkind . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    "<CONST: "" cstr.print
+    copy constdata.constvalue @ str.print
+    "", kind:" cstr.print
+    copy constdata.constkind @ int.print
+    ">" cstr.print
+    disc
+
+    ret
+  end
+end
+
+class filedata
+  oper proc new 1 1
+    var result 8
+
+    result filedata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_FILE put disc
+    result read filedata.childcount . 0 put disc
+    result read filedata.filename . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    {TODO: free children}
+
+    ret
+  end
+
+  oper proc print 1 0
+    var self 8
+
+    self swap put disc
+
+    "<FILE: " cstr.print
+    self read filedata.childcount @
+    0 == if ret end
+
+    0
+    do
+      copy 8 *
+      self read filedata.children . + read
+      slmnode.print
+
+      1 +
+      copy self read filedata.childcount @ <
+    end
+    disc
+
+    ">" cstr.print
+
+    ret
+  end
+
+  oper proc append 2 1
+    var self 8
+
+    swap self swap put disc
+
+    self read
+    self read filedata.childcount @ 2 + 8 *
+    filedata.SIZE +
+    heap.realloc
+    self swap put disc
+
+    self read filedata.childcount @ 8 *
+    self read filedata.children . + swap put disc
+
+    self read filedata.childcount .
+    copy read 1 +
+    put disc
+
+    self read
+
+    ret
+  end
+end
+
+class blockdata
+  oper proc new 5 1
+    var result 8
+
+    result blockdata.SIZE heap.zalloc put disc
+
+    result read nodedata.kind . SNK_BLOCK put disc
+    result read blockdata.childcount . 0 put disc
+    result read blockdata.blockmisc . swap put disc
+    result read blockdata.blockkind . swap put disc
+    result read blockdata.blockout . swap put disc
+    result read blockdata.blockin . swap put disc
+    result read blockdata.blockname . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    heap.free
+
+    {TODO: free children}
+
+    ret
+  end
+
+  oper proc print 1 0
+    var self 8
+
+    self swap put disc
+
+    "<BLOCK: " cstr.print
+    self read blockdata.childcount @
+    copy int.print
+    0 == if
+      ">" cstr.print
+      ret
+    end
+    " - " cstr.println
+
+    0
+    do
+      copy 8 *
+      self read blockdata.children . + read
+      slmnode.print
+
+      1 +
+      copy self read blockdata.childcount @ <
+    end
+    disc
+
+    ">" cstr.print
+
+    ret
+  end
+
+  oper proc append 2 1
+    var self 8
+
+    swap self swap put disc
+
+    self read
+    self read blockdata.childcount @ 2 + 8 *
+    blockdata.SIZE +
+    heap.realloc
+    self swap put disc
+
+    self read blockdata.childcount @ 8 *
+    self read blockdata.children . + swap put disc
+
+    self read blockdata.childcount .
+    copy read 1 +
+    put disc
+
+    self read
+
+    ret
+  end
+end
+
+class slmnode
+  oper proc new 3 1
+    var result 8
+
+    result 74 heap.zalloc put disc
+
+    result read slmnode.data . swap put disc
+    result read slmnode.start . swap 32 mem.cpy
+    result read slmnode.stop . swap 32 mem.cpy
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    copy slmnode.data @ nodedata.free
+    heap.free
+
+    ret
+  end
+
+  oper proc print 1 0
+    slmnode.data @ nodedata.print
+
+    ret
+  end
+end

@@ -1,403 +1,337 @@
-inc "compiler/token.slm"
-inc "stdlib/os.slm"
-inc "stdlib/arrays.slm"
-inc "stdlib/string.slm"
+inc "compiler/lexer.slh"
 
-{
-TODO: read buffer
-}
 class lexer
-  prop filename int.SIZE
-  prop file int.SIZE
-  prop pos filepos.SIZE
-  prop cstart filepos.SIZE
-  prop current int.SIZE
-  prop word int.SIZE
-  prop token slmtoken.SIZE
+  oper proc new 2 1
+    var result 8
+    var incpath 8
 
-  var tmp int.SIZE
-  var result int.SIZE
-  var includepath int.SIZE
-
-  push proc new 2 1
     "[LEX] " cstr.print
     covr cstr.println
-    
-    lexer.includepath (str.new) put disc
-    
-    covr "./" 2 (mem.eq) ! && if
-      lexer.includepath read
-      "HOME" (os.env) (str.catc)
-      "/.local/slam/lib/" (str.catc)
-      lexer.includepath swap put disc
-    end
 
-    copy "./" 2 (mem.eq) if
-      lexer.includepath read
-      "PWD" (os.env) (str.catc)
-      lexer.includepath swap put disc
+    incpath str.new put disc
+
+    covr "./" 2 mem.eq ! && if
+      incpath read
+      "HOME" os.env str.catc
+      "/.local/slam/lib/" str.catc
+      incpath swap put disc
+    end
+    copy "./" 2 mem.eq if
+      incpath read
+      "PWD" os.env str.catc
+      incpath swap put disc
       1 +
     end
 
-    lexer.includepath read
-    swap (str.catc)
-    lexer.includepath swap put disc
+    incpath read
+    swap str.catc
+    incpath swap put disc
 
-    lexer.tmp
-    filepos.SIZE 2 *
-    int.SIZE 4 * +
-    slmtoken.SIZE 1 * +
-    (heap.zalloc) put disc
+    result lexer.SIZE heap.zalloc put disc
 
-    lexer.includepath read str.data .
-    
-    (filestream.new)
+    incpath read str.data .
+    copy
+    incpath read str.size @ +
+    0 putc disc
 
-    lexer.tmp read lexer.file . swap put disc
-    lexer.includepath read str.data .
-    lexer.tmp read lexer.filename . swap put disc
+    filestream.new
 
-    lexer.tmp read lexer.pos . filepos.filename .
-    lexer.tmp read lexer.filename . read
-    put disc
-    
-    lexer.tmp read lexer.cstart . filepos.filename .
-    lexer.tmp read lexer.filename . read
+    result read lexer.file . swap put disc
+    incpath read
+    result read lexer.filename . swap put disc
+
+    result read lexer.pos . filepos.filename .
+    result read lexer.filename @
     put disc
 
-    lexer.tmp read lexer.word . (str.new)
+    result read lexer.cstart . filepos.filename .
+    result read lexer.filename @
     put disc
 
-    lexer.tmp read
+    result read lexer.pos . filepos.row .
+    1
+    put disc
+
+    result read lexer.cstart . filepos.row .
+    1
+    put disc
+
+    result read lexer.word . str.new put disc
+
+    result read
+
     ret
   end
 
-  push proc advance 1 1
-    lexer.tmp swap put disc
+  oper proc free 1 0
+    copy lexer.word @ str.free
+    copy lexer.file @ filestream.free
+    heap.free
 
-    lexer.tmp read lexer.pos .
-    lexer.tmp read lexer.current . read
-    (filepos.advance) disc
+    ret
+  end
 
-    lexer.tmp read lexer.current . 0 put disc
+  oper proc advance 1 1
+    var self 8
 
-    lexer.tmp read lexer.current .
-    lexer.tmp read lexer.file . read
-    (filestream.readchar)
+    self swap put disc
+
+    self read lexer.pos .
+    self read lexer.current . readc
+    filepos.advance disc
+
+    self read lexer.current . 1 + 0 putc disc
+
+    self read lexer.current .
+    self read lexer.file @
+    filestream.readchar
+    copy '\\' == if
+      disc
+      self read lexer.file @
+      filestream.readchar
+      copy 'n' == if
+        disc '\n'
+      end
+    end
     putc disc
 
-    lexer.tmp read
+    self read
 
     ret
   end
 
-  push proc free 1 0
-    copy lexer.word . read (str.free)
-    copy lexer.file . read (filestream.free)
+  oper proc isbadword 1 1
+    var self 8
 
-    (heap.free)
+    self swap put disc
 
-    ret
-  end
+    self read lexer.current . readc
+    0 == if bool.false ret end
 
-  push proc badword 0 1
-    lexer.tmp read lexer.current . readc
-    0 == if [
-      0 ret
-    ]
-
-    lexer.tmp read lexer.word . read str.data . readc
+    self read lexer.word @ str.data . readc
     copy ''' == 
     covr '"' == ||
     covr '`' == ||
     covr '(' == ||
     covr '{' == ||
-    swap disc
-    ! if [
-      0 ret
-    ]
-    lexer.tmp read lexer.word . read str.size . read 2 >
-    ! if [
-      1 ret
-    ]
-    
-    lexer.tmp read lexer.word . read str.data . readc ''' ==
-    lexer.tmp read lexer.word . read copy str.data . swap str.size . read + 2 - readc ''' == &&
-    if [ 0 ret ]
+    swap disc !
+    if bool.false ret end
 
-    lexer.tmp read lexer.word . read str.data . readc '"' ==
-    lexer.tmp read lexer.word . read copy str.data . swap str.size . read + 2 - readc '"' == &&
-    if [ 0 ret ]
+    self read lexer.word @ str.size @ 2 > !
+    if bool.true ret end
+    
+    self read lexer.word @ str.data . readc ''' ==
+    self read lexer.word @ copy str.data . swap str.size @ + 2 - readc ''' == &&
+    if bool.false ret end
+    
+    self read lexer.word @ str.data . readc '"' ==
+    self read lexer.word @ copy str.data . swap str.size @ + 2 - readc '"' == &&
+    if bool.false ret end
+    
+    self read lexer.word @ str.data . readc '`' ==
+    self read lexer.word @ copy str.data . swap str.size @ + 2 - readc '`' == &&
+    if bool.false ret end
+    
+    self read lexer.word @ str.data . readc '(' ==
+    self read lexer.word @ copy str.data . swap str.size @ + 2 - readc ')' == &&
+    if bool.false ret end
+    
+    self read lexer.word @ str.data . readc '{' ==
+    self read lexer.word @ copy str.data . swap str.size @ + 2 - readc '}' == &&
+    if bool.false ret end
 
-    lexer.tmp read lexer.word . read str.data . readc '`' ==
-    lexer.tmp read lexer.word . read copy str.data . swap str.size . read + 2 - readc '`' == &&
-    if [ 0 ret ]
-    
-    lexer.tmp read lexer.word . read str.data . readc '(' ==
-    lexer.tmp read lexer.word . read copy str.data . swap str.size . read + 2 - readc ')' == &&
-    if [ 0 ret ]
-    
-    lexer.tmp read lexer.word . read str.data . readc '{' ==
-    lexer.tmp read lexer.word . read copy str.data . swap str.size . read + 2 - readc '}' == &&
-    if [ 0 ret ]
-    
-    1
+    bool.true
 
     ret
   end
 
-  push proc gettoken 1 0
-    copy "sim" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SIM put disc disc ret
-    ]
-    copy "lambda" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_LAMBDA put disc disc ret
-    ]
-    copy ":" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_NAMED put disc disc ret
-    ]
-    copy "els" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ELSE put disc disc ret
-    ]
-    copy "cas" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CASE put disc disc ret
-    ]
-    copy "switch" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SWITCH put disc disc ret
-    ]
-    copy "asm" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ASM put disc disc ret
-    ]
-    copy "inc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_INC put disc disc ret
-    ]
-    copy "enum" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ENUM put disc disc ret
-    ]
-    copy "if" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_IF put disc disc ret
-    ]
-    copy "do" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_DO put disc disc ret
-    ]
-    copy "ret" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_RET put disc disc ret
-    ]
-    copy "brk" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_BRK put disc disc ret
-    ]
-    copy "const" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CONST put disc disc ret
-    ]
-    copy "class" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CLASS put disc disc ret
-    ]
-    copy "proc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PROC put disc disc ret
-    ]
-    copy "end" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_END put disc disc ret
-    ]
-    copy "quit" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_QUIT put disc disc ret
-    ]
-    copy "var" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_VAR put disc disc ret
-    ]
-    copy "copy" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_COPY put disc disc ret
-    ]
-    copy "covr" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_COVR put disc disc ret
-    ]
-    copy "disc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_DISC put disc disc ret
-    ]
-    copy "prop" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PROP put disc disc ret
-    ]
-    copy "[" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_COMMENT put disc disc ret
-    ]
-    copy "]" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_END put disc disc ret
-    ]
-    copy "." (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ACCESS put disc disc ret
-    ]
-    copy "+" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ADD put disc disc ret
-    ]
-    copy "-" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SUB put disc disc ret
-    ]
-    copy "*" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_MUL put disc disc ret
-    ]
-    copy "~" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_INV put disc disc ret
-    ]
-    copy "/%" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_DIVMOD put disc disc ret
-    ]
-    copy "==" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_EQ put disc disc ret
-    ]
-    copy "!=" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_NEQ put disc disc ret
-    ]
-    copy ">" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_GT put disc disc ret
-    ]
-    copy "<" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_LT put disc disc ret
-    ]
-    copy "&&" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_AND put disc disc ret
-    ]
-    copy "||" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_OR put disc disc ret
-    ]
-    copy "!" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_NOT put disc disc ret
-    ]
-    copy "of" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_OF put disc disc ret
-    ]
-    copy "oper" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_OPER put disc disc ret
-    ]
-    copy "push" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PUSH put disc disc ret
-    ]
-    copy "head" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_HEAD put disc disc ret
-    ]
-    copy "read" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_READ put disc disc ret
-    ]
-    copy "readc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_READC put disc disc ret
-    ]
-    copy "put" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PUT put disc disc ret
-    ]
-    copy "putc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PUTC put disc disc ret
-    ]
-    copy "swap" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SWAP put disc disc ret
-    ]
-    copy "argv" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ARGV put disc disc ret
-    ]
-    copy "argc" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ARGC put disc disc ret
-    ]
-    copy "envp" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_ENVP put disc disc ret
-    ]
-    copy "sys0" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS0 put disc disc ret
-    ]
-    copy "sys1" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS1 put disc disc ret
-    ]
-    copy "sys2" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS2 put disc disc ret
-    ]
-    copy "sys3" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS3 put disc disc ret
-    ]
-    copy "sys4" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS4 put disc disc ret
-    ]
-    copy "sys5" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS5 put disc disc ret
-    ]
-    copy "sys6" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_SYS6 put disc disc ret
-    ]
-    copy "unsafe" (str.eq) if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_UNSAFE put disc disc ret
-    ]
+  oper proc matchword 4 3
+    var match 8
+    var result 8
+    var word 8
+    var lexer 8
 
-    str.data .
-    copy cstr.isnum if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CONST_NUMBER put disc disc ret
-    ]
-    readc
-    
-    copy '{' == if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_COMMENT put disc disc ret
-    ]
-    copy '"' == if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CONST_STRING put disc
+    result swap put disc
+    match swap put disc
+    word swap put disc
+    lexer swap put disc
 
-      lexer.tmp read lexer.token . slmtoken.value . read
-      lexer.tmp read lexer.word . read
-      str.size . read 1 -
-      lexer.tmp read lexer.word . read
-      str.data . 1 +
-      (str.sput)
+    word read
+    match read str.ceq if
+      lexer read lexer.token . slmtoken.type . result read put disc
+
+      lexer read
+      word read
+      bool.true
+      ret
+    end
+    lexer read
+    word read
+    bool.false
+
+    ret
+  end
+
+  oper proc gettoken 2 2
+    var word 8
+    var self 8
+
+    word swap put disc
+    self swap put disc
+
+    self read word read
+    "lambda" STK_LAMBDA lexer.matchword if ret end
+    "switch" STK_SWITCH lexer.matchword if ret end
+    "unsafe" STK_UNSAFE lexer.matchword if ret end
+    "const" STK_CONST lexer.matchword if ret end
+    "class" STK_CLASS lexer.matchword if ret end
+    "readc" STK_READC lexer.matchword if ret end
+    "proc" STK_PROC lexer.matchword if ret end
+    "enum" STK_ENUM lexer.matchword if ret end
+    "copy" STK_COPY lexer.matchword if ret end
+    "swap" STK_SWAP lexer.matchword if ret end
+    "read" STK_READ lexer.matchword if ret end
+    "putc" STK_PUTC lexer.matchword if ret end
+    "disc" STK_DISC lexer.matchword if ret end
+    "covr" STK_COVR lexer.matchword if ret end
+    "prop" STK_PROP lexer.matchword if ret end
+    "quit" STK_QUIT lexer.matchword if ret end
+    "head" STK_HEAD lexer.matchword if ret end
+    "push" STK_PUSH lexer.matchword if ret end
+    "oper" STK_OPER lexer.matchword if ret end
+    "argc" STK_ARGC lexer.matchword if ret end
+    "argv" STK_ARGV lexer.matchword if ret end
+    "envp" STK_ENVP lexer.matchword if ret end
+    "sys0" STK_SYS0 lexer.matchword if ret end
+    "sys1" STK_SYS1 lexer.matchword if ret end
+    "sys2" STK_SYS2 lexer.matchword if ret end
+    "sys3" STK_SYS3 lexer.matchword if ret end
+    "sys4" STK_SYS4 lexer.matchword if ret end
+    "sys5" STK_SYS5 lexer.matchword if ret end
+    "sys6" STK_SYS6 lexer.matchword if ret end
+    "end" STK_END lexer.matchword if ret end
+    "put" STK_PUT lexer.matchword if ret end
+    "var" STK_VAR lexer.matchword if ret end
+    "sim" STK_SIM lexer.matchword if ret end
+    "els" STK_ELSE lexer.matchword if ret end
+    "cas" STK_CASE lexer.matchword if ret end
+    "asm" STK_ASM lexer.matchword if ret end
+    "inc" STK_INC lexer.matchword if ret end
+    "ret" STK_RET lexer.matchword if ret end
+    "brk" STK_BRK lexer.matchword if ret end
+    "if" STK_IF lexer.matchword if ret end
+    "do" STK_DO lexer.matchword if ret end
+    "of" STK_OF lexer.matchword if ret end
+    "/%" STK_DIVMOD lexer.matchword if ret end
+    "==" STK_EQ lexer.matchword if ret end
+    "!=" STK_NEQ lexer.matchword if ret end
+    "&&" STK_AND lexer.matchword if ret end
+    "||" STK_OR lexer.matchword if ret end
+    "!" STK_NOT lexer.matchword if ret end
+    ">" STK_GT lexer.matchword if ret end
+    "<" STK_LT lexer.matchword if ret end
+    ":" STK_NAMED lexer.matchword if ret end
+    "." STK_ACCESS lexer.matchword if ret end
+    "@" STK_REFACCESS lexer.matchword if ret end
+    "+" STK_ADD lexer.matchword if ret end
+    "-" STK_SUB lexer.matchword if ret end
+    "*" STK_MUL lexer.matchword if ret end
+    "~" STK_INV lexer.matchword if ret end
+    disc disc
+
+    word read str.data . cstr.isnum if
+      self read lexer.token . slmtoken.type . STK_CONST_NUMBER put disc
+      self read word read
+      ret
+    end
+
+    word read str.data . readc
+    copy '{' == if
+      disc
+      self read lexer.token . slmtoken.type . STK_COMMENT put disc
+      self read word read
+      ret
+    end
+    copy '"' == if
+      disc
+      self read lexer.token . slmtoken.type . STK_CONST_STRING put disc
+      self read lexer.token . slmtoken.value @
+      self read lexer.word @ str.size @ 1 -
+      self read lexer.word @ str.data . 1 +
+      str.sput
       copy str.data .
-      swap str.size . read + 1 -
-      0 putc disc disc ret
-    ]
-    copy '`' == if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CONST_SSTRING put disc
+      swap str.size @ + 1 -
+      0 putc disc
 
-      lexer.tmp read lexer.token . slmtoken.value . read
-      lexer.tmp read lexer.word . read
-      str.size . read 1 -
-      lexer.tmp read lexer.word . read
-      str.data . 1 +
-      (str.sput)
+      self read word read
+      ret
+    end
+    copy '`' == if
+      disc
+      self read lexer.token . slmtoken.type . STK_CONST_SSTRING put disc
+      self read lexer.token . slmtoken.value @
+      self read lexer.word @ str.size @ 1 -
+      self read lexer.word @ str.data . 1 +
+      str.sput
       copy str.data .
-      swap str.size . read + 1 -
-      0 putc disc disc ret
-    ]
-    copy ''' == if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_CONST_NUMBER put disc
+      swap str.size @ + 1 -
+      0 putc disc
 
-      lexer.tmp read lexer.token . slmtoken.value . read
-      lexer.tmp read lexer.word . read
-      str.data . 1 + readc int.cstr
+      self read word read
+      ret
+    end
+    copy ''' == if
+      disc
+      self read lexer.token . slmtoken.type . STK_CONST_NUMBER put disc
+      self read lexer.token . slmtoken.value @
+      self read lexer.word @ str.data . 1 + readc int.cstr
       copy cstr.len swap
-      (str.sput) disc
-    ]
-    copy '(' == if [
-      lexer.tmp read lexer.token . slmtoken.type . STK_PAREN put disc
-
-      lexer.tmp read lexer.token . slmtoken.value . read
-      lexer.tmp read lexer.word . read
-      str.size . read 1 -
-      lexer.tmp read lexer.word . read
-      str.data . 1 +
-      (str.sput)
+      str.sput
       copy str.data .
-      swap str.size . read + 1 -
-      0 putc disc disc ret
-    ]
+      swap str.size @ +
+      0 putc disc
+
+      self read word read
+      ret
+    end
+    copy '(' == if
+      disc
+      self read lexer.token . slmtoken.type . STK_PAREN put disc
+      self read lexer.token . slmtoken.value @
+      self read lexer.word @ str.size @ 2 -
+      self read lexer.word @ str.data . 1 +
+      str.sput
+      copy str.data .
+      swap str.size @ +
+      0 putc disc
+
+      self read word read
+      ret
+    end
     disc
 
+    self read word read
+
     ret
   end
 
+  oper proc run 1 1
+    var self 8
+    var result 8
 
-  push proc run 1 1
-    lexer.tmp swap put disc
-    lexer.result
-    slmtoken.SIZE (dlist.new)
-    put disc
+    self swap put disc
+    result slmtoken.SIZE dlist.new put disc
 
     do
       do
-        lexer.tmp read lexer.word . read 
-        lexer.tmp read (lexer.advance)
-        lexer.current . 1 swap (str.sput) disc
+        self read lexer.advance disc
 
-        lexer.tmp read lexer.current . read
+        self read lexer.word @ str.data .
+        self read lexer.current . readc
+        putc disc
+        self read lexer.word @ str.size . 1 put disc
+
+        self read lexer.current . readc
         copy 9 == 
         covr 10 == ||
         covr 13 == ||
@@ -405,18 +339,19 @@ class lexer
         swap disc
       end
 
-      lexer.tmp read lexer.cstart .
-      lexer.tmp read lexer.pos .
-      filepos.SIZE (mem.cpy)
+      self read lexer.cstart .
+      self read lexer.pos .
+      filepos.SIZE mem.cpy
 
       do
         do
-          lexer.tmp read lexer.word . read
-          lexer.tmp read (lexer.advance)
-          lexer.current . (str.catc)
-          lexer.tmp read lexer.word . swap put disc
+          self read lexer.word @
+          self read lexer.advance
+          lexer.current . str.catc
+          self read lexer.word .
+          swap put disc
 
-          lexer.tmp read lexer.current . read
+          self read lexer.current . readc
           copy 9 ==
           covr 0 == ||
           covr 10 == ||
@@ -424,53 +359,60 @@ class lexer
           covr 32 == || !
           swap disc
         end
-        (lexer.badword)
+
+        self read
+        lexer.isbadword
       end
-      lexer.tmp read lexer.word . read
-      copy str.size .
-      copy read 1 -
+
+      self read lexer.word @ str.size .
+      copy read
+      copy 0 != if 1 - end
       put disc
 
-      lexer.tmp read lexer.token . slmtoken.type . STK_WORD put disc
+      self read lexer.token . slmtoken.type . STK_WORD put disc
+      self read lexer.token . slmtoken.value . str.new put disc
+      
+      self read lexer.token . slmtoken.value @
+      self read lexer.word @ str.size @
+      self read lexer.word @ str.data .
+      str.sput disc
 
-      lexer.tmp read lexer.token . slmtoken.value . (str.new) put disc
-
-      lexer.tmp read lexer.token . slmtoken.value . read
-      lexer.tmp read lexer.word . read
-      str.size . read
-      lexer.tmp read lexer.word . read
-      str.data .
-      (str.sput) disc
-
-      lexer.tmp read lexer.word . read
+      self read lexer.word @
       copy str.data .
-      swap str.size . read +
+      swap str.size @ +
       0 putc disc
 
-      lexer.tmp read lexer.token . slmtoken.start .
-      lexer.tmp read lexer.cstart .
-      filepos.SIZE (mem.cpy)
+      self read lexer.token . slmtoken.start .
+      self read lexer.cstart .
+      filepos.SIZE
+      mem.cpy
 
-      lexer.tmp read lexer.token . slmtoken.stop .
-      lexer.tmp read lexer.pos .
-      filepos.SIZE (mem.cpy)
+      self read lexer.token . slmtoken.stop .
+      self read lexer.pos .
+      filepos.SIZE
+      mem.cpy
 
-      (lexer.gettoken)
+      self read
+      self read lexer.word @
+      lexer.gettoken
+      disc disc
 
-      lexer.tmp read lexer.word . read
-      str.size . read 0 != if [
-        lexer.result read
-        lexer.tmp read lexer.token .
-        (dlist.append)
-        lexer.result
-        swap put disc
-      ]
+      self read lexer.word @
+      str.size @ 0 != if
+        result read
+        self read lexer.token .
+        dlist.append
+        result swap put disc
+      end
 
-      lexer.tmp read lexer.current . read 0 !=
+      self read lexer.current . readc 0 !=
     end
 
-    lexer.tmp read (lexer.free)
-    lexer.result read
+    self read lexer.free
+
+    result read
+
     ret
   end
 end
+

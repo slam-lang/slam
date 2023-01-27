@@ -26,7 +26,7 @@ jobs:
         run: |
           git clone http://github.com/slam-lang/slam
           cd slam
-          make test >> $GITHUB_STEP_SUMMARY`
+          make test >> $GITHUB_STEP_SUMMARY
   # test-slam2:
   #   runs-on: ubuntu-latest
   #   steps:

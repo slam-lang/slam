@@ -1,0 +1,55 @@
+inc "compiler/error.slh"
+
+class error
+  oper proc new 4 1
+    var result 8
+    
+    result error.SIZE heap.zalloc put disc
+
+    result read error.msg . swap put disc
+    result read error.kind . swap putc disc
+    result read error.posstart . swap
+    32
+    mem.cpy
+    result read error.posend . swap
+    32
+    mem.cpy
+
+    result read
+
+    ret
+  end
+
+  oper proc name 1 1
+    error.kind . readc
+    ""
+    covr error.EK_CHAR == if disc disc "Illegal Character Error" ret end
+    covr error.EK_SYNTAX == if disc disc "Syntax Error" ret end
+    covr error.EK_UNDERFLOW == if disc disc "Underflow Error" ret end
+    covr error.EK_UNIMP == if disc disc "Not Implelemted Error" ret end
+    covr error.EK_UNDEFINED == if disc disc "Not Defined Error" ret end
+    covr error.EK_BADBLOCK == if disc disc "Bad Block Error" ret end
+    swap disc
+
+    ret
+  end
+
+  oper proc eval 1 0
+    var self 8
+
+    self swap put disc
+
+    self read error.name cstr.print
+    ": " cstr.print
+    self read error.msg @ cstr.print
+    cstr.cr
+
+    "Location " cstr.print
+    self read error.posstart . filepos.print
+    "-" cstr.print
+    self read error.posend . filepos.print
+    cstr.cr
+
+    1 quit
+  end
+end

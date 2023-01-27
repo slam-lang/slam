@@ -1,43 +1,15 @@
-inc "stdlib/testin.slm"
-inc "stdlib/tables.slm"
+inc "testin.slm"
 
-var table 4096
+class test
+  prop a 8
+end
 
 proc main 0 0
-  "Create Table" (testin.setup)
-  
-    int.SIZE 4096 (tab.new)
-  
-  "Add to Table" (testin.next)
-  
-    "lol" 32
-    (tab.putp)
+  "test class stuff" testin.setup
 
-  "Add more to Table" (testin.next)
-
-    "lmao" 69
-    (tab.putp)
+  test.SIZE 8 testin.eq
   
-  "Change value in Table" (testin.next)
-
-    "lmao" 42
-    (tab.putp)
-  
-  "Get value in Table" (testin.next)
-  
-    "lmao" (tab.get)
-    42 (testin.eq)
- 
-  "Get value in Table" (testin.next)
-
-    "lmao" (tab.get)
-    42 (testin.eq)
-  
-  "Free Table" (testin.next)
-
-    (tab.free)
-  
-  (testin.done)
+  testin.done
 
   ret
 end

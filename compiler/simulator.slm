@@ -1,569 +1,564 @@
-inc "compiler/node.slm"
-inc "compiler/lexer.slm"
-inc "compiler/parser.slm"
-inc "stdlib/arrays.slm"
-inc "stdlib/maps.slm"
+inc "compiler/simulator.slh"
 
-{the size of a key for the proc, const table}
-const TAB_KEY_SIZE   64
+class simasm
+  oper proc appendch 2 1
+    var str 8
+    var char 1
 
-class simstackentry
-  enum
-  0   SE_NUMBER
-      SE_POINTER
-      SE_PROC
+    char swap putc disc
+    str swap put disc
+
+    str read
+    " " str.catc
+    str swap put disc
+
+    str read str.size @
+    str read str.data . + 1 -
+    char readc
+    putc disc
+
+    str read
+
+    ret
   end
 
-  prop kind int.SIZE
-  prop data int.SIZE
-end
+  oper proc addsetrax 2 1
+    var pushes 8
 
-class simproc
-  enum
-  0   PK_SIM
-      PK_ASM
+    pushes swap put disc
+
+    72 simasm.appendch
+    184 simasm.appendch
+    pushes 0 + readc simasm.appendch
+    pushes 1 + readc simasm.appendch
+    pushes 2 + readc simasm.appendch
+    pushes 3 + readc simasm.appendch
+    pushes 4 + readc simasm.appendch
+    pushes 5 + readc simasm.appendch
+    pushes 6 + readc simasm.appendch
+    pushes 7 + readc simasm.appendch
+
+    ret
   end
 
-  prop kind int.SIZE
-  prop data int.SIZE
-  
-  prop in int.SIZE
-  prop out int.SIZE
+  oper proc addpushreg 2 1
+    80 + simasm.appendch
+
+    ret
+  end
+
+  oper proc addpopreg 2 1
+    88 + simasm.appendch
+
+    ret
+  end
+
+  oper proc addop 2 1
+    swap
+    72 simasm.appendch
+    swap simasm.appendch
+    216 simasm.appendch
+
+    ret
+  end
+
+  oper proc addsyscall 1 1
+    15 simasm.appendch
+    5 simasm.appendch
+
+    ret
+  end
+
+  oper proc start 1 1
+    85 simasm.appendch
+    72 simasm.appendch
+    137 simasm.appendch
+    229 simasm.appendch
+
+    ret
+  end
+
+  oper proc stop 2 1
+    simasm.addsetrax
+    88 simasm.appendch
+    93 simasm.appendch
+    195 simasm.appendch
+
+
+    ret
+  end
 end
 
 class simulator
-  const SUCCESS 0
-  const FAIL 1
+  oper proc new 1 1
+    var result 8
 
-  var root int.SIZE
-  var visit int.SIZE
-  var file int.SIZE
+    result simulator.SIZE heap.alloc put disc
 
-  var simstack int.SIZE
-  var blockstack int.SIZE
-  var procmap int.SIZE
+    result read simulator.procs . 255 simproc.SIZE 128 map.new put disc
+    result read simulator.nodes . swap put disc
 
-  var classsize int.SIZE
-  var curcall int.SIZE
-  var laststring int.SIZE
-  var classname int.SIZE
-
-  var consttab int.SIZE
-
-  var tmpname int.SIZE
-  var tmpentry simstackentry.SIZE
-  var tmpproc simproc.SIZE
-
-  var tmpout int.SIZE
-
-  var procnamecstr TAB_KEY_SIZE
-
-  var blockprocname int.SIZE
-
-  var tmpchar 2
-
-  push proc getconst 1 1
-    simulator.consttab read covr (map.in) if [
-      covr (map.get) read
-      swap disc
-      swap disc
-      ret
-    ] disc
-
-    ret
-  end
-
-  var itemp int.SIZE
-
-  push proc internalname 1 1
-    simulator.itemp swap put disc
-
-    simulator.tmpname read
-    str.size . 0 put disc
+    result read simulator.nodes @ slmnode.data @ filedata.childcount @
+    0 == if
+      result read ret
+    end
 
     0
     do
-      copy
-      simulator.itemp read
-      str.data . +
-      readc 
-      copy simulator.tmpchar swap putc disc
-      copy '/' == if [
-        simulator.tmpname read
-        "slash" (str.catc)
-        disc disc 0
-      ]
-      copy '.' == if [
-        simulator.tmpname read
-        "_" (str.catc)
-        disc disc 0
-      ]
-      copy 0 != if [
-        simulator.tmpname read
-        simulator.tmpchar
-        (str.catc)
-        disc disc 0
-      ]
-      disc
-      
+      result read
+      covr int.SIZE *
+      result read simulator.nodes @ slmnode.data @ filedata.children + @
+      simulator.asmproc
+
       1 +
-      
-      copy
-      simulator.itemp read
-      str.size . read
-      <
+      node read filedata.childcount @ covr >
     end
     disc
 
-    simulator.tmpname read
-    copy
-    copy str.data .
-    swap str.size . read +
-    0 putc disc
+    result read
 
     ret
   end
 
-  push proc visitword 1 1
-    {
-    simulator.blockprocname read covr copy cstr.len swap (str.sput) 
-    simulator.blockprocname swap put disc
-    simulator.blockprocname read (simulator.internalname) disc
+  oper proc run 1 0
+    var self 8
+    var tmp 8
 
-    simulator.procnamecstr TAB_KEY_SIZE (mem.zero)
-    simulator.procnamecstr
-    simulator.tmpname read str.data . cstr.cpy disc disc
+    tmp 128 heap.zalloc put disc
 
-    simulator.procmap read simulator.procnamecstr (map.in) if
-      disc
-      disc
+    tmp read "main" cstr.cpy disc disc
 
-      simulator.procmap read simulator.procnamecstr (map.get) swap disc
-      copy simproc.kind . read
-      simproc.PK_ASM == if
-        "start call" cstr.println
+    self swap put disc
 
-        copy simproc.data . read
-        simulator.curcall swap put disc
-        copy simproc.out . read
-        simulator.tmpout swap put disc
+    self read simulator.procs @ tmp read map.in swap disc if
+      self read
+      self read simulator.procs @ tmp read map.getptr swap disc read
 
-        copy simproc.in . read
-        copy 0 != if
-          do
-            1 -
-            simulator.simstack read (dlist.pop)
-            swap
-            copy
-          end
-        end
-        disc
+      tmp read heap.free
 
-        simulator.curcall read ()
-        
-        simulator.tmpout read
-        0 != if
-          do
-            simulator.tmpout read
-            1 -
-            simulator.tmpout swap put disc
-
-            simulator.simstack read swap
-            simulator.curcall swap put
-            (dlist.append)
-            simulator.simstack swap put disc
-            
-            simulator.tmpout read
-          end
-        end
-        disc
-      end
-      disc
-
-      simulator.SUCCESS
+      simulator.runproc quit
 
       ret
     end
-    disc
-    }
-    disc
 
-    simulator.FAIL
-    ret
+    tmp read heap.free
+
+    "no main proc" cstr.println
+    1 quit
   end
 
-  push proc visitconst 1 1
-    copy constdata.constkind . read swap
-    covr CNK_NUMBER == if [
-      simulator.tmpentry simstackentry.kind .
-      simstackentry.SE_NUMBER
-      put disc
-      simulator.tmpentry simstackentry.data .
-      covr constdata.constvalue . read str.data . cstr.int
-      put disc
-      
-      simulator.simstack read
-      simulator.tmpentry
-      (dlist.append)
-      simulator.simstack swap put disc
-
-      disc
-      disc
-      simulator.SUCCESS
-      ret
-    ]
-    covr CNK_STRING == if [
-      simulator.tmpentry simstackentry.kind .
-      simstackentry.SE_POINTER
-      put disc
-      simulator.tmpentry simstackentry.data .
-      covr constdata.constvalue . read str.data .
-      put disc
-      
-      simulator.simstack read
-      simulator.tmpentry
-      (dlist.append)
-      simulator.simstack swap put disc
-
-      disc
-      disc
-      simulator.SUCCESS
-      ret
-    ]
-    covr CNK_WORD == if [
-      swap disc
-      simulator.visitword
-      ret
-    ]
-    disc
-    disc
-    simulator.FAIL
-    ret
-  end
-
-  var tmp int.SIZE
-
-  push proc visitdef 1 1
-    copy defdata.defkind . read swap
-    covr CNK_NUMBER == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
-    covr CNK_STRING == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
-    disc
-    disc
-    simulator.FAIL
+  unsafe oper proc callc 1 1
+    asm "pop rax"
+    asm "call rax"
+    asm "push rax"
 
     ret
   end
 
-  push proc visitprop 1 1
-    copy propdata.propkind . read swap
-    covr CNK_NUMBER == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
-    covr CNK_WORD == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
-    disc
-    disc
-    simulator.FAIL
+  oper proc runproc 2 1
+    var self 8
+    var simproc 8
+    var buff 8
+
+    simproc swap put disc
+    self swap put disc
+
+    0
+    -1
+    2 32 ||
+    2 4 ||
+    simproc read simproc.execstr @ str.len
+    NULL
+    sysc.MMAP
+    sys6
+    buff covr put disc
+    0 < if
+      "Cannot map memory" cstr.println
+
+      1 quit
+    end
+
+    buff read
+    simproc read simproc.execstr @ str.data .
+    simproc read simproc.execstr @ str.len
+    mem.cpy
+
+    "[RUN]" cstr.println
+
+    buff read simulator.callc
+
     ret
   end
 
-  push proc visitvar 1 1
-    copy vardata.varkind . read swap
-    covr CNK_NUMBER == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
-    covr CNK_WORD == if [
-      disc
-      disc
-      simulator.FAIL
-      ret
-    ]
+  oper proc asmblock 2 1
+    var block 8
+
     swap disc
 
     ret
   end
 
-  push proc visitcall 1 1
+  oper proc asmintr 2 1
+    var nodep 8
+    var node 8
+    var str 8
+
+    str swap put disc
+    nodep swap put disc
+
+    node nodep read slmnode.data @ put disc
+
+    node read intrdata.intrkind @
+    copy INK_RETURN == if
+      disc
+
+      str read
+      1 simasm.stop
+      ret
+    end
+    copy INK_COPY == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      simasm.RAX simasm.addpushreg
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy INK_COVR == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      simasm.RBX simasm.addpopreg
+      simasm.RBX simasm.addpushreg
+      simasm.RAX simasm.addpushreg
+      simasm.RBX simasm.addpushreg
+
+      ret
+    end
+    copy INK_SWAP == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpushreg
+      simasm.RBX simasm.addpushreg
+
+      ret
+    end
+    copy INK_DISC == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+
+      ret
+    end
+    copy INK_READC == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      {xor rbx, rbx}
+      72 simasm.appendch
+      49 simasm.appendch
+      219 simasm.appendch
+
+      {mov bl, rax}
+      138 simasm.appendch
+      24 simasm.appendch
+
+      simasm.RBX simasm.addpushreg
+
+      ret
+    end
+    copy INK_EQ == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      simasm.RBX simasm.addpopreg
+      {xor rcx, rcx}
+      72 simasm.appendch
+      49 simasm.appendch
+      201 simasm.appendch
+      {mov edx, 1}
+      186 simasm.appendch
+      1 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      {cmp rax, rbx}
+      72 simasm.appendch
+      57 simasm.appendch
+      216 simasm.appendch
+      {cmove rcx, rdx}
+      72 simasm.appendch
+      15 simasm.appendch
+      68 simasm.appendch
+      202 simasm.appendch
+
+      simasm.RCX simasm.addpushreg
+
+      ret
+    end
+    copy INK_ADD == if
+      disc
+
+      str read
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpopreg
+      simasm.OP_ADD simasm.addop
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy INK_SUB == if
+      disc
+
+      str read
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpopreg
+      simasm.OP_SUB simasm.addop
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy INK_MUL == if
+      disc
+
+      str read
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpopreg
+      72 simasm.appendch
+      15 simasm.appendch
+      175 simasm.appendch
+      195 simasm.appendch
+
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
     disc
-    simulator.FAIL
+
+    nodep read slmnode.start .
+    nodep read slmnode.stop .
+    error.EK_UNIMP
+    "Intr not implemented"
+
+    error.new
+    error.eval
+
+    0
 
     ret
   end
 
-  push proc visitintr 1 1
-    copy intrdata.intrkind . read swap
-    covr INK_RETURN == if [
-      disc
-      disc
-      simulator.FAIL
+  unsafe oper proc callthing 2 0
+    var lol 8
 
-      ret
-    ]
-    covr INK_ADD == if [
-      simulator.simstack read
-      (dlist.pop) 
+    lol swap put disc
 
-      simstackentry.data . read
-      simulator.simstack read
-      (dlist.pop)
-      
-      copy simstackentry.kind . read
-      simulator.tmpentry simstackentry.kind .
-      swap put disc
-    
-      simstackentry.data . read
-      +
-      simulator.tmpentry simstackentry.data . swap put disc
+    "call" cstr.print
+    cstr.println
 
-      simulator.simstack read
-      simulator.tmpentry
-      (dlist.append)
-      simulator.simstack swap put disc
-
-      disc
-      disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    disc
-    disc
-    simulator.FAIL
+    lol read
+    asm "pop rax"
+    asm "jmp rax"
 
     ret
   end
 
-  push proc visitinc 1 1
+  oper proc asmconst 2 1
+    var nodep 8
+    var node 8
+    var str 8
+
+    str swap put disc
+    nodep swap put disc
+
+    node nodep read slmnode.data @ put disc
+
+    node read constdata.constkind @
+    copy CNK_NUMBER == if
+      disc
+
+      str read
+      node read constdata.constvalue @ str.data . cstr.int
+      simasm.addsetrax
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy CNK_STRING == if
+      disc
+
+      str read
+      node read constdata.constvalue @ str.data .
+      simasm.addsetrax
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy CNK_WORD == if
+      disc
+
+      node read constdata.constvalue @ str.data .
+      "echo" cstr.eq if
+        str read
+        simasm.RDX simasm.addpopreg
+        simasm.RSI simasm.addpopreg
+        1 simasm.addsetrax
+
+        72 simasm.appendch
+        137 simasm.appendch
+        199 simasm.appendch
+
+        simasm.addsyscall
+
+        ret
+      end
+
+      str read
+      node read constdata.constvalue @ str.data . simasm.addsetrax
+      simasm.RAX simasm.addpushreg
+      (simulator.callthing)
+      copy int.print
+      simasm.addsetrax
+      232 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      255 simasm.appendch
+      224 simasm.appendch
+
+      ret
+    end
     disc
-    simulator.FAIL
+
+    nodep read slmnode.start .
+    nodep read slmnode.stop .
+    error.EK_UNIMP
+    "Const not implemented"
+
+    error.new
+    error.eval
+
+    0
 
     ret
   end
 
-  push proc visitfile 1 1
-    simulator.file
-    covr filedata.name . read
-    put disc
-  
-    copy filedata.childcount . read
+  oper proc asmnode 2 1
+    var nodep 8
+    var node 8
+    var str 8
 
-    0 == if [
+    str swap put disc
+    nodep swap put disc
+
+    node nodep read slmnode.data @ put disc
+
+    node read nodedata.kind @
+    copy SNK_INTR == if
       disc
-      simulator.SUCCESS
+
+      nodep read str read
+      simulator.asmintr
+
       ret
-    ]
+    end
+    copy SNK_CONST == if
+      disc
+
+      nodep read str read
+      simulator.asmconst
+
+      ret
+    end
+    copy SNK_BLOCK == if
+      disc
+
+      nodep read str read
+      simulator.asmblock
+
+      ret
+    end
+    disc
+
+    nodep read slmnode.start .
+    nodep read slmnode.stop .
+    error.EK_UNIMP
+    "Node kind not implemented"
+
+    error.new
+    error.eval
+
+    0
+
+    ret
+  end
+
+  oper proc asmproc 2 0
+    var self 8
+    var nodep 8
+    var node 8
+    var result 8
+    var tmp 8
+
+    nodep swap put disc
+    self swap put disc
+
+    node nodep read slmnode.data @ put disc
+
+    result simproc.SIZE heap.zalloc put disc
+    result read simproc.execstr . str.new put disc
+
+    result read simproc.execstr @
+    simasm.start
+    result read simproc.execstr . swap put disc
+
+    node read blockdata.childcount @ 0 == if
+      result read simproc.execstr @ str.free
+      result read heap.free
+      ret
+    end
 
     0
     do
-      covr filedata.children .
-      covr int.SIZE * + read
-
-      copy simulator.visit read ()
-      simulator.SUCCESS != if [
-        (slmnode.print)
-        disc
-        disc
-        simulator.FAIL
-        ret
-      ]
-
-      disc
+      node read blockdata.children . covr int.SIZE * + read
+      result read simproc.execstr @
+      simulator.asmnode
+      result read simproc.execstr . swap put disc
 
       1 +
-      covr filedata.childcount . read
-      covr >
+      node read blockdata.childcount @ covr >
     end
     disc
-    disc
 
-    simulator.SUCCESS
 
-    ret
-  end
+    result read simproc.execstr @
+    0 simasm.stop
+    144 simasm.appendch
+    result read simproc.execstr . swap put disc
 
-  push proc addprochead 2 1 
-    simulator.procmap read
-    
+    tmp 128 heap.zalloc put disc
 
-    ret
-  end
+    tmp read node read blockdata.blockname @ str.data .
+    cstr.cpy disc disc
 
-  oper proc addproccomp 2 1
-    simulator.tmpproc simproc.kind . simproc.PK_ASM put disc
-    simulator.tmpproc simproc.out . swap put disc
-    simulator.tmpproc simproc.in . swap put disc
-    simulator.tmpproc simproc.data . swap put disc
+    self read simulator.procs @
+    tmp read
+    result
+    map.append
+    self read simulator.procs . swap put disc
 
-    simulator.procmap read
-    covr
-    simulator.tmpproc
-    (map.putat)
-    disc
-    disc
+    tmp read heap.free
 
-    simulator.SUCCESS
-
-    ret
-  end
-
-   push proc visitblock 1 1
-    copy blockdata.blockkind . read
-    copy BNK_PROC == if [
-      disc
-      (simulator.addprochead)
-      simulator.SUCCESS
-      ret
-    ]
-    disc
-
-    copy blockdata.childcount . read
-
-    0 == if [
-      disc
-      simulator.SUCCESS
-      ret
-    ]
-
-    0
-    do
-      covr blockdata.children .
-      covr int.SIZE * + read
-
-      copy simulator.visit read ()
-      simulator.SUCCESS != if [
-        (slmnode.print)
-        disc
-        disc
-        disc
-        simulator.FAIL
-        ret
-      ]
-      disc
-
-      1 +
-      covr blockdata.childcount . read
-      covr >
-    end
-    disc
-    blockdata.blockkind . read
-    copy BNK_CLASS == if [
-      simulator.classname
-      NULL
-      put disc
-    ]
-    disc
-
-    simulator.SUCCESS
-
-    ret
-  end
-  
-  oper proc setup 0 0
-    simulator.blockstack read NULL == if
-      simulator.blockstack int.SIZE (llist.new) put disc
-      simulator.simstack simstackentry.SIZE (dlist.new) put disc
-      simulator.procmap 256 simproc.SIZE TAB_KEY_SIZE (map.new) put disc
-      simulator.blockprocname (str.new) put disc
-    end
-
-    ret
-  end
-
-  push proc visitnode 1 1
-    simulator.setup
-
-    simulator.visit simulator.visitnode put disc
-
-    slmnode.data . read copy nodedata.kind . read
-    copy SNK_NULL == if [
-      disc disc
-      simulator.FAIL
-
-      ret
-    ]
-    copy SNK_INC == if [
-      disc
-      (simulator.visitinc)
-      
-      ret
-    ]
-    copy SNK_COMMENT == if [
-      disc disc
-      simulator.SUCCESS
-
-      ret
-    ]
-    copy SNK_FILE == if [
-      disc
-      (simulator.visitfile)
-      
-      ret
-    ]
-    copy SNK_BLOCK == if [
-      disc
-      (simulator.visitblock)
-      
-      ret
-    ]
-    copy SNK_CONST == if [
-      disc
-      (simulator.visitconst)
-      
-      ret
-    ]
-    copy SNK_DEF == if [
-      disc
-      (simulator.visitdef)
-      
-      ret
-    ]
-    copy SNK_INTR == if [
-      disc
-      (simulator.visitintr)
-      
-      ret
-    ]
-    copy SNK_PROP == if [
-      disc
-      (simulator.visitprop)
-      
-      ret
-    ]
-    copy SNK_VAR == if [
-      disc
-      (simulator.visitvar)
-      
-      ret
-    ]
-    copy SNK_CALL == if [
-      disc
-      (simulator.visitcall)
-      
-      ret
-    ]
-    disc (slmnode.print)
-
-    simulator.FAIL
     ret
   end
 end

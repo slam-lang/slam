@@ -23,23 +23,23 @@ class bar of foo
 end
 
 proc main 0 0
-  "Call function" (testin.setup)
+  "Call function" testin.setup
 
     (bar.name) "bar" (testin.cstreq)
     
-  "Call override" (testin.next)
+  "Call override" testin.next
 
     (foo.name) "foo" (testin.cstreq)
 
-  "Call Function" (testin.next)
+  "Call Function" testin.next
 
     (foo.get) "get" (testin.cstreq)
 
-  "Call Inherited" (testin.next)
+  "Call Inherited" testin.next
 
     (bar.get) "get" (testin.cstreq)
 
-  "Call function Block" (testin.setup)
+  "Call function Block" testin.setup
 
     (bar.name) "bar" (testin.cstreq)
     

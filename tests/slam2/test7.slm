@@ -1,66 +1,58 @@
-inc "stdlib/testin.slm"
-inc "stdlib/string.slm"
-inc "stdlib/strutils.slm"
-inc "stdlib.slm"
+inc "testin.slm"
+inc "std/cstr.slm"
+inc "std/str.slm"
+inc "std/int.slm"
 
-var temp 32
+var tmp 32
 var str1 int.SIZE
 var str2 int.SIZE
 
 proc main 0 0
 
-  "Split a string" (testin.setup)
+  "Split a string" testin.setup
 
-    "lol1 lol2" ' ' temp cstr.split
+    "lol1 lol2" ' ' tmp cstr.split
     
-    "lol1" (testin.cstreq)
-    "lol2" (testin.cstreq)
+    "lol1" testin.cstreq
+    "lol2" testin.cstreq
   
-    temp "lol1" (testin.cstreq)
+    tmp "lol1" testin.cstreq
 
-  "Create a string" (testin.next)
+  "Create a string" testin.next
   
-    (str.new)
-    (str.new)
+    str.new
+    str.new
 
-  "Put Values into strings" (testin.next)
+  "Put Values into strings" testin.next
 
-    swap `nope ` (str.sput)
-    swap `lol ` (str.sput)
+    swap `nope ` str.sput
+    swap `lol ` str.sput
   
-  "Concat strings" (testin.next)
+  "Concat strings" testin.next
 
-    (str.cat)
+    str.cat
  
-  "Check vals" (testin.next)
+  "Check vals" testin.next
 
     copy str.data .
-    "nope lol " (testin.cstreq)
-    copy (str.len) 9 (testin.eq)
+    "nope lol " testin.cstreq
+    copy str.len 9 testin.eq
  
-  "Concat a cstring" (testin.next)
+  "Concat a cstring" testin.next
 
-    "boi" (str.catc)
+    "boi" str.catc
 
-  "Check vals" (testin.next)
+  "Check vals" testin.next
 
     copy str.data .
-    "nope lol boi" (testin.cstreq)
-    copy (str.len) 12 (testin.eq)
+    "nope lol boi" testin.cstreq
+    copy str.len 12 testin.eq
 
-  "Free the string" (testin.next)
+  "Free the string" testin.next
   
-    (str.free)
+    str.free
 
-  (testin.done)
-
-  {
-  "lol" "fdsafdsa" (strutil.starts) int.print
-  "lol" "lol" (strutil.starts) int.print
-  "lolf" "lol" (strutil.starts) int.print
-  "lol" "lolf" (strutil.starts) int.print
-  "fdsa" "lolf" (strutil.starts) int.print
-  }
+  testin.done
 
   ret
 end

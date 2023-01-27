@@ -1,21 +1,21 @@
-inc "stdlib/os.slm"
-inc "stdlib/testin.slm"
+inc "std/os.slm"
+inc "testin.slm"
 
 var cmdtmp 128
 
 proc main 0 0
-  "Create a command to run" (testin.setup)
+  "Create a command to run" testin.setup
     
     cmdtmp
     "/usr/bin/users" put int.SIZE +
     "." put int.SIZE +
     NULL put disc
 
-  "Run the command" (testin.next)
+  "Run the command" testin.next
 
-    cmdtmp (os.execcmd)
+    cmdtmp os.execcmd disc
 
-  (testin.done)
+  testin.done
 
   ret
 end

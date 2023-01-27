@@ -1,0 +1,52 @@
+inc "std/cstr.slm"
+inc "std/dlist.slm"
+inc "std/maps.slm"
+inc "compiler/error.slm"
+
+class simproc
+  prop execstr 8
+  prop out 8
+  prop in 8
+end
+
+class simasm
+  const RAX 0
+  const RCX 1
+  const RDX 2
+  const RBX 3
+  const RSI 6
+  const RDI 7
+
+  const OP_ADD 1
+  const OP_OR 9
+  const OP_AND 33
+  const OP_SUB 41
+
+  head oper proc appendch 2 1
+
+  head oper proc addsetrax 2 1
+  head oper proc addsyscall 1 1
+  head oper proc addpushreg 1 1
+  head oper proc addpopreg 1 1
+  head oper proc addop 2 1
+
+  head oper proc start 1 1
+  head oper proc stop 1 1
+end
+
+class simulator
+  prop procs 8
+  prop nodes 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+
+  head oper proc run 1 0
+  head oper proc runproc 2 1
+
+  head oper proc asmintr 2 1
+  head oper proc asmconst 2 1
+  head oper proc asmblock 2 1
+  head oper proc asmnode 2 1
+  head oper proc asmproc 2 0
+end

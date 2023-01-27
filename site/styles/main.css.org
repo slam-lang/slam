@@ -1,0 +1,236 @@
+#+OPTIONS: org-html-head-include-default-style:nil
+
+#+HTML_HEAD: <meta name="description" content="Webpage for slam">
+#+HTML_HEAD: <meta name="viewport" content="width=device-width, initial-scale=1.0">
+#+HTML_HEAD: <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Nova+Square">
+#+HTML_HEAD: <style type="text/css">
+#+HTML_HEAD: body {
+#+HTML_HEAD:  background-color: #D9A066;
+#+HTML_HEAD:  width: 100%;
+#+HTML_HEAD:  overflow-x: hidden;
+#+HTML_HEAD:  padding: 0;
+#+HTML_HEAD:  margin: 0;
+#+HTML_HEAD:  color: #663931;
+#+HTML_HEAD:  font-family: "Nova Square", sans-serif;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .nav {
+#+HTML_HEAD:  padding: 1rem 0rem;
+#+HTML_HEAD:  background-color: #EEC39A;
+#+HTML_HEAD:  height: 3rem;
+#+HTML_HEAD:  flex: initial;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .nav-container {
+#+HTML_HEAD:  width: 80%;
+#+HTML_HEAD:  height: 3rem;
+#+HTML_HEAD:  display: flex;
+#+HTML_HEAD:  align-items: center;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .nav-links {
+#+HTML_HEAD:  margin-left: auto;
+#+HTML_HEAD:  font-size: 3rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .nav-links a {
+#+HTML_HEAD:  text-decoration: none;
+#+HTML_HEAD:  padding: 0.5rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: a, a.visited {
+#+HTML_HEAD:  color: #663931;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .nav-logo {
+#+HTML_HEAD:  display: block;
+#+HTML_HEAD:  height: 100%;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .header {
+#+HTML_HEAD:  background-color: #EEC39A;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: img.logo {
+#+HTML_HEAD:  display: block;
+#+HTML_HEAD:  max-width: 80%;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .news {
+#+HTML_HEAD:  margin-top: 5rem;
+#+HTML_HEAD:  padding: 3rem;
+#+HTML_HEAD:  max-width: 1000px;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD:  border-top: 3px solid #663931;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .content {
+#+HTML_HEAD:  padding: 3rem;
+#+HTML_HEAD:  max-width: 1000px;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .warn {
+#+HTML_HEAD:  text-align: center;
+#+HTML_HEAD:  max-width: 60%;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD:  color: #C33231;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .hcontainer {
+#+HTML_HEAD:  display: grid;
+#+HTML_HEAD:  grid-template-columns: repeat(2, 1fr);
+#+HTML_HEAD:  grid-gap: 2rem;
+#+HTML_HEAD:  grid-auto-flow: row;
+#+HTML_HEAD:  max-width: 62rem;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .hitem {
+#+HTML_HEAD:  width: 100%;
+#+HTML_HEAD:  background-color: #EEC39A;
+#+HTML_HEAD:  height: 15rem;
+#+HTML_HEAD:  border-radius: 1.5rem;
+#+HTML_HEAD:  border: 0.25rem solid #663931;
+#+HTML_HEAD:  font-size: 1.5rem;
+#+HTML_HEAD:  display: flex;
+#+HTML_HEAD:  flex-direction: column;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .hitem h2 {
+#+HTML_HEAD:  min-width: 100%;
+#+HTML_HEAD:  border-bottom: 0.25rem solid #663931;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD:
+#+HTML_HEAD: .side {
+#+HTML_HEAD:  width: 25%;
+#+HTML_HEAD:  display: inline-block;
+#+HTML_HEAD:  vertical-align: top;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .docs {
+#+HTML_HEAD:  width: 70%;
+#+HTML_HEAD:  display: inline-block;
+#+HTML_HEAD:  border-left: 0.25rem solid #653931;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .docs * {
+#+HTML_HEAD:  padding-left: 2rem;
+#+HTML_HEAD:  padding-right: 2rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .small {
+#+HTML_HEAD:  font-size: 1rem;
+#+HTML_HEAD:  padding: 0;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: pre {
+#+HTML_HEAD:  background-color: #000000;
+#+HTML_HEAD:  color: #ffffff;
+#+HTML_HEAD:  border-radius: 1rem;
+#+HTML_HEAD:  border-color: #ffffff;
+#+HTML_HEAD:  padding: 1rem;
+#+HTML_HEAD:  margin-top: 0rem;
+#+HTML_HEAD:  margin-bottom: 0rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: pre.src {
+#+HTML_HEAD:  background-color: #000000;
+#+HTML_HEAD:  color: #ffffff;
+#+HTML_HEAD:  border-radius: 1rem 1rem 0 0;
+#+HTML_HEAD:  border-color: #ffffff;
+#+HTML_HEAD:  padding: 1rem;
+#+HTML_HEAD:  margin-top: 0rem;
+#+HTML_HEAD:  margin-bottom: 0rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: pre.example {
+#+HTML_HEAD:  background-color: #000000;
+#+HTML_HEAD:  color: #ffffff;
+#+HTML_HEAD:  border-radius: 0rem 0rem 1rem 1rem;
+#+HTML_HEAD:  border-color: #ffffff;
+#+HTML_HEAD:  border-top: 0;
+#+HTML_HEAD:  padding: 1rem;
+#+HTML_HEAD:  margin-top: 0rem;
+#+HTML_HEAD:  margin-bottom: 0rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: p.desc {
+#+HTML_HEAD:  margin-top: 0;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .post-title {
+#+HTML_HEAD:  text-align: center;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .post-desc {
+#+HTML_HEAD:  text-indent: 40px;
+#+HTML_HEAD:  font-size: 1.6rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: .post-sign {
+#+HTML_HEAD:  text-indent: 40px;
+#+HTML_HEAD:  text-align: right;
+#+HTML_HEAD:  font-size: 1.6rem;
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: @media (max-width: 767px) {
+#+HTML_HEAD:  .hide {
+#+HTML_HEAD:  display: none;
+#+HTML_HEAD:  }
+#+HTML_HEAD:
+#+HTML_HEAD:  .title {
+#+HTML_HEAD:  font-size: 3rem;
+#+HTML_HEAD:  min-width: 100%;
+#+HTML_HEAD:  max-width: 100%;
+#+HTML_HEAD:  }
+#+HTML_HEAD:
+#+HTML_HEAD:  .docs {
+#+HTML_HEAD:  width: 100%;
+#+HTML_HEAD:  display: inline-block;
+#+HTML_HEAD:  border-left: 0rem solid #653931;
+#+HTML_HEAD:  }
+#+HTML_HEAD:
+#+HTML_HEAD:  .docs * {
+#+HTML_HEAD:  padding-left: 0rem;
+#+HTML_HEAD:  padding-right: 0rem;
+#+HTML_HEAD:  }
+#+HTML_HEAD:
+#+HTML_HEAD:  .hcontainer {
+#+HTML_HEAD:  display: grid;
+#+HTML_HEAD:  grid-template-columns: repeat(1, 1fr);
+#+HTML_HEAD:  grid-gap: 2rem;
+#+HTML_HEAD:  grid-auto-flow: row;
+#+HTML_HEAD:  max-width: 62rem;
+#+HTML_HEAD:  margin: auto;
+#+HTML_HEAD:  }
+#+HTML_HEAD: }
+#+HTML_HEAD:
+#+HTML_HEAD: @media not (max-width: 767px) {
+#+HTML_HEAD:  h1.title {
+#+HTML_HEAD:  font-size: 5rem;
+#+HTML_HEAD:  min-width: 100%;
+#+HTML_HEAD:  max-width: 100%;
+#+HTML_HEAD:  }
+#+HTML_HEAD: }
+#+HTML_HEAD: </style>
+
+#+HTML_HEAD_EXTRA: <div class="nav">
+#+HTML_HEAD_EXTRA:   <div class="nav-container">
+#+HTML_HEAD_EXTRA:     <a class="nav-logo" href="/">
+#+HTML_HEAD_EXTRA:       <img class="nav-logo" height="100%" src="/img/logo.png"/>
+#+HTML_HEAD_EXTRA:     </a>
+#+HTML_HEAD_EXTRA:     <div class="nav-links">
+#+HTML_HEAD_EXTRA:       <a href="/" class="hide">Home</a>
+#+HTML_HEAD_EXTRA:       <a href="/docs">Docs</a>
+#+HTML_HEAD_EXTRA:       <a href="http://github.com/slam-lang" class="hide">Github</a>
+#+HTML_HEAD_EXTRA:     </div>
+#+HTML_HEAD_EXTRA:   </div>
+#+HTML_HEAD_EXTRA: </div>
+#+HTML_HEAD_EXTRA: <div class="header">
+#+HTML_HEAD_EXTRA:   <img class="logo" src="/img/banner.png"/>
+#+HTML_HEAD_EXTRA: </div>
+#+HTML_HEAD_EXTRA:

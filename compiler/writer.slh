@@ -1,0 +1,24 @@
+inc "std/os.slm"
+
+class writer
+  prop fd 8
+  prop name 8
+  prop strings 8
+  prop tmem 8
+
+  var current 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc write 1 0
+  head oper proc getlen 1 1
+  head oper proc addstr 1 0
+  head oper proc mem 0 1
+
+  head oper proc getescape 1 1
+  
+  head oper proc writeheader 0 0
+  head oper proc writefooter 0 0
+  head oper proc writestring 1 0
+  head oper proc writestrings 0 0
+end

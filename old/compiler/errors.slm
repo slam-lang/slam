@@ -50,7 +50,7 @@ class error
     "Location " cstr.print
     error.tmp read error.posstart . (filepos.print)
     " - " cstr.print
-    error.tmp read error.posstart . (filepos.print)
+    error.tmp read error.posend . (filepos.print)
     cstr.cr
 
     quit

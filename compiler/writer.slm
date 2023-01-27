@@ -1,132 +1,96 @@
-inc "stdlib/os.slm"
-
-push proc max 2 1
-  covr covr < if
-    disc ret
-  end
-  swap disc
-
-  ret
-end
+inc "compiler/writer.slh"
 
 class writer
-  var fd int.SIZE
-  var name int.SIZE
-  var strings int.SIZE
-  var tmem int.SIZE
-  var tmpstr int.SIZE
-  var tmpwrite int.SIZE
-  var _ int.SIZE
+  oper proc new 1 1
+    var result 8
 
-  push proc write 1 0
-    copy cstr.len swap writer.fd read (os.write)
+    result writer.SIZE heap.zalloc put disc
+
+    result read writer.name . swap put disc
+
+    511
+    65
+    result read writer.name @
+    -100
+    os.openf
+    result read writer.fd . swap put disc
+
+    8
+    dlist.new
+    result read writer.strings . swap put disc
+
+    result read
+
+    ret
+  end
+
+  oper proc free 1 0
+    var self 8
+
+    self swap put disc
+
+    self read writer.strings @ dlist.free
+    self read heap.free
 
     ret
   end
 
-  push proc cr 0 0
-    "\n" (writer.write)
+  oper proc write 1 0
+    copy cstr.len swap
+    writer.current read writer.fd @
+    os.writef
 
     ret
   end
 
-  push proc writeln 1 0
-    (writer.write)
-    (writer.cr)
+  oper proc getlen 1 1
+    var string 8
+    var len 8
 
-    ret
-  end
+    string swap put disc
   
-  var len int.SIZE
-
-  push proc getlen 1 1
-    writer.tmpstr swap put disc
-
-    writer.len 0 put disc
+    len 0 put disc
 
     0
     do
-      writer.tmpstr read str.data . covr + readc
+      string read str.data . covr + readc
       '\' != if
-        writer.len copy
+        len copy
         read 1 +
         put disc
       end
       1 +
-      copy writer.tmpstr read str.size . read 1 - <
+      copy string read str.size @ 1 - <
     end
     disc
-    
-    writer.len read
 
-    ret
-  end
-
-  push proc addstr 1 0
-    writer.tmpstr swap put disc
-
-    writer.strings read (dlist.len) 0 == if
-      writer.strings read 
-      writer.tmpstr read (dlist.append) 
-      writer.strings swap put disc
-
-      writer.strings read (dlist.len) 1 -
-      int.cstr (writer.write)
-      ret
-    end
-
-    -1
-    do
-      1 +
-      writer.strings read 
-      covr (dlist.ptrat) read
-
-      writer.tmpstr read
-      covr (str.len) str.data +
-      covr (str.len) str.data +
-      (max)
-
-      (mem.eq) !
-      covr writer.strings read (dlist.len) 1 - != &&
-    end
-
-    writer.strings read (dlist.len) 1 - covr == if
-      writer.strings read
-      writer.tmpstr read (dlist.append)
-      writer.strings swap put disc
-
-      writer.strings read (dlist.len) 1 -
-      int.cstr (writer.write)
-      disc
-      ret
-    end
-    "lol" cstr.println
-
-    int.cstr (writer.write)
-
-    {
-    writer.strings read 
-    writer.tmpstr read (dlist.append) 
-    writer.strings swap put disc
-
-    writer.strings read (dlist.len) 1 -
-    int.cstr (writer.write)
-    }
+    len read
     
     ret
   end
 
-  push proc header 0 0
-    "format ELF64\n" (writer.write)
-    "section '.text' executable\n" (writer.write)
-    "public _start\n" (writer.write)
+  oper proc addstr 1 0
+    var string 8
+
+    string swap put disc
+
+    writer.current read writer.strings @
+    string read dlist.append
+    writer.current read writer.strings . swap put disc
+
+    writer.current read writer.strings @ dlist.len 1 -
+    int.cstr writer.write
 
     ret
   end
 
-  var escape int.SIZE
+  oper proc mem 0 1
+    writer.current read writer.tmem .
 
-  push proc getescape 1 1
+    ret
+  end
+
+  oper proc getescape 1 1
     copy 'e' == if disc 27 ret end
     copy 'n' == if disc 10 ret end
     copy 'r' == if disc 13 ret end
@@ -136,113 +100,88 @@ class writer
     ret
   end
 
-  push proc writestring 1 0
-    writer.tmpstr swap put disc
+  oper proc writeheader 0 0
+    "format ELF64\n" writer.write
+    "section '.text' executable\n" writer.write
+    "public _start\n" writer.write
+
+    ret
+  end
+
+  oper proc writefooter 0 0
+    "    jmp quit\n" writer.write
+    "_start:\n" writer.write
+    "    mov qword [args_ptr], rsp\n" writer.write
+    "    mov qword [ret_stack_rsp], ret_stack\n" writer.write
+    "    mov qword [loc_stack_rsp], loc_stack\n" writer.write
+    "    mov rax, [ret_stack_rsp] \n" writer.write
+    "    mov qword [rax], quit\n" writer.write
+    "    jmp proc_main\n" writer.write
+    "quit:\n" writer.write
+    "    mov rax, 60\n" writer.write
+    "    mov rdi, 0\n" writer.write
+    "    syscall\n" writer.write
+    "section '.data'\n" writer.write
+
+    writer.writestrings
+
+    "section '.bss'\n" writer.write
+    "    args_ptr: rq 1\n" writer.write
+    "    ret_stack_rsp: rq 1\n" writer.write
+    "    ret_stack: rq 1024\n" writer.write
+    "    loc_stack_rsp: rq 1\n" writer.write
+    "    loc_stack: rq 512\n" writer.write
+    "    mem: rb " writer.write
+    writer.current read writer.tmem @ int.cstr writer.write
+
+    ret
+  end
+
+  oper proc writestring 1 0
+    var string 8
+    var escape 1
+
+    string swap put disc
+    escape bool.false putc disc
+
     0
     do
-      writer.tmpstr read str.data . covr + readc
-      writer.escape read if
-        (writer.getescape)
-      end
-      writer.escape bool.true put disc
-      copy '\' != if
-        writer.escape bool.false put disc
-        int.cstr (writer.write)
+      string read str.data . covr + readc
+      int.cstr writer.write
 
-        ", " (writer.write) 0
-      end
-      disc
+      ", " writer.write
       1 +
-      copy writer.tmpstr read str.size . read 1 - <
+      copy string read str.size @ 1 - <
     end
     disc
 
     ret
   end
 
-  push proc writestrings 0 0
-    writer.strings read (dlist.len) 0 == if ret end
+  oper proc writestrings 0 0
+    writer.current read writer.strings @
+    dlist.len 0 == if ret end
 
     0
     do
-      writer.strings read 
-      covr (dlist.ptrat)
+      writer.current read writer.strings @
+      covr dlist.getptr
       copy NULL != if
-        "str_" (writer.write)
-        covr int.cstr (writer.write)
-        ": db " (writer.write)
-        copy read (writer.writestring)
-        "0 ;" (writer.write)
-        writer.tmpstr read str.data . (writer.writeln)
+        "    str_" writer.write
+        covr int.cstr writer.write
+        ": db " writer.write
+        copy read writer.writestring
+        "0\n" writer.write
       end
       disc
-      
+
       1 +
 
-      writer.strings read (dlist.len) covr !=
+      writer.current read writer.strings @ dlist.len covr !=
     end
     disc
 
     ret
-  end
-
-  push proc footer 0 0
-    "    jmp quit\n" (writer.write)
-    "_start:\n" (writer.write)
-    "    mov qword [args_ptr], rsp\n" (writer.write)
-    "    mov qword [ret_stack_rsp], ret_stack\n" (writer.write)
-    "    mov qword [loc_stack_rsp], loc_stack\n" (writer.write)
-    "    mov rax, [ret_stack_rsp] \n" (writer.write)
-    "    mov qword [rax], quit\n" (writer.write)
-    "    jmp proc_main\n" (writer.write)
-    "quit:\n" (writer.write)
-    "    mov rax, 60\n" (writer.write)
-    "    mov rdi, 0\n" (writer.write)
-    "    syscall\n" (writer.write)
-    "section '.data'\n" (writer.write)
-
-    (writer.writestrings)
-
-    "section '.bss'\n" (writer.write)
-    "args_ptr: rq 1\n" (writer.write)
-    "ret_stack_rsp: rq 1\n" (writer.write)
-    "ret_stack: rq 1024\n" (writer.write)
-    "loc_stack_rsp: rq 1\n" (writer.write)
-    "loc_stack: rq 512\n" (writer.write)
-    "mem: rb " (writer.write)
-    writer.tmem read int.cstr (writer.writeln)
-
-    writer.fd read (os.close)
-
-{    writer.name read opt.opt1}
-
-    ret
-  end
-
-  push proc write32 1 0
-    65535 && writer.tmpwrite swap put disc
-    writer.tmpwrite 4 + 4 swap writer.fd read (os.write)
-
-    ret
-  end
-
-  push proc write64 1 0
-    writer.tmpwrite swap put disc
-    writer.tmpwrite 8 swap writer.fd read (os.write)
-
-    ret
-  end
-
-  push proc open 1 0
-    copy writer.name swap put disc
- 
-    511 swap
-    65 swap
-    -100
-    (os.open)
-    writer.fd swap put disc
-
-    writer.strings int.SIZE (dlist.new) put disc
-    ret
-  end
+  end 
 end
+

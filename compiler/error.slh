@@ -1,0 +1,23 @@
+inc "compiler/filepos.slm"
+
+class error
+  enum
+  0   EK_CHAR
+      EK_SYNTAX
+      EK_UNDERFLOW
+
+      EK_UNDEFINED
+      EK_UNIMP
+
+      EK_BADBLOCK
+  end
+
+  prop kind 1
+  prop posstart 32
+  prop posend 32
+  prop msg 8
+
+  head oper proc new 4 1
+  head oper proc name 1 1
+  head oper proc eval 1 0
+end

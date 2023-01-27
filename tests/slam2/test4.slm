@@ -1,64 +1,43 @@
-inc "stdlib/mem.slm"
-inc "stdlib/arrays.slm"
-inc "stdlib/testin.slm"
-inc "stdlib.slm"
-
-var seq 8
+inc "testin.slm"
+inc "std/dlist.slm"
+inc "std/heap.slm"
+inc "std/mem.slm"
 
 proc main 0 0
-  "Create a Sequence" (testin.setup)
+  var dlist 8
 
-    seq int.SIZE 4096 seq.new put disc
+  "Create a dlist" testin.setup
+
+    dlist int.SIZE dlist.new put disc
+
+  "Set the length of a dlist" testin.next
   
-  "Set the length of a Sequence" (testin.next)
+    dlist read
+    "yes"
+    dlist.append
+
+  "Set a dlist value at index" testin.next
+
+    0 dlist.getptr
+    '@' putc disc
+
+  "Get the length of a Sequence" testin.next
+
+    dlist read dlist.len 1 testin.eq
+
+  "Pop from sequence" testin.next
+
+    dlist read dlist.pop "@es" testin.cstreq
+
+  "Check len again" testin.next
+
+    dlist read dlist.len 0 testin.eq
+
+  "Free the dlist" testin.next
+
+    dlist read dlist.free
   
-    seq read
-    1 seq.setlen
+  testin.done
 
-  "Set a sequence value at index" (testin.next)
-
-    0 seq.getaddr
-    64 putc disc
-
-  "Get the length of a Sequence" (testin.next)
-
-    copy seq read (testin.eq)
-    seq.len 1 (testin.eq)
-
-  "Push to a sequence" (testin.next)
-
-    "44" seq.pushptr
-    "45" seq.pushptr
-    "46" seq.pushptr
-    "47" seq.pushptr
-
-  "Get the length and pointer of the sequence" (testin.next)
-
-    copy seq read (testin.eq)
-    seq.len 5 (testin.eq)
-
-  "Pop from sequence" (testin.next)
-
-    seq.pop "47" cstr.eq (testin.true)
-
-  "Check len again" (testin.next)
-
-    copy seq read (testin.eq)
-    seq.len 4 (testin.eq)
-
-  "Get value in sequence" (testin.next)
-
-    1 seq.getaddr
-    "44" cstr.eq (testin.true)
-
-  "Extend" (testin.next)
-
-    1 seq.extend
-  
-  "Free the seq" (testin.next)
-
-    seq.free
-  
-  (testin.done)
-  ret
+  0 quit
 end

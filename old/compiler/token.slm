@@ -1,0 +1,184 @@
+inc "stdlib.slm"
+inc "stdlib/log.slm"
+
+enum
+0   STK_NULL
+    STK_INC
+    STK_IF
+    STK_DO
+    STK_PROC
+    STK_CLASS
+    STK_VAR
+    STK_PROP
+    STK_RET
+    STK_BRK
+    STK_ENUM
+    STK_OPER
+    STK_PUSH
+    STK_UNSAFE
+    STK_HEAD
+    STK_OF
+    STK_QUIT
+    STK_SIM
+    STK_ASM
+
+    STK_SWITCH
+    STK_CASE
+    STK_ELSE
+
+    STK_LAMBDA
+    STK_NAMED
+
+    STK_READ
+    STK_READC
+    STK_PUT
+    STK_PUTC
+
+    STK_SWAP
+    STK_COPY
+    STK_COVR
+    STK_DISC
+    STK_ADD
+    STK_SUB
+    STK_MUL
+    STK_DIVMOD
+    STK_CONST
+    STK_ACCESS
+    STK_REFACCESS
+    STK_AND
+    STK_OR
+    STK_INV
+    STK_NOT
+    STK_EQ
+    STK_NEQ
+    STK_LT
+    STK_GT
+
+    STK_END
+    
+    STK_CONST_NUMBER
+    STK_CONST_STRING
+    STK_CONST_SSTRING
+
+    STK_WORD
+    STK_PAREN
+    STK_COMMENT
+
+    STK_ENVP
+    STK_ARGC
+    STK_ARGV
+
+    STK_SYS0
+    STK_SYS1
+    STK_SYS2
+    STK_SYS3
+    STK_SYS4
+    STK_SYS5
+    STK_SYS6
+end
+
+{
+a position in a slm file
+}
+class filepos
+  prop filename int.SIZE
+
+  prop idx int.SIZE
+  prop row int.SIZE
+  prop col int.SIZE
+
+  var tmp int.SIZE
+
+  push proc print 1 0
+    copy NULL == if [ disc ret ]
+      
+    "<" cstr.print
+    copy filepos.row . read int.cstr cstr.print
+    ":" cstr.print
+    copy filepos.col . read int.cstr cstr.print
+    "@" cstr.print
+    copy filepos.filename . read
+    copy NULL != if [ cstr.print 0 ]
+    ">" cstr.print
+    disc
+    disc
+
+    ret
+  end
+
+  push proc advance 2 1
+    swap
+    filepos.tmp swap put disc
+
+    filepos.tmp read filepos.idx . copy
+    read 1 +
+    put disc
+
+    filepos.tmp read filepos.col . copy
+    read 1 +
+    put disc
+
+    10 == if [
+      filepos.tmp read filepos.col .
+      1
+      put disc
+
+      filepos.tmp read filepos.row . copy
+      read 1 +
+      put disc
+    ]
+
+    filepos.tmp read
+    ret
+  end
+end
+
+class slmtoken
+  prop type int.SIZE
+  prop value int.SIZE
+
+  prop start filepos.SIZE
+  prop stop filepos.SIZE
+
+  push proc print 1 0
+    "\n  (" cstr.print
+    copy slmtoken.type . read
+    ""
+    covr STK_NULL == if [ disc "NULL" ]
+    covr STK_INC == if [ disc "INC" ]
+    covr STK_PROC == if [ disc "PROC" ]
+    covr STK_CLASS == if [ disc "CLASS" ]
+    covr STK_VAR == if [ disc "VAR" ]
+    covr STK_IF == if [ disc "IF" ]
+    covr STK_ENUM == if [ disc "ENUM" ]
+    covr STK_END == if [ disc "END" ]
+    covr STK_CONST_NUMBER == if [ disc "NUMBER" ]
+    covr STK_CONST_STRING == if [ disc "STRING" ]
+    covr STK_PROP == if [ disc "PROP" ]
+    covr STK_WORD == if [ disc "WORD" ]
+    covr STK_PAREN == if [ disc "CALL" ]
+    covr STK_COMMENT == if [ disc "COMMENT" ]
+    covr STK_COPY == if [ disc "COPY" ]
+    covr STK_COVR == if [ disc "COVR" ]
+    covr STK_DISC == if [ disc "DISC" ]
+    covr STK_ADD == if [ disc "ADD" ]
+    covr STK_SUB == if [ disc "SUB" ]
+    covr STK_MUL == if [ disc "MUL" ]
+    covr STK_RET == if [ disc "RET" ]
+    covr STK_DIVMOD == if [ disc "DIVMOD" ]
+    covr STK_ACCESS == if [ disc "ACCESS" ]
+    covr STK_CONST == if [ disc "CONST" ]
+    swap disc
+    cstr.print
+
+    ": " cstr.print
+
+    copy slmtoken.start . (filepos.print)
+    "-" cstr.print
+    slmtoken.stop . (filepos.print)
+
+    ")" cstr.print
+    ret
+  end
+end
+

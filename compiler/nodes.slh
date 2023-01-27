@@ -1,0 +1,228 @@
+inc "std/str.slm"
+
+enum
+0   SNK_NULL
+    SNK_CALL
+    SNK_ASM
+    SNK_INC
+    SNK_OF
+    SNK_COMMENT
+    SNK_INTR
+    SNK_VAR
+    SNK_DEF
+    SNK_PROP
+    SNK_CONST
+    SNK_FILE
+    SNK_BLOCK
+end
+
+enum
+0   BNK_CLASS
+    BNK_PROC
+    BNK_LAMBDA
+    BNK_PLAMBDA
+    BNK_ENUM
+    BNK_DO
+    BNK_IF
+    BNK_SIM
+    BNK_BLOCK
+    BNK_SWITCH
+end
+
+enum
+0   INK_RETURN
+    INK_ELSE
+    INK_COPY
+    INK_READ
+    INK_READC
+    INK_PUT
+    INK_PUTC
+    INK_DISC
+    INK_EQ
+    INK_NEQ
+    INK_LT
+    INK_GT
+    INK_ACCESS
+    INK_REFACCESS
+    INK_COVR
+    INK_SWAP
+    INK_ADD
+    INK_SUB
+    INK_MUL
+    INK_AND
+    INK_INV
+    INK_NOT
+    INK_OR
+    INK_BRK
+    INK_DIVMOD
+    INK_QUIT
+    INK_ARGV
+    INK_ARGC
+    INK_ENVP
+    INK_SYS0
+    INK_SYS1
+    INK_SYS2
+    INK_SYS3
+    INK_SYS4
+    INK_SYS5
+    INK_SYS6
+end
+
+enum
+0   CNK_NUMBER
+    CNK_STRING
+    CNK_SSTRING
+    CNK_WORD
+end
+
+enum
+0   PNK_OPER
+    PNK_PUSH
+
+10  PNK_OHEAD
+    PNK_PHEAD
+
+20  PNK_OUNSAFE
+    PNK_PUNSAFE
+end
+
+class nodedata
+  prop kind 8
+
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class calldata
+  prop base 8
+  prop callee 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class asmdata
+  prop base 8
+  prop raw 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class incdata
+  prop base 8
+  prop include 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class ofdata
+  prop base 8
+  prop inherit 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class commentdata
+  prop base 8
+
+  head oper proc new 0 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class intrdata
+  prop base 8
+  prop intrkind 8
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class vardata
+  prop base 8
+  prop varname 8
+  prop varkind 8
+  prop varvalue 8
+
+  head oper proc new 3 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class defdata
+  prop base 8
+  prop defname 8
+  prop defkind 8
+  prop defvalue 8
+
+  head oper proc new 3 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class propdata
+  prop base 8
+  prop propname 8
+  prop propkind 8
+  prop propvalue 8
+
+  head oper proc new 3 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class constdata
+  prop base 8
+  prop constkind 8
+  prop constvalue 8
+
+  head oper proc new 2 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end
+
+class filedata
+  prop base 8
+  prop filename 8
+  prop childcount 8
+  prop children 0
+
+  head oper proc new 1 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+  head oper proc append 2 1
+end
+
+class blockdata
+  prop base 8
+  prop blockkind 8
+  prop blockname 8
+  prop blockin 8
+  prop blockout 8
+  prop blockmisc 8
+  prop childcount 8
+  prop children 0
+
+  head oper proc new 5 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+  head oper proc append 2 1
+end
+
+class slmnode
+  prop data 8
+  prop start 32
+  prop stop 32
+
+  head oper proc new 3 1
+  head oper proc free 1 0
+  head oper proc print 1 0
+end

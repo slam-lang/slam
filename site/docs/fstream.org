@@ -1,0 +1,19 @@
+#+title: fstreams.slm
+#+author: Prestosilver
+#+date: 2023-01-04
+#+include: ../styles/main.css.org
+
+* class filestream
+** Props
+- eof: 1
+  - Stores the current max size of the dlist
+- fp: 8
+  - Stores the file pointer
+- bufferidx: 8
+- buffera: 512
+- bufferb: 512
+** Consts
+- BUFFER_SIZE: 512
+- STEP: 8
+- SIZE: 1042
+** Procs

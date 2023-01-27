@@ -1,18 +1,10 @@
-{
-slam2
-}
-
+inc "std/cstr.slm"
+inc "std/os.slm"
 inc "compiler/lexer.slm"
 inc "compiler/parser.slm"
-inc "compiler/simulator.slm"
 inc "compiler/assembler.slm"
-inc "compiler/writer.slm"
-inc "compiler/asmtovm.slm"
-inc "stdlib/mem.slm"
 
-push proc version 0 1
-  "2.1.0" ret
-end
+oper proc VERSION 0 1 "3.0.0" ret end
 
 enum
 0   HELP_SHOW
@@ -22,271 +14,159 @@ enum
 end
 
 enum
-0   TARGET_BIN
-    TARGET_ASM
-    TARGET_SIM
-    TARGET_SJS
+0   COMP_ASM
+    COMP_SIM
 end
 
-var target int.SIZE
-var targetfile int.SIZE
-var targetout int.SIZE
-var targetoutasm int.SIZE
-var targetoutsla int.SIZE
-var cmdtmpbuffer 64
-
-{
-args: int
-result:
-
-prints a help string
-}
-push proc help 1 0
+oper proc help 1 0
   copy HELP_VERSION == if
-    "slam compiler v" cstr.print (version) cstr.println
+    "slam compiler v" cstr.print
+    VERSION cstr.println
     disc 0 quit
   end
   copy HELP_ARGS == if
-    "ERROR: You must compile exactly 1 file"
-    cstr.println
+    "ERROR: You must compile exactly 1 file." cstr.println
   end
   copy HELP_OUTPUT == if
-    "ERROR: Last argument supplied requires a parameter"
-    cstr.println
+    "ERROR: Last argument supplied requires a parameter" cstr.println
   end
-  "slam compiler v" cstr.print (version) cstr.print " usage:" cstr.println
-  cstr.cr
-  "slam [-h]\ [-a]\ [-s]\ [-i include]\ [-o output]\ file" cstr.println
-  cstr.cr
-  "-v            shows the version and exits."      cstr.println
-  "-h, --help    shows this help message."          cstr.println
-  "-s, --sim     runs the file with the simulator." cstr.println
-  "-a, --asm     assembles the file."               cstr.println
-  "-j, --sjs     assembles the file to a sjs file." cstr.println
-  "-o, --output  selects the output file."          cstr.println
   disc
-  
-  0 quit
+  "slam compiler v" cstr.print VERSION cstr.print " usage:" cstr.println
+  cstr.cr
+  "slam [-hvas]\ [-o output]\ file" cstr.println
+  cstr.cr
+  "-v            shows the version and exits." cstr.println
+  "-h, --help    shows this message and exits." cstr.println
+  "-o, --output  sets the output file." cstr.println
+  "-a, --asm     keeps the asm file." cstr.println
+  "-s, --sim     keeps the asm file." cstr.println
+
+  1 quit
 
   ret
 end
 
-push proc setinput 1 0
-  targetfile read NULL != if disc ret end
-  targetfile swap (os.args) put disc
+var output 128
+var input 128
+var mode 1
+
+oper proc setinput 1 0
+  input swap cstr.cpy disc disc
 
   ret
 end
 
-{
-args: int
-result: int
+oper proc setoutput 1 1
+  copy argc 1 - > if HELP_OUTPUT help 0 quit end
 
-sets the output flag to the argument
-}
-push proc setoutput 1 1
-    copy argc 1 - > if HELP_OUTPUT (help) end
+  copy os.args
 
-    targetout
-    covr (os.args)
-    put disc
+  output swap cstr.cpy disc disc
 
-    targetoutasm read
-    targetout read copy cstr.len swap (str.sput)
-    ".asm" (str.catc)
-    disc
-
-    targetoutsla read
-    targetout read copy cstr.len swap (str.sput)
-    ".sla" (str.catc)
-    disc
-
-    ret
+  ret
 end
 
-{
-args: ptr int
-result: int int
+oper proc setmode 1 0
+  mode swap putc disc
 
-checks the string for a match with an argument
-if so returns 0 and runs argument
-otherwise returns 1
-}
-push proc applyarg 2 2
-  copy "-h" cstr.eq
-  if disc HELP_SHOW (help) 0 ret end
-  copy "--help" cstr.eq
-  if disc HELP_SHOW (help) 0 ret end
+  ret
+end
+
+oper proc applyarg 2 1
   copy "-v" cstr.eq
-  if disc HELP_VERSION (help) 0 ret end
-  copy "--sim" cstr.eq
-  if disc target TARGET_SIM put disc 0 ret end
-  copy "-s" cstr.eq
-  if disc target TARGET_SIM put disc 0 ret end
-  copy "--asm" cstr.eq
-  if disc target TARGET_ASM put disc 0 ret end
-  copy "-a" cstr.eq
-  if disc target TARGET_ASM put disc 0 ret end
-  copy "--sjs" cstr.eq
-  if disc target TARGET_SJS put disc 0 ret end
-  copy "-j" cstr.eq
-  if disc target TARGET_SJS put disc 0 ret end
+  if disc HELP_VERSION help ret end
+  copy "-h" cstr.eq
+  if disc HELP_SHOW help ret end
+  copy "--help" cstr.eq
+  if disc HELP_SHOW help ret end
   copy "-o" cstr.eq
-  if disc 1 + (setoutput) 0 ret end
-  disc
-  1 ret
+  if disc 1 + setoutput ret end
+  copy "--output" cstr.eq
+  if disc 1 + setoutput ret end
+  copy "-s" cstr.eq
+  if disc COMP_SIM setmode ret end
+  copy "--sim" cstr.eq
+  if disc COMP_SIM setmode ret end
+  setinput
+
+  ret
 end
 
-push proc main 0 0
-  { only cmd, then show help }
-  1 argc == if HELP_ARGS (help) end
+oper proc main 0 0
+  var tmpnode 8
+  var cmdtmpbuffer 8
 
-  targetout "out" put disc
+  1 argc == if HELP_ARGS help end
 
-  targetoutasm (str.new) put read
-  `out.asm` (str.sput)
-  disc
-  targetoutsla (str.new) put read
-  `out.sla` (str.sput)
-  disc
+  output "a.out" cstr.cpy disc disc
 
-  { iterate through args }
   0
   do
-    { increment }
     1 +
 
-    { get argument }
-    copy (os.args)
+    copy os.args applyarg
 
-    {try to apply the argument}
-    (applyarg) if copy (setinput) end
-
-    {loop if more args}
     copy argc 1 - <
   end
   disc
 
-  targetfile read NULL == if HELP_ARGS (help) end
-  
-  target read
-  copy TARGET_BIN == if
+  input
+  bool.false
+  lexer.new lexer.run
+  parser.new parser.run
+  copy tmpnode swap put disc
+
+  mode readc
+  copy COMP_ASM == if
     disc
 
-    targetfile read
+    writer.current
+    "temp.asm" writer.new
+    put disc
 
-    bool.false
-    (lexer.new) (lexer.run)
-    (parser.new) (parser.run)
-    
-    targetoutasm read str.data .
-    (writer.open)
+    writer.writeheader
 
-    (writer.header)
+    assembler.new swap
+    assembler.visitnode
 
-    (assembler.visitnode)
-    assembler.SUCCESS != if
-      -1 quit
-    end
-    
-    (writer.footer)
+    writer.writefooter
 
-    cmdtmpbuffer
+    cmdtmpbuffer 256 heap.zalloc put disc
+
+    cmdtmpbuffer read
     "/usr/bin/fasm" put int.SIZE +
     "-p" put int.SIZE +
     "20" put int.SIZE +
     "-m" put int.SIZE +
     "524288" put int.SIZE +
-    targetoutasm read str.data .
-    put int.SIZE +
+    "temp.asm" put int.SIZE +
     "temp.o" put int.SIZE +
     NULL put disc
 
-    cmdtmpbuffer
-    (os.execcmdecholoud)
+    cmdtmpbuffer read
+    os.execcmdecho disc
 
-    cmdtmpbuffer
+    cmdtmpbuffer read
     "/usr/bin/ld" put int.SIZE +
     "-dynamic-linker" put int.SIZE +
     "/lib64/ld-linux-x86-64.so.2" put int.SIZE +
     "-o" put int.SIZE +
-    targetout read
-    put int.SIZE +
+    output put int.SIZE +
     "-lc" put int.SIZE +
     "-melf_x86_64" put int.SIZE +
     "temp.o" put int.SIZE +
     NULL put disc
 
-    cmdtmpbuffer
-    (os.execcmdecho)
-    
+    cmdtmpbuffer read
+    os.execcmdecho disc
     0 quit
   end
-  copy TARGET_ASM == if
+  copy COMP_SIM == if
     disc
-
-    targetfile read
-
-    bool.false
-    (lexer.new) (lexer.run)
-    (parser.new) (parser.run)
-    
-    targetoutasm read str.data .
-    (writer.open)
-
-    (writer.header)
-
-    (assembler.visitnode)
-    assembler.SUCCESS != if
-      -1 quit
-    end
-      
-    (writer.footer)
-    
-    0 quit
-  end
-  copy TARGET_SIM == if
-    disc
-
-    targetfile read
-
-    bool.false
-    (lexer.new) (lexer.run)
-    (parser.new) (parser.run)
-
-    (simulator.visitnode)
-    disc
+    simulator.new simulator.run
 
     0 quit
   end
-  copy TARGET_SJS == if
-    disc
-
-    targetfile read
-
-    bool.false
-    (lexer.new) (lexer.run)
-    (parser.new) (parser.run)
-    
-    targetoutasm read str.data .
-    (writer.open)
-
-    (writer.header)
-
-    (assembler.visitnode)
-    disc
-    
-    (writer.footer)
-
-    targetoutasm read str.data .
-    targetoutsla read str.data .
-    (tovm.run)
-
-    0 quit
-  end
-  disc
 
   1 quit
-
-  ret
 end

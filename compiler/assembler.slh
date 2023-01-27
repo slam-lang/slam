@@ -1,0 +1,72 @@
+inc "compiler/lexer.slm"
+inc "compiler/parser.slm"
+inc "compiler/nodes.slm"
+inc "compiler/error.slm"
+inc "compiler/filepos.slm"
+inc "compiler/writer.slm"
+inc "compiler/simulator.slm"
+
+inc "std/maps.slm"
+
+class asmprocdata
+  prop kind 8
+  prop out 8
+  prop in 8
+end
+
+class assembler
+  const MAX_NAME_SIZE 64
+
+  const SUCCESS 0
+  const FAIL 1
+
+  prop depth 8
+  prop lastblock 8
+  prop procout 8
+  prop proclmem 8
+
+  prop filename 8
+  prop classname 8
+  prop procname 8
+
+  prop classsize 8
+
+  prop parentclass 8
+
+  prop procdata 24
+
+  prop includedtab 8
+  prop consttab 8
+  prop proctab 8
+  prop lvartab 8
+  prop vartab 8
+
+  prop didret 1
+
+  head oper proc new 0 1
+
+  head oper proc internalname 1 1
+  head oper proc getconst 3 1
+  head oper proc addproctab 2 0
+  head oper proc addwordproc 2 1
+  head oper proc addprochead 2 2
+  head oper proc getfullname 2 1
+
+  head oper proc updatestack 4 0
+
+  head oper proc visitof 2 0
+  head oper proc visitword 2 0
+  head oper proc visitconst 2 0
+  head oper proc visitdef 2 0
+  head oper proc visitprop 2 0
+  head oper proc visitvar 2 0
+  head oper proc visitcall 2 0
+  head oper proc visitintr 2 0
+  head oper proc visitasm 2 0
+  head oper proc visitinc 2 0
+  head oper proc visitfile 2 0
+  head oper proc visitenum 2 0
+  head oper proc visitsim 2 0
+  head oper proc visitblock 2 0
+  head oper proc visitnode 2 0
+end

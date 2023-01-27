@@ -1,13 +1,13 @@
-inc "stdlib/testin.slm"
+inc "testin.slm"
 
 proc main 0 0
-  "Numbers in other bases" (testin.setup)
+  "Numbers in other bases" testin.setup
   
-    1111b 15 (testin.eq)
-    0015  15 (testin.eq)
-    000fh 15 (testin.eq)
+    1111b 15 testin.eq
+    0015  15 testin.eq
+    000fh 15 testin.eq
 
-  (testin.done)
+  testin.done
 
   ret
 end
