@@ -1,0 +1,86 @@
+inc "testin.slm"
+inc "std/dlist.slm"
+
+var list 8
+
+proc test_dlist 0 0
+  "dlist" testin.suite
+
+  "Create a dlist" testin.test :
+    list 4 dlist.new put disc
+
+    list read dlist.free
+
+    ret
+  end
+
+  "Append to a dlist" testin.test :
+    list 4 dlist.new put disc
+
+    list read
+
+    "yes" dlist.append
+    list swap put disc
+
+    list read dlist.free
+
+    ret
+  end
+
+  "Get dlist entry" testin.test :
+    list 4 dlist.new put disc
+
+    list read
+
+    "yes" dlist.append
+    list swap put disc
+
+    list read 0 dlist.getptr
+    "yes" testin.cstreq
+
+    list read dlist.free
+
+    ret
+  end
+
+  "Get the length of a dlist" testin.test :
+    list 4 dlist.new put disc
+
+    0
+    do
+      list read
+      "yes" dlist.append
+      list swap put disc
+      1 +
+      copy list read dlist.len testin.eq
+
+      copy 100 <
+    end
+    disc
+
+    list read dlist.free
+
+    ret
+  end
+
+  "pop from a dlist" testin.test :
+    list 4 dlist.new put disc
+
+    list read
+    "yes" dlist.append
+    "yea" dlist.append
+    list swap put disc
+
+    list read
+    copy dlist.pop "yea" testin.cstreq
+    copy dlist.pop "yes" testin.cstreq
+    copy dlist.len 0 testin.eq
+    list swap put disc
+
+    list read dlist.free
+
+    ret
+  end
+
+  ret
+end

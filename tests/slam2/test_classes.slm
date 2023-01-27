@@ -1,0 +1,68 @@
+inc "testin.slm"
+
+class test
+  prop one 8
+end
+
+class revisit
+  prop two 8
+end
+
+class revisit
+  prop three 8
+end
+
+class constsize
+  prop four test.SIZE
+
+  var aa test.SIZE
+  var bb test.SIZE
+
+  oper proc value 0 1
+    1
+
+    ret
+  end
+end
+
+class inherits of test
+  prop five test.SIZE
+
+  oper proc value 0 1
+    0
+
+    ret
+  end
+end
+
+proc test_classes 0 0
+  "classes" testin.suite
+
+  "Class size" testin.test :
+    test.SIZE 8 testin.eq
+
+    ret
+  end
+
+  "Revisit class size" testin.test :
+    revisit.SIZE 16 testin.eq
+
+    ret
+  end
+
+  "Const size class" testin.test :
+    constsize.SIZE test.SIZE testin.eq
+
+    ret
+  end
+
+  "Const size var" testin.test :
+    constsize.bb
+    constsize.aa -
+    test.SIZE testin.eq
+
+    ret
+  end
+
+  ret
+end

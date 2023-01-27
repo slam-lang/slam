@@ -8,13 +8,7 @@ inc "compiler/simulator.slm"
 
 inc "std/maps.slm"
 
-class asmprocdata
-  prop kind 8
-  prop out 8
-  prop in 8
-end
-
-class assembler
+class assemblerarm
   const MAX_NAME_SIZE 64
 
   const SUCCESS 0

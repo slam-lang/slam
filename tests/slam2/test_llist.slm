@@ -1,0 +1,18 @@
+inc "testin.slm"
+inc "std/llist.slm"
+
+var list 8
+
+proc test_llist 0 0
+  "llist" testin.suite
+
+  "Create a llist" testin.test :
+    list 4 llist.new put disc
+
+    list read llist.free
+
+    ret
+  end
+
+  ret
+end

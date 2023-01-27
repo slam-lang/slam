@@ -27,13 +27,12 @@ clean:
 	rm -f sim.asm
 
 tests/slam2/test: slam
+	rm -f temp.asm
 	./slam -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/slam2/test
-	rm -f tests/slam2/test.asm
 	cd tests/slam2; ./test
 	rm tests/slam2/test -rf
-	rm tests/slam2/tester
 
 slam.asm: slam
 	rm -f slam.asm

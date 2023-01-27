@@ -1,0 +1,55 @@
+inc "testin.slm"
+inc "std/mem.slm"
+inc "std/heap.slm"
+
+var tmp 32
+
+proc test_cstr 0 0
+  "cstr" testin.suite
+
+  "Create a cstring" testin.test :
+    100 heap.zalloc
+
+    heap.free
+
+    ret
+  end
+
+  "Concat to a cstring" testin.test :
+    100 heap.zalloc
+
+    "foo" cstr.cat
+    "bar" cstr.cat
+
+    copy "foobar" testin.cstreq
+
+    heap.free
+
+    ret
+  end
+
+  "Split a cstring" testin.test :
+    100 heap.zalloc
+
+    "lol1 lol2" ' ' tmp cstr.split
+
+    "lol1" testin.cstreq
+    "lol2" testin.cstreq
+
+    heap.free
+
+    ret
+  end
+
+  "Compare cstrings" testin.test :
+    100 heap.zalloc
+
+    "lol" "lol" cstr.eq testin.true
+
+    heap.free
+
+    ret
+  end
+
+  ret
+end

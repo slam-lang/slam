@@ -3,6 +3,7 @@ inc "std/os.slm"
 inc "compiler/lexer.slm"
 inc "compiler/parser.slm"
 inc "compiler/assembler.slm"
+inc "compiler/assemblerarm.slm"
 
 oper proc VERSION 0 1 "3.0.0" ret end
 
@@ -15,6 +16,7 @@ end
 
 enum
 0   COMP_ASM
+    COMP_ARM
     COMP_SIM
 end
 
@@ -87,6 +89,8 @@ oper proc applyarg 2 1
   if disc COMP_SIM setmode ret end
   copy "--sim" cstr.eq
   if disc COMP_SIM setmode ret end
+  copy "--arm" cstr.eq
+  if disc COMP_ARM setmode ret end
   setinput
 
   ret
@@ -164,6 +168,20 @@ oper proc main 0 0
   copy COMP_SIM == if
     disc
     simulator.new simulator.run
+
+    0 quit
+  end
+  copy COMP_ARM == if
+    disc
+
+    writer.current
+    "temp.asm" writer.new
+    put disc
+
+    "    b main\n" writer.write
+
+    assemblerarm.new swap
+    assemblerarm.visitnode
 
     0 quit
   end

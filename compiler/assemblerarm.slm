@@ -1,6 +1,6 @@
-inc "compiler/assembler.slh"
+inc "compiler/assemblerarm.slh"
 
-class assembler
+class assemblerarm
   {
     ARGS: out in node self
     RETS: self
@@ -8,14 +8,14 @@ class assembler
   oper proc new 0 1
     var result 8
 
-    result assembler.SIZE heap.zalloc put disc
+    result assemblerarm.SIZE heap.zalloc put disc
 
-    result read assembler.includedtab . 256 1 assembler.MAX_NAME_SIZE map.new put disc
-    result read assembler.consttab . 256 8 assembler.MAX_NAME_SIZE map.new put disc
-    result read assembler.proctab . 256 asmprocdata.SIZE assembler.MAX_NAME_SIZE map.new put disc
-    result read assembler.lvartab . 256 8 assembler.MAX_NAME_SIZE map.new put disc
-    result read assembler.vartab . 256 8 assembler.MAX_NAME_SIZE map.new put disc
-    result read assembler.procname . str.new put disc
+    result read assemblerarm.includedtab . 256 1 assemblerarm.MAX_NAME_SIZE map.new put disc
+    result read assemblerarm.consttab . 256 8 assemblerarm.MAX_NAME_SIZE map.new put disc
+    result read assemblerarm.proctab . 256 asmprocdata.SIZE assemblerarm.MAX_NAME_SIZE map.new put disc
+    result read assemblerarm.lvartab . 256 8 assemblerarm.MAX_NAME_SIZE map.new put disc
+    result read assemblerarm.vartab . 256 8 assemblerarm.MAX_NAME_SIZE map.new put disc
+    result read assemblerarm.procname . str.new put disc
 
     result read
 
@@ -102,11 +102,11 @@ class assembler
 
     node nodep read slmnode.data @ put disc
 
-    tmpname assembler.MAX_NAME_SIZE heap.zalloc put disc
+    tmpname assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
     tmpname read name read cstr.cpy disc disc
 
-    self read assembler.consttab @
+    self read assemblerarm.consttab @
     tmpname read map.in swap disc ! if
       nodep read slmnode.start .
       nodep read slmnode.stop .
@@ -122,7 +122,7 @@ class assembler
       error.eval
     end
 
-    self read assembler.consttab @
+    self read assemblerarm.consttab @
     tmpname read map.getptr read
     swap disc
 
@@ -151,11 +151,11 @@ class assembler
       node nodep read slmnode.data @ put disc
     end
 
-    self read assembler.depth @
+    self read assemblerarm.depth @
     in read -
-    self read assembler.depth . swap put disc
+    self read assemblerarm.depth . swap put disc
 
-    self read assembler.depth @ 0 < if
+    self read assemblerarm.depth @ 0 < if
       nodep read slmnode.start .
       nodep read slmnode.stop .
       error.EK_UNDERFLOW
@@ -165,9 +165,9 @@ class assembler
       error.eval
     end
 
-    self read assembler.depth @
+    self read assemblerarm.depth @
     out read +
-    self read assembler.depth . swap put disc
+    self read assemblerarm.depth . swap put disc
 
     ret
   end
@@ -184,7 +184,7 @@ class assembler
     self swap put disc
 
     name read
-    self read assembler.parentclass @ str.data .
+    self read assemblerarm.parentclass @ str.data .
     copy cstr.len
     mem.eq
     ! if
@@ -194,7 +194,7 @@ class assembler
     end
 
     "proc_" writer.write
-    self read assembler.classname @ str.data . writer.write
+    self read assemblerarm.classname @ str.data . writer.write
     name read
     do
       1 +
@@ -202,7 +202,7 @@ class assembler
     end
     writer.write
 
-    ":\n    jmp proc_" writer.write
+    ":\n    b proc_" writer.write
 
     name read writer.write
     "\n" writer.write
@@ -228,12 +228,12 @@ class assembler
 
     node nodep read slmnode.data @ put disc
 
-    self read assembler.proctab @
+    self read assemblerarm.proctab @
     name read
     map.getptr swap disc
     asmprocdata.kind @ 10 /% swap disc PNK_PUSH == if
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       "    push proc_" writer.write
       name read writer.write
@@ -244,32 +244,36 @@ class assembler
 
     self read nodep read
 
-    self read assembler.proctab @
+    self read assemblerarm.proctab @
     name read
     map.getptr swap disc
     copy asmprocdata.in @
     swap asmprocdata.out @
-    assembler.updatestack
+    assemblerarm.updatestack
 
     ".blockstart_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     ": ; call\n" writer.write
-    "    mov rax, [ret_stack_rsp]\n" writer.write
-    "    add rax, 16\n" writer.write
-    "    mov rbx, [loc_stack_rsp]\n" writer.write
-    "    mov qword [rax - 8], rbx\n" writer.write
-    "    mov qword [ret_stack_rsp], rax\n" writer.write
-    "    mov qword [rax], .blockend_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    "    ldr r1, ret_stack_rsp\n" writer.write
+    "    ldr r1, [r1]\n" writer.write
+    "    add r1, #16\n" writer.write
+    "    ldr r2, #[loc_stack_rsp]\n" writer.write
+    "    sub r1, #8\n" writer.write
+    "    str r2, [r1]\n" writer.write
+    "    str r1, #[ret_stack_rsp]\n" writer.write
+    "    add r1, #8\n" writer.write
+    "    ldr r2, .blockend_" writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     "\n" writer.write
-    "    jmp proc_" writer.write
+    "    str r2, [r1]\n" writer.write
+    "    b proc_" writer.write
     name read writer.write
     "\n" writer.write
     ".blockend_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     ": ; call\n" writer.write
 
-    self read assembler.lastblock .
+    self read assemblerarm.lastblock .
     copy read 1 +
     put disc
 
@@ -285,31 +289,31 @@ class assembler
     var node 8
     var nametmp 8
 
-    nametmp assembler.MAX_NAME_SIZE heap.zalloc put disc
+    nametmp assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
     node swap put disc
     self swap put disc
 
-    self read assembler.procname @ str.size . 0 put disc
+    self read assemblerarm.procname @ str.size . 0 put disc
 
-    self read assembler.procdata . asmprocdata.kind .
+    self read assemblerarm.procdata . asmprocdata.kind .
     node read blockdata.blockmisc @
     put disc
 
-    self read assembler.lastblock . 0 put disc
+    self read assemblerarm.lastblock . 0 put disc
 
     node read blockdata.blockin @ str.data . cstr.int
-    self read assembler.procdata . asmprocdata.in .
+    self read assemblerarm.procdata . asmprocdata.in .
     covr
     put disc
-    self read assembler.depth .
+    self read assemblerarm.depth .
     swap
     put disc
 
     node read blockdata.blockout @ str.data . cstr.int
-    self read assembler.procdata . asmprocdata.out .
+    self read assemblerarm.procdata . asmprocdata.out .
     covr
     put disc
-    self read assembler.procout .
+    self read assemblerarm.procout .
     swap
     put disc
 
@@ -322,40 +326,40 @@ class assembler
     node read blockdata.blockmisc @
     copy PNK_OUNSAFE < !
     swap PNK_PUNSAFE > ! && if
-      self read assembler.procout . 255 put disc
+      self read assemblerarm.procout . 255 put disc
     end
 
-    self read assembler.classname @
+    self read assemblerarm.classname @
     copy NULL != if
-      assembler.internalname str.data .
-      self read assembler.procname @
+      assemblerarm.internalname str.data .
+      self read assemblerarm.procname @
       swap str.catc
       "_" str.catc
-      self read assembler.procname . swap put disc
+      self read assemblerarm.procname . swap put disc
       0
     end
     disc
 
     node read blockdata.blockname @
-    assembler.internalname str.data .
+    assemblerarm.internalname str.data .
 
-    self read assembler.procname @ 
+    self read assemblerarm.procname @
     swap str.catc
-    self read assembler.procname . swap put disc
+    self read assemblerarm.procname . swap put disc
 
-    self read assembler.procname @
+    self read assemblerarm.procname @
     copy str.data .
     swap str.size @ +
     0 putc disc
 
     nametmp read
-    self read assembler.procname @ str.data .
-    self read assembler.procname @ str.size @
+    self read assemblerarm.procname @ str.data .
+    self read assemblerarm.procname @ str.size @
     mem.cpy
 
-    self read assembler.proctab @
+    self read assemblerarm.proctab @
     nametmp read
-    self read assembler.procdata .
+    self read assemblerarm.procdata .
     map.append disc
 
     node read blockdata.blockmisc @
@@ -384,10 +388,10 @@ class assembler
     name swap put disc
     self swap put disc
 
-    string assembler.MAX_NAME_SIZE heap.zalloc put disc
+    string assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
     string read
-    self read assembler.classname @
+    self read assemblerarm.classname @
     copy NULL != if
       str.data . cstr.cpy
 
@@ -452,7 +456,7 @@ class assembler
 
     word node read constdata.constvalue @ str.data . put disc
 
-    nametmp assembler.MAX_NAME_SIZE heap.zalloc put disc
+    nametmp assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
     string str.new put disc
     string read
@@ -462,7 +466,7 @@ class assembler
 
     intern
     string read
-    assembler.internalname
+    assemblerarm.internalname
     put disc
 
     nametmp read
@@ -472,23 +476,23 @@ class assembler
 
     nametmp read
 
-    self read assembler.consttab @ covr map.in if
+    self read assemblerarm.consttab @ covr map.in if
       self read NULL
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       nametmp read
       map.getptr read
-      "    push qword " writer.write
+      "    ldr r1, #" writer.write
       int.cstr writer.write
-      "\n" writer.write
+      "\n    push {r1}\n" writer.write
       disc disc
 
       ret
     end
     disc
-    self read assembler.vartab @ covr map.in if
+    self read assemblerarm.vartab @ covr map.in if
       self read NULL
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       nametmp read
       map.getptr read
@@ -502,28 +506,29 @@ class assembler
       ret
     end
     disc
-    self read assembler.lvartab @ covr map.in if
+    self read assemblerarm.lvartab @ covr map.in if
       self read NULL
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       covr map.getptr read
-      "    mov rax, [ret_stack_rsp]\n" writer.write
-      "    mov rax, [rax-8]\n" writer.write
-      "    add rax, " writer.write
+      "    ldr r1, [ret_stack_rsp]\n" writer.write
+      "    sub r1, #8\n" writer.write
+      "    ldr r1, #[r1]\n" writer.write
+      "    add r1, " writer.write
       int.cstr writer.write "\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
       disc disc
 
       ret
     end
     disc
-    self read assembler.proctab @ covr map.in if
+    self read assemblerarm.proctab @ covr map.in if
       disc disc
 
       nametmp read
       self read
       nodep read
-      assembler.addwordproc
+      assemblerarm.addwordproc
 
       ret
     end
@@ -560,11 +565,11 @@ class assembler
       disc
 
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
-      "    push qword " writer.write
+      "    ldr r1, #" writer.write
       node read constdata.constvalue @ str.data . writer.write
-      "\n" writer.write
+      "\n    push {r1}\n" writer.write
 
       ret
     end
@@ -572,7 +577,7 @@ class assembler
       disc
 
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       "    push str_" writer.write
       node read constdata.constvalue . writer.addstr
@@ -584,11 +589,12 @@ class assembler
       disc
 
       self read nodep read
-      0 2 assembler.updatestack
+      0 2 assemblerarm.updatestack
 
-      "    push qword " writer.write
+      "    ldr #" writer.write
       node read constdata.constvalue @ writer.getlen int.cstr writer.write
       "\n" writer.write
+      "    push {r1}\n" writer.write
       "    push str_" writer.write
       node read constdata.constvalue . writer.addstr
       "\n" writer.write
@@ -600,7 +606,7 @@ class assembler
 
       self read
       nodep read
-      assembler.visitword
+      assemblerarm.visitword
 
       ret
     end
@@ -609,7 +615,7 @@ class assembler
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNDEFINED
-    "Unreachable assembler.visitword"
+    "Unreachable assemblerarm.visitword"
 
     error.new
     error.eval
@@ -636,14 +642,14 @@ class assembler
       full
       self read
       node read defdata.defname @ str.data .
-      assembler.getfullname
+      assemblerarm.getfullname
       put disc
 
       def
       node read defdata.defvalue @ str.data . cstr.int
       put disc
 
-      self read assembler.consttab @
+      self read assemblerarm.consttab @
       full read
       def
       map.append
@@ -656,7 +662,7 @@ class assembler
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNDEFINED
-    "Unreacable assembler.visitdef"
+    "Unreacable assemblerarm.visitdef"
 
     error.new
     error.eval
@@ -683,18 +689,18 @@ class assembler
       full
       self read
       node read propdata.propname @ str.data .
-      assembler.getfullname
+      assemblerarm.getfullname
       put disc
 
-      self read assembler.consttab @
+      self read assemblerarm.consttab @
       full read
-      self read assembler.classsize .
+      self read assemblerarm.classsize .
       map.append
       disc
 
-      self read assembler.classsize .
+      self read assemblerarm.classsize .
       node read propdata.propvalue @ str.data . cstr.int
-      self read assembler.classsize @ +
+      self read assemblerarm.classsize @ +
       put disc
 
       ret
@@ -705,18 +711,18 @@ class assembler
       full
       self read
       node read propdata.propname @ str.data .
-      assembler.getfullname
+      assemblerarm.getfullname
       put disc
 
-      self read assembler.classsize .
+      self read assemblerarm.classsize .
 
       self read nodep read
       node read propdata.propvalue @
-      assembler.internalname
+      assemblerarm.internalname
       str.data .
-      assembler.getconst
+      assemblerarm.getconst
 
-      self read assembler.classsize @ +
+      self read assemblerarm.classsize @ +
       put disc
 
       ret
@@ -726,7 +732,7 @@ class assembler
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNDEFINED
-    "Unreacable assembler.visitprop"
+    "Unreacable assemblerarm.visitprop"
 
     error.new
     error.eval
@@ -746,32 +752,32 @@ class assembler
 
     node nodep read slmnode.data @ put disc
 
-    self read assembler.procname @ str.size @ 0 != if
+    self read assemblerarm.procname @ str.size @ 0 != if
       node read vardata.varkind @
       copy CNK_NUMBER == if
         disc
 
-        full assembler.MAX_NAME_SIZE heap.zalloc put disc
+        full assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
         full read
         node read vardata.varname @ str.data .
         cstr.cpy disc disc
 
-        self read assembler.lvartab @
+        self read assemblerarm.lvartab @
         full read
-        self read assembler.proclmem .
+        self read assemblerarm.proclmem .
         map.append
         disc
 
         node read vardata.varvalue @
-        "    mov rax, [loc_stack_rsp]\n" writer.write
-        "    add rax, " writer.write
+        "    mov r1, [loc_stack_rsp]\n" writer.write
+        "    add r1, " writer.write
         str.data . writer.write
         "\n" writer.write
-        "    mov [loc_stack_rsp], rax\n" writer.write
+        "    mov [loc_stack_rsp], r1\n" writer.write
 
-        self read assembler.proclmem .
-        self read assembler.proclmem @
+        self read assemblerarm.proclmem .
+        self read assemblerarm.proclmem @
         node read vardata.varvalue @ str.data . cstr.int +
         put disc
 
@@ -780,36 +786,36 @@ class assembler
       copy CNK_WORD == if
         disc
 
-        full assembler.MAX_NAME_SIZE heap.zalloc put disc
+        full assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
         full read
         node read vardata.varname @ str.data .
         cstr.cpy disc disc
 
-        self read assembler.lvartab @
+        self read assemblerarm.lvartab @
         full read
-        self read assembler.proclmem .
+        self read assemblerarm.proclmem .
         map.append
         disc
 
         self read nodep read
         node read vardata.varvalue @
-        assembler.internalname
+        assemblerarm.internalname
         str.data .
-        assembler.getconst
-        "    mov rax, [loc_stack_rsp]\n" writer.write
-        "    add rax, " writer.write
+        assemblerarm.getconst
+        "    mov r1, [loc_stack_rsp]\n" writer.write
+        "    add r1, " writer.write
         int.cstr writer.write
         "\n" writer.write
-        "    mov [loc_stack_rsp], rax\n" writer.write
+        "    mov [loc_stack_rsp], r1\n" writer.write
 
-        self read assembler.proclmem .
-        self read assembler.proclmem @
+        self read assemblerarm.proclmem .
+        self read assemblerarm.proclmem @
         self read nodep read
         node read vardata.varvalue @
-        assembler.internalname
+        assemblerarm.internalname
         str.data .
-        assembler.getconst +
+        assemblerarm.getconst +
         put disc
 
         ret
@@ -819,7 +825,7 @@ class assembler
       nodep read slmnode.start .
       nodep read slmnode.stop .
       error.EK_UNDEFINED
-      "Unreacable assembler.visitvar local"
+      "Unreacable assemblerarm.visitvar local"
 
       error.new
       error.eval
@@ -834,10 +840,10 @@ class assembler
       full
       self read
       node read vardata.varname @ str.data .
-      assembler.getfullname
+      assemblerarm.getfullname
       put disc
 
-      self read assembler.vartab @
+      self read assemblerarm.vartab @
       full read
       writer.mem
       map.append
@@ -856,10 +862,10 @@ class assembler
       full
       self read
       node read vardata.varname @ str.data .
-      assembler.getfullname
+      assemblerarm.getfullname
       put disc
 
-      self read assembler.vartab @
+      self read assemblerarm.vartab @
       full read
       writer.mem
       map.append
@@ -868,9 +874,9 @@ class assembler
       writer.mem
       self read nodep read
       node read vardata.varvalue @
-      assembler.internalname
+      assemblerarm.internalname
       str.data .
-      assembler.getconst
+      assemblerarm.getconst
       writer.mem read +
       put disc
 
@@ -881,7 +887,7 @@ class assembler
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNDEFINED
-    "Unreacable assembler.visitvar global"
+    "Unreacable assemblerarm.visitvar global"
 
     error.new
     error.eval
@@ -902,28 +908,28 @@ class assembler
 
     node nodep read slmnode.data @ put disc
 
-    callee assembler.MAX_NAME_SIZE heap.zalloc put disc
+    callee assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
     node read calldata.callee @ str.size @
     0 == if
       ".blockstart_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; call\n" writer.write
-      "    pop rcx\n" writer.write
-      "    mov rax, [ret_stack_rsp]\n" writer.write
-      "    add rax, 16\n" writer.write
-      "    mov rbx, [loc_stack_rsp]\n" writer.write
-      "    mov qword [rax - 8], rbx\n" writer.write
-      "    mov qword [ret_stack_rsp], rax\n" writer.write
-      "    mov qword [rax], .blockend_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      "    pop r3\n" writer.write
+      "    mov r1, [ret_stack_rsp]\n" writer.write
+      "    add r1, 16\n" writer.write
+      "    mov r2, [loc_stack_rsp]\n" writer.write
+      "    mov [r1 - 8], r2\n" writer.write
+      "    mov [ret_stack_rsp], r1\n" writer.write
+      "    mov [r1], .blockend_" writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       "\n" writer.write
-      "    jmp qword rcx\n" writer.write
+      "    b r3\n" writer.write
       ".blockend_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; call\n" writer.write
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
 
@@ -934,14 +940,14 @@ class assembler
 
     internal
     node read calldata.callee @
-    assembler.internalname
+    assemblerarm.internalname
     put disc
 
     callee read
     internal read str.data .
     cstr.cpy disc disc
 
-    self read assembler.proctab @
+    self read assemblerarm.proctab @
     callee read map.in swap disc ! if
       nodep read slmnode.start .
       nodep read slmnode.stop .
@@ -957,7 +963,7 @@ class assembler
     end
 
     data
-    self read assembler.proctab @
+    self read assemblerarm.proctab @
     callee read
     map.getptr swap disc
     put disc
@@ -965,7 +971,7 @@ class assembler
     data read asmprocdata.kind @ 10 /% swap disc
     PNK_OPER == if
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       "    push proc_" writer.write
       callee read writer.write
@@ -980,27 +986,27 @@ class assembler
     self read nodep read
     data read asmprocdata.in @
     data read asmprocdata.out @
-    assembler.updatestack
+    assemblerarm.updatestack
 
     ".blockstart_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     ": ; call\n" writer.write
-    "    mov rax, [ret_stack_rsp]\n" writer.write
-    "    add rax, 16\n" writer.write
-    "    mov rbx, [loc_stack_rsp]\n" writer.write
-    "    mov qword [rax - 8], rbx\n" writer.write
-    "    mov qword [ret_stack_rsp], [rax]\n" writer.write
-    "    mov qword [rax], .blockend_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    "    mov r1, [ret_stack_rsp]\n" writer.write
+    "    add r1, 16\n" writer.write
+    "    mov r2, [loc_stack_rsp]\n" writer.write
+    "    mov [r1 - 8], r2\n" writer.write
+    "    mov [ret_stack_rsp], [r1]\n" writer.write
+    "    mov [r1], .blockend_" writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     "\n" writer.write
-    "    jmp proc_" writer.write
+    "    b proc_" writer.write
     callee read writer.write
     "\n" writer.write
     ".blockend_" writer.write
-    self read assembler.lastblock @ int.cstr writer.write
+    self read assemblerarm.lastblock @ int.cstr writer.write
     ": ; call\n" writer.write
 
-    self read assembler.lastblock .
+    self read assemblerarm.lastblock .
     copy read 1 +
     put disc
 
@@ -1024,11 +1030,11 @@ class assembler
     copy INK_RETURN == if
       disc
 
-      self read assembler.didret . bool.true putc disc
+      self read assemblerarm.didret . bool.true putc disc
 
-      self read assembler.depth @
-      self read assembler.procout @ !=
-      self read assembler.procout @ 255 != &&
+      self read assemblerarm.depth @
+      self read assemblerarm.procout @ !=
+      self read assemblerarm.procout @ 255 != &&
       if
         nodep read slmnode.start .
         nodep read slmnode.stop .
@@ -1039,14 +1045,17 @@ class assembler
         error.eval
       end
 
-      "    mov rax, [ret_stack_rsp]\n" writer.write
-      "    mov rax, [rax - 8]\n" writer.write
-      "    mov [loc_stack_rsp], rax\n" writer.write
-      "    mov rax, [ret_stack_rsp]\n" writer.write
-      "    sub rax, 16\n" writer.write
-      "    mov qword [ret_stack_rsp], rax\n" writer.write
-      "    add rax, 16\n" writer.write
-      "    jmp qword [rax]\n" writer.write
+      "    ldr r1, =ret_stack_rsp\n" writer.write
+      "    sub r1, #8\n" writer.write
+      "    ldr r1, [r1]\n" writer.write
+      "    ldr r2, loc_stack_rsp\n" writer.write
+      "    str r1, [r2]\n" writer.write
+      "    ldr r1, =ret_stack_rsp\n" writer.write
+      "    sub r1, #16\n" writer.write
+      "    ldr r2, ret_stack_rsp\n" writer.write
+      "    str r1, [r2]\n" writer.write
+      "    ldr r1, #16\n" writer.write
+      "    b [r1]\n" writer.write
 
       ret
     end
@@ -1054,10 +1063,10 @@ class assembler
       disc
 
       self read nodep read
-      1 2 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    push rax\n" writer.write
-      "    push rax\n" writer.write
+      1 2 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    push {r1}\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1065,8 +1074,8 @@ class assembler
       disc
 
       self read nodep read
-      1 0 assembler.updatestack
-      "    add rsp, 8\n" writer.write
+      1 0 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
 
       ret
     end
@@ -1074,10 +1083,10 @@ class assembler
       disc
 
       self read nodep read
-      0 1 assembler.updatestack
-      "    mov rax, [args_ptr]\n" writer.write
-      "    mov rax, [rax]\n" writer.write
-      "    push rax\n" writer.write
+      0 1 assemblerarm.updatestack
+      "    mov r1, [args_ptr]\n" writer.write
+      "    mov r1, [r1]\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1085,10 +1094,10 @@ class assembler
       disc
 
       self read nodep read
-      0 1 assembler.updatestack
-      "    mov rax, [args_ptr]\n" writer.write
-      "    add rax, 8\n" writer.write
-      "    push rax\n" writer.write
+      0 1 assemblerarm.updatestack
+      "    mov r1, [args_ptr]\n" writer.write
+      "    add r1, 8\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1096,25 +1105,25 @@ class assembler
       disc
 
       self read nodep read
-      0 1 assembler.updatestack
-      "    mov rax, [args_ptr]\n" writer.write
-      "    mov rax, [rax]\n" writer.write
-      "    add rax, 2\n" writer.write
-      "    shl rax, 3\n" writer.write
-      "    mov rbx, [args_ptr]\n" writer.write
-      "    add rbx, rax\n" writer.write
-      "    push rbx\n" writer.write
+      0 1 assemblerarm.updatestack
+      "    mov r1, [args_ptr]\n" writer.write
+      "    mov r1, [r1]\n" writer.write
+      "    add r1, 2\n" writer.write
+      "    shl r1, 3\n" writer.write
+      "    mov r2, [args_ptr]\n" writer.write
+      "    add r2, r1\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
     copy INK_QUIT == if
       disc
 
-      self read assembler.didret . bool.true putc disc
+      self read assemblerarm.didret . bool.true putc disc
 
       self read nodep read
-      1 0 assembler.updatestack
-      "    mov rax, 60\n" writer.write
+      1 0 assemblerarm.updatestack
+      "    mov r1, 60\n" writer.write
       "    pop rdi\n" writer.write
       "    syscall\n" writer.write
 
@@ -1124,11 +1133,11 @@ class assembler
       disc
 
       self read nodep read
-      2 2 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    push rax\n" writer.write
-      "    push rbx\n" writer.write
+      2 2 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    push {r1}\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
@@ -1136,12 +1145,12 @@ class assembler
       disc
 
       self read nodep read
-      2 3 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    push rbx\n" writer.write
-      "    push rax\n" writer.write
-      "    push rbx\n" writer.write
+      2 3 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    push {r2}\n" writer.write
+      "    push {r1}\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
@@ -1149,10 +1158,10 @@ class assembler
       disc
 
       self read nodep read
-      1 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    mov rbx, [rax]\n" writer.write
-      "    push rbx\n" writer.write
+      1 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    mov r2, [r1]\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
@@ -1160,11 +1169,11 @@ class assembler
       disc
 
       self read nodep read
-      1 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    xor rbx, rbx\n" writer.write
-      "    mov bl, [rax]\n" writer.write
-      "    push rbx\n" writer.write
+      1 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    xor r2, r2\n" writer.write
+      "    mov bl, [r1]\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
@@ -1172,11 +1181,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    mov qword [rax], rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    str r2, [r1]\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1184,11 +1193,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    mov byte [rax], bl\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    strb r2, [r1]\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1196,14 +1205,14 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    xor rcx, rcx\n" writer.write
-      "    mov rdx, 1\n" writer.write
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    cmp rax, rbx\n" writer.write
-      "    cmove rcx, rdx\n" writer.write
-      "    push rcx\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    xor r3, r3\n" writer.write
+      "    mov r4, 1\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    cmp r1, r2\n" writer.write
+      "    cmove r3, r4\n" writer.write
+      "    push r3\n" writer.write
 
       ret
     end
@@ -1211,14 +1220,14 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    xor rcx, rcx\n" writer.write
-      "    mov rdx, 1\n" writer.write
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    cmp rax, rbx\n" writer.write
-      "    cmovne rcx, rdx\n" writer.write
-      "    push rcx\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    xor r3, r3\n" writer.write
+      "    mov r4, 1\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    cmp r1, r2\n" writer.write
+      "    cmovne r3, r4\n" writer.write
+      "    push r3\n" writer.write
 
       ret
     end
@@ -1226,14 +1235,14 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    xor rcx, rcx\n" writer.write
-      "    mov rdx, 1\n" writer.write
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    cmp rax, rbx\n" writer.write
-      "    cmovl rcx, rdx\n" writer.write
-      "    push rcx\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    xor r3, r3\n" writer.write
+      "    mov r4, 1\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    cmp r1, r2\n" writer.write
+      "    cmovl r3, r4\n" writer.write
+      "    push r3\n" writer.write
 
       ret
     end
@@ -1241,14 +1250,14 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    xor rcx, rcx\n" writer.write
-      "    mov rdx, 1\n" writer.write
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    cmp rax, rbx\n" writer.write
-      "    cmovg rcx, rdx\n" writer.write
-      "    push rcx\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    xor r3, r3\n" writer.write
+      "    mov r4, 1\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    cmp r1, r2\n" writer.write
+      "    cmovg r3, r4\n" writer.write
+      "    push r3\n" writer.write
 
       ret
     end
@@ -1256,10 +1265,10 @@ class assembler
       disc
 
       self read nodep read
-      1 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    xor rax, 1\n" writer.write
-      "    push rax\n" writer.write
+      1 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    xor r1, 1\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1267,10 +1276,10 @@ class assembler
       disc
 
       self read nodep read
-      1 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    not rax\n" writer.write
-      "    push rax\n" writer.write
+      1 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    not r1\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1278,11 +1287,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    and rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    and r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1290,11 +1299,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    or rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    or r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1302,11 +1311,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    add rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    add r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1314,12 +1323,12 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    add rax, rbx\n" writer.write
-      "    mov rbx, [rax]\n" writer.write
-      "    push rbx\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    add r1, r2\n" writer.write
+      "    mov r2, [r1]\n" writer.write
+      "    push {r2}\n" writer.write
 
       ret
     end
@@ -1327,11 +1336,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    add rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    add r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1339,11 +1348,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    sub rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    sub r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1351,11 +1360,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
-      "    pop rbx\n" writer.write
-      "    imul rax, rbx\n" writer.write
-      "    push rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    mul r1, r2\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1363,13 +1372,13 @@ class assembler
       disc
 
       self read nodep read
-      2 2 assembler.updatestack
-      "    xor rdx, rdx\n" writer.write
-      "    pop rbx\n" writer.write
-      "    pop rax\n" writer.write
-      "    idiv rbx\n" writer.write
-      "    push rax\n" writer.write
-      "    push rdx\n" writer.write
+      2 2 assemblerarm.updatestack
+      "    xor r4, r4\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    pop {r1}\n" writer.write
+      "    idiv r2\n" writer.write
+      "    push {r1}\n" writer.write
+      "    push r4\n" writer.write
 
       ret
     end
@@ -1377,10 +1386,10 @@ class assembler
       disc
 
       self read nodep read
-      1 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      1 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1388,11 +1397,11 @@ class assembler
       disc
 
       self read nodep read
-      2 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      2 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1400,12 +1409,12 @@ class assembler
       disc
 
       self read nodep read
-      3 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      3 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    pop rsi\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1413,13 +1422,13 @@ class assembler
       disc
 
       self read nodep read
-      4 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      4 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    pop rsi\n" writer.write
-      "    pop rdx\n" writer.write
+      "    pop r4\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1427,14 +1436,14 @@ class assembler
       disc
 
       self read nodep read
-      5 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      5 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    pop rsi\n" writer.write
-      "    pop rdx\n" writer.write
-      "    pop r10\n" writer.write
+      "    pop r4\n" writer.write
+      "    pop {r1}0\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1442,15 +1451,15 @@ class assembler
       disc
 
       self read nodep read
-      6 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      6 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    pop rsi\n" writer.write
-      "    pop rdx\n" writer.write
-      "    pop r10\n" writer.write
+      "    pop r4\n" writer.write
+      "    pop {r1}0\n" writer.write
       "    pop r8\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1458,16 +1467,16 @@ class assembler
       disc
 
       self read nodep read
-      7 1 assembler.updatestack
-      "    pop rax\n" writer.write
+      7 1 assemblerarm.updatestack
+      "    pop {r1}\n" writer.write
       "    pop rdi\n" writer.write
       "    pop rsi\n" writer.write
-      "    pop rdx\n" writer.write
-      "    pop r10\n" writer.write
+      "    pop r4\n" writer.write
+      "    pop {r1}0\n" writer.write
       "    pop r8\n" writer.write
       "    pop r9\n" writer.write
       "    syscall\n" writer.write
-      "    push rax\n" writer.write
+      "    push {r1}\n" writer.write
 
       ret
     end
@@ -1515,23 +1524,23 @@ class assembler
     node nodep read slmnode.data @ put disc
 
     file
-    self read assembler.filename @
+    self read assemblerarm.filename @
     put disc
 
-    name assembler.MAX_NAME_SIZE heap.zalloc put disc
+    name assemblerarm.MAX_NAME_SIZE heap.zalloc put disc
 
     name read
     node read incdata.include @ str.data .
     cstr.cpy disc disc
 
-    self read assembler.includedtab @
+    self read assemblerarm.includedtab @
     name read
     map.in swap disc if
       name read heap.free
       ret
     end
 
-    self read assembler.includedtab @
+    self read assemblerarm.includedtab @
     name read
     "y"
     map.append
@@ -1545,9 +1554,9 @@ class assembler
     copy subnode swap put disc
 
     self read swap
-    assembler.visitnode
+    assemblerarm.visitnode
 
-    self read assembler.filename .
+    self read assemblerarm.filename .
     file read
     put disc
 
@@ -1571,7 +1580,7 @@ class assembler
     node read filedata.filename @ str.print
     "\n" cstr.print
 
-    self read assembler.filename .
+    self read assemblerarm.filename .
     node read filedata.filename @
     put disc
 
@@ -1584,7 +1593,7 @@ class assembler
       covr 8 * + read
 
       self read swap
-      assembler.visitnode
+      assemblerarm.visitnode
 
       1 +
       node read filedata.childcount @
@@ -1626,9 +1635,9 @@ class assembler
       covr CNK_WORD == if
         self read
         covr constdata.constvalue @ str.data .
-        assembler.getfullname
+        assemblerarm.getfullname
 
-        self read assembler.consttab @
+        self read assemblerarm.consttab @
         swap
         value
         map.append disc
@@ -1669,13 +1678,13 @@ class assembler
     node read blockdata.blockkind @
     BNK_PROC == if
       self read node read
-      assembler.addprochead
+      assemblerarm.addprochead
       disc disc
 
       node read blockdata.childcount @
       0 == if
-        self read assembler.proclmem . 0 put disc
-        self read assembler.procname @ str.size . 0 put disc
+        self read assemblerarm.proclmem . 0 put disc
+        self read assemblerarm.procname @ str.size . 0 put disc
         ret
       end
     end
@@ -1691,20 +1700,20 @@ class assembler
       error.eval
     end
     copy BNK_CLASS == if
-      self read assembler.classsize . 0 put disc
+      self read assemblerarm.classsize . 0 put disc
 
-      self read assembler.classname .
+      self read assemblerarm.classname .
       node read blockdata.blockname @
       put disc
 
       self read
       "SIZE"
-      assembler.getfullname
-      self read assembler.consttab @
+      assemblerarm.getfullname
+      self read assemblerarm.consttab @
       covr map.in swap disc if
-        self read assembler.consttab @
+        self read assemblerarm.consttab @
         covr map.getptr read swap disc
-        self read assembler.classsize .
+        self read assemblerarm.classsize .
         swap put disc
       end
       disc
@@ -1712,92 +1721,92 @@ class assembler
     copy BNK_ENUM == if
       disc
       self read nodep read
-      assembler.visitenum
+      assemblerarm.visitenum
       ret
     end
     copy BNK_IF == if
       self read nodep read
-      1 0 assembler.updatestack
+      1 0 assemblerarm.updatestack
 
-      "    pop rbx\n" writer.write
-      "    test rbx, rbx\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    test r2, r2\n" writer.write
       ".blockstart_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; if\n" writer.write
       "    jz .blockend_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       "\n" writer.write
 
       stop
-      self read assembler.lastblock @
+      self read assemblerarm.lastblock @
       put disc
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
     end
     copy BNK_DO == if
       ".blockstart_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; do\n" writer.write
 
       stop
-      self read assembler.lastblock @
+      self read assemblerarm.lastblock @
       put disc
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
     end
     copy BNK_LAMBDA == if
-      "    jmp .blockend_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      "    b .blockend_" writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ".blockstart_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; lambda\n" writer.write
 
       stop
-      self read assembler.lastblock @
+      self read assemblerarm.lastblock @
       put disc
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
     end
     copy BNK_PLAMBDA == if
-      "    jmp .blockend_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      "    b .blockend_" writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       "\n.blockstart_" writer.write
-      self read assembler.lastblock @ int.cstr writer.write
+      self read assemblerarm.lastblock @ int.cstr writer.write
       ": ; plambda\n" writer.write
 
       stop
-      self read assembler.lastblock @
+      self read assemblerarm.lastblock @
       put disc
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
 
       oldprocout
-      self read assembler.procout @
+      self read assemblerarm.procout @
       put disc
 
-      self read assembler.procout .
-      self read assembler.depth @
+      self read assemblerarm.procout .
+      self read assemblerarm.depth @
       put disc
     end
     disc
 
 
     oldret
-    self read assembler.didret . readc
+    self read assemblerarm.didret . readc
     putc disc
     olddepth
-    self read assembler.depth @
+    self read assemblerarm.depth @
     put disc
 
-    self read assembler.didret . 0 putc disc
+    self read assemblerarm.didret . 0 putc disc
 
     0
     do
@@ -1805,7 +1814,7 @@ class assembler
       covr 8 * + read
 
       self read swap
-      assembler.visitnode
+      assemblerarm.visitnode
 
       1 +
       node read blockdata.childcount @
@@ -1816,15 +1825,15 @@ class assembler
     node read blockdata.blockkind @
     copy BNK_CLASS == if
       self read "SIZE"
-      assembler.getfullname
+      assemblerarm.getfullname
 
-      self read assembler.consttab @
+      self read assemblerarm.consttab @
       swap
-      self read assembler.classsize .
+      self read assemblerarm.classsize .
       map.append
       disc
 
-      self read assembler.classname .
+      self read assemblerarm.classname .
       0
       put disc
     end
@@ -1833,10 +1842,10 @@ class assembler
       stop read int.cstr writer.write
       ": ; if\n" writer.write
 
-      self read assembler.didret . readc ! if
+      self read assemblerarm.didret . readc ! if
         olddepth read
-        self read assembler.depth @ !=
-        self read assembler.procout @ 255 != && if
+        self read assemblerarm.depth @ !=
+        self read assemblerarm.procout @ 255 != && if
           nodep read slmnode.start .
           nodep read slmnode.stop .
           error.EK_BADBLOCK
@@ -1849,7 +1858,7 @@ class assembler
     end
     copy BNK_LAMBDA == if
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       ".blockend_" writer.write
       stop read int.cstr writer.write
@@ -1859,12 +1868,12 @@ class assembler
       "\n" writer.write
     end
     copy BNK_PLAMBDA == if
-      self read assembler.procout .
+      self read assemblerarm.procout .
       oldprocout read
       put disc
 
       self read nodep read
-      0 1 assembler.updatestack
+      0 1 assemblerarm.updatestack
 
       ".blockend_" writer.write
       stop read int.cstr writer.write
@@ -1882,11 +1891,11 @@ class assembler
       slmnode.new
       put disc
 
-      self read word read assembler.visitword
+      self read word read assemblerarm.visitword
 
       word read slmnode.free
 
-      self read assembler.lastblock .
+      self read assemblerarm.lastblock .
       copy read 1 +
       put disc
 
@@ -1895,10 +1904,10 @@ class assembler
     end
     copy BNK_DO == if
       self read nodep read
-      1 0 assembler.updatestack
+      1 0 assemblerarm.updatestack
 
-      "    pop rbx\n" writer.write
-      "    test rbx, rbx\n" writer.write
+      "    pop {r2}\n" writer.write
+      "    test r2, r2\n" writer.write
       "    jnz .blockstart_" writer.write
       stop read int.cstr writer.write
       "\n" writer.write
@@ -1907,8 +1916,8 @@ class assembler
       ": ; do\n" writer.write
 
       olddepth read
-      self read assembler.depth @ !=
-      self read assembler.procout @ 255 != && if
+      self read assemblerarm.depth @ !=
+      self read assemblerarm.procout @ 255 != && if
         nodep read slmnode.start .
         nodep read slmnode.stop .
         error.EK_BADBLOCK
@@ -1919,7 +1928,7 @@ class assembler
       end
     end
     copy BNK_PROC == if
-      self read assembler.didret . readc ! if
+      self read assemblerarm.didret . readc ! if
         nodep read slmnode.start .
         nodep read slmnode.stop .
         error.EK_BADBLOCK
@@ -1929,15 +1938,15 @@ class assembler
         error.eval
       end
 
-      self read assembler.proclmem . 0 put disc
-      self read assembler.procname @ str.size . 0 put disc
+      self read assemblerarm.proclmem . 0 put disc
+      self read assemblerarm.procname @ str.size . 0 put disc
     end
     disc
 
-    self read assembler.didret .
+    self read assemblerarm.didret .
     oldret readc
     putc disc
-    self read assembler.depth .
+    self read assemblerarm.depth .
     olddepth read
     put disc
 
@@ -1949,7 +1958,7 @@ class assembler
     nodedata.kind @
     copy SNK_INC == if
       disc
-      assembler.visitinc
+      assemblerarm.visitinc
 
       ret
     end
@@ -1960,61 +1969,61 @@ class assembler
     end
     copy SNK_FILE == if
       disc
-      assembler.visitfile
+      assemblerarm.visitfile
 
       ret
     end
     copy SNK_BLOCK == if
       disc
-      assembler.visitblock
+      assemblerarm.visitblock
 
       ret
     end
     copy SNK_CONST == if
       disc
-      assembler.visitconst
+      assemblerarm.visitconst
 
       ret
     end
     copy SNK_DEF == if
       disc
-      assembler.visitdef
+      assemblerarm.visitdef
 
       ret
     end
     copy SNK_ASM == if
       disc
-      assembler.visitasm
+      assemblerarm.visitasm
 
       ret
     end
     copy SNK_INTR == if
       disc
-      assembler.visitintr
+      assemblerarm.visitintr
 
       ret
     end
     copy SNK_PROP == if
       disc
-      assembler.visitprop
+      assemblerarm.visitprop
 
       ret
     end
     copy SNK_VAR == if
       disc
-      assembler.visitvar
+      assemblerarm.visitvar
 
       ret
     end
     copy SNK_CALL == if
       disc
-      assembler.visitcall
+      assemblerarm.visitcall
 
       ret
     end
     copy SNK_OF == if
       disc
-      assembler.visitof
+      assemblerarm.visitof
 
       ret
     end

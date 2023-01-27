@@ -1,117 +1,19 @@
-inc "std/os.slm"
-inc "std/cstr.slm"
-inc "std/int.slm"
+inc "./tests/slam2/test_numbers.slm"
+inc "./tests/slam2/test_classes.slm"
+inc "./tests/slam2/test_cstr.slm"
+inc "./tests/slam2/test_dlist.slm"
+inc "./tests/slam2/test_llist.slm"
 
-const TEST_COUNT 19
+proc main 0 0
+  "# Slam Tests" cstr.println
 
-var tmpbuffer 128
-var tmpname 64
-var slamexec 64
+  test_numbers
+  test_classes
+  test_cstr
+  test_dlist
+  test_llist
 
-var failed 1
-var passed 1
-
-oper proc runtest 1 0
-  var waitsig 8
-
-  tmpbuffer
-  "/usr/bin/rm" put int.SIZE +
-  "-f" put int.SIZE +
-  "tester" put int.SIZE +
-  "tester.asm" put int.SIZE +
-  NULL put disc
-
-  tmpbuffer os.execcmd disc
-
-  cstr.cr
-  "# " cstr.print
-  copy cstr.println
-  cstr.cr
-
-  tmpbuffer
-  slamexec put int.SIZE +
-  "-o" put int.SIZE +
-  "tester" put int.SIZE +
-  swap put int.SIZE +
-  NULL put disc
-
-  waitsig
-  tmpbuffer os.execcmd
-  put disc
-  
-  waitsig read 0 != if
-    "- Test Failed to compile, code="  cstr.print
-    waitsig read int.print
-
-    "\n" cstr.println
-    
-    "```" cstr.println
-    tmpbuffer os.execcmdloud disc
-    "```" cstr.println
-    
-    failed
-    copy readc 1 +
-    putc disc
-
-    ret
-  end
-  
-  tmpbuffer
-  "tester" put int.SIZE +
-  NULL put disc
-
-  waitsig
-  tmpbuffer os.execcmdloud
-  put disc
-  
-  waitsig read 0 != if
-    "- Test Failed, code=" cstr.print
-    waitsig read int.cstr cstr.println
-
-    failed
-    copy readc 1 +
-    putc disc
-
-    ret
-  end
-  passed
-  copy readc 1 +
-  putc disc
-  
-  ret
-end
-
-oper proc main 0 0
-  slamexec "HOME" os.env cstr.cpy disc
-  "/.local/slam/bin/slam" cstr.cat disc
-
-  0
-  do
-    1 +
-    tmpname cstr.clear
-    "test" cstr.cpy disc
-    covr int.cstr cstr.cat
-    ".slm" cstr.cat
-    runtest
-
-    copy TEST_COUNT <
-  end
-  disc
-  cstr.cr
-  "# Results" cstr.println
-  cstr.cr
-
-  "- Passed: " cstr.print
-  passed readc
-  int.print
-  cstr.cr
-
-  "- Failed: " cstr.print
-  failed readc
-  int.print
-  cstr.cr
-
-  failed readc quit
+  testin.results
 
   ret
 end
