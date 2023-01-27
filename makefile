@@ -28,7 +28,7 @@ clean:
 
 tests/slam2/test: slam
 	rm -f temp.asm
-	./slam -o tests/slam2/test tests/slam2/test.slm
+	slam -o tests/slam2/test tests/slam2/test.slm
 
 test: tests/slam2/test
 	cd tests/slam2; ./test

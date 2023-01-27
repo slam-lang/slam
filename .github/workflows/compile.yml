@@ -20,10 +20,12 @@ jobs:
           cd spakig
           chmod +x ./install.sh
           ./install.sh
+          /tmp/spakig install slam-lang/slam-testin
           cd ..
       - name: Run slam tests
         id: tests
         run: |
           git clone http://github.com/slam-lang/slam
           cd slam
+          export PATH=$PATH:$HOME/.local/slam/bin/
           make test >> $GITHUB_STEP_SUMMARY
