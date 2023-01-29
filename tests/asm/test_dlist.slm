@@ -31,7 +31,6 @@ proc test_dlist 0 0
     list 4 dlist.new put disc
 
     list read
-
     "yes" dlist.append
     list swap put disc
 

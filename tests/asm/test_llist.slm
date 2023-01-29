@@ -14,5 +14,73 @@ proc test_llist 0 0
     ret
   end
 
+  "Append to a llist" testin.test :
+    list 4 llist.new put disc
+
+    list read
+    "yes" llist.append
+    list swap put disc
+
+    list read llist.free
+
+    ret
+  end
+
+  "Get llist entry" testin.test :
+    list 4 llist.new put disc
+
+    list read
+    "yes" llist.append
+    list swap put disc
+
+    list read 0 llist.getptr
+    "yes" testin.cstreq
+
+    list read llist.free
+
+    ret
+  end
+
+  "Get the length of a llist" testin.test :
+    list 4 llist.new put disc
+
+    0
+    do
+      list read
+      "yes" llist.append
+      list swap put disc
+      1 +
+      copy list read llist.len testin.eq
+
+      copy 10 <
+    end
+    disc
+
+    list read llist.free
+
+    ret
+  end
+
+  {
+  "pop from a llist" testin.test :
+    list 4 llist.new put disc
+
+    list read
+    "yes" llist.append
+    "yea" llist.append
+    list swap put disc
+
+    list read
+    llist.pop "yea" testin.cstreq
+    llist.pop "yes" testin.cstreq
+    copy llist.len 0 testin.eq
+    list swap put disc
+
+    list read llist.free
+
+    ret
+  end
+  }
+
   ret
 end
