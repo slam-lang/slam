@@ -1,134 +1,26 @@
-inc "stdlib/os.slm"
-inc "stdlib.slm"
+inc "./tests/asm/test_numbers.slm"
+inc "./tests/asm/test_classes.slm"
+inc "./tests/asm/test_cstr.slm"
+inc "./tests/asm/test_dlist.slm"
+inc "./tests/asm/test_llist.slm"
 
-const TEST_COUNT 12
+inc "./tests/sim/test_sim.slm"
 
-var tmpbuffer 128
-var tmpname 64
-var slamexec 64
+proc main 0 0
+  "# Assembled Tests" cstr.println
 
-var failed 1
-var passed 1
+  test_numbers
+  test_classes
+  test_cstr
+  test_dlist
+  test_llist
 
-push proc runcmdstdout 1 0
-  (os.fork)
-  copy 0 == if [
-    covr envp swap copy read
-  
-    sysc.EXECVE sys3 disc
-    disc disc
-    -1
-    quit
-  ]
-  copy 0 > if [
-    {parent}
-  
-    NULL
-    0
-    os.waitsig
-    -1
-    sysc.WAIT4 sys4 0 < (os.chkdeverr)
-    disc disc
-    ret
-  ]
-  0 != if [
-    "ERROR" cstr.println
-  ]
-  disc
-  ret
-end
+  "Simulator Tests" testin.suite
 
-push proc runtest 1 0
-  tmpbuffer
-  "/usr/bin/rm" put int.SIZE +
-  "-f" put int.SIZE +
-  "tester" put int.SIZE +
-  "temp.fasm" put int.SIZE +
-  NULL put disc
+  "sim/test_math.slm" test_sim
+  "sim/test_procs.slm" test_sim
 
-  tmpbuffer (os.execcmd)
-
-  cstr.cr
-  "# " cstr.print
-  copy cstr.println
-  cstr.cr
-
-  tmpbuffer
-  slamexec put int.SIZE +
-  "-o" put int.SIZE +
-  "tester" put int.SIZE +
-  swap put int.SIZE +
-  NULL put disc
-
-  tmpbuffer (os.execcmd)
-  
-  os.waitsig read 0 != if [
-    "- Test Failed to compile, code="  cstr.print
-    os.waitsig read int.print
-    
-    "```" cstr.println
-    tmpbuffer (runcmdstdout)
-    "```" cstr.println
-    
-    failed
-    copy readc 1 +
-    putc disc
-
-    ret
-  ]
-  
-  tmpbuffer
-  "tester" put int.SIZE +
-  NULL put disc
-
-  tmpbuffer (runcmdstdout)
-  
-  os.waitsig read 0 != if [
-    "- Test Failed, code=" cstr.print
-    os.waitsig read int.cstr cstr.println
-
-    failed
-    copy readc 1 +
-    putc disc
-
-    ret
-  ]
-  passed
-  copy readc 1 +
-  putc disc
-  
-  ret
-end
-
-push proc main 0 0
-  slamexec "HOME" (os.env) cstr.cpy disc
-  "/.local/slam/bin/slam" cstr.cat disc
-
-  0
-  do
-    1 +
-    tmpname cstr.clear
-    "test" cstr.cpy disc
-    covr int.cstr cstr.cat
-    ".slm" cstr.cat
-    (runtest)
-
-    copy TEST_COUNT <
-  end
-  disc
-  cstr.cr
-  "# Results" cstr.println
-  cstr.cr
-
-  "- Passed: " cstr.print
-  passed readc
-  int.print
-
-  "- Failed: " cstr.print
-  failed readc
-  int.print
-
-  failed readc quit
+  testin.results
 
   ret
 end

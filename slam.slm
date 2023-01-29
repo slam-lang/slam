@@ -103,6 +103,7 @@ oper proc main 0 0
   1 argc == if HELP_ARGS help end
 
   output "a.out" cstr.cpy disc disc
+  lexer.print 1 putc disc
 
   0
   do
@@ -169,7 +170,7 @@ oper proc main 0 0
     disc
     simulator.new simulator.run
 
-    0 quit
+    quit
   end
   copy COMP_ARM == if
     disc
@@ -178,7 +179,7 @@ oper proc main 0 0
     "temp.asm" writer.new
     put disc
 
-    "    b main\n" writer.write
+    "    b proc_main\n" writer.write
 
     assemblerarm.new swap
     assemblerarm.visitnode

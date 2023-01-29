@@ -5,8 +5,10 @@ class lexer
     var result 8
     var incpath 8
 
-    "[LEX] " cstr.print
-    covr cstr.println
+    lexer.print readc if
+      "[SLM] " cstr.print
+      covr cstr.println
+    end
 
     incpath str.new put disc
 

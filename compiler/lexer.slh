@@ -18,6 +18,8 @@ class lexer
   prop word 8
   prop token 80
 
+  var print 1
+
   head oper proc new 2 1
   head oper proc free 1 0
   head oper proc advance 1 1

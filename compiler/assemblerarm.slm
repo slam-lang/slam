@@ -253,16 +253,18 @@ class assemblerarm
 
     ".blockstart_" writer.write
     self read assemblerarm.lastblock @ int.cstr writer.write
-    ": ; call\n" writer.write
-    "    ldr r1, ret_stack_rsp\n" writer.write
+    ":\n" writer.write
+    "    ldr r1, =ret_stack_rsp\n" writer.write
     "    ldr r1, [r1]\n" writer.write
     "    add r1, #16\n" writer.write
-    "    ldr r2, #[loc_stack_rsp]\n" writer.write
+    "    ldr r2, =loc_stack_rsp\n" writer.write
+    "    ldr r2, [r2]\n" writer.write
     "    sub r1, #8\n" writer.write
     "    str r2, [r1]\n" writer.write
-    "    str r1, #[ret_stack_rsp]\n" writer.write
+    "    ldr r2, =ret_stack_rsp\n" writer.write
+    "    str r1, [r2]\n" writer.write
     "    add r1, #8\n" writer.write
-    "    ldr r2, .blockend_" writer.write
+    "    ldr r2, =.blockend_" writer.write
     self read assemblerarm.lastblock @ int.cstr writer.write
     "\n" writer.write
     "    str r2, [r1]\n" writer.write
@@ -271,7 +273,7 @@ class assemblerarm
     "\n" writer.write
     ".blockend_" writer.write
     self read assemblerarm.lastblock @ int.cstr writer.write
-    ": ; call\n" writer.write
+    ":\n" writer.write
 
     self read assemblerarm.lastblock .
     copy read 1 +
@@ -482,7 +484,7 @@ class assemblerarm
 
       nametmp read
       map.getptr read
-      "    ldr r1, #" writer.write
+      "    mov r1, #" writer.write
       int.cstr writer.write
       "\n    push {r1}\n" writer.write
       disc disc
@@ -511,10 +513,11 @@ class assemblerarm
       0 1 assemblerarm.updatestack
 
       covr map.getptr read
-      "    ldr r1, [ret_stack_rsp]\n" writer.write
+      "    ldr r1, =ret_stack_rsp\n" writer.write
+      "    ldr r1, [r1]\n" writer.write
       "    sub r1, #8\n" writer.write
-      "    ldr r1, #[r1]\n" writer.write
-      "    add r1, " writer.write
+      "    ldr r1, [r1]\n" writer.write
+      "    add r1, #" writer.write
       int.cstr writer.write "\n" writer.write
       "    push {r1}\n" writer.write
       disc disc
@@ -567,7 +570,7 @@ class assemblerarm
       self read nodep read
       0 1 assemblerarm.updatestack
 
-      "    ldr r1, #" writer.write
+      "    mov r1, #" writer.write
       node read constdata.constvalue @ str.data . writer.write
       "\n    push {r1}\n" writer.write
 
@@ -770,11 +773,13 @@ class assemblerarm
         disc
 
         node read vardata.varvalue @
-        "    mov r1, [loc_stack_rsp]\n" writer.write
-        "    add r1, " writer.write
+        "    ldr r1, =loc_stack_rsp\n" writer.write
+        "    ldr r1, [r1]\n" writer.write
+        "    add r1, #" writer.write
         str.data . writer.write
         "\n" writer.write
-        "    mov [loc_stack_rsp], r1\n" writer.write
+        "    ldr r2, =loc_stack_rsp\n" writer.write
+        "    str r1, [r2]\n" writer.write
 
         self read assemblerarm.proclmem .
         self read assemblerarm.proclmem @
@@ -803,11 +808,13 @@ class assemblerarm
         assemblerarm.internalname
         str.data .
         assemblerarm.getconst
-        "    mov r1, [loc_stack_rsp]\n" writer.write
-        "    add r1, " writer.write
+        "    ldr r1, =loc_stack_rsp\n" writer.write
+        "    ldr r1, [r1]\n" writer.write
+        "    add r1, #" writer.write
         int.cstr writer.write
         "\n" writer.write
-        "    mov [loc_stack_rsp], r1\n" writer.write
+        "    ldr r2, =loc_stack_rsp\n" writer.write
+        "    str r1, [r2]\n" writer.write
 
         self read assemblerarm.proclmem .
         self read assemblerarm.proclmem @
@@ -914,7 +921,7 @@ class assemblerarm
     0 == if
       ".blockstart_" writer.write
       self read assemblerarm.lastblock @ int.cstr writer.write
-      ": ; call\n" writer.write
+      ":\n" writer.write
       "    pop r3\n" writer.write
       "    mov r1, [ret_stack_rsp]\n" writer.write
       "    add r1, 16\n" writer.write
@@ -927,7 +934,7 @@ class assemblerarm
       "    b r3\n" writer.write
       ".blockend_" writer.write
       self read assemblerarm.lastblock @ int.cstr writer.write
-      ": ; call\n" writer.write
+      ":\n" writer.write
 
       self read assemblerarm.lastblock .
       copy read 1 +
@@ -990,7 +997,7 @@ class assemblerarm
 
     ".blockstart_" writer.write
     self read assemblerarm.lastblock @ int.cstr writer.write
-    ": ; call\n" writer.write
+    ":\n" writer.write
     "    mov r1, [ret_stack_rsp]\n" writer.write
     "    add r1, 16\n" writer.write
     "    mov r2, [loc_stack_rsp]\n" writer.write
@@ -1004,7 +1011,7 @@ class assemblerarm
     "\n" writer.write
     ".blockend_" writer.write
     self read assemblerarm.lastblock @ int.cstr writer.write
-    ": ; call\n" writer.write
+    ":\n" writer.write
 
     self read assemblerarm.lastblock .
     copy read 1 +
@@ -1048,14 +1055,15 @@ class assemblerarm
       "    ldr r1, =ret_stack_rsp\n" writer.write
       "    sub r1, #8\n" writer.write
       "    ldr r1, [r1]\n" writer.write
-      "    ldr r2, loc_stack_rsp\n" writer.write
+      "    ldr r2, =loc_stack_rsp\n" writer.write
       "    str r1, [r2]\n" writer.write
       "    ldr r1, =ret_stack_rsp\n" writer.write
       "    sub r1, #16\n" writer.write
-      "    ldr r2, ret_stack_rsp\n" writer.write
+      "    ldr r2, =ret_stack_rsp\n" writer.write
       "    str r1, [r2]\n" writer.write
-      "    ldr r1, #16\n" writer.write
-      "    b [r1]\n" writer.write
+      "    add r1, #16\n" writer.write
+      "    ldr r1, [r1]\n" writer.write
+      "    bx r1\n" writer.write
 
       ret
     end
@@ -1160,7 +1168,7 @@ class assemblerarm
       self read nodep read
       1 1 assemblerarm.updatestack
       "    pop {r1}\n" writer.write
-      "    mov r2, [r1]\n" writer.write
+      "    ldr r2, [r1]\n" writer.write
       "    push {r2}\n" writer.write
 
       ret
@@ -1236,7 +1244,7 @@ class assemblerarm
 
       self read nodep read
       2 1 assemblerarm.updatestack
-      "    xor r3, r3\n" writer.write
+      "    eor r3, r3\n" writer.write
       "    mov r4, 1\n" writer.write
       "    pop {r2}\n" writer.write
       "    pop {r1}\n" writer.write
@@ -1251,7 +1259,7 @@ class assemblerarm
 
       self read nodep read
       2 1 assemblerarm.updatestack
-      "    xor r3, r3\n" writer.write
+      "    eor r3, r3\n" writer.write
       "    mov r4, 1\n" writer.write
       "    pop {r2}\n" writer.write
       "    pop {r1}\n" writer.write
@@ -1267,7 +1275,7 @@ class assemblerarm
       self read nodep read
       1 1 assemblerarm.updatestack
       "    pop {r1}\n" writer.write
-      "    xor r1, 1\n" writer.write
+      "    eor r1, #1\n" writer.write
       "    push {r1}\n" writer.write
 
       ret
@@ -1302,7 +1310,7 @@ class assemblerarm
       2 1 assemblerarm.updatestack
       "    pop {r1}\n" writer.write
       "    pop {r2}\n" writer.write
-      "    or r1, r2\n" writer.write
+      "    orr r1, r2\n" writer.write
       "    push {r1}\n" writer.write
 
       ret
@@ -1327,7 +1335,7 @@ class assemblerarm
       "    pop {r1}\n" writer.write
       "    pop {r2}\n" writer.write
       "    add r1, r2\n" writer.write
-      "    mov r2, [r1]\n" writer.write
+      "    ldr r2, [r1]\n" writer.write
       "    push {r2}\n" writer.write
 
       ret
@@ -1748,7 +1756,7 @@ class assemblerarm
     copy BNK_DO == if
       ".blockstart_" writer.write
       self read assemblerarm.lastblock @ int.cstr writer.write
-      ": ; do\n" writer.write
+      ":\n" writer.write
 
       stop
       self read assemblerarm.lastblock @
@@ -1907,13 +1915,13 @@ class assemblerarm
       1 0 assemblerarm.updatestack
 
       "    pop {r2}\n" writer.write
-      "    test r2, r2\n" writer.write
-      "    jnz .blockstart_" writer.write
+      "    cmp r2, r2\n" writer.write
+      "    jnz =.blockstart_" writer.write
       stop read int.cstr writer.write
       "\n" writer.write
       ".blockend_" writer.write
       stop read int.cstr writer.write
-      ": ; do\n" writer.write
+      ":\n" writer.write
 
       olddepth read
       self read assemblerarm.depth @ !=

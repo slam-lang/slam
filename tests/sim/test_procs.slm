@@ -1,0 +1,13 @@
+proc six 1 1
+  disc 6
+
+  ret
+end
+
+proc main 0 1
+  5 six 6 ==
+  3 six 6 == +
+
+  2 != ret
+end
+

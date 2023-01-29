@@ -1567,10 +1567,6 @@ class assembler
 
     node nodep read slmnode.data @ put disc
 
-    "[ASM] " cstr.print
-    node read filedata.filename @ str.print
-    "\n" cstr.print
-
     self read assembler.filename .
     node read filedata.filename @
     put disc

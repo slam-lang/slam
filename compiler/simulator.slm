@@ -69,27 +69,21 @@ class simasm
     ret
   end
 
-  oper proc start 1 1
-    85 simasm.appendch
-    72 simasm.appendch
-    137 simasm.appendch
-    229 simasm.appendch
-
-    ret
-  end
-
-  oper proc stop 2 1
+  unsafe oper proc stop 1 1
+    0
+    asm "pop rax"
+    asm "push callc_stop"
     simasm.addsetrax
-    88 simasm.appendch
-    93 simasm.appendch
-    195 simasm.appendch
-
+    255 simasm.appendch
+    224 simasm.appendch
 
     ret
   end
 end
 
 class simulator
+  var current 8
+
   oper proc new 1 1
     var result 8
 
@@ -111,7 +105,7 @@ class simulator
       simulator.asmproc
 
       1 +
-      node read filedata.childcount @ covr >
+      result read simulator.nodes @ slmnode.data @ filedata.childcount @ covr >
     end
     disc
 
@@ -120,13 +114,36 @@ class simulator
     ret
   end
 
-  oper proc run 1 0
+  oper proc free 1 0
+    var self 8
+
+    self swap put disc
+
+    self read simulator.nodes @ slmnode.free
+    self read simulator.procs @ map.free
+    self read heap.free
+
+    ret
+  end
+
+  oper proc run 1 1
+    "main" simulator.runprocname
+
+    simulator.current read simulator.free
+
+    ret
+  end
+
+  oper proc runprocname 2 1
     var self 8
     var tmp 8
+    var name 8
+
+    name swap put disc
 
     tmp 128 heap.zalloc put disc
 
-    tmp read "main" cstr.cpy disc disc
+    tmp read name read cstr.cpy disc disc
 
     self swap put disc
 
@@ -136,64 +153,139 @@ class simulator
 
       tmp read heap.free
 
-      simulator.runproc quit
+      simulator.runproc
 
       ret
     end
 
     tmp read heap.free
 
-    "no main proc" cstr.println
-    1 quit
+    "no `" cstr.print
+    name read cstr.print
+    "` proc" cstr.println
+
+    1 ret
   end
 
-  unsafe oper proc callc 1 1
+  unsafe oper proc callc 1 0
     asm "pop rax"
-    asm "call rax"
-    asm "push rax"
+    asm "jmp rax"
+    asm "callc_stop:"
 
     ret
   end
 
-  oper proc runproc 2 1
+  oper proc runproc 2 0
     var self 8
     var simproc 8
-    var buff 8
 
     simproc swap put disc
     self swap put disc
 
-    0
-    -1
-    2 32 ||
-    2 4 ||
-    simproc read simproc.execstr @ str.len
-    NULL
-    sysc.MMAP
-    sys6
-    buff covr put disc
-    0 < if
-      "Cannot map memory" cstr.println
+    simulator.current self read put disc
 
-      1 quit
+    simproc read simproc.buff @ NULL == if
+      0
+      -1
+      2 32 ||
+      2 4 ||
+      simproc read simproc.execstr @ str.len
+      NULL
+      sysc.MMAP
+      sys6
+      simproc read simproc.buff . covr put disc
+      0 < if
+        "Cannot map memory" cstr.println
+
+        1 quit
+      end
+
+      simproc read simproc.buff @
+      simproc read simproc.execstr @ str.data .
+      simproc read simproc.execstr @ str.len
+      mem.cpy
+
+      {
+      simproc read simproc.execstr @ str.len
+      simproc read simproc.buff @
+      11
+      sys2
+      0 < if
+        "Cannot unmap memory" cstr.println
+
+        1 quit
+      end
+     }
     end
 
-    buff read
-    simproc read simproc.execstr @ str.data .
-    simproc read simproc.execstr @ str.len
-    mem.cpy
-
-    "[RUN]" cstr.println
-
-    buff read simulator.callc
+    simproc read simproc.buff @
+    simulator.callc
 
     ret
   end
 
   oper proc asmblock 2 1
     var block 8
+    var blockstr 8
 
-    swap disc
+    var nodep 8
+    var node 8
+    var str 8
+
+    str swap put disc
+    nodep swap put disc
+
+    node nodep read slmnode.data @ put disc
+
+    blockstr str.new put disc
+
+    0
+    do
+      node read blockdata.children . covr int.SIZE * + read
+      blockstr read
+      simulator.asmnode
+      blockstr swap put disc
+
+      1 +
+      node read blockdata.childcount @ covr >
+    end
+    disc
+
+    node read blockdata.blockkind @
+    copy BNK_IF == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+
+      {cmp rax, rax}
+      72 simasm.appendch
+      57 simasm.appendch
+      192 simasm.appendch
+
+      {jz [end]}
+      15 simasm.appendch
+      132 simasm.appendch
+      blockstr read str.size . 0 + readc simasm.appendch
+      blockstr read str.size . 1 + readc simasm.appendch
+      blockstr read str.size . 2 + readc simasm.appendch
+      blockstr read str.size . 3 + readc simasm.appendch
+
+      blockstr read str.cat
+
+      ret
+    end
+    disc
+
+    nodep read slmnode.start .
+    nodep read slmnode.stop .
+    error.EK_UNIMP
+    "Block kind not implemented"
+
+    error.new
+    error.eval
+
+    0
 
     ret
   end
@@ -213,7 +305,40 @@ class simulator
       disc
 
       str read
-      1 simasm.stop
+      simasm.stop
+      ret
+    end
+    copy INK_NOT == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      {xor rbx, rbx}
+      72 simasm.appendch
+      49 simasm.appendch
+      219 simasm.appendch
+      {xor rcx, rcx}
+      72 simasm.appendch
+      49 simasm.appendch
+      201 simasm.appendch
+      {mov edx, 1}
+      186 simasm.appendch
+      1 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      {cmp rax, rbx}
+      72 simasm.appendch
+      57 simasm.appendch
+      216 simasm.appendch
+      {cmove rcx, rdx}
+      72 simasm.appendch
+      15 simasm.appendch
+      68 simasm.appendch
+      202 simasm.appendch
+
+      simasm.RBX simasm.addpushreg
+
       ret
     end
     copy INK_COPY == if
@@ -272,6 +397,36 @@ class simulator
       24 simasm.appendch
 
       simasm.RBX simasm.addpushreg
+
+      ret
+    end
+    copy INK_NEQ == if
+      disc
+
+      str read
+      simasm.RAX simasm.addpopreg
+      simasm.RBX simasm.addpopreg
+      {xor rcx, rcx}
+      72 simasm.appendch
+      49 simasm.appendch
+      201 simasm.appendch
+      {mov edx, 1}
+      186 simasm.appendch
+      1 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      0 simasm.appendch
+      {cmp rax, rbx}
+      72 simasm.appendch
+      57 simasm.appendch
+      216 simasm.appendch
+      {cmovne rcx, rdx}
+      72 simasm.appendch
+      15 simasm.appendch
+      69 simasm.appendch
+      202 simasm.appendch
+
+      simasm.RCX simasm.addpushreg
 
       ret
     end
@@ -358,18 +513,22 @@ class simulator
   end
 
   unsafe oper proc callthing 2 0
-    var lol 8
+    var word 8
+    var rets 8
 
-    lol swap put disc
+    rets swap put disc
+    word swap put disc
 
-    "call" cstr.print
-    cstr.println
+    simulator.current read
+    word read
+    simulator.runprocname
 
-    lol read
-    asm "pop rax"
-    asm "jmp rax"
+    rets read 2 +
+    asm "pop rbx"
+    asm "jmp rbx"
 
-    ret
+    "Unreachable" cstr.println
+    0 quit
   end
 
   oper proc asmconst 2 1
@@ -426,7 +585,6 @@ class simulator
       node read constdata.constvalue @ str.data . simasm.addsetrax
       simasm.RAX simasm.addpushreg
       (simulator.callthing)
-      copy int.print
       simasm.addsetrax
       232 simasm.appendch
       0 simasm.appendch
@@ -519,7 +677,6 @@ class simulator
     result read simproc.execstr . str.new put disc
 
     result read simproc.execstr @
-    simasm.start
     result read simproc.execstr . swap put disc
 
     node read blockdata.childcount @ 0 == if
@@ -542,7 +699,7 @@ class simulator
 
 
     result read simproc.execstr @
-    0 simasm.stop
+    simasm.stop
     144 simasm.appendch
     result read simproc.execstr . swap put disc
 
@@ -557,6 +714,7 @@ class simulator
     map.append
     self read simulator.procs . swap put disc
 
+    result read heap.free
     tmp read heap.free
 
     ret

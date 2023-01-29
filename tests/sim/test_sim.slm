@@ -1,0 +1,25 @@
+inc "compiler/lexer.slm"
+inc "compiler/parser.slm"
+inc "compiler/simulator.slm"
+
+var test 8
+
+proc test_sim 1 0
+  test swap put disc
+
+  test read testin.test :
+    test read
+
+    bool.false
+    lexer.new lexer.run
+    parser.new parser.run
+    copy simulator.new simulator.run
+    swap slmnode.free
+
+    0 testin.eq
+
+    ret
+  end
+
+  ret
+end

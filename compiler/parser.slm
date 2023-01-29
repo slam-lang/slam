@@ -111,10 +111,6 @@ class parser
   end
 
   oper proc run 1 1
-    "[PRS] " cstr.print
-    copy parser.tokens @ dlist.len int.cstr cstr.print
-    " tokens" cstr.println
-
     parser.running swap put disc
 
     parser.parsefile
