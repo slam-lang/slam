@@ -9,16 +9,13 @@
 ** DONE slam 1.0.0 - self hosted
 ** DONE slam 2.0.0 - objects
 * The future of slam
-** TODO slam 3.0.0 [66%]
+** TODO slam 3.0.0 [100%]
 *** DONE rewrite [0%]
 **** DONE lexer
 **** DONE parser
 **** DONE assembler
 *** DONE fix bugs
-*** TODO more rewriting [0%]
-**** TODO simulator
-** TODO rewrite site in orgmode [0%]
-*** TODO plan
-*** TODO figure out css stuff
+*** DONE more rewriting [0%]
+**** DONE simulator
 ** TODO slam 3.1.0
 *** doc strings

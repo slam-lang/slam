@@ -19,6 +19,9 @@ proc main 0 0
 
   "sim/test_math.slm" test_sim
   "sim/test_procs.slm" test_sim
+  "sim/test_subproc.slm" test_sim
+  "sim/test_if.slm" test_sim
+  "sim/test_fib.slm" test_sim
 
   testin.results
 

@@ -92,7 +92,16 @@ class lexer
       self read lexer.file @
       filestream.readchar
       copy 'n' == if
-        disc '\n'
+        disc 10
+      end
+      copy 't' == if
+        disc 11
+      end
+      copy 'r' == if
+        disc 13
+      end
+      copy 'e' == if
+        disc 27
       end
     end
     putc disc

@@ -1,0 +1,16 @@
+proc fib 1 1
+  copy 0 == if ret end
+  copy 1 == if ret end
+
+  copy 1 - fib
+  swap 2 - fib +
+
+  ret
+end
+
+proc main 0 1
+  10 fib 55 ==
+
+  ! ret
+end
+

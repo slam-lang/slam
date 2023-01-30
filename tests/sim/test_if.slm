@@ -1,0 +1,8 @@
+proc main 0 1
+  1
+  10 10 == if
+    disc 0
+  end
+
+  ret
+end

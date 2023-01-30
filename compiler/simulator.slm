@@ -258,9 +258,9 @@ class simulator
       str read
       simasm.RAX simasm.addpopreg
 
-      {cmp rax, rax}
+      {test rax, rax}
       72 simasm.appendch
-      57 simasm.appendch
+      133 simasm.appendch
       192 simasm.appendch
 
       {jz [end]}

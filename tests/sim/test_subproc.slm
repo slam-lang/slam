@@ -1,0 +1,17 @@
+proc sub 0 1
+  6
+
+  ret
+end
+
+proc six 0 1
+  sub
+
+  ret
+end
+
+proc main 0 1
+  six 6 == !
+
+  ret
+end

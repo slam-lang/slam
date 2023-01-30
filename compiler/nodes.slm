@@ -363,9 +363,27 @@ class filedata
   end
 
   oper proc free 1 0
-    heap.free
+    var self 8
 
-    {TODO: free children}
+    self swap put disc
+
+    self read filedata.filename @ str.free
+
+    self read filedata.childcount @
+    0 == if ret end
+
+    0
+    do
+      copy 8 *
+      self read filedata.children . + read
+      slmnode.free
+
+      1 +
+      copy self read filedata.childcount @ <
+    end
+    disc
+
+    self read heap.free
 
     ret
   end
@@ -439,9 +457,25 @@ class blockdata
   end
 
   oper proc free 1 0
-    heap.free
+    var self 8
 
-    {TODO: free children}
+    self swap put disc
+
+    self read blockdata.childcount @
+    0 == if ret end
+
+    0
+    do
+      copy 8 *
+      self read blockdata.children . + read
+      slmnode.free
+
+      1 +
+      copy self read blockdata.childcount @ <
+    end
+    disc
+
+    self read heap.free
 
     ret
   end
