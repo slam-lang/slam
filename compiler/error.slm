@@ -9,11 +9,19 @@ class error
     result read error.msg . swap put disc
     result read error.kind . swap putc disc
     result read error.posstart . swap
-    32
-    mem.cpy
+    copy NULL != if
+      covr
+      covr
+      32
+      mem.cpy
+    end disc disc
     result read error.posend . swap
-    32
-    mem.cpy
+    copy NULL != if
+      covr
+      covr
+      32
+      mem.cpy
+    end disc disc
 
     result read
 
@@ -29,6 +37,7 @@ class error
     covr error.EK_UNIMP == if disc disc "Not Implelemted Error" ret end
     covr error.EK_UNDEFINED == if disc disc "Not Defined Error" ret end
     covr error.EK_BADBLOCK == if disc disc "Bad Block Error" ret end
+    covr error.EK_SIMBIND == if disc disc "Binding Error" ret end
     swap disc
 
     ret
@@ -43,6 +52,8 @@ class error
     ": " cstr.print
     self read error.msg @ cstr.print
     cstr.cr
+
+    self read error.posstart . filepos.filename @ NULL == if 1 quit end
 
     "Location " cstr.print
     self read error.posstart . filepos.print

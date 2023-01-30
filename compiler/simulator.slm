@@ -134,6 +134,49 @@ class simulator
     ret
   end
 
+  oper proc bindproc 3 1
+    var self 8
+    var name 8
+    var pro 8
+    var tmp 8
+    var result 8
+
+    pro swap put disc
+    name swap put disc
+    self swap put disc
+
+    result simproc.SIZE heap.zalloc put disc
+
+    tmp 128 heap.zalloc put disc
+
+    tmp read name read cstr.cpy disc disc
+
+    self read simulator.procs @ tmp read map.in swap disc if
+      NULL NULL
+      error.EK_SIMBIND
+      "already bound"
+
+      error.new
+      error.eval
+    end
+
+    result read simproc.isinternal . 1 putc disc
+    result read simproc.buff . pro read put disc
+
+    self read simulator.procs @
+    tmp read
+    result
+    map.append
+    self read simulator.procs . swap put disc
+
+    result read heap.free
+    tmp read heap.free
+
+    self read
+
+    ret
+  end
+
   oper proc runprocname 2 1
     var self 8
     var tmp 8
@@ -184,6 +227,15 @@ class simulator
 
     simulator.current self read put disc
 
+    simproc read simproc.isinternal . readc if
+      simproc read simproc.buff @ ()
+
+      asm "push 0"
+      disc
+
+      ret
+    end
+
     simproc read simproc.buff @ NULL == if
       0
       -1
@@ -204,18 +256,6 @@ class simulator
       simproc read simproc.execstr @ str.data .
       simproc read simproc.execstr @ str.len
       mem.cpy
-
-      {
-      simproc read simproc.execstr @ str.len
-      simproc read simproc.buff @
-      11
-      sys2
-      0 < if
-        "Cannot unmap memory" cstr.println
-
-        1 quit
-      end
-     }
     end
 
     simproc read simproc.buff @
@@ -531,6 +571,22 @@ class simulator
     0 quit
   end
 
+  unsafe oper proc callinternal 2 0
+    var word 8
+    var rets 8
+
+    rets swap put disc
+
+    ()
+
+    rets read 2 +
+    asm "pop rbx"
+    asm "jmp rbx"
+
+    "Unreachable" cstr.println
+    0 quit
+  end
+
   oper proc asmconst 2 1
     var nodep 8
     var node 8
@@ -564,23 +620,6 @@ class simulator
     end
     copy CNK_WORD == if
       disc
-
-      node read constdata.constvalue @ str.data .
-      "echo" cstr.eq if
-        str read
-        simasm.RDX simasm.addpopreg
-        simasm.RSI simasm.addpopreg
-        1 simasm.addsetrax
-
-        72 simasm.appendch
-        137 simasm.appendch
-        199 simasm.appendch
-
-        simasm.addsyscall
-
-        ret
-      end
-
       str read
       node read constdata.constvalue @ str.data . simasm.addsetrax
       simasm.RAX simasm.addpushreg

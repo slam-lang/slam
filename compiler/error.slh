@@ -10,6 +10,8 @@ class error
       EK_UNIMP
 
       EK_BADBLOCK
+
+      EK_SIMBIND
   end
 
   prop kind 1

@@ -4,6 +4,8 @@ inc "std/maps.slm"
 inc "compiler/error.slm"
 
 class simproc
+  prop isinternal 1
+
   prop execstr 8
   prop out 8
   prop in 8
@@ -41,6 +43,7 @@ class simulator
 
   head oper proc new 1 1
   head oper proc free 1 0
+  head oper proc bind 3 1
 
   head oper proc run 1 0
   head oper proc runprocname 2 1

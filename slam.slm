@@ -168,7 +168,12 @@ oper proc main 0 0
   end
   copy COMP_SIM == if
     disc
-    simulator.new simulator.run
+    simulator.new
+    "cstr.println" (cstr.println) simulator.bindproc
+    "heap.alloc" (heap.alloc) simulator.bindproc
+    "heap.zalloc" (heap.zalloc) simulator.bindproc
+    "heap.free" (heap.free) simulator.bindproc
+    simulator.run
 
     quit
   end

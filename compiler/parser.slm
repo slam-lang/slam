@@ -176,6 +176,12 @@ class parser
     start swap put disc
     msg swap put disc
 
+    parser.running read parser.idx .
+    copy read 2 - put disc
+
+    parser.running read
+    parser.advance disc
+
     parser.running read parser.tokens @
     start read dlist.getptr copy NULL == if
       disc parser.running read parser.current .

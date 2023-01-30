@@ -2,7 +2,8 @@ inc "compiler/filepos.slh"
 
 class filepos
   oper proc print 1 0
-    copy NULL == if disc ret end
+    copy filepos.filename @
+    NULL == if disc ret end
       
     "<" cstr.print
     copy filepos.row @ int.print
