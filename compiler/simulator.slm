@@ -272,6 +272,8 @@ class simulator
     var node 8
     var str 8
 
+    var nsize 8
+
     str swap put disc
     nodep swap put disc
 
@@ -315,12 +317,38 @@ class simulator
 
       ret
     end
+    copy BNK_DO == if
+      disc
+
+      nsize blockstr read str.size @ 10 + -1 * put disc
+
+      str read
+
+      blockstr read str.cat
+
+      simasm.RAX simasm.addpopreg
+
+      {test rax, rax}
+      72 simasm.appendch
+      133 simasm.appendch
+      192 simasm.appendch
+
+      {jnz [start]}
+      15 simasm.appendch
+      133 simasm.appendch
+      nsize 0 + readc simasm.appendch
+      nsize 1 + readc simasm.appendch
+      nsize 2 + readc simasm.appendch
+      nsize 3 + readc simasm.appendch
+
+      ret
+    end
     disc
 
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNIMP
-    "Block kind not implemented"
+    "Block kind not implemented for simulator"
 
     error.new
     error.eval
@@ -507,6 +535,28 @@ class simulator
       simasm.RBX simasm.addpopreg
       simasm.RAX simasm.addpopreg
       simasm.OP_ADD simasm.addop
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy INK_AND == if
+      disc
+
+      str read
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpopreg
+      simasm.OP_AND simasm.addop
+      simasm.RAX simasm.addpushreg
+
+      ret
+    end
+    copy INK_OR == if
+      disc
+
+      str read
+      simasm.RBX simasm.addpopreg
+      simasm.RAX simasm.addpopreg
+      simasm.OP_OR simasm.addop
       simasm.RAX simasm.addpushreg
 
       ret

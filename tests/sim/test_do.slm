@@ -1,0 +1,9 @@
+proc main 0 1
+  10
+  do
+    1 -
+    copy
+  end
+
+  ret
+end
