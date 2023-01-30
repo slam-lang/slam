@@ -1,0 +1,27 @@
+inc "testin.slm"
+
+enum
+10h SIXTEEN
+    SEVENTEEN
+
+20h THIRTYTWO
+    THIRTYTHREE
+end
+
+proc test_enum 0 0
+  "enum" testin.suite
+
+  "hex values" testin.test :
+    SIXTEEN 16 testin.eq
+    SEVENTEEN 17 testin.eq
+
+    ret
+  end
+
+  "hex values more" testin.test :
+    THIRTYTWO 32 testin.eq
+    THIRTYTHREE 33 testin.eq
+
+    ret
+  end
+end

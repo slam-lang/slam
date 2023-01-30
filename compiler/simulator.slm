@@ -552,7 +552,8 @@ class simulator
     ret
   end
 
-  unsafe oper proc callthing 2 0
+  {TODO: Comment}
+  unsafe oper proc callexternal 2 0
     var word 8
     var rets 8
 
@@ -564,15 +565,14 @@ class simulator
     simulator.runprocname
 
     rets read 2 +
-    asm "pop rbx"
-    asm "jmp rbx"
+    asm "pop rax"
+    asm "jmp rax"
 
     "Unreachable" cstr.println
     0 quit
   end
 
   unsafe oper proc callinternal 2 0
-    var word 8
     var rets 8
 
     rets swap put disc
@@ -580,8 +580,8 @@ class simulator
     ()
 
     rets read 2 +
-    asm "pop rbx"
-    asm "jmp rbx"
+    asm "pop rax"
+    asm "jmp rax"
 
     "Unreachable" cstr.println
     0 quit
@@ -623,7 +623,7 @@ class simulator
       str read
       node read constdata.constvalue @ str.data . simasm.addsetrax
       simasm.RAX simasm.addpushreg
-      (simulator.callthing)
+      (simulator.callexternal)
       simasm.addsetrax
       232 simasm.appendch
       0 simasm.appendch

@@ -3,6 +3,7 @@ inc "./tests/asm/test_classes.slm"
 inc "./tests/asm/test_cstr.slm"
 inc "./tests/asm/test_dlist.slm"
 inc "./tests/asm/test_llist.slm"
+inc "./tests/asm/test_enum.slm"
 
 inc "./tests/sim/test_sim.slm"
 
@@ -14,6 +15,7 @@ proc main 0 0
   test_cstr
   test_dlist
   test_llist
+  test_enum
 
   "Simulator Tests" testin.suite
 

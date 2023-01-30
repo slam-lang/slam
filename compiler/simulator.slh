@@ -43,7 +43,7 @@ class simulator
 
   head oper proc new 1 1
   head oper proc free 1 0
-  head oper proc bind 3 1
+  head oper proc bindproc 3 1
 
   head oper proc run 1 0
   head oper proc runprocname 2 1
