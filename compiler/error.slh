@@ -12,6 +12,7 @@ class error
       EK_BADBLOCK
 
       EK_SIMBIND
+      EK_SIMMEMORY
   end
 
   prop kind 1

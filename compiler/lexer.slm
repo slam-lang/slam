@@ -60,6 +60,8 @@ class lexer
 
     result read lexer.word . str.new put disc
 
+    incpath read str.free
+
     result read
 
     ret

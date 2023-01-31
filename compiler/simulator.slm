@@ -74,6 +74,8 @@ class simasm
     asm "pop rax"
     asm "push callc_stop"
     simasm.addsetrax
+
+    {jmp rax}
     255 simasm.appendch
     224 simasm.appendch
 
@@ -247,15 +249,20 @@ class simulator
       sys6
       simproc read simproc.buff . covr put disc
       0 < if
-        "Cannot map memory" cstr.println
+        NULL NULL
+        error.EK_SIMMEMORY
+        "Cannot map memory"
 
-        1 quit
+        error.new
+        error.eval
       end
 
       simproc read simproc.buff @
       simproc read simproc.execstr @ str.data .
       simproc read simproc.execstr @ str.len
       mem.cpy
+
+      simproc read simproc.execstr @ str.free
     end
 
     simproc read simproc.buff @
@@ -617,9 +624,6 @@ class simulator
     rets read 2 +
     asm "pop rax"
     asm "jmp rax"
-
-    "Unreachable" cstr.println
-    0 quit
   end
 
   unsafe oper proc callinternal 2 0
@@ -632,9 +636,6 @@ class simulator
     rets read 2 +
     asm "pop rax"
     asm "jmp rax"
-
-    "Unreachable" cstr.println
-    0 quit
   end
 
   oper proc asmconst 2 1

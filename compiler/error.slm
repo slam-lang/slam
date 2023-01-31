@@ -37,7 +37,8 @@ class error
     covr error.EK_UNIMP == if disc disc "Not Implelemted Error" ret end
     covr error.EK_UNDEFINED == if disc disc "Not Defined Error" ret end
     covr error.EK_BADBLOCK == if disc disc "Bad Block Error" ret end
-    covr error.EK_SIMBIND == if disc disc "Binding Error" ret end
+    covr error.EK_SIMBIND == if disc disc "Simulator Binding Error" ret end
+    covr error.EK_SIMMEMORY == if disc disc "No Memory Error" ret end
     swap disc
 
     ret
