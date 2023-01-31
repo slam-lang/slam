@@ -121,6 +121,19 @@ class simulator
 
     self swap put disc
 
+    {
+    TODO: free buffs
+    self read simulator.procs @ map.foreach :
+      copy cstr.print
+      128 + simproc.execstr @
+      copy NULL != if
+        copy str.free
+      end
+
+      ret
+    end
+    }
+
     self read simulator.nodes @ slmnode.free
     self read simulator.procs @ map.free
     self read heap.free
@@ -263,6 +276,9 @@ class simulator
       mem.cpy
 
       simproc read simproc.execstr @ str.free
+      simproc read simproc.execstr .
+      NULL
+      put disc
     end
 
     simproc read simproc.buff @
@@ -322,6 +338,8 @@ class simulator
 
       blockstr read str.cat
 
+      blockstr read str.free
+
       ret
     end
     copy BNK_DO == if
@@ -347,6 +365,8 @@ class simulator
       nsize 1 + readc simasm.appendch
       nsize 2 + readc simasm.appendch
       nsize 3 + readc simasm.appendch
+
+      blockstr read str.free
 
       ret
     end
@@ -624,6 +644,8 @@ class simulator
     rets read 2 +
     asm "pop rax"
     asm "jmp rax"
+
+    ret
   end
 
   unsafe oper proc callinternal 2 0
@@ -636,6 +658,8 @@ class simulator
     rets read 2 +
     asm "pop rax"
     asm "jmp rax"
+
+    ret
   end
 
   oper proc asmconst 2 1
@@ -786,7 +810,6 @@ class simulator
       node read blockdata.childcount @ covr >
     end
     disc
-
 
     result read simproc.execstr @
     simasm.stop

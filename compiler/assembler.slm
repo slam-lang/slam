@@ -609,7 +609,7 @@ class assembler
     nodep read slmnode.start .
     nodep read slmnode.stop .
     error.EK_UNDEFINED
-    "Unreachable assembler.visitword"
+    "Unreachable assembler.visitconst"
 
     error.new
     error.eval
@@ -1030,6 +1030,8 @@ class assembler
       self read assembler.procout @ !=
       self read assembler.procout @ 255 != &&
       if
+        self read assembler.procout @ int.print cstr.cr
+
         nodep read slmnode.start .
         nodep read slmnode.stop .
         error.EK_BADBLOCK
@@ -1678,6 +1680,7 @@ class assembler
 
     node read blockdata.blockkind @
     copy BNK_SIM == if
+
       nodep read slmnode.start .
       nodep read slmnode.stop .
       error.EK_UNIMP
@@ -1780,7 +1783,7 @@ class assembler
       put disc
 
       self read assembler.procout .
-      self read assembler.depth @
+      255
       put disc
     end
     disc
@@ -1855,6 +1858,9 @@ class assembler
       "\n" writer.write
     end
     copy BNK_PLAMBDA == if
+      self read assembler.depth .
+      olddepth read
+      put disc
       self read assembler.procout .
       oldprocout read
       put disc
@@ -1873,7 +1879,7 @@ class assembler
       nodep read slmnode.start .
       nodep read slmnode.stop .
       CNK_WORD
-      node read blockdata.blockname @
+      node read blockdata.blockname @ str.dup swap disc
       constdata.new
       slmnode.new
       put disc

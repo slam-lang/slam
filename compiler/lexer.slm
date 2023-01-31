@@ -126,7 +126,7 @@ class lexer
     covr '"' == ||
     covr '`' == ||
     covr '(' == ||
-    covr '{' == ||
+    covr '\{' == ||
     swap disc !
     if bool.false ret end
 
@@ -149,7 +149,7 @@ class lexer
     self read lexer.word @ copy str.data . swap str.size @ + 2 - readc ')' == &&
     if bool.false ret end
     
-    self read lexer.word @ str.data . readc '{' ==
+    self read lexer.word @ str.data . readc '\{' ==
     self read lexer.word @ copy str.data . swap str.size @ + 2 - readc '}' == &&
     if bool.false ret end
 
@@ -259,7 +259,7 @@ class lexer
     end
 
     word read str.data . readc
-    copy '{' == if
+    copy '\{' == if
       disc
       self read lexer.token . slmtoken.type . STK_COMMENT put disc
       self read word read

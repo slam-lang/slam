@@ -115,6 +115,14 @@ oper proc main 0 0
   end
   disc
 
+  mode readc
+  COMP_SIM ==
+  input readc 0 == && if
+    "console" cstr.println
+
+    0 quit
+  end
+
   input
   bool.false
   lexer.new lexer.run

@@ -22,8 +22,6 @@ class parserresult
       end
       other read parserresult.node @
 
-      other read heap.free
-
       ret
     end
 

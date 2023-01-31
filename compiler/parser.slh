@@ -32,8 +32,8 @@ class parser
   head oper proc subintr 2 1
   head oper proc asserttype 1 1
   head oper proc inblock 1 1
-
   head oper proc setuperr 2 1
+  head oper proc dupcurrent 0 0
 
   head oper proc parseintr 0 1
   head oper proc parsenum 0 1
