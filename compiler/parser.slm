@@ -80,7 +80,6 @@ class parser
   end
 
   oper proc free 1 0
-    {
     copy parser.tokens @ dlist.foreach :
       slmtoken.value @ copy NULL != if
         copy str.free
@@ -89,7 +88,6 @@ class parser
 
       ret
     end
-    }
 
     copy parser.tokens @ dlist.free
     heap.free

@@ -122,26 +122,6 @@ proc_cstr_print:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-proc_cstr_cr:
-    push qword 1
-    push str_0
-    push qword 1
-    push qword 1
-    pop rax
-    pop rdi
-    pop rsi
-    pop rdx
-    syscall
-    push rax
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
 proc_cstr_println:
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
@@ -161,6 +141,26 @@ proc_cstr_println:
     mov qword [rax], .blockend_1
     jmp proc_cstr_cr
 .blockend_1: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_cstr_cr:
+    push qword 1
+    push str_0
+    push qword 1
+    push qword 1
+    pop rax
+    pop rdi
+    pop rsi
+    pop rdx
+    syscall
+    push rax
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -3241,7 +3241,7 @@ proc_heap_newpage:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 640000
+    push qword 64000
     pop rax
     pop rbx
     add rax, rbx
@@ -3477,6 +3477,145 @@ proc_heap_empty:
 .blockend_1: ; do
     add rsp, 8
     push qword 1
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_heap_total:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    push mem+64; heap_isinit
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_0: ; if
+    jz .blockend_0
+    push qword 0
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_0: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    push qword 0
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push mem+40; heap_startaddr
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 64
+    pop rbx
+    pop rax
+    sub rax, rbx
+    push rax
+.blockstart_1: ; do
+    push qword 64
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    push rax
+    push rax
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_heapentry_isentry
+.blockend_2: ; call
+    pop rbx
+    test rbx, rbx
+.blockstart_3: ; if
+    jz .blockend_3
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    push qword 9
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+.blockend_3: ; if
+    pop rax
+    push rax
+    push rax
+    push mem+56; heap_endaddr
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    xor rcx, rcx
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovl rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_1
+.blockend_1: ; do
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -4321,10 +4460,22 @@ proc_str_cat:
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
     pop rax
     pop rbx
     push rax
     push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -4338,9 +4489,13 @@ proc_str_cat:
     mov qword [rax], rbx
     push rax
     add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
     pop rax
-    push rax
-    push rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -4396,9 +4551,13 @@ proc_str_cat:
     test rbx, rbx
 .blockstart_2: ; if
     jz .blockend_2
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
     pop rax
-    push rax
-    push rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -4491,9 +4650,6 @@ proc_str_cat:
     push rax
     add rsp, 8
 .blockend_2: ; if
-    pop rax
-    push rax
-    push rax
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -4510,13 +4666,25 @@ proc_str_cat:
     mov qword [rax], .blockend_6
     jmp proc_str_endaddr
 .blockend_6: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
     pop rax
     pop rbx
+    add rax, rbx
     push rax
-    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
     pop rax
-    push rax
-    push rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -4524,11 +4692,8 @@ proc_str_cat:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_heap_free
+    jmp proc_str_len
 .blockend_7: ; call
-    pop rax
-    push rax
-    push rax
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -4536,59 +4701,8 @@ proc_str_cat:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_str_len
-.blockend_8: ; call
-    pop rax
-    pop rbx
-    push rax
-    push rbx
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    pop rax
-    pop rbx
-    push rax
-    push rbx
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
     jmp proc_mem_cpy
-.blockend_9: ; call
-.blockstart_10: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
-    jmp proc_str_len
-.blockend_10: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_str_len
-.blockend_11: ; call
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -4601,10 +4715,42 @@ proc_str_cat:
     pop rbx
     add rax, rbx
     push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_str_len
+.blockend_9: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_str_len
+.blockend_10: ; call
     pop rax
     pop rbx
+    add rax, rbx
     push rax
-    push rbx
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -5243,6 +5389,112 @@ proc_str_ceq:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
+proc_str_dup:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_str_new
+.blockend_0: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_str_cat
+.blockend_1: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 0
+    pop rbx
+    pop rax
+    mov byte [rax], bl
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
 proc_int_gettmp:
     push mem+8; int_tmpresult
     push qword 30
@@ -5753,6 +6005,12 @@ proc_filepos_print:
     pop rax
     push rax
     push rax
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
     push qword 0
     xor rcx, rcx
     mov rdx, 1
@@ -8137,8 +8395,6 @@ proc_dlist_len:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     mov rax, [ret_stack_rsp]
@@ -8181,8 +8437,6 @@ proc_dlist_getptr:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     pop rax
@@ -8226,8 +8480,6 @@ proc_dlist_getptr:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     pop rax
@@ -8286,8 +8538,6 @@ proc_dlist_pop:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 0
@@ -8337,8 +8587,6 @@ proc_dlist_pop:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 1
@@ -8428,8 +8676,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 1
@@ -8448,8 +8694,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     pop rax
@@ -8467,8 +8711,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     xor rcx, rcx
@@ -8496,8 +8738,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     mov rax, [ret_stack_rsp]
@@ -8511,8 +8751,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 16
@@ -8585,8 +8823,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     mov rax, [ret_stack_rsp]
@@ -8600,8 +8836,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 16
@@ -8630,8 +8864,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     mov rax, [ret_stack_rsp]
@@ -8645,8 +8877,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     pop rax
@@ -8684,8 +8914,6 @@ proc_dlist_append:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
 .blockstart_2: ; call
@@ -8751,8 +8979,6 @@ proc_dlist_last:
     pop rax
     pop rbx
     add rax, rbx
-    push rax
-    pop rax
     mov rbx, [rax]
     push rbx
     push qword 1
@@ -8777,6 +9003,160 @@ proc_dlist_last:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
+proc_dlist_foreach:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_dlist_len
+.blockend_0: ; call
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_1: ; if
+    jz .blockend_1
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_1: ; if
+    push qword 0
+.blockstart_2: ; do
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_dlist_getptr
+.blockend_3: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_4: ; call
+    pop rcx
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp qword rcx
+.blockend_4: ; call
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    push rax
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_5: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_5
+    jmp proc_dlist_len
+.blockend_5: ; call
+    xor rcx, rcx
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovl rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_2
+.blockend_2: ; do
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
 ; headlexer_new:
 ; headlexer_free:
 ; headlexer_advance:
@@ -8791,21 +9171,16 @@ proc_lexer_new:
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
-    push str_91
-.blockstart_0: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
-    jmp proc_cstr_print
-.blockend_0: ; call
+    push mem+65; lexer_print
     pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
     pop rbx
-    push rbx
-    push rax
-    push rbx
+    test rbx, rbx
+.blockstart_0: ; if
+    jz .blockend_0
+    push str_91
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -8813,12 +9188,13 @@ proc_lexer_new:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_1
-    jmp proc_cstr_println
+    jmp proc_cstr_print
 .blockend_1: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
+    pop rax
+    pop rbx
+    push rbx
     push rax
+    push rbx
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -8826,8 +9202,22 @@ proc_lexer_new:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_2
-    jmp proc_str_new
+    jmp proc_cstr_println
 .blockend_2: ; call
+.blockend_0: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_str_new
+.blockend_3: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -8840,15 +9230,15 @@ proc_lexer_new:
     push rbx
     push str_92
     push qword 2
-.blockstart_3: ; call
+.blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_3
+    mov qword [rax], .blockend_4
     jmp proc_mem_eq
-.blockend_3: ; call
+.blockend_4: ; call
     pop rax
     xor rax, 1
     push rax
@@ -8858,8 +9248,8 @@ proc_lexer_new:
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_4: ; if
-    jz .blockend_4
+.blockstart_5: ; if
+    jz .blockend_5
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 8
@@ -8868,15 +9258,6 @@ proc_lexer_new:
     mov rbx, [rax]
     push rbx
     push str_93
-.blockstart_5: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
-    jmp proc_os_env
-.blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -8884,9 +9265,8 @@ proc_lexer_new:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_str_catc
+    jmp proc_os_env
 .blockend_6: ; call
-    push str_94
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -8896,6 +9276,16 @@ proc_lexer_new:
     mov qword [rax], .blockend_7
     jmp proc_str_catc
 .blockend_7: ; call
+    push str_94
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_str_catc
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 8
@@ -8909,25 +9299,25 @@ proc_lexer_new:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-.blockend_4: ; if
+.blockend_5: ; if
     pop rax
     push rax
     push rax
     push str_95
     push qword 2
-.blockstart_8: ; call
+.blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_8
+    mov qword [rax], .blockend_9
     jmp proc_mem_eq
-.blockend_8: ; call
+.blockend_9: ; call
     pop rbx
     test rbx, rbx
-.blockstart_9: ; if
-    jz .blockend_9
+.blockstart_10: ; if
+    jz .blockend_10
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 8
@@ -8936,15 +9326,6 @@ proc_lexer_new:
     mov rbx, [rax]
     push rbx
     push str_96
-.blockstart_10: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
-    jmp proc_os_env
-.blockend_10: ; call
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -8952,38 +9333,8 @@ proc_lexer_new:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_11
-    jmp proc_str_catc
+    jmp proc_os_env
 .blockend_11: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    pop rbx
-    push rax
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 1
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-.blockend_9: ; if
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    pop rax
-    pop rbx
-    push rax
-    push rbx
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -9006,11 +9357,23 @@ proc_lexer_new:
     mov qword [rax], rbx
     push rax
     add rsp, 8
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+.blockend_10: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
-    add rax, 0
+    add rax, 8
     push rax
-    push qword 170
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rax
+    push rbx
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -9018,8 +9381,35 @@ proc_lexer_new:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_13
-    jmp proc_heap_zalloc
+    jmp proc_str_catc
 .blockend_13: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    push qword 170
+.blockstart_14: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_14
+    jmp proc_heap_zalloc
+.blockend_14: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -9063,15 +9453,15 @@ proc_lexer_new:
     mov byte [rax], bl
     push rax
     add rsp, 8
-.blockstart_14: ; call
+.blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
+    mov qword [rax], .blockend_15
     jmp proc_filestream_new
-.blockend_14: ; call
+.blockend_15: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -9249,20 +9639,36 @@ proc_lexer_new:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_15: ; call
+.blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
+    mov qword [rax], .blockend_16
     jmp proc_str_new
-.blockend_15: ; call
+.blockend_16: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_17: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_17
+    jmp proc_str_free
+.blockend_17: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -9500,6 +9906,60 @@ proc_lexer_advance:
     add rsp, 8
     push qword 10
 .blockend_4: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 116
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_5: ; if
+    jz .blockend_5
+    add rsp, 8
+    push qword 11
+.blockend_5: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 114
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_6: ; if
+    jz .blockend_6
+    add rsp, 8
+    push qword 13
+.blockend_6: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 101
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_7: ; if
+    jz .blockend_7
+    add rsp, 8
+    push qword 27
+.blockend_7: ; if
 .blockend_2: ; if
     pop rbx
     pop rax
@@ -13650,16 +14110,44 @@ proc_error_new:
     pop rbx
     push rax
     push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_1: ; if
+    jz .blockend_1
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
     push qword 32
-.blockstart_1: ; call
+.blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_1
+    mov qword [rax], .blockend_2
     jmp proc_mem_cpy
-.blockend_1: ; call
+.blockend_2: ; call
+.blockend_1: ; if
+    add rsp, 8
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -13676,16 +14164,44 @@ proc_error_new:
     pop rbx
     push rax
     push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_3: ; if
+    jz .blockend_3
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
     push qword 32
-.blockstart_2: ; call
+.blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
+    mov qword [rax], .blockend_4
     jmp proc_mem_cpy
-.blockend_2: ; call
+.blockend_4: ; call
+.blockend_3: ; if
+    add rsp, 8
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -13888,6 +14404,64 @@ proc_error_name:
 .blockend_5: ; if
     pop rax
     pop rbx
+    push rbx
+    push rax
+    push rbx
+    push qword 6
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_6: ; if
+    jz .blockend_6
+    add rsp, 8
+    add rsp, 8
+    push str_161
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_6: ; if
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    push qword 7
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_7: ; if
+    jz .blockend_7
+    add rsp, 8
+    add rsp, 8
+    push str_162
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_7: ; if
+    pop rax
+    pop rbx
     push rax
     push rbx
     add rsp, 8
@@ -13941,7 +14515,7 @@ proc_error_eval:
     mov qword [rax], .blockend_1
     jmp proc_cstr_print
 .blockend_1: ; call
-    push str_161
+    push str_163
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -13982,16 +14556,6 @@ proc_error_eval:
     mov qword [rax], .blockend_4
     jmp proc_cstr_cr
 .blockend_4: ; call
-    push str_162
-.blockstart_5: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
-    jmp proc_cstr_print
-.blockend_5: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -14004,6 +14568,30 @@ proc_error_eval:
     pop rbx
     add rax, rbx
     push rax
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_5: ; if
+    jz .blockend_5
+    push qword 1
+    mov rax, 60
+    pop rdi
+    syscall
+.blockend_5: ; if
+    push str_164
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -14011,9 +14599,20 @@ proc_error_eval:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_filepos_print
+    jmp proc_cstr_print
 .blockend_6: ; call
-    push str_163
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -14021,8 +14620,18 @@ proc_error_eval:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_cstr_print
+    jmp proc_filepos_print
 .blockend_7: ; call
+    push str_165
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_cstr_print
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -14035,15 +14644,6 @@ proc_error_eval:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_8: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_8
-    jmp proc_filepos_print
-.blockend_8: ; call
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -14051,8 +14651,17 @@ proc_error_eval:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_9
-    jmp proc_cstr_cr
+    jmp proc_filepos_print
 .blockend_9: ; call
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_cstr_cr
+.blockend_10: ; call
     push qword 1
     mov rax, 60
     pop rdi
@@ -15034,6 +15643,15 @@ proc_calldata_new:
     add rax, 16
     jmp qword [rax]
 proc_calldata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15041,8 +15659,17 @@ proc_calldata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_free
+.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -15052,7 +15679,7 @@ proc_calldata_free:
     add rax, 16
     jmp qword [rax]
 proc_calldata_print:
-    push str_164
+    push str_166
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15077,7 +15704,7 @@ proc_calldata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_165
+    push str_167
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15173,6 +15800,15 @@ proc_asmdata_new:
     add rax, 16
     jmp qword [rax]
 proc_asmdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15180,8 +15816,17 @@ proc_asmdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_free
+.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -15191,7 +15836,7 @@ proc_asmdata_free:
     add rax, 16
     jmp qword [rax]
 proc_asmdata_print:
-    push str_166
+    push str_168
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15216,7 +15861,7 @@ proc_asmdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_167
+    push str_169
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15312,6 +15957,15 @@ proc_incdata_new:
     add rax, 16
     jmp qword [rax]
 proc_incdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15319,8 +15973,17 @@ proc_incdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_free
+.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -15330,7 +15993,7 @@ proc_incdata_free:
     add rax, 16
     jmp qword [rax]
 proc_incdata_print:
-    push str_168
+    push str_170
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15355,7 +16018,7 @@ proc_incdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_169
+    push str_171
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15451,6 +16114,15 @@ proc_ofdata_new:
     add rax, 16
     jmp qword [rax]
 proc_ofdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15458,8 +16130,17 @@ proc_ofdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_free
+.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -15469,7 +16150,7 @@ proc_ofdata_free:
     add rax, 16
     jmp qword [rax]
 proc_ofdata_print:
-    push str_170
+    push str_172
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15494,7 +16175,7 @@ proc_ofdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_171
+    push str_173
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15587,7 +16268,7 @@ proc_commentdata_free:
     add rax, 16
     jmp qword [rax]
 proc_commentdata_print:
-    push str_172
+    push str_174
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15702,7 +16383,7 @@ proc_intrdata_free:
     add rax, 16
     jmp qword [rax]
 proc_intrdata_print:
-    push str_173
+    push str_175
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15727,7 +16408,7 @@ proc_intrdata_print:
     mov qword [rax], .blockend_1
     jmp proc_int_print
 .blockend_1: ; call
-    push str_174
+    push str_176
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15865,6 +16546,15 @@ proc_vardata_new:
     add rax, 16
     jmp qword [rax]
 proc_vardata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15872,8 +16562,35 @@ proc_vardata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+    pop rax
+    push rax
+    push rax
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_str_free
+.blockend_1: ; call
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_heap_free
+.blockend_2: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -15883,7 +16600,7 @@ proc_vardata_free:
     add rax, 16
     jmp qword [rax]
 proc_vardata_print:
-    push str_175
+    push str_177
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15911,7 +16628,7 @@ proc_vardata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_176
+    push str_178
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -15939,7 +16656,7 @@ proc_vardata_print:
     mov qword [rax], .blockend_3
     jmp proc_str_print
 .blockend_3: ; call
-    push str_177
+    push str_179
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16078,6 +16795,15 @@ proc_defdata_new:
     add rax, 16
     jmp qword [rax]
 proc_defdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16085,8 +16811,35 @@ proc_defdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+    pop rax
+    push rax
+    push rax
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_str_free
+.blockend_1: ; call
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_heap_free
+.blockend_2: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -16096,7 +16849,7 @@ proc_defdata_free:
     add rax, 16
     jmp qword [rax]
 proc_defdata_print:
-    push str_178
+    push str_180
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16124,7 +16877,7 @@ proc_defdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_179
+    push str_181
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16152,7 +16905,7 @@ proc_defdata_print:
     mov qword [rax], .blockend_3
     jmp proc_str_print
 .blockend_3: ; call
-    push str_180
+    push str_182
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16291,6 +17044,15 @@ proc_propdata_new:
     add rax, 16
     jmp qword [rax]
 proc_propdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16298,8 +17060,35 @@ proc_propdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+    pop rax
+    push rax
+    push rax
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_str_free
+.blockend_1: ; call
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_heap_free
+.blockend_2: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -16309,7 +17098,7 @@ proc_propdata_free:
     add rax, 16
     jmp qword [rax]
 proc_propdata_print:
-    push str_181
+    push str_183
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16337,7 +17126,7 @@ proc_propdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_182
+    push str_184
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16365,7 +17154,7 @@ proc_propdata_print:
     mov qword [rax], .blockend_3
     jmp proc_str_print
 .blockend_3: ; call
-    push str_183
+    push str_185
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16483,6 +17272,15 @@ proc_constdata_new:
     add rax, 16
     jmp qword [rax]
 proc_constdata_free:
+    pop rax
+    push rax
+    push rax
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16490,8 +17288,17 @@ proc_constdata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_free
+.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -16501,7 +17308,7 @@ proc_constdata_free:
     add rax, 16
     jmp qword [rax]
 proc_constdata_print:
-    push str_184
+    push str_186
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16529,7 +17336,7 @@ proc_constdata_print:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_185
+    push str_187
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16557,7 +17364,7 @@ proc_constdata_print:
     mov qword [rax], .blockend_3
     jmp proc_int_print
 .blockend_3: ; call
-    push str_186
+    push str_188
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16672,6 +17479,35 @@ proc_filedata_new:
     add rax, 16
     jmp qword [rax]
 proc_filedata_free:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16679,8 +17515,121 @@ proc_filedata_free:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_heap_free
+    jmp proc_str_free
 .blockend_0: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_1: ; if
+    jz .blockend_1
+    push qword 0
+.blockstart_2: ; do
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    imul rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_slmnode_free
+.blockend_3: ; call
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    push rax
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    xor rcx, rcx
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovl rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_2
+.blockend_2: ; do
+    add rsp, 8
+.blockend_1: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_4: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp proc_heap_free
+.blockend_4: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -16706,7 +17655,7 @@ proc_filedata_print:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_187
+    push str_189
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -16821,7 +17770,7 @@ proc_filedata_print:
     jnz .blockstart_2
 .blockend_2: ; do
     add rsp, 8
-    push str_188
+    push str_190
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -17183,15 +18132,261 @@ proc_blockdata_new:
     add rax, 16
     jmp qword [rax]
 proc_blockdata_free:
-.blockstart_0: ; call
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 48
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_0: ; if
+    jz .blockend_0
+    push qword 0
+.blockstart_1: ; do
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    imul rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 56
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
+    mov qword [rax], .blockend_2
+    jmp proc_slmnode_free
+.blockend_2: ; call
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    push rax
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 48
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    xor rcx, rcx
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovl rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_1
+.blockend_1: ; do
+    add rsp, 8
+.blockend_0: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_3: ; if
+    jz .blockend_3
+    pop rax
+    push rax
+    push rax
+.blockstart_4: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp proc_str_free
+.blockend_4: ; call
+.blockend_3: ; if
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_5: ; if
+    jz .blockend_5
+    pop rax
+    push rax
+    push rax
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_str_free
+.blockend_6: ; call
+.blockend_5: ; if
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 32
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_7: ; if
+    jz .blockend_7
+    pop rax
+    push rax
+    push rax
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_str_free
+.blockend_8: ; call
+.blockend_7: ; if
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
     jmp proc_heap_free
-.blockend_0: ; call
+.blockend_9: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -17217,7 +18412,7 @@ proc_blockdata_print:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_189
+    push str_191
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -17264,7 +18459,7 @@ proc_blockdata_print:
     test rbx, rbx
 .blockstart_2: ; if
     jz .blockend_2
-    push str_190
+    push str_192
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -17283,7 +18478,7 @@ proc_blockdata_print:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push str_191
+    push str_193
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -17364,7 +18559,7 @@ proc_blockdata_print:
     jnz .blockstart_5
 .blockend_5: ; do
     add rsp, 8
-    push str_192
+    push str_194
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -17729,6 +18924,7 @@ proc_slmnode_print:
 ; headparser_asserttype:
 ; headparser_inblock:
 ; headparser_setuperr:
+; headparser_dupcurrent:
 ; headparser_parseintr:
 ; headparser_parsenum:
 ; headparser_parsestring:
@@ -17921,6 +19117,22 @@ proc_parserresult_register:
     add rax, rbx
     mov rbx, [rax]
     push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_4: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp proc_heap_free
+.blockend_4: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -18392,7 +19604,16 @@ proc_parser_advance:
     add rax, 16
     jmp qword [rax]
 proc_parser_run:
-    push str_193
+    push mem+66; parser_running
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18400,7 +19621,7 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_cstr_print
+    jmp proc_parser_parsefile
 .blockend_0: ; call
     pop rax
     push rax
@@ -18411,15 +19632,27 @@ proc_parser_run:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_1: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_1
-    jmp proc_dlist_len
-.blockend_1: ; call
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_1: ; if
+    jz .blockend_1
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18427,8 +19660,22 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_2
-    jmp proc_int_cstr
+    jmp proc_error_eval
 .blockend_2: ; call
+.blockend_1: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rax
+    push rbx
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18436,9 +19683,12 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_3
-    jmp proc_cstr_print
+    jmp proc_heap_free
 .blockend_3: ; call
-    push str_194
+    push mem+66; parser_running
+    pop rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18446,31 +19696,14 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_4
-    jmp proc_cstr_println
+    jmp proc_parser_advance
 .blockend_4: ; call
-    push mem+65; parser_running
-    pop rax
-    pop rbx
-    push rax
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
     add rsp, 8
-.blockstart_5: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
-    jmp proc_parser_parsefile
-.blockend_5: ; call
+    push mem+66; parser_running
     pop rax
-    push rax
-    push rax
-    push qword 0
+    mov rbx, [rax]
+    push rbx
+    push qword 8
     pop rax
     pop rbx
     add rax, rbx
@@ -18486,17 +19719,28 @@ proc_parser_run:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_6: ; if
-    jz .blockend_6
+.blockstart_5: ; if
+    jz .blockend_5
+    push mem+66; parser_running
     pop rax
-    push rax
-    push rax
-    push qword 0
+    mov rbx, [rax]
+    push rbx
+    push qword 8
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_slmtoken_print
+.blockend_6: ; call
+    add rsp, 8
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18504,21 +19748,16 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_error_eval
+    jmp proc_cstr_cr
 .blockend_7: ; call
-.blockend_6: ; if
+    push qword 1
+    mov rax, 60
+    pop rdi
+    syscall
+.blockend_5: ; if
+    push mem+66; parser_running
     pop rax
-    push rax
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
     mov rbx, [rax]
-    push rbx
-    pop rax
-    pop rbx
-    push rax
     push rbx
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
@@ -18527,91 +19766,8 @@ proc_parser_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_heap_free
-.blockend_8: ; call
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
-    jmp proc_parser_advance
-.blockend_9: ; call
-    add rsp, 8
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmovne rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_10: ; if
-    jz .blockend_10
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_slmtoken_print
-.blockend_11: ; call
-    add rsp, 8
-.blockstart_12: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
-    jmp proc_cstr_cr
-.blockend_12: ; call
-    push qword 1
-    mov rax, 60
-    pop rdi
-    syscall
-.blockend_10: ; if
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_13: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_13
     jmp proc_parser_free
-.blockend_13: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -18644,7 +19800,7 @@ proc_parser_runinside:
     add rax, 16
     jmp qword [rax]
 proc_parser_subintr:
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18671,7 +19827,7 @@ proc_parser_subintr:
     test rbx, rbx
 .blockstart_0: ; if
     jz .blockend_0
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18690,7 +19846,7 @@ proc_parser_subintr:
     pop rbx
     push rax
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18747,7 +19903,7 @@ proc_parser_subintr:
     add rax, 16
     jmp qword [rax]
 proc_parser_asserttype:
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18761,7 +19917,7 @@ proc_parser_asserttype:
     jmp proc_parser_advance
 .blockend_0: ; call
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18794,7 +19950,7 @@ proc_parser_asserttype:
     add rax, 16
     jmp qword [rax]
 .blockend_1: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18858,7 +20014,46 @@ proc_parser_setuperr:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    push rax
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 2
+    pop rbx
+    pop rax
+    sub rax, rbx
+    push rax
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push mem+66; parser_running
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_parser_advance
+.blockend_0: ; call
+    add rsp, 8
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18875,15 +20070,15 @@ proc_parser_setuperr:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_0: ; call
+.blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
+    mov qword [rax], .blockend_1
     jmp proc_dlist_getptr
-.blockend_0: ; call
+.blockend_1: ; call
     pop rax
     push rax
     push rax
@@ -18897,10 +20092,10 @@ proc_parser_setuperr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_1: ; if
-    jz .blockend_1
+.blockstart_2: ; if
+    jz .blockend_2
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18909,7 +20104,7 @@ proc_parser_setuperr:
     pop rbx
     add rax, rbx
     push rax
-.blockend_1: ; if
+.blockend_2: ; if
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18918,7 +20113,7 @@ proc_parser_setuperr:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -18941,6 +20136,88 @@ proc_parser_setuperr:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_error_new
+.blockend_3: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_parser_dupcurrent:
+    push mem+66; parser_running
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_0: ; if
+    jz .blockend_0
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_0: ; if
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_1: ; if
+    jz .blockend_1
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_1: ; if
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -18948,8 +20225,13 @@ proc_parser_setuperr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_2
-    jmp proc_error_new
+    jmp proc_str_dup
 .blockend_2: ; call
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -18988,7 +20270,7 @@ proc_parser_parseintr:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -19003,7 +20285,7 @@ proc_parser_parseintr:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -19017,7 +20299,7 @@ proc_parser_parseintr:
     jmp proc_parser_advance
 .blockend_1: ; call
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21015,7 +22297,7 @@ proc_parser_parseintr:
     jmp qword [rax]
 .blockend_106: ; if
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21081,7 +22363,7 @@ proc_parser_parsenum:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21120,7 +22402,7 @@ proc_parser_parsenum:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21150,7 +22432,7 @@ proc_parser_parsenum:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21199,7 +22481,7 @@ proc_parser_parsenum:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21215,22 +22497,6 @@ proc_parser_parsenum:
     add rax, rbx
     push rax
     push qword 0
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -21238,7 +22504,7 @@ proc_parser_parsenum:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_constdata_new
+    jmp proc_parser_dupcurrent
 .blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
@@ -21247,8 +22513,17 @@ proc_parser_parsenum:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_slmnode_new
+    jmp proc_constdata_new
 .blockend_6: ; call
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_slmnode_new
+.blockend_7: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -21260,15 +22535,15 @@ proc_parser_parsenum:
     pop rbx
     push rax
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_parserresult_success
-.blockend_7: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -21307,7 +22582,7 @@ proc_parser_parsestring:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21346,7 +22621,7 @@ proc_parser_parsestring:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21376,7 +22651,7 @@ proc_parser_parsestring:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21425,7 +22700,7 @@ proc_parser_parsestring:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21441,22 +22716,6 @@ proc_parser_parsestring:
     add rax, rbx
     push rax
     push qword 1
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -21464,7 +22723,7 @@ proc_parser_parsestring:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_constdata_new
+    jmp proc_parser_dupcurrent
 .blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
@@ -21473,8 +22732,17 @@ proc_parser_parsestring:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_slmnode_new
+    jmp proc_constdata_new
 .blockend_6: ; call
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_slmnode_new
+.blockend_7: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -21486,15 +22754,15 @@ proc_parser_parsestring:
     pop rbx
     push rax
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_parserresult_success
-.blockend_7: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -21533,7 +22801,7 @@ proc_parser_parsesstring:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21572,7 +22840,7 @@ proc_parser_parsesstring:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21602,7 +22870,7 @@ proc_parser_parsesstring:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21651,7 +22919,7 @@ proc_parser_parsesstring:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21667,22 +22935,6 @@ proc_parser_parsesstring:
     add rax, rbx
     push rax
     push qword 2
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -21690,7 +22942,7 @@ proc_parser_parsesstring:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_constdata_new
+    jmp proc_parser_dupcurrent
 .blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
@@ -21699,8 +22951,17 @@ proc_parser_parsesstring:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_slmnode_new
+    jmp proc_constdata_new
 .blockend_6: ; call
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_slmnode_new
+.blockend_7: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -21712,15 +22973,15 @@ proc_parser_parsesstring:
     pop rbx
     push rax
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_parserresult_success
-.blockend_7: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -21759,7 +23020,7 @@ proc_parser_parseword:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21798,7 +23059,7 @@ proc_parser_parseword:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21828,7 +23089,7 @@ proc_parser_parseword:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21877,7 +23138,7 @@ proc_parser_parseword:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -21893,22 +23154,6 @@ proc_parser_parseword:
     add rax, rbx
     push rax
     push qword 3
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -21916,7 +23161,7 @@ proc_parser_parseword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_constdata_new
+    jmp proc_parser_dupcurrent
 .blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
@@ -21925,8 +23170,17 @@ proc_parser_parseword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_slmnode_new
+    jmp proc_constdata_new
 .blockend_6: ; call
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_slmnode_new
+.blockend_7: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -21938,15 +23192,15 @@ proc_parser_parseword:
     pop rbx
     push rax
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_parserresult_success
-.blockend_7: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -21985,7 +23239,7 @@ proc_parser_parsecall:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22024,7 +23278,7 @@ proc_parser_parsecall:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22054,7 +23308,7 @@ proc_parser_parsecall:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22103,7 +23357,7 @@ proc_parser_parsecall:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22118,22 +23372,6 @@ proc_parser_parsecall:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -22141,7 +23379,7 @@ proc_parser_parsecall:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_calldata_new
+    jmp proc_parser_dupcurrent
 .blockend_5: ; call
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
@@ -22150,8 +23388,17 @@ proc_parser_parsecall:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_6
-    jmp proc_slmnode_new
+    jmp proc_calldata_new
 .blockend_6: ; call
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_slmnode_new
+.blockend_7: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -22163,15 +23410,15 @@ proc_parser_parsecall:
     pop rbx
     push rax
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_parserresult_success
-.blockend_7: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -22210,7 +23457,7 @@ proc_parser_parseinc:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22249,7 +23496,7 @@ proc_parser_parseinc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22329,7 +23576,7 @@ proc_parser_parseinc:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22359,7 +23606,7 @@ proc_parser_parseinc:
     add rax, 16
     jmp qword [rax]
 .blockend_4: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22408,7 +23655,7 @@ proc_parser_parseinc:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22423,22 +23670,6 @@ proc_parser_parseinc:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -22446,7 +23677,7 @@ proc_parser_parseinc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_9
-    jmp proc_incdata_new
+    jmp proc_parser_dupcurrent
 .blockend_9: ; call
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
@@ -22455,8 +23686,17 @@ proc_parser_parseinc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_slmnode_new
+    jmp proc_incdata_new
 .blockend_10: ; call
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_slmnode_new
+.blockend_11: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -22468,15 +23708,15 @@ proc_parser_parseinc:
     pop rbx
     push rax
     push rbx
-.blockstart_11: ; call
+.blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
+    mov qword [rax], .blockend_12
     jmp proc_parserresult_success
-.blockend_11: ; call
+.blockend_12: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -22515,7 +23755,7 @@ proc_parser_parseasm:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22554,7 +23794,7 @@ proc_parser_parseasm:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22634,7 +23874,7 @@ proc_parser_parseasm:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22664,7 +23904,7 @@ proc_parser_parseasm:
     add rax, 16
     jmp qword [rax]
 .blockend_4: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22713,7 +23953,7 @@ proc_parser_parseasm:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22728,22 +23968,6 @@ proc_parser_parseasm:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -22751,7 +23975,7 @@ proc_parser_parseasm:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_9
-    jmp proc_asmdata_new
+    jmp proc_parser_dupcurrent
 .blockend_9: ; call
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
@@ -22760,8 +23984,17 @@ proc_parser_parseasm:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_slmnode_new
+    jmp proc_asmdata_new
 .blockend_10: ; call
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_slmnode_new
+.blockend_11: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -22773,15 +24006,15 @@ proc_parser_parseasm:
     pop rbx
     push rax
     push rbx
-.blockstart_11: ; call
+.blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
+    mov qword [rax], .blockend_12
     jmp proc_parserresult_success
-.blockend_11: ; call
+.blockend_12: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -22820,7 +24053,7 @@ proc_parser_parseof:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22859,7 +24092,7 @@ proc_parser_parseof:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22939,7 +24172,7 @@ proc_parser_parseof:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -22969,7 +24202,7 @@ proc_parser_parseof:
     add rax, 16
     jmp qword [rax]
 .blockend_4: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23018,7 +24251,7 @@ proc_parser_parseof:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23033,22 +24266,6 @@ proc_parser_parseof:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -23056,7 +24273,7 @@ proc_parser_parseof:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_9
-    jmp proc_ofdata_new
+    jmp proc_parser_dupcurrent
 .blockend_9: ; call
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
@@ -23065,8 +24282,17 @@ proc_parser_parseof:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_slmnode_new
+    jmp proc_ofdata_new
 .blockend_10: ; call
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_slmnode_new
+.blockend_11: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -23078,15 +24304,15 @@ proc_parser_parseof:
     pop rbx
     push rax
     push rbx
-.blockstart_11: ; call
+.blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
+    mov qword [rax], .blockend_12
     jmp proc_parserresult_success
-.blockend_11: ; call
+.blockend_12: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -23128,7 +24354,7 @@ proc_parser_parseprop:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23167,7 +24393,7 @@ proc_parser_parseprop:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23247,7 +24473,7 @@ proc_parser_parseprop:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23281,28 +24507,6 @@ proc_parser_parseprop:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 51
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -23310,13 +24514,28 @@ proc_parser_parseprop:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_7: ; call
     pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 51
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_parser_asserttype
+.blockend_8: ; call
+    pop rbx
     test rbx, rbx
-.blockstart_8: ; if
-    jz .blockend_8
-    push mem+65; parser_running
+.blockstart_9: ; if
+    jz .blockend_9
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23346,26 +24565,26 @@ proc_parser_parseprop:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_9: ; if
-    jz .blockend_9
+.blockstart_10: ; if
+    jz .blockend_10
     add rsp, 8
     push qword 0
-.blockend_9: ; if
-.blockstart_10: ; call
+.blockend_10: ; if
+.blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
+    mov qword [rax], .blockend_11
     jmp proc_dlist_getptr
-.blockend_10: ; call
+.blockend_11: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23388,31 +24607,6 @@ proc_parser_parseprop:
     mov rbx, [rax]
     push rbx
     push qword 3
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_propdata_new
-.blockend_11: ; call
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -23420,8 +24614,26 @@ proc_parser_parseprop:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_12
-    jmp proc_slmnode_new
+    jmp proc_parser_dupcurrent
 .blockend_12: ; call
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_propdata_new
+.blockend_13: ; call
+.blockstart_14: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_14
+    jmp proc_slmnode_new
+.blockend_14: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -23433,15 +24645,15 @@ proc_parser_parseprop:
     pop rbx
     push rax
     push rbx
-.blockstart_13: ; call
+.blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_13
+    mov qword [rax], .blockend_15
     jmp proc_parserresult_success
-.blockend_13: ; call
+.blockend_15: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -23450,8 +24662,8 @@ proc_parser_parseprop:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_8: ; if
-    push mem+65; parser_running
+.blockend_9: ; if
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23477,9 +24689,9 @@ proc_parser_parseprop:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_14: ; if
-    jz .blockend_14
-    push mem+65; parser_running
+.blockstart_16: ; if
+    jz .blockend_16
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23509,26 +24721,26 @@ proc_parser_parseprop:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_15: ; if
-    jz .blockend_15
+.blockstart_17: ; if
+    jz .blockend_17
     add rsp, 8
     push qword 0
-.blockend_15: ; if
-.blockstart_16: ; call
+.blockend_17: ; if
+.blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
+    mov qword [rax], .blockend_18
     jmp proc_dlist_getptr
-.blockend_16: ; call
+.blockend_18: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23551,40 +24763,33 @@ proc_parser_parseprop:
     mov rbx, [rax]
     push rbx
     push qword 0
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_17: ; call
+.blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_17
+    mov qword [rax], .blockend_19
+    jmp proc_parser_dupcurrent
+.blockend_19: ; call
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
     jmp proc_propdata_new
-.blockend_17: ; call
-.blockstart_18: ; call
+.blockend_20: ; call
+.blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
+    mov qword [rax], .blockend_21
     jmp proc_slmnode_new
-.blockend_18: ; call
+.blockend_21: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -23596,15 +24801,15 @@ proc_parser_parseprop:
     pop rbx
     push rax
     push rbx
-.blockstart_19: ; call
+.blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
+    mov qword [rax], .blockend_22
     jmp proc_parserresult_success
-.blockend_19: ; call
+.blockend_22: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -23613,7 +24818,7 @@ proc_parser_parseprop:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_14: ; if
+.blockend_16: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -23629,25 +24834,25 @@ proc_parser_parseprop:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_20: ; call
+.blockstart_23: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_20
+    mov qword [rax], .blockend_23
     jmp proc_parser_setuperr
-.blockend_20: ; call
-.blockstart_21: ; call
+.blockend_23: ; call
+.blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
+    mov qword [rax], .blockend_24
     jmp proc_parserresult_failure
-.blockend_21: ; call
-    push mem+65; parser_running
+.blockend_24: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23709,7 +24914,7 @@ proc_parser_parseconst:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23748,7 +24953,7 @@ proc_parser_parseconst:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23828,7 +25033,7 @@ proc_parser_parseconst:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23862,28 +25067,6 @@ proc_parser_parseconst:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 51
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -23891,13 +25074,28 @@ proc_parser_parseconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_7: ; call
     pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 51
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_parser_asserttype
+.blockend_8: ; call
+    pop rbx
     test rbx, rbx
-.blockstart_8: ; if
-    jz .blockend_8
-    push mem+65; parser_running
+.blockstart_9: ; if
+    jz .blockend_9
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23914,21 +25112,21 @@ proc_parser_parseconst:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_9: ; call
+.blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
+    mov qword [rax], .blockend_10
     jmp proc_dlist_getptr
-.blockend_9: ; call
+.blockend_10: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -23951,31 +25149,6 @@ proc_parser_parseconst:
     mov rbx, [rax]
     push rbx
     push qword 3
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_10: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
-    jmp proc_defdata_new
-.blockend_10: ; call
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -23983,8 +25156,26 @@ proc_parser_parseconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_11
-    jmp proc_slmnode_new
+    jmp proc_parser_dupcurrent
 .blockend_11: ; call
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_defdata_new
+.blockend_12: ; call
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_slmnode_new
+.blockend_13: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -23996,15 +25187,15 @@ proc_parser_parseconst:
     pop rbx
     push rax
     push rbx
-.blockstart_12: ; call
+.blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
+    mov qword [rax], .blockend_14
     jmp proc_parserresult_success
-.blockend_12: ; call
+.blockend_14: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -24013,8 +25204,8 @@ proc_parser_parseconst:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_8: ; if
-    push mem+65; parser_running
+.blockend_9: ; if
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24040,9 +25231,9 @@ proc_parser_parseconst:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_13: ; if
-    jz .blockend_13
-    push mem+65; parser_running
+.blockstart_15: ; if
+    jz .blockend_15
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24059,21 +25250,21 @@ proc_parser_parseconst:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_14: ; call
+.blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
+    mov qword [rax], .blockend_16
     jmp proc_dlist_getptr
-.blockend_14: ; call
+.blockend_16: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24096,40 +25287,33 @@ proc_parser_parseconst:
     mov rbx, [rax]
     push rbx
     push qword 0
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_15: ; call
+.blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
+    mov qword [rax], .blockend_17
+    jmp proc_parser_dupcurrent
+.blockend_17: ; call
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
     jmp proc_defdata_new
-.blockend_15: ; call
-.blockstart_16: ; call
+.blockend_18: ; call
+.blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
+    mov qword [rax], .blockend_19
     jmp proc_slmnode_new
-.blockend_16: ; call
+.blockend_19: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -24141,15 +25325,15 @@ proc_parser_parseconst:
     pop rbx
     push rax
     push rbx
-.blockstart_17: ; call
+.blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_17
+    mov qword [rax], .blockend_20
     jmp proc_parserresult_success
-.blockend_17: ; call
+.blockend_20: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -24158,7 +25342,7 @@ proc_parser_parseconst:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_13: ; if
+.blockend_15: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -24174,25 +25358,25 @@ proc_parser_parseconst:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_18: ; call
+.blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
+    mov qword [rax], .blockend_21
     jmp proc_parser_setuperr
-.blockend_18: ; call
-.blockstart_19: ; call
+.blockend_21: ; call
+.blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
+    mov qword [rax], .blockend_22
     jmp proc_parserresult_failure
-.blockend_19: ; call
-    push mem+65; parser_running
+.blockend_22: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24254,7 +25438,7 @@ proc_parser_parsevar:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24293,7 +25477,7 @@ proc_parser_parsevar:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24373,7 +25557,7 @@ proc_parser_parsevar:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24407,28 +25591,6 @@ proc_parser_parsevar:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 51
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -24436,13 +25598,28 @@ proc_parser_parsevar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_7: ; call
     pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 51
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_parser_asserttype
+.blockend_8: ; call
+    pop rbx
     test rbx, rbx
-.blockstart_8: ; if
-    jz .blockend_8
-    push mem+65; parser_running
+.blockstart_9: ; if
+    jz .blockend_9
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24459,21 +25636,21 @@ proc_parser_parsevar:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_9: ; call
+.blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
+    mov qword [rax], .blockend_10
     jmp proc_dlist_getptr
-.blockend_9: ; call
+.blockend_10: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24496,31 +25673,6 @@ proc_parser_parsevar:
     mov rbx, [rax]
     push rbx
     push qword 3
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_10: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
-    jmp proc_vardata_new
-.blockend_10: ; call
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -24528,8 +25680,26 @@ proc_parser_parsevar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_11
-    jmp proc_slmnode_new
+    jmp proc_parser_dupcurrent
 .blockend_11: ; call
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_vardata_new
+.blockend_12: ; call
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_slmnode_new
+.blockend_13: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -24541,15 +25711,15 @@ proc_parser_parsevar:
     pop rbx
     push rax
     push rbx
-.blockstart_12: ; call
+.blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
+    mov qword [rax], .blockend_14
     jmp proc_parserresult_success
-.blockend_12: ; call
+.blockend_14: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -24558,8 +25728,8 @@ proc_parser_parsevar:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_8: ; if
-    push mem+65; parser_running
+.blockend_9: ; if
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24585,9 +25755,9 @@ proc_parser_parsevar:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_13: ; if
-    jz .blockend_13
-    push mem+65; parser_running
+.blockstart_15: ; if
+    jz .blockend_15
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24604,21 +25774,21 @@ proc_parser_parsevar:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_14: ; call
+.blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
+    mov qword [rax], .blockend_16
     jmp proc_dlist_getptr
-.blockend_14: ; call
+.blockend_16: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24641,40 +25811,33 @@ proc_parser_parsevar:
     mov rbx, [rax]
     push rbx
     push qword 0
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_15: ; call
+.blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
+    mov qword [rax], .blockend_17
+    jmp proc_parser_dupcurrent
+.blockend_17: ; call
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
     jmp proc_vardata_new
-.blockend_15: ; call
-.blockstart_16: ; call
+.blockend_18: ; call
+.blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
+    mov qword [rax], .blockend_19
     jmp proc_slmnode_new
-.blockend_16: ; call
+.blockend_19: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -24686,15 +25849,15 @@ proc_parser_parsevar:
     pop rbx
     push rax
     push rbx
-.blockstart_17: ; call
+.blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_17
+    mov qword [rax], .blockend_20
     jmp proc_parserresult_success
-.blockend_17: ; call
+.blockend_20: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -24703,7 +25866,7 @@ proc_parser_parsevar:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_13: ; if
+.blockend_15: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -24719,25 +25882,25 @@ proc_parser_parsevar:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_18: ; call
+.blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
+    mov qword [rax], .blockend_21
     jmp proc_parser_setuperr
-.blockend_18: ; call
-.blockstart_19: ; call
+.blockend_21: ; call
+.blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
+    mov qword [rax], .blockend_22
     jmp proc_parserresult_failure
-.blockend_19: ; call
-    push mem+65; parser_running
+.blockend_22: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24796,7 +25959,7 @@ proc_parser_parsecomment:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24835,7 +25998,7 @@ proc_parser_parsecomment:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24865,7 +26028,7 @@ proc_parser_parsecomment:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24896,7 +26059,7 @@ proc_parser_parsecomment:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -24987,7 +26150,7 @@ proc_parser_parseif:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25026,7 +26189,7 @@ proc_parser_parseif:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25056,7 +26219,7 @@ proc_parser_parseif:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25087,7 +26250,7 @@ proc_parser_parseif:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25795,7 +26958,7 @@ proc_parser_parseif:
     mov qword [rax], .blockend_52
     jmp proc_parserresult_failure
 .blockend_52: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25892,7 +27055,7 @@ proc_parser_parsesim:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25931,7 +27094,7 @@ proc_parser_parsesim:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25961,7 +27124,7 @@ proc_parser_parsesim:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -25992,7 +27155,7 @@ proc_parser_parsesim:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -26700,7 +27863,7 @@ proc_parser_parsesim:
     mov qword [rax], .blockend_52
     jmp proc_parserresult_failure
 .blockend_52: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -26797,7 +27960,7 @@ proc_parser_parsedo:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -26836,7 +27999,7 @@ proc_parser_parsedo:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -26866,7 +28029,7 @@ proc_parser_parsedo:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -26897,7 +28060,7 @@ proc_parser_parsedo:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27605,7 +28768,7 @@ proc_parser_parsedo:
     mov qword [rax], .blockend_52
     jmp proc_parserresult_failure
 .blockend_52: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27714,7 +28877,7 @@ proc_parser_parseproc:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27739,7 +28902,7 @@ proc_parser_parseproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27753,7 +28916,7 @@ proc_parser_parseproc:
     jmp proc_parser_advance
 .blockend_1: ; call
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27791,7 +28954,7 @@ proc_parser_parseproc:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27829,7 +28992,7 @@ proc_parser_parseproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27844,7 +29007,7 @@ proc_parser_parseproc:
 .blockend_4: ; call
     add rsp, 8
 .blockend_3: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27882,7 +29045,7 @@ proc_parser_parseproc:
     add rax, 16
     jmp qword [rax]
 .blockend_5: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27920,7 +29083,7 @@ proc_parser_parseproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27935,7 +29098,7 @@ proc_parser_parseproc:
 .blockend_7: ; call
     add rsp, 8
 .blockend_6: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -27973,7 +29136,7 @@ proc_parser_parseproc:
     add rax, 16
     jmp qword [rax]
 .blockend_8: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28021,7 +29184,7 @@ proc_parser_parseproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28036,7 +29199,7 @@ proc_parser_parseproc:
 .blockend_10: ; call
     add rsp, 8
 .blockend_9: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28074,7 +29237,7 @@ proc_parser_parseproc:
     add rax, 16
     jmp qword [rax]
 .blockend_11: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28122,7 +29285,7 @@ proc_parser_parseproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28137,7 +29300,7 @@ proc_parser_parseproc:
 .blockend_13: ; call
     add rsp, 8
 .blockend_12: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28175,7 +29338,7 @@ proc_parser_parseproc:
     add rax, 16
     jmp qword [rax]
 .blockend_14: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28210,7 +29373,7 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28290,7 +29453,7 @@ proc_parser_parseproc:
     mov qword [rax], .blockend_19
     jmp proc_parserresult_failure
 .blockend_19: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28324,28 +29487,6 @@ proc_parser_parseproc:
     mov rax, [rax-8]
     add rax, 24
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 48
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -28353,15 +29494,30 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_20
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_20: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 48
+.blockstart_21: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_21
+    jmp proc_parser_asserttype
+.blockend_21: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_21: ; if
-    jz .blockend_21
+.blockstart_22: ; if
+    jz .blockend_22
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -28377,15 +29533,6 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_22: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_22
-    jmp proc_parser_setuperr
-.blockend_22: ; call
 .blockstart_23: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -28393,9 +29540,18 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_23
-    jmp proc_parserresult_failure
+    jmp proc_parser_setuperr
 .blockend_23: ; call
-    push mem+65; parser_running
+.blockstart_24: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_24
+    jmp proc_parserresult_failure
+.blockend_24: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28424,49 +29580,42 @@ proc_parser_parseproc:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_21: ; if
+.blockend_22: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 32
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_parser_dupcurrent
+.blockend_25: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
     push qword 48
-.blockstart_24: ; call
+.blockstart_26: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
+    mov qword [rax], .blockend_26
     jmp proc_parser_asserttype
-.blockend_24: ; call
+.blockend_26: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_25: ; if
-    jz .blockend_25
+.blockstart_27: ; if
+    jz .blockend_27
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -28482,25 +29631,25 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_26: ; call
+.blockstart_28: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
+    mov qword [rax], .blockend_28
     jmp proc_parser_setuperr
-.blockend_26: ; call
-.blockstart_27: ; call
+.blockend_28: ; call
+.blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_27
+    mov qword [rax], .blockend_29
     jmp proc_parserresult_failure
-.blockend_27: ; call
-    push mem+65; parser_running
+.blockend_29: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28529,33 +29678,26 @@ proc_parser_parseproc:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_25: ; if
+.blockend_27: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 40
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+.blockstart_30: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_30
+    jmp proc_parser_dupcurrent
+.blockend_30: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28572,21 +29714,21 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_28: ; call
+.blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_28
+    mov qword [rax], .blockend_31
     jmp proc_dlist_getptr
-.blockend_28: ; call
+.blockend_31: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -28630,15 +29772,15 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_29: ; call
+.blockstart_32: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_29
+    mov qword [rax], .blockend_32
     jmp proc_blockdata_new
-.blockend_29: ; call
+.blockend_32: ; call
     pop rax
     push rax
     push rax
@@ -28683,17 +29825,17 @@ proc_parser_parseproc:
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_30: ; if
-    jz .blockend_30
-.blockstart_31: ; call
+.blockstart_33: ; if
+    jz .blockend_33
+.blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_31
+    mov qword [rax], .blockend_34
     jmp proc_slmnode_new
-.blockend_31: ; call
+.blockend_34: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -28704,49 +29846,6 @@ proc_parser_parseproc:
     pop rax
     pop rbx
     push rax
-    push rbx
-.blockstart_32: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_32
-    jmp proc_parserresult_success
-.blockend_32: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
-.blockend_30: ; if
-.blockstart_33: ; do
-    push qword 0
-    pop rax
-    push rax
-    push rax
-    push qword 0
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmove rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_34: ; if
-    jz .blockend_34
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
-    pop rax
-    mov rbx, [rax]
     push rbx
 .blockstart_35: ; call
     mov rax, [ret_stack_rsp]
@@ -28755,18 +29854,19 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_35
-    jmp proc_parser_parsenamed
+    jmp proc_parserresult_success
 .blockend_35: ; call
-.blockstart_36: ; call
     mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_36
-    jmp proc_parserresult_register
-.blockend_36: ; call
-.blockend_34: ; if
+    add rax, 16
+    jmp qword [rax]
+.blockend_33: ; if
+.blockstart_36: ; do
+    push qword 0
     pop rax
     push rax
     push rax
@@ -28797,7 +29897,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_38
-    jmp proc_parser_parsenum
+    jmp proc_parser_parsenamed
 .blockend_38: ; call
 .blockstart_39: ; call
     mov rax, [ret_stack_rsp]
@@ -28839,7 +29939,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_41
-    jmp proc_parser_parsecall
+    jmp proc_parser_parsenum
 .blockend_41: ; call
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
@@ -28881,7 +29981,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_44
-    jmp proc_parser_parsecomment
+    jmp proc_parser_parsecall
 .blockend_44: ; call
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
@@ -28923,7 +30023,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_47
-    jmp proc_parser_parseintr
+    jmp proc_parser_parsecomment
 .blockend_47: ; call
 .blockstart_48: ; call
     mov rax, [ret_stack_rsp]
@@ -28965,7 +30065,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_50
-    jmp proc_parser_parseword
+    jmp proc_parser_parseintr
 .blockend_50: ; call
 .blockstart_51: ; call
     mov rax, [ret_stack_rsp]
@@ -29007,7 +30107,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_53
-    jmp proc_parser_parseif
+    jmp proc_parser_parseword
 .blockend_53: ; call
 .blockstart_54: ; call
     mov rax, [ret_stack_rsp]
@@ -29049,7 +30149,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_56
-    jmp proc_parser_parselambda
+    jmp proc_parser_parseif
 .blockend_56: ; call
 .blockstart_57: ; call
     mov rax, [ret_stack_rsp]
@@ -29091,7 +30191,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_59
-    jmp proc_parser_parsesim
+    jmp proc_parser_parselambda
 .blockend_59: ; call
 .blockstart_60: ; call
     mov rax, [ret_stack_rsp]
@@ -29133,7 +30233,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_62
-    jmp proc_parser_parsedo
+    jmp proc_parser_parsesim
 .blockend_62: ; call
 .blockstart_63: ; call
     mov rax, [ret_stack_rsp]
@@ -29175,7 +30275,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_65
-    jmp proc_parser_parsestring
+    jmp proc_parser_parsedo
 .blockend_65: ; call
 .blockstart_66: ; call
     mov rax, [ret_stack_rsp]
@@ -29217,7 +30317,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_68
-    jmp proc_parser_parsesstring
+    jmp proc_parser_parsestring
 .blockend_68: ; call
 .blockstart_69: ; call
     mov rax, [ret_stack_rsp]
@@ -29259,7 +30359,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_71
-    jmp proc_parser_parseasm
+    jmp proc_parser_parsesstring
 .blockend_71: ; call
 .blockstart_72: ; call
     mov rax, [ret_stack_rsp]
@@ -29301,7 +30401,7 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_74
-    jmp proc_parser_parsevar
+    jmp proc_parser_parseasm
 .blockend_74: ; call
 .blockstart_75: ; call
     mov rax, [ret_stack_rsp]
@@ -29313,42 +30413,27 @@ proc_parser_parseproc:
     jmp proc_parserresult_register
 .blockend_75: ; call
 .blockend_73: ; if
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
+    pop rax
     push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+    push rax
     push qword 0
     xor rcx, rcx
     mov rdx, 1
     pop rax
     pop rbx
     cmp rax, rbx
-    cmovne rcx, rdx
+    cmove rcx, rdx
     push rcx
     pop rbx
     test rbx, rbx
 .blockstart_76: ; if
     jz .blockend_76
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
     push rax
     pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-    pop rax
-    pop rbx
-    add rax, rbx
     mov rbx, [rax]
     push rbx
 .blockstart_77: ; call
@@ -29358,9 +30443,66 @@ proc_parser_parseproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_77
-    jmp proc_error_eval
+    jmp proc_parser_parsevar
 .blockend_77: ; call
+.blockstart_78: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_78
+    jmp proc_parserresult_register
+.blockend_78: ; call
 .blockend_76: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_79: ; if
+    jz .blockend_79
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_80: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_80
+    jmp proc_error_eval
+.blockend_80: ; call
+.blockend_79: ; if
     pop rax
     push rax
     push rax
@@ -29374,40 +30516,40 @@ proc_parser_parseproc:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_78: ; if
-    jz .blockend_78
-.blockstart_79: ; call
+.blockstart_81: ; if
+    jz .blockend_81
+.blockstart_82: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_79
+    mov qword [rax], .blockend_82
     jmp proc_blockdata_append
-.blockend_79: ; call
+.blockend_82: ; call
     push qword 1
-.blockend_78: ; if
+.blockend_81: ; if
     pop rbx
     test rbx, rbx
-    jnz .blockstart_33
-.blockend_33: ; do
+    jnz .blockstart_36
+.blockend_36: ; do
     push qword 47
-.blockstart_80: ; call
+.blockstart_83: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_80
+    mov qword [rax], .blockend_83
     jmp proc_parser_asserttype
-.blockend_80: ; call
+.blockend_83: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_81: ; if
-    jz .blockend_81
+.blockstart_84: ; if
+    jz .blockend_84
     add rsp, 8
     add rsp, 8
     add rsp, 8
@@ -29426,25 +30568,25 @@ proc_parser_parseproc:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_82: ; call
+.blockstart_85: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_82
+    mov qword [rax], .blockend_85
     jmp proc_parser_setuperr
-.blockend_82: ; call
-.blockstart_83: ; call
+.blockend_85: ; call
+.blockstart_86: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_83
+    mov qword [rax], .blockend_86
     jmp proc_parserresult_failure
-.blockend_83: ; call
-    push mem+65; parser_running
+.blockend_86: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29473,16 +30615,16 @@ proc_parser_parseproc:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_81: ; if
-.blockstart_84: ; call
+.blockend_84: ; if
+.blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_84
+    mov qword [rax], .blockend_87
     jmp proc_slmnode_new
-.blockend_84: ; call
+.blockend_87: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -29494,15 +30636,15 @@ proc_parser_parseproc:
     pop rbx
     push rax
     push rbx
-.blockstart_85: ; call
+.blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_85
+    mov qword [rax], .blockend_88
     jmp proc_parserresult_success
-.blockend_85: ; call
+.blockend_88: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -29547,7 +30689,7 @@ proc_parser_parselambda:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29586,7 +30728,7 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29666,7 +30808,7 @@ proc_parser_parselambda:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29700,28 +30842,6 @@ proc_parser_parselambda:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 48
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -29729,15 +30849,30 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_7: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 48
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_parser_asserttype
+.blockend_8: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_8: ; if
-    jz .blockend_8
+.blockstart_9: ; if
+    jz .blockend_9
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -29753,15 +30888,6 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
-    jmp proc_parser_setuperr
-.blockend_9: ; call
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -29769,9 +30895,18 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_parserresult_failure
+    jmp proc_parser_setuperr
 .blockend_10: ; call
-    push mem+65; parser_running
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_parserresult_failure
+.blockend_11: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29800,33 +30935,26 @@ proc_parser_parselambda:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_8: ; if
+.blockend_9: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_parser_dupcurrent
+.blockend_12: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29843,21 +30971,21 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_11: ; call
+.blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
+    mov qword [rax], .blockend_13
     jmp proc_dlist_getptr
-.blockend_11: ; call
+.blockend_13: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -29889,16 +31017,16 @@ proc_parser_parselambda:
     push rbx
     push qword 2
     push qword 0
-.blockstart_12: ; call
+.blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
+    mov qword [rax], .blockend_14
     jmp proc_blockdata_new
-.blockend_12: ; call
-.blockstart_13: ; do
+.blockend_14: ; call
+.blockstart_15: ; do
     push qword 0
     pop rax
     push rax
@@ -29913,8 +31041,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_14: ; if
-    jz .blockend_14
+.blockstart_16: ; if
+    jz .blockend_16
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -29923,48 +31051,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_15: ; call
+.blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
+    mov qword [rax], .blockend_17
     jmp proc_parser_parsenum
-.blockend_15: ; call
-.blockstart_16: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
-    jmp proc_parserresult_register
-.blockend_16: ; call
-.blockend_14: ; if
-    pop rax
-    push rax
-    push rax
-    push qword 0
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmove rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_17: ; if
-    jz .blockend_17
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
+.blockend_17: ; call
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -29972,18 +31067,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_18
-    jmp proc_parser_parsecall
-.blockend_18: ; call
-.blockstart_19: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
     jmp proc_parserresult_register
-.blockend_19: ; call
-.blockend_17: ; if
+.blockend_18: ; call
+.blockend_16: ; if
     pop rax
     push rax
     push rax
@@ -29997,8 +31083,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_20: ; if
-    jz .blockend_20
+.blockstart_19: ; if
+    jz .blockend_19
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30007,6 +31093,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_parser_parsecall
+.blockend_20: ; call
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30014,18 +31109,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_21
-    jmp proc_parser_parsecomment
-.blockend_21: ; call
-.blockstart_22: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_22
     jmp proc_parserresult_register
-.blockend_22: ; call
-.blockend_20: ; if
+.blockend_21: ; call
+.blockend_19: ; if
     pop rax
     push rax
     push rax
@@ -30039,8 +31125,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_23: ; if
-    jz .blockend_23
+.blockstart_22: ; if
+    jz .blockend_22
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30049,6 +31135,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_parser_parsecomment
+.blockend_23: ; call
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30056,18 +31151,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_24
-    jmp proc_parser_parseintr
-.blockend_24: ; call
-.blockstart_25: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_25
     jmp proc_parserresult_register
-.blockend_25: ; call
-.blockend_23: ; if
+.blockend_24: ; call
+.blockend_22: ; if
     pop rax
     push rax
     push rax
@@ -30081,8 +31167,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_26: ; if
-    jz .blockend_26
+.blockstart_25: ; if
+    jz .blockend_25
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30091,6 +31177,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_parser_parseintr
+.blockend_26: ; call
 .blockstart_27: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30098,18 +31193,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_27
-    jmp proc_parser_parseword
-.blockend_27: ; call
-.blockstart_28: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_28
     jmp proc_parserresult_register
-.blockend_28: ; call
-.blockend_26: ; if
+.blockend_27: ; call
+.blockend_25: ; if
     pop rax
     push rax
     push rax
@@ -30123,8 +31209,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_29: ; if
-    jz .blockend_29
+.blockstart_28: ; if
+    jz .blockend_28
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30133,6 +31219,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_29: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_29
+    jmp proc_parser_parseword
+.blockend_29: ; call
 .blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30140,18 +31235,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_30
-    jmp proc_parser_parseif
-.blockend_30: ; call
-.blockstart_31: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_31
     jmp proc_parserresult_register
-.blockend_31: ; call
-.blockend_29: ; if
+.blockend_30: ; call
+.blockend_28: ; if
     pop rax
     push rax
     push rax
@@ -30165,8 +31251,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_32: ; if
-    jz .blockend_32
+.blockstart_31: ; if
+    jz .blockend_31
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30175,6 +31261,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_32: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_32
+    jmp proc_parser_parseif
+.blockend_32: ; call
 .blockstart_33: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30182,18 +31277,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_33
-    jmp proc_parser_parselambda
-.blockend_33: ; call
-.blockstart_34: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_34
     jmp proc_parserresult_register
-.blockend_34: ; call
-.blockend_32: ; if
+.blockend_33: ; call
+.blockend_31: ; if
     pop rax
     push rax
     push rax
@@ -30207,8 +31293,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_35: ; if
-    jz .blockend_35
+.blockstart_34: ; if
+    jz .blockend_34
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30217,6 +31303,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_35: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_35
+    jmp proc_parser_parselambda
+.blockend_35: ; call
 .blockstart_36: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30224,18 +31319,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_36
-    jmp proc_parser_parsesim
-.blockend_36: ; call
-.blockstart_37: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_37
     jmp proc_parserresult_register
-.blockend_37: ; call
-.blockend_35: ; if
+.blockend_36: ; call
+.blockend_34: ; if
     pop rax
     push rax
     push rax
@@ -30249,8 +31335,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_38: ; if
-    jz .blockend_38
+.blockstart_37: ; if
+    jz .blockend_37
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30259,6 +31345,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_38: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_38
+    jmp proc_parser_parsesim
+.blockend_38: ; call
 .blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30266,18 +31361,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_39
-    jmp proc_parser_parsedo
-.blockend_39: ; call
-.blockstart_40: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_40
     jmp proc_parserresult_register
-.blockend_40: ; call
-.blockend_38: ; if
+.blockend_39: ; call
+.blockend_37: ; if
     pop rax
     push rax
     push rax
@@ -30291,8 +31377,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_41: ; if
-    jz .blockend_41
+.blockstart_40: ; if
+    jz .blockend_40
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30301,6 +31387,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_41: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_41
+    jmp proc_parser_parsedo
+.blockend_41: ; call
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30308,18 +31403,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_42
-    jmp proc_parser_parsestring
-.blockend_42: ; call
-.blockstart_43: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_43
     jmp proc_parserresult_register
-.blockend_43: ; call
-.blockend_41: ; if
+.blockend_42: ; call
+.blockend_40: ; if
     pop rax
     push rax
     push rax
@@ -30333,8 +31419,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_44: ; if
-    jz .blockend_44
+.blockstart_43: ; if
+    jz .blockend_43
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30343,6 +31429,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_44: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_44
+    jmp proc_parser_parsestring
+.blockend_44: ; call
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30350,18 +31445,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_45
-    jmp proc_parser_parsesstring
-.blockend_45: ; call
-.blockstart_46: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_46
     jmp proc_parserresult_register
-.blockend_46: ; call
-.blockend_44: ; if
+.blockend_45: ; call
+.blockend_43: ; if
     pop rax
     push rax
     push rax
@@ -30375,8 +31461,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_47: ; if
-    jz .blockend_47
+.blockstart_46: ; if
+    jz .blockend_46
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30385,6 +31471,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_47: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_47
+    jmp proc_parser_parsesstring
+.blockend_47: ; call
 .blockstart_48: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30392,18 +31487,9 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_48
-    jmp proc_parser_parseasm
-.blockend_48: ; call
-.blockstart_49: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_49
     jmp proc_parserresult_register
-.blockend_49: ; call
-.blockend_47: ; if
+.blockend_48: ; call
+.blockend_46: ; if
     pop rax
     push rax
     push rax
@@ -30417,8 +31503,8 @@ proc_parser_parselambda:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_50: ; if
-    jz .blockend_50
+.blockstart_49: ; if
+    jz .blockend_49
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30427,6 +31513,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
+.blockstart_50: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_50
+    jmp proc_parser_parseasm
+.blockend_50: ; call
 .blockstart_51: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30434,43 +31529,25 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_51
-    jmp proc_parser_parsevar
-.blockend_51: ; call
-.blockstart_52: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_52
     jmp proc_parserresult_register
-.blockend_52: ; call
-.blockend_50: ; if
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
+.blockend_51: ; call
+.blockend_49: ; if
+    pop rax
     push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+    push rax
     push qword 0
     xor rcx, rcx
     mov rdx, 1
     pop rax
     pop rbx
     cmp rax, rbx
-    cmovne rcx, rdx
+    cmove rcx, rdx
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_53: ; if
-    jz .blockend_53
+.blockstart_52: ; if
+    jz .blockend_52
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -30478,12 +31555,15 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+.blockstart_53: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_53
+    jmp proc_parser_parsevar
+.blockend_53: ; call
 .blockstart_54: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30491,12 +31571,22 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_54
-    jmp proc_error_eval
+    jmp proc_parserresult_register
 .blockend_54: ; call
-.blockend_53: ; if
+.blockend_52: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
     pop rax
-    push rax
-    push rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
     push qword 0
     xor rcx, rcx
     mov rdx, 1
@@ -30509,6 +31599,19 @@ proc_parser_parselambda:
     test rbx, rbx
 .blockstart_55: ; if
     jz .blockend_55
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_56: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30516,31 +31619,56 @@ proc_parser_parselambda:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_56
-    jmp proc_blockdata_append
+    jmp proc_error_eval
 .blockend_56: ; call
-    push qword 1
 .blockend_55: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
     pop rbx
     test rbx, rbx
-    jnz .blockstart_13
-.blockend_13: ; do
-    push qword 47
-.blockstart_57: ; call
+.blockstart_57: ; if
+    jz .blockend_57
+.blockstart_58: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_57
+    mov qword [rax], .blockend_58
+    jmp proc_blockdata_append
+.blockend_58: ; call
+    push qword 1
+.blockend_57: ; if
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_15
+.blockend_15: ; do
+    push qword 47
+.blockstart_59: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_59
     jmp proc_parser_asserttype
-.blockend_57: ; call
+.blockend_59: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_58: ; if
-    jz .blockend_58
+.blockstart_60: ; if
+    jz .blockend_60
     add rsp, 8
     add rsp, 8
     add rsp, 8
@@ -30559,25 +31687,25 @@ proc_parser_parselambda:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_59: ; call
+.blockstart_61: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_59
+    mov qword [rax], .blockend_61
     jmp proc_parser_setuperr
-.blockend_59: ; call
-.blockstart_60: ; call
+.blockend_61: ; call
+.blockstart_62: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_60
+    mov qword [rax], .blockend_62
     jmp proc_parserresult_failure
-.blockend_60: ; call
-    push mem+65; parser_running
+.blockend_62: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30606,16 +31734,16 @@ proc_parser_parselambda:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_58: ; if
-.blockstart_61: ; call
+.blockend_60: ; if
+.blockstart_63: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_61
+    mov qword [rax], .blockend_63
     jmp proc_slmnode_new
-.blockend_61: ; call
+.blockend_63: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -30627,15 +31755,15 @@ proc_parser_parselambda:
     pop rbx
     push rax
     push rbx
-.blockstart_62: ; call
+.blockstart_64: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_62
+    mov qword [rax], .blockend_64
     jmp proc_parserresult_success
-.blockend_62: ; call
+.blockend_64: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -30677,7 +31805,7 @@ proc_parser_parsenamed:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30716,7 +31844,7 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30750,28 +31878,6 @@ proc_parser_parsenamed:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    push qword 23
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30779,15 +31885,30 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_3
-    jmp proc_parser_asserttype
+    jmp proc_parser_dupcurrent
 .blockend_3: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 23
+.blockstart_4: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp proc_parser_asserttype
+.blockend_4: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_4: ; if
-    jz .blockend_4
+.blockstart_5: ; if
+    jz .blockend_5
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -30795,7 +31916,7 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30824,8 +31945,8 @@ proc_parser_parsenamed:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_4: ; if
-    push mem+65; parser_running
+.blockend_5: ; if
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30842,21 +31963,21 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_5: ; call
+.blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
+    mov qword [rax], .blockend_6
     jmp proc_dlist_getptr
-.blockend_5: ; call
+.blockend_6: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -30882,16 +32003,16 @@ proc_parser_parsenamed:
     push qword 0
     push qword 3
     push qword 0
-.blockstart_6: ; call
+.blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_6
+    mov qword [rax], .blockend_7
     jmp proc_blockdata_new
-.blockend_6: ; call
-.blockstart_7: ; do
+.blockend_7: ; call
+.blockstart_8: ; do
     push qword 0
     pop rax
     push rax
@@ -30906,8 +32027,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_8: ; if
-    jz .blockend_8
+.blockstart_9: ; if
+    jz .blockend_9
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30916,15 +32037,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
-    jmp proc_parser_parsenum
-.blockend_9: ; call
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30932,9 +32044,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_parserresult_register
+    jmp proc_parser_parsenum
 .blockend_10: ; call
-.blockend_8: ; if
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_parserresult_register
+.blockend_11: ; call
+.blockend_9: ; if
     pop rax
     push rax
     push rax
@@ -30948,8 +32069,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_11: ; if
-    jz .blockend_11
+.blockstart_12: ; if
+    jz .blockend_12
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -30958,15 +32079,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_12: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
-    jmp proc_parser_parsecall
-.blockend_12: ; call
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -30974,9 +32086,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_13
-    jmp proc_parserresult_register
+    jmp proc_parser_parsecall
 .blockend_13: ; call
-.blockend_11: ; if
+.blockstart_14: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_14
+    jmp proc_parserresult_register
+.blockend_14: ; call
+.blockend_12: ; if
     pop rax
     push rax
     push rax
@@ -30990,8 +32111,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_14: ; if
-    jz .blockend_14
+.blockstart_15: ; if
+    jz .blockend_15
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31000,15 +32121,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_15: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
-    jmp proc_parser_parsecomment
-.blockend_15: ; call
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31016,9 +32128,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_16
-    jmp proc_parserresult_register
+    jmp proc_parser_parsecomment
 .blockend_16: ; call
-.blockend_14: ; if
+.blockstart_17: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_17
+    jmp proc_parserresult_register
+.blockend_17: ; call
+.blockend_15: ; if
     pop rax
     push rax
     push rax
@@ -31032,8 +32153,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_17: ; if
-    jz .blockend_17
+.blockstart_18: ; if
+    jz .blockend_18
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31042,15 +32163,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_18: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
-    jmp proc_parser_parseintr
-.blockend_18: ; call
 .blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31058,9 +32170,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_19
-    jmp proc_parserresult_register
+    jmp proc_parser_parseintr
 .blockend_19: ; call
-.blockend_17: ; if
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_parserresult_register
+.blockend_20: ; call
+.blockend_18: ; if
     pop rax
     push rax
     push rax
@@ -31074,8 +32195,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_20: ; if
-    jz .blockend_20
+.blockstart_21: ; if
+    jz .blockend_21
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31084,15 +32205,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_parser_parseword
-.blockend_21: ; call
 .blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31100,9 +32212,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_22
-    jmp proc_parserresult_register
+    jmp proc_parser_parseword
 .blockend_22: ; call
-.blockend_20: ; if
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_parserresult_register
+.blockend_23: ; call
+.blockend_21: ; if
     pop rax
     push rax
     push rax
@@ -31116,8 +32237,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_23: ; if
-    jz .blockend_23
+.blockstart_24: ; if
+    jz .blockend_24
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31126,15 +32247,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_24: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
-    jmp proc_parser_parseif
-.blockend_24: ; call
 .blockstart_25: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31142,9 +32254,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_25
-    jmp proc_parserresult_register
+    jmp proc_parser_parseif
 .blockend_25: ; call
-.blockend_23: ; if
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_parserresult_register
+.blockend_26: ; call
+.blockend_24: ; if
     pop rax
     push rax
     push rax
@@ -31158,8 +32279,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_26: ; if
-    jz .blockend_26
+.blockstart_27: ; if
+    jz .blockend_27
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31168,15 +32289,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_27: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_27
-    jmp proc_parser_parselambda
-.blockend_27: ; call
 .blockstart_28: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31184,9 +32296,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_28
-    jmp proc_parserresult_register
+    jmp proc_parser_parselambda
 .blockend_28: ; call
-.blockend_26: ; if
+.blockstart_29: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_29
+    jmp proc_parserresult_register
+.blockend_29: ; call
+.blockend_27: ; if
     pop rax
     push rax
     push rax
@@ -31200,8 +32321,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_29: ; if
-    jz .blockend_29
+.blockstart_30: ; if
+    jz .blockend_30
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31210,15 +32331,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_30: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_30
-    jmp proc_parser_parsesim
-.blockend_30: ; call
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31226,9 +32338,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_31
-    jmp proc_parserresult_register
+    jmp proc_parser_parsesim
 .blockend_31: ; call
-.blockend_29: ; if
+.blockstart_32: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_32
+    jmp proc_parserresult_register
+.blockend_32: ; call
+.blockend_30: ; if
     pop rax
     push rax
     push rax
@@ -31242,8 +32363,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_32: ; if
-    jz .blockend_32
+.blockstart_33: ; if
+    jz .blockend_33
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31252,15 +32373,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_33: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_33
-    jmp proc_parser_parsedo
-.blockend_33: ; call
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31268,9 +32380,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_34
-    jmp proc_parserresult_register
+    jmp proc_parser_parsedo
 .blockend_34: ; call
-.blockend_32: ; if
+.blockstart_35: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_35
+    jmp proc_parserresult_register
+.blockend_35: ; call
+.blockend_33: ; if
     pop rax
     push rax
     push rax
@@ -31284,8 +32405,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_35: ; if
-    jz .blockend_35
+.blockstart_36: ; if
+    jz .blockend_36
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31294,15 +32415,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_36: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_36
-    jmp proc_parser_parsestring
-.blockend_36: ; call
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31310,9 +32422,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_37
-    jmp proc_parserresult_register
+    jmp proc_parser_parsestring
 .blockend_37: ; call
-.blockend_35: ; if
+.blockstart_38: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_38
+    jmp proc_parserresult_register
+.blockend_38: ; call
+.blockend_36: ; if
     pop rax
     push rax
     push rax
@@ -31326,8 +32447,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_38: ; if
-    jz .blockend_38
+.blockstart_39: ; if
+    jz .blockend_39
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31336,15 +32457,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_39: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_39
-    jmp proc_parser_parsesstring
-.blockend_39: ; call
 .blockstart_40: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31352,9 +32464,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_40
-    jmp proc_parserresult_register
+    jmp proc_parser_parsesstring
 .blockend_40: ; call
-.blockend_38: ; if
+.blockstart_41: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_41
+    jmp proc_parserresult_register
+.blockend_41: ; call
+.blockend_39: ; if
     pop rax
     push rax
     push rax
@@ -31368,8 +32489,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_41: ; if
-    jz .blockend_41
+.blockstart_42: ; if
+    jz .blockend_42
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31378,15 +32499,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_42: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_42
-    jmp proc_parser_parseasm
-.blockend_42: ; call
 .blockstart_43: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31394,9 +32506,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_43
-    jmp proc_parserresult_register
+    jmp proc_parser_parseasm
 .blockend_43: ; call
-.blockend_41: ; if
+.blockstart_44: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_44
+    jmp proc_parserresult_register
+.blockend_44: ; call
+.blockend_42: ; if
     pop rax
     push rax
     push rax
@@ -31410,8 +32531,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_44: ; if
-    jz .blockend_44
+.blockstart_45: ; if
+    jz .blockend_45
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -31420,15 +32541,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_45: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_45
-    jmp proc_parser_parsevar
-.blockend_45: ; call
 .blockstart_46: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31436,9 +32548,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_46
-    jmp proc_parserresult_register
+    jmp proc_parser_parsevar
 .blockend_46: ; call
-.blockend_44: ; if
+.blockstart_47: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_47
+    jmp proc_parserresult_register
+.blockend_47: ; call
+.blockend_45: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -31462,8 +32583,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_47: ; if
-    jz .blockend_47
+.blockstart_48: ; if
+    jz .blockend_48
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -31477,16 +32598,16 @@ proc_parser_parsenamed:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_48: ; call
+.blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_48
+    mov qword [rax], .blockend_49
     jmp proc_error_eval
-.blockend_48: ; call
-.blockend_47: ; if
+.blockend_49: ; call
+.blockend_48: ; if
     pop rax
     push rax
     push rax
@@ -31500,24 +32621,8 @@ proc_parser_parsenamed:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_49: ; if
-    jz .blockend_49
-.blockstart_50: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_50
-    jmp proc_blockdata_append
-.blockend_50: ; call
-    push qword 1
-.blockend_49: ; if
-    pop rbx
-    test rbx, rbx
-    jnz .blockstart_7
-.blockend_7: ; do
-    push qword 47
+.blockstart_50: ; if
+    jz .blockend_50
 .blockstart_51: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31525,15 +32630,31 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_51
-    jmp proc_parser_asserttype
+    jmp proc_blockdata_append
 .blockend_51: ; call
+    push qword 1
+.blockend_50: ; if
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_8
+.blockend_8: ; do
+    push qword 47
+.blockstart_52: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_52
+    jmp proc_parser_asserttype
+.blockend_52: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_52: ; if
-    jz .blockend_52
+.blockstart_53: ; if
+    jz .blockend_53
     add rsp, 8
     add rsp, 8
     add rsp, 8
@@ -31552,15 +32673,6 @@ proc_parser_parsenamed:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_53: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_53
-    jmp proc_parser_setuperr
-.blockend_53: ; call
 .blockstart_54: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -31568,9 +32680,18 @@ proc_parser_parsenamed:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_54
-    jmp proc_parserresult_failure
+    jmp proc_parser_setuperr
 .blockend_54: ; call
-    push mem+65; parser_running
+.blockstart_55: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_55
+    jmp proc_parserresult_failure
+.blockend_55: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -31599,16 +32720,16 @@ proc_parser_parsenamed:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_52: ; if
-.blockstart_55: ; call
+.blockend_53: ; if
+.blockstart_56: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_55
+    mov qword [rax], .blockend_56
     jmp proc_slmnode_new
-.blockend_55: ; call
+.blockend_56: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -31620,15 +32741,15 @@ proc_parser_parsenamed:
     pop rbx
     push rax
     push rbx
-.blockstart_56: ; call
+.blockstart_57: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_56
+    mov qword [rax], .blockend_57
     jmp proc_parserresult_success
-.blockend_56: ; call
+.blockend_57: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -31667,7 +32788,7 @@ proc_parser_parseenum:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -31706,7 +32827,7 @@ proc_parser_parseenum:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -31736,7 +32857,7 @@ proc_parser_parseenum:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -31767,7 +32888,7 @@ proc_parser_parseenum:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -31927,7 +33048,7 @@ proc_parser_parseenum:
     mov qword [rax], .blockend_14
     jmp proc_parserresult_failure
 .blockend_14: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32027,7 +33148,7 @@ proc_parser_parseclass:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32066,7 +33187,7 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32146,7 +33267,7 @@ proc_parser_parseclass:
     mov qword [rax], .blockend_6
     jmp proc_parserresult_failure
 .blockend_6: ; call
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32180,28 +33301,21 @@ proc_parser_parseclass:
     mov rax, [rax-8]
     add rax, 16
     push rax
-    push mem+65; parser_running
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_parser_dupcurrent
+.blockend_7: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32218,15 +33332,15 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_8
     jmp proc_dlist_getptr
-.blockend_7: ; call
+.blockend_8: ; call
     push qword 16
     pop rax
     pop rbx
@@ -32243,16 +33357,16 @@ proc_parser_parseclass:
     push qword 0
     push qword 0
     push qword 0
-.blockstart_8: ; call
+.blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_8
+    mov qword [rax], .blockend_9
     jmp proc_blockdata_new
-.blockend_8: ; call
-.blockstart_9: ; do
+.blockend_9: ; call
+.blockstart_10: ; do
     push qword 0
     pop rax
     push rax
@@ -32267,8 +33381,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_10: ; if
-    jz .blockend_10
+.blockstart_11: ; if
+    jz .blockend_11
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32277,15 +33391,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_parser_parseproc
-.blockend_11: ; call
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32293,9 +33398,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_12
-    jmp proc_parserresult_register
+    jmp proc_parser_parseproc
 .blockend_12: ; call
-.blockend_10: ; if
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_parserresult_register
+.blockend_13: ; call
+.blockend_11: ; if
     pop rax
     push rax
     push rax
@@ -32309,8 +33423,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_13: ; if
-    jz .blockend_13
+.blockstart_14: ; if
+    jz .blockend_14
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32319,15 +33433,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_14: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
-    jmp proc_parser_parsecomment
-.blockend_14: ; call
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32335,9 +33440,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_15
-    jmp proc_parserresult_register
+    jmp proc_parser_parsecomment
 .blockend_15: ; call
-.blockend_13: ; if
+.blockstart_16: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_16
+    jmp proc_parserresult_register
+.blockend_16: ; call
+.blockend_14: ; if
     pop rax
     push rax
     push rax
@@ -32351,8 +33465,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_16: ; if
-    jz .blockend_16
+.blockstart_17: ; if
+    jz .blockend_17
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32361,15 +33475,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_17: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_17
-    jmp proc_parser_parseenum
-.blockend_17: ; call
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32377,9 +33482,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_18
-    jmp proc_parserresult_register
+    jmp proc_parser_parseenum
 .blockend_18: ; call
-.blockend_16: ; if
+.blockstart_19: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_19
+    jmp proc_parserresult_register
+.blockend_19: ; call
+.blockend_17: ; if
     pop rax
     push rax
     push rax
@@ -32393,8 +33507,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_19: ; if
-    jz .blockend_19
+.blockstart_20: ; if
+    jz .blockend_20
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32403,15 +33517,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_20: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_20
-    jmp proc_parser_parseof
-.blockend_20: ; call
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32419,9 +33524,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_21
-    jmp proc_parserresult_register
+    jmp proc_parser_parseof
 .blockend_21: ; call
-.blockend_19: ; if
+.blockstart_22: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_22
+    jmp proc_parserresult_register
+.blockend_22: ; call
+.blockend_20: ; if
     pop rax
     push rax
     push rax
@@ -32435,8 +33549,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_22: ; if
-    jz .blockend_22
+.blockstart_23: ; if
+    jz .blockend_23
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32445,15 +33559,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_23: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
-    jmp proc_parser_parseprop
-.blockend_23: ; call
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32461,9 +33566,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_24
-    jmp proc_parserresult_register
+    jmp proc_parser_parseprop
 .blockend_24: ; call
-.blockend_22: ; if
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_parserresult_register
+.blockend_25: ; call
+.blockend_23: ; if
     pop rax
     push rax
     push rax
@@ -32477,8 +33591,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_25: ; if
-    jz .blockend_25
+.blockstart_26: ; if
+    jz .blockend_26
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32487,15 +33601,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_26: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
-    jmp proc_parser_parseconst
-.blockend_26: ; call
 .blockstart_27: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32503,9 +33608,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_27
-    jmp proc_parserresult_register
+    jmp proc_parser_parseconst
 .blockend_27: ; call
-.blockend_25: ; if
+.blockstart_28: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_28
+    jmp proc_parserresult_register
+.blockend_28: ; call
+.blockend_26: ; if
     pop rax
     push rax
     push rax
@@ -32519,8 +33633,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_28: ; if
-    jz .blockend_28
+.blockstart_29: ; if
+    jz .blockend_29
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32529,15 +33643,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_29: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_29
-    jmp proc_parser_parsevar
-.blockend_29: ; call
 .blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32545,9 +33650,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_30
-    jmp proc_parserresult_register
+    jmp proc_parser_parsevar
 .blockend_30: ; call
-.blockend_28: ; if
+.blockstart_31: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_31
+    jmp proc_parserresult_register
+.blockend_31: ; call
+.blockend_29: ; if
     pop rax
     push rax
     push rax
@@ -32561,8 +33675,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_31: ; if
-    jz .blockend_31
+.blockstart_32: ; if
+    jz .blockend_32
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -32571,15 +33685,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_32: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_32
-    jmp proc_parser_parseasm
-.blockend_32: ; call
 .blockstart_33: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32587,9 +33692,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_33
-    jmp proc_parserresult_register
+    jmp proc_parser_parseasm
 .blockend_33: ; call
-.blockend_31: ; if
+.blockstart_34: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_34
+    jmp proc_parserresult_register
+.blockend_34: ; call
+.blockend_32: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -32613,8 +33727,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_34: ; if
-    jz .blockend_34
+.blockstart_35: ; if
+    jz .blockend_35
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -32628,16 +33742,16 @@ proc_parser_parseclass:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_35: ; call
+.blockstart_36: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_35
+    mov qword [rax], .blockend_36
     jmp proc_error_eval
-.blockend_35: ; call
-.blockend_34: ; if
+.blockend_36: ; call
+.blockend_35: ; if
     pop rax
     push rax
     push rax
@@ -32651,24 +33765,8 @@ proc_parser_parseclass:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_36: ; if
-    jz .blockend_36
-.blockstart_37: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_37
-    jmp proc_blockdata_append
-.blockend_37: ; call
-    push qword 1
-.blockend_36: ; if
-    pop rbx
-    test rbx, rbx
-    jnz .blockstart_9
-.blockend_9: ; do
-    push qword 47
+.blockstart_37: ; if
+    jz .blockend_37
 .blockstart_38: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32676,15 +33774,31 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_38
-    jmp proc_parser_asserttype
+    jmp proc_blockdata_append
 .blockend_38: ; call
+    push qword 1
+.blockend_37: ; if
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_10
+.blockend_10: ; do
+    push qword 47
+.blockstart_39: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_39
+    jmp proc_parser_asserttype
+.blockend_39: ; call
     pop rax
     xor rax, 1
     push rax
     pop rbx
     test rbx, rbx
-.blockstart_39: ; if
-    jz .blockend_39
+.blockstart_40: ; if
+    jz .blockend_40
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -32702,15 +33816,6 @@ proc_parser_parseclass:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_40: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_40
-    jmp proc_parser_setuperr
-.blockend_40: ; call
 .blockstart_41: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32718,9 +33823,18 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_41
-    jmp proc_parserresult_failure
+    jmp proc_parser_setuperr
 .blockend_41: ; call
-    push mem+65; parser_running
+.blockstart_42: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_42
+    jmp proc_parserresult_failure
+.blockend_42: ; call
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32749,8 +33863,8 @@ proc_parser_parseclass:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_39: ; if
-    push mem+65; parser_running
+.blockend_40: ; if
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32760,7 +33874,7 @@ proc_parser_parseclass:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32775,24 +33889,6 @@ proc_parser_parseclass:
     pop rax
     sub rax, rbx
     push rax
-.blockstart_42: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_42
-    jmp proc_dlist_getptr
-.blockend_42: ; call
-    push qword 48
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    pop rax
-    pop rbx
-    push rax
-    push rbx
 .blockstart_43: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -32800,15 +33896,13 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_43
-    jmp proc_slmnode_new
+    jmp proc_dlist_getptr
 .blockend_43: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
+    push qword 48
     pop rax
-    mov rbx, [rax]
-    push rbx
+    pop rbx
+    add rax, rbx
+    push rax
     pop rax
     pop rbx
     push rax
@@ -32820,8 +33914,28 @@ proc_parser_parseclass:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_44
-    jmp proc_parserresult_success
+    jmp proc_slmnode_new
 .blockend_44: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+.blockstart_45: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_45
+    jmp proc_parserresult_success
+.blockend_45: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -32860,7 +33974,7 @@ proc_parser_parsefile:
     mov rax, [rax-8]
     add rax, 8
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32875,7 +33989,7 @@ proc_parser_parsefile:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -32900,7 +34014,7 @@ proc_parser_parsefile:
     pop rbx
     add rax, rbx
     push rax
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33364,7 +34478,7 @@ proc_parser_parsefile:
     test rbx, rbx
     jnz .blockstart_4
 .blockend_4: ; do
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33374,7 +34488,7 @@ proc_parser_parsefile:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-    push mem+65; parser_running
+    push mem+66; parser_running
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33671,7 +34785,7 @@ proc_writer_write:
     pop rbx
     push rax
     push rbx
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33858,7 +34972,7 @@ proc_writer_addstr:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33884,7 +34998,7 @@ proc_writer_addstr:
     mov qword [rax], .blockend_0
     jmp proc_dlist_append
 .blockend_0: ; call
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33902,7 +35016,7 @@ proc_writer_addstr:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -33953,7 +35067,7 @@ proc_writer_addstr:
     add rax, 16
     jmp qword [rax]
 proc_writer_mem:
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -34358,7 +35472,7 @@ proc_writer_writefooter:
     mov qword [rax], .blockend_20
     jmp proc_writer_write
 .blockend_20: ; call
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -34526,7 +35640,7 @@ proc_writer_writestring:
     add rax, 16
     jmp qword [rax]
 proc_writer_writestrings:
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -34568,7 +35682,7 @@ proc_writer_writestrings:
 .blockend_1: ; if
     push qword 0
 .blockstart_2: ; do
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -34682,7 +35796,7 @@ proc_writer_writestrings:
     pop rbx
     add rax, rbx
     push rax
-    push mem+73; writer_current
+    push mem+74; writer_current
     pop rax
     mov rbx, [rax]
     push rbx
@@ -35500,7 +36614,6 @@ proc_llist_foreach:
     mov qword [rax], .blockend_2
     jmp qword rcx
 .blockend_2: ; call
-    add rsp, 8
     push qword 0
     pop rax
     pop rbx
@@ -35919,7 +37032,7 @@ proc_llist_append:
     add rax, 16
     jmp qword [rax]
 proc_hash_get:
-    push mem+81; hash_result
+    push mem+82; hash_result
     push qword 7
     pop rbx
     pop rax
@@ -35950,7 +37063,7 @@ proc_hash_get:
     xor rbx, rbx
     mov bl, [rax]
     push rbx
-    push mem+81; hash_result
+    push mem+82; hash_result
     pop rax
     xor rbx, rbx
     mov bl, [rax]
@@ -35964,7 +37077,7 @@ proc_hash_get:
     pop rbx
     add rax, rbx
     push rax
-    push mem+81; hash_result
+    push mem+82; hash_result
     pop rax
     pop rbx
     push rax
@@ -35991,7 +37104,7 @@ proc_hash_get:
 .blockend_0: ; do
     add rsp, 8
     add rsp, 8
-    push mem+81; hash_result
+    push mem+82; hash_result
     pop rax
     xor rbx, rbx
     mov bl, [rax]
@@ -37621,7 +38734,9 @@ proc_map_in:
 ; headsimasm_stop:
 ; headsimulator_new:
 ; headsimulator_free:
+; headsimulator_bindproc:
 ; headsimulator_run:
+; headsimulator_runprocname:
 ; headsimulator_runproc:
 ; headsimulator_asmintr:
 ; headsimulator_asmconst:
@@ -38095,56 +39210,10 @@ proc_simasm_addsyscall:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-proc_simasm_start:
-    push qword 85
-.blockstart_0: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
-    jmp proc_simasm_appendch
-.blockend_0: ; call
-    push qword 72
-.blockstart_1: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_1
-    jmp proc_simasm_appendch
-.blockend_1: ; call
-    push qword 137
-.blockstart_2: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
-    jmp proc_simasm_appendch
-.blockend_2: ; call
-    push qword 229
-.blockstart_3: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_3
-    jmp proc_simasm_appendch
-.blockend_3: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
 proc_simasm_stop:
+    push qword 0
+    pop rax
+    push callc_stop
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38154,7 +39223,7 @@ proc_simasm_stop:
     mov qword [rax], .blockend_0
     jmp proc_simasm_addsetrax
 .blockend_0: ; call
-    push qword 88
+    push qword 255
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38164,7 +39233,7 @@ proc_simasm_stop:
     mov qword [rax], .blockend_1
     jmp proc_simasm_appendch
 .blockend_1: ; call
-    push qword 93
+    push qword 224
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38174,16 +39243,6 @@ proc_simasm_stop:
     mov qword [rax], .blockend_2
     jmp proc_simasm_appendch
 .blockend_2: ; call
-    push qword 195
-.blockstart_3: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_3
-    jmp proc_simasm_appendch
-.blockend_3: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -38228,7 +39287,7 @@ proc_simulator_new:
     add rax, rbx
     push rax
     push qword 255
-    push qword 24
+    push qword 33
     push qword 128
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
@@ -38382,9 +39441,21 @@ proc_simulator_new:
     push rax
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
-    add rax, 8
+    add rax, 0
     push rax
     pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
     mov rbx, [rax]
     push rbx
     push qword 16
@@ -38425,13 +39496,468 @@ proc_simulator_new:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
+proc_simulator_free:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_slmnode_free
+.blockend_0: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_map_free
+.blockend_1: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_heap_free
+.blockend_2: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
 proc_simulator_run:
+    push str_247
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_simulator_runprocname
+.blockend_0: ; call
+    push mem+83; simulator_current
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_simulator_free
+.blockend_1: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_simulator_bindproc:
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    push qword 33
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_heap_zalloc
+.blockend_0: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    push qword 128
+.blockstart_1: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp proc_heap_zalloc
+.blockend_1: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_cstr_cpy
+.blockend_2: ; call
+    add rsp, 8
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_map_in
+.blockend_3: ; call
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    add rsp, 8
+    pop rbx
+    test rbx, rbx
+.blockstart_4: ; if
+    jz .blockend_4
+    push qword 0
+    push qword 0
+    push qword 6
+    push str_248
+.blockstart_5: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_5
+    jmp proc_error_new
+.blockend_5: ; call
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_error_eval
+.blockend_6: ; call
+.blockend_4: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 1
+    pop rbx
+    pop rax
+    mov byte [rax], bl
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_map_append
+.blockend_7: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_heap_free
+.blockend_8: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_heap_free
+.blockend_9: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_simulator_runprocname:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 8
@@ -38458,7 +39984,13 @@ proc_simulator_run:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_247
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38590,9 +40122,6 @@ proc_simulator_run:
     mov qword [rax], .blockend_6
     jmp proc_simulator_runproc
 .blockend_6: ; call
-    mov rax, 60
-    pop rdi
-    syscall
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -38618,7 +40147,7 @@ proc_simulator_run:
     mov qword [rax], .blockend_7
     jmp proc_heap_free
 .blockend_7: ; call
-    push str_248
+    push str_249
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38626,16 +40155,47 @@ proc_simulator_run:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_cstr_println
+    jmp proc_cstr_print
 .blockend_8: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_cstr_print
+.blockend_9: ; call
+    push str_250
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_cstr_println
+.blockend_10: ; call
     push qword 1
-    mov rax, 60
-    pop rdi
-    syscall
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
 proc_simulator_callc:
     pop rax
-    call rax
-    push rax
+    jmp rax
+    callc_stop:
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -38645,9 +40205,6 @@ proc_simulator_callc:
     add rax, 16
     jmp qword [rax]
 proc_simulator_runproc:
-    mov rax, [loc_stack_rsp]
-    add rax, 8
-    mov [loc_stack_rsp], rax
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
@@ -38680,6 +40237,98 @@ proc_simulator_runproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
+    push mem+83; simulator_current
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+    pop rbx
+    test rbx, rbx
+.blockstart_0: ; if
+    jz .blockend_0
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_1: ; call
+    pop rcx
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_1
+    jmp qword rcx
+.blockend_1: ; call
+    push 0
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_0: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_2: ; if
+    jz .blockend_2
     push qword 0
     push qword -1
     push qword 2
@@ -38701,21 +40350,21 @@ proc_simulator_runproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_0: ; call
+.blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
+    mov qword [rax], .blockend_3
     jmp proc_str_len
-.blockend_0: ; call
+.blockend_3: ; call
     push qword 0
     push qword 9
     pop rax
@@ -38729,7 +40378,15 @@ proc_simulator_runproc:
     push rax
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
-    add rax, 16
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
     push rax
     pop rax
     pop rbx
@@ -38751,28 +40408,42 @@ proc_simulator_runproc:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_1: ; if
-    jz .blockend_1
-    push str_249
-.blockstart_2: ; call
+.blockstart_4: ; if
+    jz .blockend_4
+    push qword 0
+    push qword 0
+    push qword 7
+    push str_251
+.blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
-    jmp proc_cstr_println
-.blockend_2: ; call
-    push qword 1
-    mov rax, 60
-    pop rdi
-    syscall
-.blockend_1: ; if
+    mov qword [rax], .blockend_5
+    jmp proc_error_new
+.blockend_5: ; call
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_error_eval
+.blockend_6: ; call
+.blockend_4: ; if
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
-    add rax, 16
+    add rax, 8
     push rax
     pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
     mov rbx, [rax]
     push rbx
     mov rax, [ret_stack_rsp]
@@ -38782,7 +40453,7 @@ proc_simulator_runproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
@@ -38800,56 +40471,93 @@ proc_simulator_runproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_3: ; call
+.blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_3
+    mov qword [rax], .blockend_7
     jmp proc_str_len
-.blockend_3: ; call
-.blockstart_4: ; call
+.blockend_7: ; call
+.blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_4
+    mov qword [rax], .blockend_8
     jmp proc_mem_cpy
-.blockend_4: ; call
-    push str_250
-.blockstart_5: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
-    jmp proc_cstr_println
-.blockend_5: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
-    add rax, 16
+    add rax, 8
     push rax
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_6: ; call
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_6
+    mov qword [rax], .blockend_9
+    jmp proc_str_free
+.blockend_9: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 0
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+.blockend_2: ; if
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 25
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
     jmp proc_simulator_callc
-.blockend_6: ; call
+.blockend_10: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -38862,11 +40570,729 @@ proc_simulator_asmblock:
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
     pop rax
     pop rbx
     push rax
     push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
     add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_str_new
+.blockend_0: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 0
+.blockstart_1: ; do
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 56
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    imul rax, rbx
+    push rax
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_simulator_asmnode
+.blockend_2: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 48
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    pop rbx
+    push rbx
+    push rax
+    push rbx
+    xor rcx, rcx
+    mov rdx, 1
+    pop rbx
+    pop rax
+    cmp rax, rbx
+    cmovg rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+    jnz .blockstart_1
+.blockend_1: ; do
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    pop rax
+    push rax
+    push rax
+    push qword 6
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_3: ; if
+    jz .blockend_3
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_4: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_4
+    jmp proc_simasm_addpopreg
+.blockend_4: ; call
+    push qword 72
+.blockstart_5: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_5
+    jmp proc_simasm_appendch
+.blockend_5: ; call
+    push qword 133
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_simasm_appendch
+.blockend_6: ; call
+    push qword 192
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_simasm_appendch
+.blockend_7: ; call
+    push qword 15
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_simasm_appendch
+.blockend_8: ; call
+    push qword 132
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_simasm_appendch
+.blockend_9: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_simasm_appendch
+.blockend_10: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_simasm_appendch
+.blockend_11: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 2
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_simasm_appendch
+.blockend_12: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 3
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_simasm_appendch
+.blockend_13: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_14: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_14
+    jmp proc_str_cat
+.blockend_14: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_15: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_15
+    jmp proc_str_free
+.blockend_15: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_3: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 5
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_16: ; if
+    jz .blockend_16
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 40
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 10
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword -1
+    pop rax
+    pop rbx
+    imul rax, rbx
+    push rax
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 32
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_17: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_17
+    jmp proc_str_cat
+.blockend_17: ; call
+    push qword 0
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
+    jmp proc_simasm_addpopreg
+.blockend_18: ; call
+    push qword 72
+.blockstart_19: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_19
+    jmp proc_simasm_appendch
+.blockend_19: ; call
+    push qword 133
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_simasm_appendch
+.blockend_20: ; call
+    push qword 192
+.blockstart_21: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_21
+    jmp proc_simasm_appendch
+.blockend_21: ; call
+    push qword 15
+.blockstart_22: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_22
+    jmp proc_simasm_appendch
+.blockend_22: ; call
+    push qword 133
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_simasm_appendch
+.blockend_23: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 40
+    push rax
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_24: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_24
+    jmp proc_simasm_appendch
+.blockend_24: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 40
+    push rax
+    push qword 1
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_simasm_appendch
+.blockend_25: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 40
+    push rax
+    push qword 2
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_simasm_appendch
+.blockend_26: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 40
+    push rax
+    push qword 3
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+.blockstart_27: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_27
+    jmp proc_simasm_appendch
+.blockend_27: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_28: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_28
+    jmp proc_str_free
+.blockend_28: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_16: ; if
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 40
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 4
+    push str_252
+.blockstart_29: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_29
+    jmp proc_error_new
+.blockend_29: ; call
+.blockstart_30: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_30
+    jmp proc_error_eval
+.blockend_30: ; call
+    push qword 0
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -38969,7 +41395,6 @@ proc_simulator_asmintr:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 1
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -38991,7 +41416,7 @@ proc_simulator_asmintr:
     pop rax
     push rax
     push rax
-    push qword 2
+    push qword 21
     xor rcx, rcx
     mov rdx, 1
     pop rax
@@ -39021,7 +41446,7 @@ proc_simulator_asmintr:
     mov qword [rax], .blockend_3
     jmp proc_simasm_addpopreg
 .blockend_3: ; call
-    push qword 0
+    push qword 72
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39029,9 +41454,9 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_4
-    jmp proc_simasm_addpushreg
+    jmp proc_simasm_appendch
 .blockend_4: ; call
-    push qword 0
+    push qword 49
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39039,8 +41464,178 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_simasm_addpushreg
+    jmp proc_simasm_appendch
 .blockend_5: ; call
+    push qword 219
+.blockstart_6: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_6
+    jmp proc_simasm_appendch
+.blockend_6: ; call
+    push qword 72
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_simasm_appendch
+.blockend_7: ; call
+    push qword 49
+.blockstart_8: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_8
+    jmp proc_simasm_appendch
+.blockend_8: ; call
+    push qword 201
+.blockstart_9: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_simasm_appendch
+.blockend_9: ; call
+    push qword 186
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_simasm_appendch
+.blockend_10: ; call
+    push qword 1
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_simasm_appendch
+.blockend_11: ; call
+    push qword 0
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_simasm_appendch
+.blockend_12: ; call
+    push qword 0
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_simasm_appendch
+.blockend_13: ; call
+    push qword 0
+.blockstart_14: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_14
+    jmp proc_simasm_appendch
+.blockend_14: ; call
+    push qword 72
+.blockstart_15: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_15
+    jmp proc_simasm_appendch
+.blockend_15: ; call
+    push qword 57
+.blockstart_16: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_16
+    jmp proc_simasm_appendch
+.blockend_16: ; call
+    push qword 216
+.blockstart_17: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_17
+    jmp proc_simasm_appendch
+.blockend_17: ; call
+    push qword 72
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
+    jmp proc_simasm_appendch
+.blockend_18: ; call
+    push qword 15
+.blockstart_19: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_19
+    jmp proc_simasm_appendch
+.blockend_19: ; call
+    push qword 68
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_simasm_appendch
+.blockend_20: ; call
+    push qword 202
+.blockstart_21: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_21
+    jmp proc_simasm_appendch
+.blockend_21: ; call
+    push qword 3
+.blockstart_22: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_22
+    jmp proc_simasm_addpushreg
+.blockend_22: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -39053,7 +41648,7 @@ proc_simulator_asmintr:
     pop rax
     push rax
     push rax
-    push qword 14
+    push qword 2
     xor rcx, rcx
     mov rdx, 1
     pop rax
@@ -39063,8 +41658,8 @@ proc_simulator_asmintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_6: ; if
-    jz .blockend_6
+.blockstart_23: ; if
+    jz .blockend_23
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -39074,242 +41669,6 @@ proc_simulator_asmintr:
     mov rbx, [rax]
     push rbx
     push qword 0
-.blockstart_7: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
-    jmp proc_simasm_addpopreg
-.blockend_7: ; call
-    push qword 3
-.blockstart_8: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_8
-    jmp proc_simasm_addpopreg
-.blockend_8: ; call
-    push qword 3
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
-    jmp proc_simasm_addpushreg
-.blockend_9: ; call
-    push qword 0
-.blockstart_10: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
-    jmp proc_simasm_addpushreg
-.blockend_10: ; call
-    push qword 3
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_simasm_addpushreg
-.blockend_11: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
-.blockend_6: ; if
-    pop rax
-    push rax
-    push rax
-    push qword 15
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmove rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_12: ; if
-    jz .blockend_12
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-.blockstart_13: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_13
-    jmp proc_simasm_addpopreg
-.blockend_13: ; call
-    push qword 3
-.blockstart_14: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
-    jmp proc_simasm_addpopreg
-.blockend_14: ; call
-    push qword 0
-.blockstart_15: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
-    jmp proc_simasm_addpushreg
-.blockend_15: ; call
-    push qword 3
-.blockstart_16: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
-    jmp proc_simasm_addpushreg
-.blockend_16: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
-.blockend_12: ; if
-    pop rax
-    push rax
-    push rax
-    push qword 7
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmove rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_17: ; if
-    jz .blockend_17
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-.blockstart_18: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
-    jmp proc_simasm_addpopreg
-.blockend_18: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
-.blockend_17: ; if
-    pop rax
-    push rax
-    push rax
-    push qword 4
-    xor rcx, rcx
-    mov rdx, 1
-    pop rax
-    pop rbx
-    cmp rax, rbx
-    cmove rcx, rdx
-    push rcx
-    pop rbx
-    test rbx, rbx
-.blockstart_19: ; if
-    jz .blockend_19
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-.blockstart_20: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_20
-    jmp proc_simasm_addpopreg
-.blockend_20: ; call
-    push qword 72
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_simasm_appendch
-.blockend_21: ; call
-    push qword 49
-.blockstart_22: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_22
-    jmp proc_simasm_appendch
-.blockend_22: ; call
-    push qword 219
-.blockstart_23: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
-    jmp proc_simasm_appendch
-.blockend_23: ; call
-    push qword 138
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39317,9 +41676,9 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_24
-    jmp proc_simasm_appendch
+    jmp proc_simasm_addpopreg
 .blockend_24: ; call
-    push qword 24
+    push qword 0
 .blockstart_25: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39327,9 +41686,9 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_25
-    jmp proc_simasm_appendch
+    jmp proc_simasm_addpushreg
 .blockend_25: ; call
-    push qword 3
+    push qword 0
 .blockstart_26: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39347,11 +41706,11 @@ proc_simulator_asmintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_19: ; if
+.blockend_23: ; if
     pop rax
     push rax
     push rax
-    push qword 8
+    push qword 14
     xor rcx, rcx
     mov rdx, 1
     pop rax
@@ -39391,7 +41750,7 @@ proc_simulator_asmintr:
     mov qword [rax], .blockend_29
     jmp proc_simasm_addpopreg
 .blockend_29: ; call
-    push qword 72
+    push qword 3
 .blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39399,9 +41758,9 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_30
-    jmp proc_simasm_appendch
+    jmp proc_simasm_addpushreg
 .blockend_30: ; call
-    push qword 49
+    push qword 0
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39409,9 +41768,9 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_31
-    jmp proc_simasm_appendch
+    jmp proc_simasm_addpushreg
 .blockend_31: ; call
-    push qword 201
+    push qword 3
 .blockstart_32: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -39419,138 +41778,8 @@ proc_simulator_asmintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_32
-    jmp proc_simasm_appendch
-.blockend_32: ; call
-    push qword 186
-.blockstart_33: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_33
-    jmp proc_simasm_appendch
-.blockend_33: ; call
-    push qword 1
-.blockstart_34: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_34
-    jmp proc_simasm_appendch
-.blockend_34: ; call
-    push qword 0
-.blockstart_35: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_35
-    jmp proc_simasm_appendch
-.blockend_35: ; call
-    push qword 0
-.blockstart_36: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_36
-    jmp proc_simasm_appendch
-.blockend_36: ; call
-    push qword 0
-.blockstart_37: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_37
-    jmp proc_simasm_appendch
-.blockend_37: ; call
-    push qword 72
-.blockstart_38: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_38
-    jmp proc_simasm_appendch
-.blockend_38: ; call
-    push qword 57
-.blockstart_39: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_39
-    jmp proc_simasm_appendch
-.blockend_39: ; call
-    push qword 216
-.blockstart_40: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_40
-    jmp proc_simasm_appendch
-.blockend_40: ; call
-    push qword 72
-.blockstart_41: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_41
-    jmp proc_simasm_appendch
-.blockend_41: ; call
-    push qword 15
-.blockstart_42: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_42
-    jmp proc_simasm_appendch
-.blockend_42: ; call
-    push qword 68
-.blockstart_43: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_43
-    jmp proc_simasm_appendch
-.blockend_43: ; call
-    push qword 202
-.blockstart_44: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_44
-    jmp proc_simasm_appendch
-.blockend_44: ; call
-    push qword 1
-.blockstart_45: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_45
     jmp proc_simasm_addpushreg
-.blockend_45: ; call
+.blockend_32: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -39560,6 +41789,646 @@ proc_simulator_asmintr:
     add rax, 16
     jmp qword [rax]
 .blockend_27: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 15
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_33: ; if
+    jz .blockend_33
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_34: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_34
+    jmp proc_simasm_addpopreg
+.blockend_34: ; call
+    push qword 3
+.blockstart_35: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_35
+    jmp proc_simasm_addpopreg
+.blockend_35: ; call
+    push qword 0
+.blockstart_36: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_36
+    jmp proc_simasm_addpushreg
+.blockend_36: ; call
+    push qword 3
+.blockstart_37: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_37
+    jmp proc_simasm_addpushreg
+.blockend_37: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_33: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 7
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_38: ; if
+    jz .blockend_38
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_39: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_39
+    jmp proc_simasm_addpopreg
+.blockend_39: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_38: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 4
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_40: ; if
+    jz .blockend_40
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_41: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_41
+    jmp proc_simasm_addpopreg
+.blockend_41: ; call
+    push qword 72
+.blockstart_42: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_42
+    jmp proc_simasm_appendch
+.blockend_42: ; call
+    push qword 49
+.blockstart_43: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_43
+    jmp proc_simasm_appendch
+.blockend_43: ; call
+    push qword 219
+.blockstart_44: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_44
+    jmp proc_simasm_appendch
+.blockend_44: ; call
+    push qword 138
+.blockstart_45: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_45
+    jmp proc_simasm_appendch
+.blockend_45: ; call
+    push qword 24
+.blockstart_46: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_46
+    jmp proc_simasm_appendch
+.blockend_46: ; call
+    push qword 3
+.blockstart_47: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_47
+    jmp proc_simasm_addpushreg
+.blockend_47: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_40: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 9
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_48: ; if
+    jz .blockend_48
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_49: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_49
+    jmp proc_simasm_addpopreg
+.blockend_49: ; call
+    push qword 3
+.blockstart_50: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_50
+    jmp proc_simasm_addpopreg
+.blockend_50: ; call
+    push qword 72
+.blockstart_51: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_51
+    jmp proc_simasm_appendch
+.blockend_51: ; call
+    push qword 49
+.blockstart_52: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_52
+    jmp proc_simasm_appendch
+.blockend_52: ; call
+    push qword 201
+.blockstart_53: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_53
+    jmp proc_simasm_appendch
+.blockend_53: ; call
+    push qword 186
+.blockstart_54: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_54
+    jmp proc_simasm_appendch
+.blockend_54: ; call
+    push qword 1
+.blockstart_55: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_55
+    jmp proc_simasm_appendch
+.blockend_55: ; call
+    push qword 0
+.blockstart_56: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_56
+    jmp proc_simasm_appendch
+.blockend_56: ; call
+    push qword 0
+.blockstart_57: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_57
+    jmp proc_simasm_appendch
+.blockend_57: ; call
+    push qword 0
+.blockstart_58: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_58
+    jmp proc_simasm_appendch
+.blockend_58: ; call
+    push qword 72
+.blockstart_59: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_59
+    jmp proc_simasm_appendch
+.blockend_59: ; call
+    push qword 57
+.blockstart_60: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_60
+    jmp proc_simasm_appendch
+.blockend_60: ; call
+    push qword 216
+.blockstart_61: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_61
+    jmp proc_simasm_appendch
+.blockend_61: ; call
+    push qword 72
+.blockstart_62: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_62
+    jmp proc_simasm_appendch
+.blockend_62: ; call
+    push qword 15
+.blockstart_63: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_63
+    jmp proc_simasm_appendch
+.blockend_63: ; call
+    push qword 69
+.blockstart_64: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_64
+    jmp proc_simasm_appendch
+.blockend_64: ; call
+    push qword 202
+.blockstart_65: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_65
+    jmp proc_simasm_appendch
+.blockend_65: ; call
+    push qword 1
+.blockstart_66: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_66
+    jmp proc_simasm_addpushreg
+.blockend_66: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_48: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 8
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_67: ; if
+    jz .blockend_67
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+.blockstart_68: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_68
+    jmp proc_simasm_addpopreg
+.blockend_68: ; call
+    push qword 3
+.blockstart_69: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_69
+    jmp proc_simasm_addpopreg
+.blockend_69: ; call
+    push qword 72
+.blockstart_70: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_70
+    jmp proc_simasm_appendch
+.blockend_70: ; call
+    push qword 49
+.blockstart_71: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_71
+    jmp proc_simasm_appendch
+.blockend_71: ; call
+    push qword 201
+.blockstart_72: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_72
+    jmp proc_simasm_appendch
+.blockend_72: ; call
+    push qword 186
+.blockstart_73: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_73
+    jmp proc_simasm_appendch
+.blockend_73: ; call
+    push qword 1
+.blockstart_74: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_74
+    jmp proc_simasm_appendch
+.blockend_74: ; call
+    push qword 0
+.blockstart_75: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_75
+    jmp proc_simasm_appendch
+.blockend_75: ; call
+    push qword 0
+.blockstart_76: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_76
+    jmp proc_simasm_appendch
+.blockend_76: ; call
+    push qword 0
+.blockstart_77: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_77
+    jmp proc_simasm_appendch
+.blockend_77: ; call
+    push qword 72
+.blockstart_78: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_78
+    jmp proc_simasm_appendch
+.blockend_78: ; call
+    push qword 57
+.blockstart_79: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_79
+    jmp proc_simasm_appendch
+.blockend_79: ; call
+    push qword 216
+.blockstart_80: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_80
+    jmp proc_simasm_appendch
+.blockend_80: ; call
+    push qword 72
+.blockstart_81: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_81
+    jmp proc_simasm_appendch
+.blockend_81: ; call
+    push qword 15
+.blockstart_82: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_82
+    jmp proc_simasm_appendch
+.blockend_82: ; call
+    push qword 68
+.blockstart_83: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_83
+    jmp proc_simasm_appendch
+.blockend_83: ; call
+    push qword 202
+.blockstart_84: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_84
+    jmp proc_simasm_appendch
+.blockend_84: ; call
+    push qword 1
+.blockstart_85: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_85
+    jmp proc_simasm_addpushreg
+.blockend_85: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_67: ; if
     pop rax
     push rax
     push rax
@@ -39573,8 +42442,8 @@ proc_simulator_asmintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_46: ; if
-    jz .blockend_46
+.blockstart_86: ; if
+    jz .blockend_86
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -39584,45 +42453,45 @@ proc_simulator_asmintr:
     mov rbx, [rax]
     push rbx
     push qword 3
-.blockstart_47: ; call
+.blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_47
+    mov qword [rax], .blockend_87
     jmp proc_simasm_addpopreg
-.blockend_47: ; call
+.blockend_87: ; call
     push qword 0
-.blockstart_48: ; call
+.blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_48
+    mov qword [rax], .blockend_88
     jmp proc_simasm_addpopreg
-.blockend_48: ; call
+.blockend_88: ; call
     push qword 1
-.blockstart_49: ; call
+.blockstart_89: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_49
+    mov qword [rax], .blockend_89
     jmp proc_simasm_addop
-.blockend_49: ; call
+.blockend_89: ; call
     push qword 0
-.blockstart_50: ; call
+.blockstart_90: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_50
+    mov qword [rax], .blockend_90
     jmp proc_simasm_addpushreg
-.blockend_50: ; call
+.blockend_90: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -39631,7 +42500,151 @@ proc_simulator_asmintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_46: ; if
+.blockend_86: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 19
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_91: ; if
+    jz .blockend_91
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 3
+.blockstart_92: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_92
+    jmp proc_simasm_addpopreg
+.blockend_92: ; call
+    push qword 0
+.blockstart_93: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_93
+    jmp proc_simasm_addpopreg
+.blockend_93: ; call
+    push qword 33
+.blockstart_94: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_94
+    jmp proc_simasm_addop
+.blockend_94: ; call
+    push qword 0
+.blockstart_95: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_95
+    jmp proc_simasm_addpushreg
+.blockend_95: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_91: ; if
+    pop rax
+    push rax
+    push rax
+    push qword 22
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rbx
+    test rbx, rbx
+.blockstart_96: ; if
+    jz .blockend_96
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 3
+.blockstart_97: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_97
+    jmp proc_simasm_addpopreg
+.blockend_97: ; call
+    push qword 0
+.blockstart_98: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_98
+    jmp proc_simasm_addpopreg
+.blockend_98: ; call
+    push qword 9
+.blockstart_99: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_99
+    jmp proc_simasm_addop
+.blockend_99: ; call
+    push qword 0
+.blockstart_100: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_100
+    jmp proc_simasm_addpushreg
+.blockend_100: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+.blockend_96: ; if
     pop rax
     push rax
     push rax
@@ -39645,8 +42658,8 @@ proc_simulator_asmintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_51: ; if
-    jz .blockend_51
+.blockstart_101: ; if
+    jz .blockend_101
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -39656,45 +42669,45 @@ proc_simulator_asmintr:
     mov rbx, [rax]
     push rbx
     push qword 3
-.blockstart_52: ; call
+.blockstart_102: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_52
+    mov qword [rax], .blockend_102
     jmp proc_simasm_addpopreg
-.blockend_52: ; call
+.blockend_102: ; call
     push qword 0
-.blockstart_53: ; call
+.blockstart_103: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_53
+    mov qword [rax], .blockend_103
     jmp proc_simasm_addpopreg
-.blockend_53: ; call
+.blockend_103: ; call
     push qword 41
-.blockstart_54: ; call
+.blockstart_104: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_54
+    mov qword [rax], .blockend_104
     jmp proc_simasm_addop
-.blockend_54: ; call
+.blockend_104: ; call
     push qword 0
-.blockstart_55: ; call
+.blockstart_105: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_55
+    mov qword [rax], .blockend_105
     jmp proc_simasm_addpushreg
-.blockend_55: ; call
+.blockend_105: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -39703,7 +42716,7 @@ proc_simulator_asmintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_51: ; if
+.blockend_101: ; if
     pop rax
     push rax
     push rax
@@ -39717,8 +42730,8 @@ proc_simulator_asmintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_56: ; if
-    jz .blockend_56
+.blockstart_106: ; if
+    jz .blockend_106
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -39728,75 +42741,75 @@ proc_simulator_asmintr:
     mov rbx, [rax]
     push rbx
     push qword 3
-.blockstart_57: ; call
+.blockstart_107: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_57
+    mov qword [rax], .blockend_107
     jmp proc_simasm_addpopreg
-.blockend_57: ; call
+.blockend_107: ; call
     push qword 0
-.blockstart_58: ; call
+.blockstart_108: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_58
+    mov qword [rax], .blockend_108
     jmp proc_simasm_addpopreg
-.blockend_58: ; call
+.blockend_108: ; call
     push qword 72
-.blockstart_59: ; call
+.blockstart_109: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_59
+    mov qword [rax], .blockend_109
     jmp proc_simasm_appendch
-.blockend_59: ; call
+.blockend_109: ; call
     push qword 15
-.blockstart_60: ; call
+.blockstart_110: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_60
+    mov qword [rax], .blockend_110
     jmp proc_simasm_appendch
-.blockend_60: ; call
+.blockend_110: ; call
     push qword 175
-.blockstart_61: ; call
+.blockstart_111: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_61
+    mov qword [rax], .blockend_111
     jmp proc_simasm_appendch
-.blockend_61: ; call
+.blockend_111: ; call
     push qword 195
-.blockstart_62: ; call
+.blockstart_112: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_62
+    mov qword [rax], .blockend_112
     jmp proc_simasm_appendch
-.blockend_62: ; call
+.blockend_112: ; call
     push qword 0
-.blockstart_63: ; call
+.blockstart_113: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_63
+    mov qword [rax], .blockend_113
     jmp proc_simasm_addpushreg
-.blockend_63: ; call
+.blockend_113: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -39805,7 +42818,7 @@ proc_simulator_asmintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_56: ; if
+.blockend_106: ; if
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -39832,25 +42845,25 @@ proc_simulator_asmintr:
     add rax, rbx
     push rax
     push qword 4
-    push str_251
-.blockstart_64: ; call
+    push str_253
+.blockstart_114: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_64
+    mov qword [rax], .blockend_114
     jmp proc_error_new
-.blockend_64: ; call
-.blockstart_65: ; call
+.blockend_114: ; call
+.blockstart_115: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_65
+    mov qword [rax], .blockend_115
     jmp proc_error_eval
-.blockend_65: ; call
+.blockend_115: ; call
     push qword 0
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
@@ -39860,7 +42873,82 @@ proc_simulator_asmintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-proc_simulator_callthing:
+proc_simulator_callexternal:
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [loc_stack_rsp]
+    add rax, 8
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    pop rbx
+    push rax
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    push mem+83; simulator_current
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_0: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_0
+    jmp proc_simulator_runprocname
+.blockend_0: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 2
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    pop rax
+    jmp rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax - 8]
+    mov [loc_stack_rsp], rax
+    mov rax, [ret_stack_rsp]
+    sub rax, 16
+    mov qword [ret_stack_rsp], rax
+    add rax, 16
+    jmp qword [rax]
+proc_simulator_callinternal:
     mov rax, [loc_stack_rsp]
     add rax, 8
     mov [loc_stack_rsp], rax
@@ -39877,25 +42965,16 @@ proc_simulator_callthing:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_252
 .blockstart_0: ; call
+    pop rcx
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_0
-    jmp proc_cstr_print
+    jmp qword rcx
 .blockend_0: ; call
-.blockstart_1: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_1
-    jmp proc_cstr_println
-.blockend_1: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -39903,6 +42982,11 @@ proc_simulator_callthing:
     pop rax
     mov rbx, [rax]
     push rbx
+    push qword 2
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
     pop rax
     jmp rax
     mov rax, [ret_stack_rsp]
@@ -40149,6 +43233,13 @@ proc_simulator_asmconst:
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
     add rax, 8
     push rax
     pop rax
@@ -40165,7 +43256,6 @@ proc_simulator_asmconst:
     pop rbx
     add rax, rbx
     push rax
-    push str_253
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40173,20 +43263,19 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_cstr_eq
+    jmp proc_simasm_addsetrax
 .blockend_8: ; call
-    pop rbx
-    test rbx, rbx
-.blockstart_9: ; if
-    jz .blockend_9
+    push qword 0
+.blockstart_9: ; call
     mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
     add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 2
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_9
+    jmp proc_simasm_addpushreg
+.blockend_9: ; call
+    push proc_simulator_callexternal
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40194,9 +43283,9 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_10
-    jmp proc_simasm_addpopreg
+    jmp proc_simasm_addsetrax
 .blockend_10: ; call
-    push qword 6
+    push qword 232
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40204,9 +43293,9 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_11
-    jmp proc_simasm_addpopreg
+    jmp proc_simasm_appendch
 .blockend_11: ; call
-    push qword 1
+    push qword 0
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40214,9 +43303,9 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_12
-    jmp proc_simasm_addsetrax
+    jmp proc_simasm_appendch
 .blockend_12: ; call
-    push qword 72
+    push qword 0
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40226,7 +43315,7 @@ proc_simulator_asmconst:
     mov qword [rax], .blockend_13
     jmp proc_simasm_appendch
 .blockend_13: ; call
-    push qword 137
+    push qword 0
 .blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40236,7 +43325,7 @@ proc_simulator_asmconst:
     mov qword [rax], .blockend_14
     jmp proc_simasm_appendch
 .blockend_14: ; call
-    push qword 199
+    push qword 0
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40246,6 +43335,7 @@ proc_simulator_asmconst:
     mov qword [rax], .blockend_15
     jmp proc_simasm_appendch
 .blockend_15: ; call
+    push qword 255
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40253,42 +43343,9 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_16
-    jmp proc_simasm_addsyscall
+    jmp proc_simasm_appendch
 .blockend_16: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax - 8]
-    mov [loc_stack_rsp], rax
-    mov rax, [ret_stack_rsp]
-    sub rax, 16
-    mov qword [ret_stack_rsp], rax
-    add rax, 16
-    jmp qword [rax]
-.blockend_9: ; if
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
+    push qword 224
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40296,110 +43353,8 @@ proc_simulator_asmconst:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_17
-    jmp proc_simasm_addsetrax
+    jmp proc_simasm_appendch
 .blockend_17: ; call
-    push qword 0
-.blockstart_18: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
-    jmp proc_simasm_addpushreg
-.blockend_18: ; call
-    push proc_simulator_callthing
-    pop rax
-    push rax
-    push rax
-.blockstart_19: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
-    jmp proc_int_print
-.blockend_19: ; call
-.blockstart_20: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_20
-    jmp proc_simasm_addsetrax
-.blockend_20: ; call
-    push qword 232
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_simasm_appendch
-.blockend_21: ; call
-    push qword 0
-.blockstart_22: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_22
-    jmp proc_simasm_appendch
-.blockend_22: ; call
-    push qword 0
-.blockstart_23: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
-    jmp proc_simasm_appendch
-.blockend_23: ; call
-    push qword 0
-.blockstart_24: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
-    jmp proc_simasm_appendch
-.blockend_24: ; call
-    push qword 0
-.blockstart_25: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_25
-    jmp proc_simasm_appendch
-.blockend_25: ; call
-    push qword 255
-.blockstart_26: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
-    jmp proc_simasm_appendch
-.blockend_26: ; call
-    push qword 224
-.blockstart_27: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_27
-    jmp proc_simasm_appendch
-.blockend_27: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -40436,24 +43391,24 @@ proc_simulator_asmconst:
     push rax
     push qword 4
     push str_254
-.blockstart_28: ; call
+.blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_28
+    mov qword [rax], .blockend_18
     jmp proc_error_new
-.blockend_28: ; call
-.blockstart_29: ; call
+.blockend_18: ; call
+.blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_29
+    mov qword [rax], .blockend_19
     jmp proc_error_eval
-.blockend_29: ; call
+.blockend_19: ; call
     push qword 0
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
@@ -40800,7 +43755,7 @@ proc_simulator_asmproc:
     mov rax, [rax-8]
     add rax, 24
     push rax
-    push qword 24
+    push qword 33
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -40822,7 +43777,7 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
@@ -40848,21 +43803,12 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_2: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
-    jmp proc_simasm_start
-.blockend_2: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
@@ -40870,7 +43816,7 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
@@ -40907,8 +43853,8 @@ proc_simulator_asmproc:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_3: ; if
-    jz .blockend_3
+.blockstart_2: ; if
+    jz .blockend_2
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
@@ -40916,10 +43862,26 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_str_free
+.blockend_3: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
     mov rbx, [rax]
     push rbx
 .blockstart_4: ; call
@@ -40929,24 +43891,8 @@ proc_simulator_asmproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_4
-    jmp proc_str_free
-.blockend_4: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 24
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_5: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
     jmp proc_heap_free
-.blockend_5: ; call
+.blockend_4: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -40955,9 +43901,9 @@ proc_simulator_asmproc:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_3: ; if
+.blockend_2: ; if
     push qword 0
-.blockstart_6: ; do
+.blockstart_5: ; do
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 16
@@ -40994,21 +43940,21 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_7: ; call
+.blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_7
+    mov qword [rax], .blockend_6
     jmp proc_simulator_asmnode
-.blockend_7: ; call
+.blockend_6: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
@@ -41016,7 +43962,7 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
@@ -41062,8 +44008,8 @@ proc_simulator_asmproc:
     push rcx
     pop rbx
     test rbx, rbx
-    jnz .blockstart_6
-.blockend_6: ; do
+    jnz .blockstart_5
+.blockend_5: ; do
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -41072,13 +44018,22 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
     mov rbx, [rax]
     push rbx
-    push qword 0
+.blockstart_7: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_7
+    jmp proc_simasm_stop
+.blockend_7: ; call
+    push qword 144
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -41086,18 +44041,8 @@ proc_simulator_asmproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_simasm_stop
-.blockend_8: ; call
-    push qword 144
-.blockstart_9: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_9
     jmp proc_simasm_appendch
-.blockend_9: ; call
+.blockend_8: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
@@ -41105,7 +44050,7 @@ proc_simulator_asmproc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push qword 0
+    push qword 1
     pop rax
     pop rbx
     add rax, rbx
@@ -41124,15 +44069,15 @@ proc_simulator_asmproc:
     add rax, 32
     push rax
     push qword 128
-.blockstart_10: ; call
+.blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
+    mov qword [rax], .blockend_9
     jmp proc_heap_zalloc
-.blockend_10: ; call
+.blockend_9: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -41163,15 +44108,15 @@ proc_simulator_asmproc:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_11: ; call
+.blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
+    mov qword [rax], .blockend_10
     jmp proc_cstr_cpy
-.blockend_11: ; call
+.blockend_10: ; call
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -41198,15 +44143,15 @@ proc_simulator_asmproc:
     mov rax, [rax-8]
     add rax, 24
     push rax
-.blockstart_12: ; call
+.blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
+    mov qword [rax], .blockend_11
     jmp proc_map_append
-.blockend_12: ; call
+.blockend_11: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -41228,6 +44173,22 @@ proc_simulator_asmproc:
     mov qword [rax], rbx
     push rax
     add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_heap_free
+.blockend_12: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 32
@@ -47676,11 +50637,14 @@ proc_assembler_visitcall:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-    push qword 8
+    push qword 16
     pop rax
     pop rbx
     add rax, rbx
-    mov rbx, [rax]
+    push rax
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
     push rbx
     push qword 0
     xor rcx, rcx
@@ -48873,6 +51837,37 @@ proc_assembler_visitintr:
     jz .blockend_1
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+.blockstart_2: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_2
+    jmp proc_int_print
+.blockend_2: ; call
+.blockstart_3: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_3
+    jmp proc_cstr_cr
+.blockend_3: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
     add rax, 16
     push rax
     pop rax
@@ -48897,26 +51892,6 @@ proc_assembler_visitintr:
     push rax
     push qword 5
     push str_349
-.blockstart_2: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
-    jmp proc_error_new
-.blockend_2: ; call
-.blockstart_3: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_3
-    jmp proc_error_eval
-.blockend_3: ; call
-.blockend_1: ; if
-    push str_350
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48924,9 +51899,8 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_4
-    jmp proc_writer_write
+    jmp proc_error_new
 .blockend_4: ; call
-    push str_351
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48934,9 +51908,10 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_5
-    jmp proc_writer_write
+    jmp proc_error_eval
 .blockend_5: ; call
-    push str_352
+.blockend_1: ; if
+    push str_350
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48946,7 +51921,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_6
     jmp proc_writer_write
 .blockend_6: ; call
-    push str_353
+    push str_351
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48956,7 +51931,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_7
     jmp proc_writer_write
 .blockend_7: ; call
-    push str_354
+    push str_352
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48966,7 +51941,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_8
     jmp proc_writer_write
 .blockend_8: ; call
-    push str_355
+    push str_353
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48976,7 +51951,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_9
     jmp proc_writer_write
 .blockend_9: ; call
-    push str_356
+    push str_354
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48986,7 +51961,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_10
     jmp proc_writer_write
 .blockend_10: ; call
-    push str_357
+    push str_355
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -48996,6 +51971,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_11
     jmp proc_writer_write
 .blockend_11: ; call
+    push str_356
+.blockstart_12: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_12
+    jmp proc_writer_write
+.blockend_12: ; call
+    push str_357
+.blockstart_13: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_13
+    jmp proc_writer_write
+.blockend_13: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49018,8 +52013,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_12: ; if
-    jz .blockend_12
+.blockstart_14: ; if
+    jz .blockend_14
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49037,26 +52032,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 2
-.blockstart_13: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_13
-    jmp proc_assembler_updatestack
-.blockend_13: ; call
-    push str_358
-.blockstart_14: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
-    jmp proc_writer_write
-.blockend_14: ; call
-    push str_359
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49064,9 +52039,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_15
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_15: ; call
-    push str_360
+    push str_358
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49076,6 +52051,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
+    push str_359
+.blockstart_17: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_17
+    jmp proc_writer_write
+.blockend_17: ; call
+    push str_360
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
+    jmp proc_writer_write
+.blockend_18: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49084,7 +52079,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_12: ; if
+.blockend_14: ; if
     pop rax
     push rax
     push rax
@@ -49098,8 +52093,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_17: ; if
-    jz .blockend_17
+.blockstart_19: ; if
+    jz .blockend_19
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49117,25 +52112,25 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 0
-.blockstart_18: ; call
+.blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
+    mov qword [rax], .blockend_20
     jmp proc_assembler_updatestack
-.blockend_18: ; call
+.blockend_20: ; call
     push str_361
-.blockstart_19: ; call
+.blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_19
+    mov qword [rax], .blockend_21
     jmp proc_writer_write
-.blockend_19: ; call
+.blockend_21: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49144,7 +52139,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_17: ; if
+.blockend_19: ; if
     pop rax
     push rax
     push rax
@@ -49158,8 +52153,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_20: ; if
-    jz .blockend_20
+.blockstart_22: ; if
+    jz .blockend_22
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49177,26 +52172,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_assembler_updatestack
-.blockend_21: ; call
-    push str_362
-.blockstart_22: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_22
-    jmp proc_writer_write
-.blockend_22: ; call
-    push str_363
 .blockstart_23: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49204,9 +52179,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_23
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_23: ; call
-    push str_364
+    push str_362
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49216,6 +52191,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_24
     jmp proc_writer_write
 .blockend_24: ; call
+    push str_363
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_writer_write
+.blockend_25: ; call
+    push str_364
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_writer_write
+.blockend_26: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49224,7 +52219,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_20: ; if
+.blockend_22: ; if
     pop rax
     push rax
     push rax
@@ -49238,8 +52233,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_25: ; if
-    jz .blockend_25
+.blockstart_27: ; if
+    jz .blockend_27
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49257,26 +52252,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_26: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
-    jmp proc_assembler_updatestack
-.blockend_26: ; call
-    push str_365
-.blockstart_27: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_27
-    jmp proc_writer_write
-.blockend_27: ; call
-    push str_366
 .blockstart_28: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49284,9 +52259,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_28
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_28: ; call
-    push str_367
+    push str_365
 .blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49296,6 +52271,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_29
     jmp proc_writer_write
 .blockend_29: ; call
+    push str_366
+.blockstart_30: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_30
+    jmp proc_writer_write
+.blockend_30: ; call
+    push str_367
+.blockstart_31: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_31
+    jmp proc_writer_write
+.blockend_31: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49304,7 +52299,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_25: ; if
+.blockend_27: ; if
     pop rax
     push rax
     push rax
@@ -49318,8 +52313,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_30: ; if
-    jz .blockend_30
+.blockstart_32: ; if
+    jz .blockend_32
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49337,26 +52332,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_31: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_31
-    jmp proc_assembler_updatestack
-.blockend_31: ; call
-    push str_368
-.blockstart_32: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_32
-    jmp proc_writer_write
-.blockend_32: ; call
-    push str_369
 .blockstart_33: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49364,9 +52339,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_33
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_33: ; call
-    push str_370
+    push str_368
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49376,7 +52351,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_34
     jmp proc_writer_write
 .blockend_34: ; call
-    push str_371
+    push str_369
 .blockstart_35: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49386,7 +52361,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_35
     jmp proc_writer_write
 .blockend_35: ; call
-    push str_372
+    push str_370
 .blockstart_36: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49396,7 +52371,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_36
     jmp proc_writer_write
 .blockend_36: ; call
-    push str_373
+    push str_371
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49406,7 +52381,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_37
     jmp proc_writer_write
 .blockend_37: ; call
-    push str_374
+    push str_372
 .blockstart_38: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49416,6 +52391,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_38
     jmp proc_writer_write
 .blockend_38: ; call
+    push str_373
+.blockstart_39: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_39
+    jmp proc_writer_write
+.blockend_39: ; call
+    push str_374
+.blockstart_40: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_40
+    jmp proc_writer_write
+.blockend_40: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49424,7 +52419,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_30: ; if
+.blockend_32: ; if
     pop rax
     push rax
     push rax
@@ -49438,8 +52433,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_39: ; if
-    jz .blockend_39
+.blockstart_41: ; if
+    jz .blockend_41
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49475,26 +52470,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 0
-.blockstart_40: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_40
-    jmp proc_assembler_updatestack
-.blockend_40: ; call
-    push str_375
-.blockstart_41: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_41
-    jmp proc_writer_write
-.blockend_41: ; call
-    push str_376
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49502,9 +52477,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_42
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_42: ; call
-    push str_377
+    push str_375
 .blockstart_43: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49514,6 +52489,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_43
     jmp proc_writer_write
 .blockend_43: ; call
+    push str_376
+.blockstart_44: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_44
+    jmp proc_writer_write
+.blockend_44: ; call
+    push str_377
+.blockstart_45: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_45
+    jmp proc_writer_write
+.blockend_45: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49522,7 +52517,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_39: ; if
+.blockend_41: ; if
     pop rax
     push rax
     push rax
@@ -49536,8 +52531,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_44: ; if
-    jz .blockend_44
+.blockstart_46: ; if
+    jz .blockend_46
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49555,26 +52550,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 2
-.blockstart_45: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_45
-    jmp proc_assembler_updatestack
-.blockend_45: ; call
-    push str_378
-.blockstart_46: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_46
-    jmp proc_writer_write
-.blockend_46: ; call
-    push str_379
 .blockstart_47: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49582,9 +52557,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_47
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_47: ; call
-    push str_380
+    push str_378
 .blockstart_48: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49594,7 +52569,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_48
     jmp proc_writer_write
 .blockend_48: ; call
-    push str_381
+    push str_379
 .blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49604,6 +52579,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_49
     jmp proc_writer_write
 .blockend_49: ; call
+    push str_380
+.blockstart_50: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_50
+    jmp proc_writer_write
+.blockend_50: ; call
+    push str_381
+.blockstart_51: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_51
+    jmp proc_writer_write
+.blockend_51: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49612,7 +52607,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_44: ; if
+.blockend_46: ; if
     pop rax
     push rax
     push rax
@@ -49626,8 +52621,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_50: ; if
-    jz .blockend_50
+.blockstart_52: ; if
+    jz .blockend_52
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49645,26 +52640,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 3
-.blockstart_51: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_51
-    jmp proc_assembler_updatestack
-.blockend_51: ; call
-    push str_382
-.blockstart_52: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_52
-    jmp proc_writer_write
-.blockend_52: ; call
-    push str_383
 .blockstart_53: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49672,9 +52647,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_53
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_53: ; call
-    push str_384
+    push str_382
 .blockstart_54: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49684,7 +52659,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_54
     jmp proc_writer_write
 .blockend_54: ; call
-    push str_385
+    push str_383
 .blockstart_55: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49694,7 +52669,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_55
     jmp proc_writer_write
 .blockend_55: ; call
-    push str_386
+    push str_384
 .blockstart_56: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49704,6 +52679,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_56
     jmp proc_writer_write
 .blockend_56: ; call
+    push str_385
+.blockstart_57: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_57
+    jmp proc_writer_write
+.blockend_57: ; call
+    push str_386
+.blockstart_58: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_58
+    jmp proc_writer_write
+.blockend_58: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49712,7 +52707,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_50: ; if
+.blockend_52: ; if
     pop rax
     push rax
     push rax
@@ -49726,8 +52721,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_57: ; if
-    jz .blockend_57
+.blockstart_59: ; if
+    jz .blockend_59
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49745,26 +52740,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_58: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_58
-    jmp proc_assembler_updatestack
-.blockend_58: ; call
-    push str_387
-.blockstart_59: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_59
-    jmp proc_writer_write
-.blockend_59: ; call
-    push str_388
 .blockstart_60: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49772,9 +52747,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_60
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_60: ; call
-    push str_389
+    push str_387
 .blockstart_61: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49784,6 +52759,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_61
     jmp proc_writer_write
 .blockend_61: ; call
+    push str_388
+.blockstart_62: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_62
+    jmp proc_writer_write
+.blockend_62: ; call
+    push str_389
+.blockstart_63: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_63
+    jmp proc_writer_write
+.blockend_63: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49792,7 +52787,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_57: ; if
+.blockend_59: ; if
     pop rax
     push rax
     push rax
@@ -49806,8 +52801,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_62: ; if
-    jz .blockend_62
+.blockstart_64: ; if
+    jz .blockend_64
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49825,26 +52820,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_63: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_63
-    jmp proc_assembler_updatestack
-.blockend_63: ; call
-    push str_390
-.blockstart_64: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_64
-    jmp proc_writer_write
-.blockend_64: ; call
-    push str_391
 .blockstart_65: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49852,9 +52827,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_65
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_65: ; call
-    push str_392
+    push str_390
 .blockstart_66: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49864,7 +52839,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_66
     jmp proc_writer_write
 .blockend_66: ; call
-    push str_393
+    push str_391
 .blockstart_67: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49874,6 +52849,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_67
     jmp proc_writer_write
 .blockend_67: ; call
+    push str_392
+.blockstart_68: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_68
+    jmp proc_writer_write
+.blockend_68: ; call
+    push str_393
+.blockstart_69: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_69
+    jmp proc_writer_write
+.blockend_69: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49882,7 +52877,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_62: ; if
+.blockend_64: ; if
     pop rax
     push rax
     push rax
@@ -49896,8 +52891,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_68: ; if
-    jz .blockend_68
+.blockstart_70: ; if
+    jz .blockend_70
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -49915,26 +52910,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_69: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_69
-    jmp proc_assembler_updatestack
-.blockend_69: ; call
-    push str_394
-.blockstart_70: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_70
-    jmp proc_writer_write
-.blockend_70: ; call
-    push str_395
 .blockstart_71: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49942,9 +52917,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_71
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_71: ; call
-    push str_396
+    push str_394
 .blockstart_72: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49954,7 +52929,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_72
     jmp proc_writer_write
 .blockend_72: ; call
-    push str_397
+    push str_395
 .blockstart_73: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -49964,6 +52939,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_73
     jmp proc_writer_write
 .blockend_73: ; call
+    push str_396
+.blockstart_74: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_74
+    jmp proc_writer_write
+.blockend_74: ; call
+    push str_397
+.blockstart_75: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_75
+    jmp proc_writer_write
+.blockend_75: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -49972,7 +52967,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_68: ; if
+.blockend_70: ; if
     pop rax
     push rax
     push rax
@@ -49986,8 +52981,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_74: ; if
-    jz .blockend_74
+.blockstart_76: ; if
+    jz .blockend_76
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50005,26 +53000,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_75: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_75
-    jmp proc_assembler_updatestack
-.blockend_75: ; call
-    push str_398
-.blockstart_76: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_76
-    jmp proc_writer_write
-.blockend_76: ; call
-    push str_399
 .blockstart_77: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50032,9 +53007,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_77
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_77: ; call
-    push str_400
+    push str_398
 .blockstart_78: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50044,7 +53019,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_78
     jmp proc_writer_write
 .blockend_78: ; call
-    push str_401
+    push str_399
 .blockstart_79: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50054,6 +53029,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_79
     jmp proc_writer_write
 .blockend_79: ; call
+    push str_400
+.blockstart_80: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_80
+    jmp proc_writer_write
+.blockend_80: ; call
+    push str_401
+.blockstart_81: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_81
+    jmp proc_writer_write
+.blockend_81: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50062,7 +53057,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_74: ; if
+.blockend_76: ; if
     pop rax
     push rax
     push rax
@@ -50076,8 +53071,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_80: ; if
-    jz .blockend_80
+.blockstart_82: ; if
+    jz .blockend_82
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50095,26 +53090,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_81: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_81
-    jmp proc_assembler_updatestack
-.blockend_81: ; call
-    push str_402
-.blockstart_82: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_82
-    jmp proc_writer_write
-.blockend_82: ; call
-    push str_403
 .blockstart_83: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50122,9 +53097,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_83
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_83: ; call
-    push str_404
+    push str_402
 .blockstart_84: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50134,7 +53109,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_84
     jmp proc_writer_write
 .blockend_84: ; call
-    push str_405
+    push str_403
 .blockstart_85: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50144,7 +53119,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_85
     jmp proc_writer_write
 .blockend_85: ; call
-    push str_406
+    push str_404
 .blockstart_86: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50154,7 +53129,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_86
     jmp proc_writer_write
 .blockend_86: ; call
-    push str_407
+    push str_405
 .blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50164,7 +53139,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_87
     jmp proc_writer_write
 .blockend_87: ; call
-    push str_408
+    push str_406
 .blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50174,6 +53149,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_88
     jmp proc_writer_write
 .blockend_88: ; call
+    push str_407
+.blockstart_89: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_89
+    jmp proc_writer_write
+.blockend_89: ; call
+    push str_408
+.blockstart_90: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_90
+    jmp proc_writer_write
+.blockend_90: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50182,7 +53177,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_80: ; if
+.blockend_82: ; if
     pop rax
     push rax
     push rax
@@ -50196,8 +53191,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_89: ; if
-    jz .blockend_89
+.blockstart_91: ; if
+    jz .blockend_91
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50215,26 +53210,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_90: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_90
-    jmp proc_assembler_updatestack
-.blockend_90: ; call
-    push str_409
-.blockstart_91: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_91
-    jmp proc_writer_write
-.blockend_91: ; call
-    push str_410
 .blockstart_92: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50242,9 +53217,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_92
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_92: ; call
-    push str_411
+    push str_409
 .blockstart_93: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50254,7 +53229,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_93
     jmp proc_writer_write
 .blockend_93: ; call
-    push str_412
+    push str_410
 .blockstart_94: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50264,7 +53239,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_94
     jmp proc_writer_write
 .blockend_94: ; call
-    push str_413
+    push str_411
 .blockstart_95: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50274,7 +53249,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_95
     jmp proc_writer_write
 .blockend_95: ; call
-    push str_414
+    push str_412
 .blockstart_96: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50284,7 +53259,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_96
     jmp proc_writer_write
 .blockend_96: ; call
-    push str_415
+    push str_413
 .blockstart_97: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50294,6 +53269,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_97
     jmp proc_writer_write
 .blockend_97: ; call
+    push str_414
+.blockstart_98: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_98
+    jmp proc_writer_write
+.blockend_98: ; call
+    push str_415
+.blockstart_99: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_99
+    jmp proc_writer_write
+.blockend_99: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50302,7 +53297,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_89: ; if
+.blockend_91: ; if
     pop rax
     push rax
     push rax
@@ -50316,8 +53311,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_98: ; if
-    jz .blockend_98
+.blockstart_100: ; if
+    jz .blockend_100
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50335,26 +53330,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_99: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_99
-    jmp proc_assembler_updatestack
-.blockend_99: ; call
-    push str_416
-.blockstart_100: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_100
-    jmp proc_writer_write
-.blockend_100: ; call
-    push str_417
 .blockstart_101: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50362,9 +53337,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_101
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_101: ; call
-    push str_418
+    push str_416
 .blockstart_102: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50374,7 +53349,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_102
     jmp proc_writer_write
 .blockend_102: ; call
-    push str_419
+    push str_417
 .blockstart_103: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50384,7 +53359,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_103
     jmp proc_writer_write
 .blockend_103: ; call
-    push str_420
+    push str_418
 .blockstart_104: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50394,7 +53369,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_104
     jmp proc_writer_write
 .blockend_104: ; call
-    push str_421
+    push str_419
 .blockstart_105: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50404,7 +53379,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_105
     jmp proc_writer_write
 .blockend_105: ; call
-    push str_422
+    push str_420
 .blockstart_106: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50414,6 +53389,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_106
     jmp proc_writer_write
 .blockend_106: ; call
+    push str_421
+.blockstart_107: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_107
+    jmp proc_writer_write
+.blockend_107: ; call
+    push str_422
+.blockstart_108: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_108
+    jmp proc_writer_write
+.blockend_108: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50422,7 +53417,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_98: ; if
+.blockend_100: ; if
     pop rax
     push rax
     push rax
@@ -50436,8 +53431,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_107: ; if
-    jz .blockend_107
+.blockstart_109: ; if
+    jz .blockend_109
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50455,26 +53450,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_108: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_108
-    jmp proc_assembler_updatestack
-.blockend_108: ; call
-    push str_423
-.blockstart_109: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_109
-    jmp proc_writer_write
-.blockend_109: ; call
-    push str_424
 .blockstart_110: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50482,9 +53457,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_110
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_110: ; call
-    push str_425
+    push str_423
 .blockstart_111: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50494,7 +53469,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_111
     jmp proc_writer_write
 .blockend_111: ; call
-    push str_426
+    push str_424
 .blockstart_112: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50504,7 +53479,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_112
     jmp proc_writer_write
 .blockend_112: ; call
-    push str_427
+    push str_425
 .blockstart_113: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50514,7 +53489,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_113
     jmp proc_writer_write
 .blockend_113: ; call
-    push str_428
+    push str_426
 .blockstart_114: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50524,7 +53499,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_114
     jmp proc_writer_write
 .blockend_114: ; call
-    push str_429
+    push str_427
 .blockstart_115: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50534,6 +53509,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_115
     jmp proc_writer_write
 .blockend_115: ; call
+    push str_428
+.blockstart_116: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_116
+    jmp proc_writer_write
+.blockend_116: ; call
+    push str_429
+.blockstart_117: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_117
+    jmp proc_writer_write
+.blockend_117: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50542,7 +53537,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_107: ; if
+.blockend_109: ; if
     pop rax
     push rax
     push rax
@@ -50556,8 +53551,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_116: ; if
-    jz .blockend_116
+.blockstart_118: ; if
+    jz .blockend_118
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50575,26 +53570,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_117: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_117
-    jmp proc_assembler_updatestack
-.blockend_117: ; call
-    push str_430
-.blockstart_118: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_118
-    jmp proc_writer_write
-.blockend_118: ; call
-    push str_431
 .blockstart_119: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50602,9 +53577,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_119
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_119: ; call
-    push str_432
+    push str_430
 .blockstart_120: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50614,6 +53589,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_120
     jmp proc_writer_write
 .blockend_120: ; call
+    push str_431
+.blockstart_121: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_121
+    jmp proc_writer_write
+.blockend_121: ; call
+    push str_432
+.blockstart_122: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_122
+    jmp proc_writer_write
+.blockend_122: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50622,7 +53617,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_116: ; if
+.blockend_118: ; if
     pop rax
     push rax
     push rax
@@ -50636,8 +53631,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_121: ; if
-    jz .blockend_121
+.blockstart_123: ; if
+    jz .blockend_123
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50655,26 +53650,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_122: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_122
-    jmp proc_assembler_updatestack
-.blockend_122: ; call
-    push str_433
-.blockstart_123: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_123
-    jmp proc_writer_write
-.blockend_123: ; call
-    push str_434
 .blockstart_124: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50682,9 +53657,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_124
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_124: ; call
-    push str_435
+    push str_433
 .blockstart_125: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50694,6 +53669,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_125
     jmp proc_writer_write
 .blockend_125: ; call
+    push str_434
+.blockstart_126: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_126
+    jmp proc_writer_write
+.blockend_126: ; call
+    push str_435
+.blockstart_127: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_127
+    jmp proc_writer_write
+.blockend_127: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50702,7 +53697,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_121: ; if
+.blockend_123: ; if
     pop rax
     push rax
     push rax
@@ -50716,8 +53711,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_126: ; if
-    jz .blockend_126
+.blockstart_128: ; if
+    jz .blockend_128
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50735,26 +53730,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_127: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_127
-    jmp proc_assembler_updatestack
-.blockend_127: ; call
-    push str_436
-.blockstart_128: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_128
-    jmp proc_writer_write
-.blockend_128: ; call
-    push str_437
 .blockstart_129: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50762,9 +53737,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_129
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_129: ; call
-    push str_438
+    push str_436
 .blockstart_130: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50774,7 +53749,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_130
     jmp proc_writer_write
 .blockend_130: ; call
-    push str_439
+    push str_437
 .blockstart_131: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50784,6 +53759,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_131
     jmp proc_writer_write
 .blockend_131: ; call
+    push str_438
+.blockstart_132: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_132
+    jmp proc_writer_write
+.blockend_132: ; call
+    push str_439
+.blockstart_133: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_133
+    jmp proc_writer_write
+.blockend_133: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50792,7 +53787,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_126: ; if
+.blockend_128: ; if
     pop rax
     push rax
     push rax
@@ -50806,8 +53801,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_132: ; if
-    jz .blockend_132
+.blockstart_134: ; if
+    jz .blockend_134
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50825,26 +53820,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_133: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_133
-    jmp proc_assembler_updatestack
-.blockend_133: ; call
-    push str_440
-.blockstart_134: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_134
-    jmp proc_writer_write
-.blockend_134: ; call
-    push str_441
 .blockstart_135: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50852,9 +53827,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_135
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_135: ; call
-    push str_442
+    push str_440
 .blockstart_136: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50864,7 +53839,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_136
     jmp proc_writer_write
 .blockend_136: ; call
-    push str_443
+    push str_441
 .blockstart_137: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50874,6 +53849,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_137
     jmp proc_writer_write
 .blockend_137: ; call
+    push str_442
+.blockstart_138: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_138
+    jmp proc_writer_write
+.blockend_138: ; call
+    push str_443
+.blockstart_139: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_139
+    jmp proc_writer_write
+.blockend_139: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50882,7 +53877,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_132: ; if
+.blockend_134: ; if
     pop rax
     push rax
     push rax
@@ -50896,8 +53891,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_138: ; if
-    jz .blockend_138
+.blockstart_140: ; if
+    jz .blockend_140
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -50915,26 +53910,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_139: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_139
-    jmp proc_assembler_updatestack
-.blockend_139: ; call
-    push str_444
-.blockstart_140: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_140
-    jmp proc_writer_write
-.blockend_140: ; call
-    push str_445
 .blockstart_141: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50942,9 +53917,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_141
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_141: ; call
-    push str_446
+    push str_444
 .blockstart_142: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50954,7 +53929,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_142
     jmp proc_writer_write
 .blockend_142: ; call
-    push str_447
+    push str_445
 .blockstart_143: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -50964,6 +53939,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_143
     jmp proc_writer_write
 .blockend_143: ; call
+    push str_446
+.blockstart_144: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_144
+    jmp proc_writer_write
+.blockend_144: ; call
+    push str_447
+.blockstart_145: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_145
+    jmp proc_writer_write
+.blockend_145: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -50972,7 +53967,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_138: ; if
+.blockend_140: ; if
     pop rax
     push rax
     push rax
@@ -50986,8 +53981,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_144: ; if
-    jz .blockend_144
+.blockstart_146: ; if
+    jz .blockend_146
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51005,26 +54000,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_145: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_145
-    jmp proc_assembler_updatestack
-.blockend_145: ; call
-    push str_448
-.blockstart_146: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_146
-    jmp proc_writer_write
-.blockend_146: ; call
-    push str_449
 .blockstart_147: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51032,9 +54007,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_147
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_147: ; call
-    push str_450
+    push str_448
 .blockstart_148: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51044,7 +54019,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_148
     jmp proc_writer_write
 .blockend_148: ; call
-    push str_451
+    push str_449
 .blockstart_149: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51054,7 +54029,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_149
     jmp proc_writer_write
 .blockend_149: ; call
-    push str_452
+    push str_450
 .blockstart_150: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51064,6 +54039,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_150
     jmp proc_writer_write
 .blockend_150: ; call
+    push str_451
+.blockstart_151: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_151
+    jmp proc_writer_write
+.blockend_151: ; call
+    push str_452
+.blockstart_152: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_152
+    jmp proc_writer_write
+.blockend_152: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51072,7 +54067,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_144: ; if
+.blockend_146: ; if
     pop rax
     push rax
     push rax
@@ -51086,8 +54081,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_151: ; if
-    jz .blockend_151
+.blockstart_153: ; if
+    jz .blockend_153
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51105,26 +54100,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_152: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_152
-    jmp proc_assembler_updatestack
-.blockend_152: ; call
-    push str_453
-.blockstart_153: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_153
-    jmp proc_writer_write
-.blockend_153: ; call
-    push str_454
 .blockstart_154: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51132,9 +54107,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_154
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_154: ; call
-    push str_455
+    push str_453
 .blockstart_155: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51144,7 +54119,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_155
     jmp proc_writer_write
 .blockend_155: ; call
-    push str_456
+    push str_454
 .blockstart_156: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51154,6 +54129,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_156
     jmp proc_writer_write
 .blockend_156: ; call
+    push str_455
+.blockstart_157: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_157
+    jmp proc_writer_write
+.blockend_157: ; call
+    push str_456
+.blockstart_158: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_158
+    jmp proc_writer_write
+.blockend_158: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51162,7 +54157,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_151: ; if
+.blockend_153: ; if
     pop rax
     push rax
     push rax
@@ -51176,8 +54171,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_157: ; if
-    jz .blockend_157
+.blockstart_159: ; if
+    jz .blockend_159
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51195,26 +54190,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_158: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_158
-    jmp proc_assembler_updatestack
-.blockend_158: ; call
-    push str_457
-.blockstart_159: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_159
-    jmp proc_writer_write
-.blockend_159: ; call
-    push str_458
 .blockstart_160: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51222,9 +54197,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_160
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_160: ; call
-    push str_459
+    push str_457
 .blockstart_161: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51234,7 +54209,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_161
     jmp proc_writer_write
 .blockend_161: ; call
-    push str_460
+    push str_458
 .blockstart_162: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51244,6 +54219,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_162
     jmp proc_writer_write
 .blockend_162: ; call
+    push str_459
+.blockstart_163: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_163
+    jmp proc_writer_write
+.blockend_163: ; call
+    push str_460
+.blockstart_164: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_164
+    jmp proc_writer_write
+.blockend_164: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51252,7 +54247,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_157: ; if
+.blockend_159: ; if
     pop rax
     push rax
     push rax
@@ -51266,8 +54261,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_163: ; if
-    jz .blockend_163
+.blockstart_165: ; if
+    jz .blockend_165
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51285,26 +54280,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_164: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_164
-    jmp proc_assembler_updatestack
-.blockend_164: ; call
-    push str_461
-.blockstart_165: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_165
-    jmp proc_writer_write
-.blockend_165: ; call
-    push str_462
 .blockstart_166: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51312,9 +54287,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_166
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_166: ; call
-    push str_463
+    push str_461
 .blockstart_167: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51324,7 +54299,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_167
     jmp proc_writer_write
 .blockend_167: ; call
-    push str_464
+    push str_462
 .blockstart_168: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51334,6 +54309,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_168
     jmp proc_writer_write
 .blockend_168: ; call
+    push str_463
+.blockstart_169: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_169
+    jmp proc_writer_write
+.blockend_169: ; call
+    push str_464
+.blockstart_170: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_170
+    jmp proc_writer_write
+.blockend_170: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51342,7 +54337,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_163: ; if
+.blockend_165: ; if
     pop rax
     push rax
     push rax
@@ -51356,8 +54351,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_169: ; if
-    jz .blockend_169
+.blockstart_171: ; if
+    jz .blockend_171
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51375,26 +54370,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 2
-.blockstart_170: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_170
-    jmp proc_assembler_updatestack
-.blockend_170: ; call
-    push str_465
-.blockstart_171: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_171
-    jmp proc_writer_write
-.blockend_171: ; call
-    push str_466
 .blockstart_172: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51402,9 +54377,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_172
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_172: ; call
-    push str_467
+    push str_465
 .blockstart_173: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51414,7 +54389,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_173
     jmp proc_writer_write
 .blockend_173: ; call
-    push str_468
+    push str_466
 .blockstart_174: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51424,7 +54399,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_174
     jmp proc_writer_write
 .blockend_174: ; call
-    push str_469
+    push str_467
 .blockstart_175: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51434,7 +54409,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_175
     jmp proc_writer_write
 .blockend_175: ; call
-    push str_470
+    push str_468
 .blockstart_176: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51444,6 +54419,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_176
     jmp proc_writer_write
 .blockend_176: ; call
+    push str_469
+.blockstart_177: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_177
+    jmp proc_writer_write
+.blockend_177: ; call
+    push str_470
+.blockstart_178: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_178
+    jmp proc_writer_write
+.blockend_178: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51452,7 +54447,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_169: ; if
+.blockend_171: ; if
     pop rax
     push rax
     push rax
@@ -51466,8 +54461,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_177: ; if
-    jz .blockend_177
+.blockstart_179: ; if
+    jz .blockend_179
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51485,26 +54480,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_178: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_178
-    jmp proc_assembler_updatestack
-.blockend_178: ; call
-    push str_471
-.blockstart_179: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_179
-    jmp proc_writer_write
-.blockend_179: ; call
-    push str_472
 .blockstart_180: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51512,9 +54487,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_180
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_180: ; call
-    push str_473
+    push str_471
 .blockstart_181: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51524,6 +54499,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_181
     jmp proc_writer_write
 .blockend_181: ; call
+    push str_472
+.blockstart_182: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_182
+    jmp proc_writer_write
+.blockend_182: ; call
+    push str_473
+.blockstart_183: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_183
+    jmp proc_writer_write
+.blockend_183: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51532,7 +54527,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_177: ; if
+.blockend_179: ; if
     pop rax
     push rax
     push rax
@@ -51546,8 +54541,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_182: ; if
-    jz .blockend_182
+.blockstart_184: ; if
+    jz .blockend_184
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51565,26 +54560,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_183: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_183
-    jmp proc_assembler_updatestack
-.blockend_183: ; call
-    push str_474
-.blockstart_184: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_184
-    jmp proc_writer_write
-.blockend_184: ; call
-    push str_475
 .blockstart_185: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51592,9 +54567,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_185
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_185: ; call
-    push str_476
+    push str_474
 .blockstart_186: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51604,7 +54579,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_186
     jmp proc_writer_write
 .blockend_186: ; call
-    push str_477
+    push str_475
 .blockstart_187: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51614,6 +54589,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_187
     jmp proc_writer_write
 .blockend_187: ; call
+    push str_476
+.blockstart_188: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_188
+    jmp proc_writer_write
+.blockend_188: ; call
+    push str_477
+.blockstart_189: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_189
+    jmp proc_writer_write
+.blockend_189: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51622,7 +54617,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_182: ; if
+.blockend_184: ; if
     pop rax
     push rax
     push rax
@@ -51636,8 +54631,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_188: ; if
-    jz .blockend_188
+.blockstart_190: ; if
+    jz .blockend_190
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51655,26 +54650,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 3
     push qword 1
-.blockstart_189: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_189
-    jmp proc_assembler_updatestack
-.blockend_189: ; call
-    push str_478
-.blockstart_190: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_190
-    jmp proc_writer_write
-.blockend_190: ; call
-    push str_479
 .blockstart_191: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51682,9 +54657,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_191
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_191: ; call
-    push str_480
+    push str_478
 .blockstart_192: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51694,7 +54669,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_192
     jmp proc_writer_write
 .blockend_192: ; call
-    push str_481
+    push str_479
 .blockstart_193: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51704,7 +54679,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_193
     jmp proc_writer_write
 .blockend_193: ; call
-    push str_482
+    push str_480
 .blockstart_194: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51714,6 +54689,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_194
     jmp proc_writer_write
 .blockend_194: ; call
+    push str_481
+.blockstart_195: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_195
+    jmp proc_writer_write
+.blockend_195: ; call
+    push str_482
+.blockstart_196: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_196
+    jmp proc_writer_write
+.blockend_196: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51722,7 +54717,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_188: ; if
+.blockend_190: ; if
     pop rax
     push rax
     push rax
@@ -51736,8 +54731,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_195: ; if
-    jz .blockend_195
+.blockstart_197: ; if
+    jz .blockend_197
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51755,26 +54750,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 4
     push qword 1
-.blockstart_196: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_196
-    jmp proc_assembler_updatestack
-.blockend_196: ; call
-    push str_483
-.blockstart_197: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_197
-    jmp proc_writer_write
-.blockend_197: ; call
-    push str_484
 .blockstart_198: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51782,9 +54757,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_198
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_198: ; call
-    push str_485
+    push str_483
 .blockstart_199: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51794,7 +54769,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_199
     jmp proc_writer_write
 .blockend_199: ; call
-    push str_486
+    push str_484
 .blockstart_200: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51804,7 +54779,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_200
     jmp proc_writer_write
 .blockend_200: ; call
-    push str_487
+    push str_485
 .blockstart_201: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51814,7 +54789,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_201
     jmp proc_writer_write
 .blockend_201: ; call
-    push str_488
+    push str_486
 .blockstart_202: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51824,6 +54799,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_202
     jmp proc_writer_write
 .blockend_202: ; call
+    push str_487
+.blockstart_203: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_203
+    jmp proc_writer_write
+.blockend_203: ; call
+    push str_488
+.blockstart_204: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_204
+    jmp proc_writer_write
+.blockend_204: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51832,7 +54827,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_195: ; if
+.blockend_197: ; if
     pop rax
     push rax
     push rax
@@ -51846,8 +54841,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_203: ; if
-    jz .blockend_203
+.blockstart_205: ; if
+    jz .blockend_205
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51865,26 +54860,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 5
     push qword 1
-.blockstart_204: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_204
-    jmp proc_assembler_updatestack
-.blockend_204: ; call
-    push str_489
-.blockstart_205: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_205
-    jmp proc_writer_write
-.blockend_205: ; call
-    push str_490
 .blockstart_206: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51892,9 +54867,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_206
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_206: ; call
-    push str_491
+    push str_489
 .blockstart_207: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51904,7 +54879,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_207
     jmp proc_writer_write
 .blockend_207: ; call
-    push str_492
+    push str_490
 .blockstart_208: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51914,7 +54889,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_208
     jmp proc_writer_write
 .blockend_208: ; call
-    push str_493
+    push str_491
 .blockstart_209: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51924,7 +54899,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_209
     jmp proc_writer_write
 .blockend_209: ; call
-    push str_494
+    push str_492
 .blockstart_210: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51934,7 +54909,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_210
     jmp proc_writer_write
 .blockend_210: ; call
-    push str_495
+    push str_493
 .blockstart_211: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -51944,6 +54919,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_211
     jmp proc_writer_write
 .blockend_211: ; call
+    push str_494
+.blockstart_212: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_212
+    jmp proc_writer_write
+.blockend_212: ; call
+    push str_495
+.blockstart_213: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_213
+    jmp proc_writer_write
+.blockend_213: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -51952,7 +54947,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_203: ; if
+.blockend_205: ; if
     pop rax
     push rax
     push rax
@@ -51966,8 +54961,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_212: ; if
-    jz .blockend_212
+.blockstart_214: ; if
+    jz .blockend_214
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -51985,26 +54980,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 6
     push qword 1
-.blockstart_213: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_213
-    jmp proc_assembler_updatestack
-.blockend_213: ; call
-    push str_496
-.blockstart_214: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_214
-    jmp proc_writer_write
-.blockend_214: ; call
-    push str_497
 .blockstart_215: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52012,9 +54987,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_215
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_215: ; call
-    push str_498
+    push str_496
 .blockstart_216: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52024,7 +54999,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_216
     jmp proc_writer_write
 .blockend_216: ; call
-    push str_499
+    push str_497
 .blockstart_217: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52034,7 +55009,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_217
     jmp proc_writer_write
 .blockend_217: ; call
-    push str_500
+    push str_498
 .blockstart_218: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52044,7 +55019,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_218
     jmp proc_writer_write
 .blockend_218: ; call
-    push str_501
+    push str_499
 .blockstart_219: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52054,7 +55029,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_219
     jmp proc_writer_write
 .blockend_219: ; call
-    push str_502
+    push str_500
 .blockstart_220: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52064,7 +55039,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_220
     jmp proc_writer_write
 .blockend_220: ; call
-    push str_503
+    push str_501
 .blockstart_221: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52074,6 +55049,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_221
     jmp proc_writer_write
 .blockend_221: ; call
+    push str_502
+.blockstart_222: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_222
+    jmp proc_writer_write
+.blockend_222: ; call
+    push str_503
+.blockstart_223: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_223
+    jmp proc_writer_write
+.blockend_223: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -52082,7 +55077,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_212: ; if
+.blockend_214: ; if
     pop rax
     push rax
     push rax
@@ -52096,8 +55091,8 @@ proc_assembler_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_222: ; if
-    jz .blockend_222
+.blockstart_224: ; if
+    jz .blockend_224
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -52115,26 +55110,6 @@ proc_assembler_visitintr:
     push rbx
     push qword 7
     push qword 1
-.blockstart_223: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_223
-    jmp proc_assembler_updatestack
-.blockend_223: ; call
-    push str_504
-.blockstart_224: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_224
-    jmp proc_writer_write
-.blockend_224: ; call
-    push str_505
 .blockstart_225: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52142,9 +55117,9 @@ proc_assembler_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_225
-    jmp proc_writer_write
+    jmp proc_assembler_updatestack
 .blockend_225: ; call
-    push str_506
+    push str_504
 .blockstart_226: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52154,7 +55129,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_226
     jmp proc_writer_write
 .blockend_226: ; call
-    push str_507
+    push str_505
 .blockstart_227: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52164,7 +55139,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_227
     jmp proc_writer_write
 .blockend_227: ; call
-    push str_508
+    push str_506
 .blockstart_228: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52174,7 +55149,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_228
     jmp proc_writer_write
 .blockend_228: ; call
-    push str_509
+    push str_507
 .blockstart_229: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52184,7 +55159,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_229
     jmp proc_writer_write
 .blockend_229: ; call
-    push str_510
+    push str_508
 .blockstart_230: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52194,7 +55169,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_230
     jmp proc_writer_write
 .blockend_230: ; call
-    push str_511
+    push str_509
 .blockstart_231: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52204,7 +55179,7 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_231
     jmp proc_writer_write
 .blockend_231: ; call
-    push str_512
+    push str_510
 .blockstart_232: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -52214,6 +55189,26 @@ proc_assembler_visitintr:
     mov qword [rax], .blockend_232
     jmp proc_writer_write
 .blockend_232: ; call
+    push str_511
+.blockstart_233: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_233
+    jmp proc_writer_write
+.blockend_233: ; call
+    push str_512
+.blockstart_234: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_234
+    jmp proc_writer_write
+.blockend_234: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -52222,7 +55217,7 @@ proc_assembler_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_222: ; if
+.blockend_224: ; if
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -52250,24 +55245,24 @@ proc_assembler_visitintr:
     push rax
     push qword 3
     push str_513
-.blockstart_233: ; call
+.blockstart_235: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_233
+    mov qword [rax], .blockend_235
     jmp proc_error_new
-.blockend_233: ; call
-.blockstart_234: ; call
+.blockend_235: ; call
+.blockstart_236: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_234
+    mov qword [rax], .blockend_236
     jmp proc_error_eval
-.blockend_234: ; call
+.blockend_236: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -52813,48 +55808,6 @@ proc_assembler_visitfile:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_517
-.blockstart_0: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_0
-    jmp proc_cstr_print
-.blockend_0: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-.blockstart_1: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_1
-    jmp proc_str_print
-.blockend_1: ; call
-    push str_518
-.blockstart_2: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_2
-    jmp proc_cstr_print
-.blockend_2: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -52908,8 +55861,8 @@ proc_assembler_visitfile:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_3: ; if
-    jz .blockend_3
+.blockstart_0: ; if
+    jz .blockend_0
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -52918,9 +55871,9 @@ proc_assembler_visitfile:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_3: ; if
+.blockend_0: ; if
     push qword 0
-.blockstart_4: ; do
+.blockstart_1: ; do
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 8
@@ -52961,15 +55914,15 @@ proc_assembler_visitfile:
     pop rbx
     push rax
     push rbx
-.blockstart_5: ; call
+.blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_5
+    mov qword [rax], .blockend_2
     jmp proc_assembler_visitnode
-.blockend_5: ; call
+.blockend_2: ; call
     push qword 1
     pop rax
     pop rbx
@@ -53002,8 +55955,8 @@ proc_assembler_visitfile:
     push rcx
     pop rbx
     test rbx, rbx
-    jnz .blockstart_4
-.blockend_4: ; do
+    jnz .blockstart_1
+.blockend_1: ; do
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
@@ -53622,7 +56575,7 @@ proc_assembler_visitblock:
     add rax, rbx
     push rax
     push qword 4
-    push str_519
+    push str_517
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53712,7 +56665,7 @@ proc_assembler_visitblock:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_520
+    push str_518
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53905,7 +56858,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_14
     jmp proc_assembler_updatestack
 .blockend_14: ; call
-    push str_521
+    push str_519
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53915,7 +56868,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_15
     jmp proc_writer_write
 .blockend_15: ; call
-    push str_522
+    push str_520
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53925,7 +56878,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
-    push str_523
+    push str_521
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53966,7 +56919,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_19
     jmp proc_writer_write
 .blockend_19: ; call
-    push str_524
+    push str_522
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -53976,7 +56929,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_20
     jmp proc_writer_write
 .blockend_20: ; call
-    push str_525
+    push str_523
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54017,7 +56970,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_23
     jmp proc_writer_write
 .blockend_23: ; call
-    push str_526
+    push str_524
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54093,7 +57046,7 @@ proc_assembler_visitblock:
     test rbx, rbx
 .blockstart_25: ; if
     jz .blockend_25
-    push str_527
+    push str_525
 .blockstart_26: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54134,7 +57087,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_28
     jmp proc_writer_write
 .blockend_28: ; call
-    push str_528
+    push str_526
 .blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54210,7 +57163,7 @@ proc_assembler_visitblock:
     test rbx, rbx
 .blockstart_30: ; if
     jz .blockend_30
-    push str_529
+    push str_527
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54251,7 +57204,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_33
     jmp proc_writer_write
 .blockend_33: ; call
-    push str_530
+    push str_528
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54292,7 +57245,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_36
     jmp proc_writer_write
 .blockend_36: ; call
-    push str_531
+    push str_529
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54368,7 +57321,7 @@ proc_assembler_visitblock:
     test rbx, rbx
 .blockstart_38: ; if
     jz .blockend_38
-    push str_532
+    push str_530
 .blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54409,7 +57362,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_41
     jmp proc_writer_write
 .blockend_41: ; call
-    push str_533
+    push str_531
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54450,7 +57403,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_44
     jmp proc_writer_write
 .blockend_44: ; call
-    push str_534
+    push str_532
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54544,19 +57497,7 @@ proc_assembler_visitblock:
     pop rbx
     add rax, rbx
     push rax
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 0
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+    push qword 255
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -54750,7 +57691,7 @@ proc_assembler_visitblock:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_535
+    push str_533
 .blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54833,7 +57774,7 @@ proc_assembler_visitblock:
     test rbx, rbx
 .blockstart_51: ; if
     jz .blockend_51
-    push str_536
+    push str_534
 .blockstart_52: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54868,7 +57809,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_54
     jmp proc_writer_write
 .blockend_54: ; call
-    push str_537
+    push str_535
 .blockstart_55: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -54982,7 +57923,7 @@ proc_assembler_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_538
+    push str_536
 .blockstart_58: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55044,7 +57985,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_61
     jmp proc_assembler_updatestack
 .blockend_61: ; call
-    push str_539
+    push str_537
 .blockstart_62: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55079,7 +58020,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_64
     jmp proc_writer_write
 .blockend_64: ; call
-    push str_540
+    push str_538
 .blockstart_65: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55089,7 +58030,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_65
     jmp proc_writer_write
 .blockend_65: ; call
-    push str_541
+    push str_539
 .blockstart_66: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55124,7 +58065,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_68
     jmp proc_writer_write
 .blockend_68: ; call
-    push str_542
+    push str_540
 .blockstart_69: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55150,6 +58091,30 @@ proc_assembler_visitblock:
     test rbx, rbx
 .blockstart_70: ; if
     jz .blockend_70
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 0
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 33
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 16
@@ -55199,7 +58164,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_71
     jmp proc_assembler_updatestack
 .blockend_71: ; call
-    push str_543
+    push str_541
 .blockstart_72: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55234,7 +58199,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_74
     jmp proc_writer_write
 .blockend_74: ; call
-    push str_544
+    push str_542
 .blockstart_75: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55244,7 +58209,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_75
     jmp proc_writer_write
 .blockend_75: ; call
-    push str_545
+    push str_543
 .blockstart_76: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55279,7 +58244,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_78
     jmp proc_writer_write
 .blockend_78: ; call
-    push str_546
+    push str_544
 .blockstart_79: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55471,7 +58436,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_85
     jmp proc_assembler_updatestack
 .blockend_85: ; call
-    push str_547
+    push str_545
 .blockstart_86: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55481,7 +58446,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_86
     jmp proc_writer_write
 .blockend_86: ; call
-    push str_548
+    push str_546
 .blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55491,7 +58456,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_87
     jmp proc_writer_write
 .blockend_87: ; call
-    push str_549
+    push str_547
 .blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55526,7 +58491,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_90
     jmp proc_writer_write
 .blockend_90: ; call
-    push str_550
+    push str_548
 .blockstart_91: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55536,7 +58501,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_91
     jmp proc_writer_write
 .blockend_91: ; call
-    push str_551
+    push str_549
 .blockstart_92: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55571,7 +58536,7 @@ proc_assembler_visitblock:
     mov qword [rax], .blockend_94
     jmp proc_writer_write
 .blockend_94: ; call
-    push str_552
+    push str_550
 .blockstart_95: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55662,7 +58627,7 @@ proc_assembler_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_553
+    push str_551
 .blockstart_97: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -55717,6 +58682,31 @@ proc_assembler_visitblock:
     pop rax
     xor rax, 1
     push rax
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 255
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmovne rcx, rdx
+    push rcx
+    pop rax
+    pop rbx
+    and rax, rbx
+    push rax
     pop rbx
     test rbx, rbx
 .blockstart_100: ; if
@@ -55746,7 +58736,7 @@ proc_assembler_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_554
+    push str_552
 .blockstart_101: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -56646,7 +59636,7 @@ proc_assemblerarm_internalname:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_555
+    push str_553
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -56694,7 +59684,7 @@ proc_assemblerarm_internalname:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_556
+    push str_554
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -56742,7 +59732,7 @@ proc_assemblerarm_internalname:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_557
+    push str_555
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57116,7 +60106,7 @@ proc_assemblerarm_getconst:
     mov qword [rax], .blockend_4
     jmp proc_str_new
 .blockend_4: ; call
-    push str_558
+    push str_556
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57142,7 +60132,7 @@ proc_assemblerarm_getconst:
     mov qword [rax], .blockend_6
     jmp proc_str_catc
 .blockend_6: ; call
-    push str_559
+    push str_557
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57442,7 +60432,7 @@ proc_assemblerarm_updatestack:
     add rax, rbx
     push rax
     push qword 2
-    push str_560
+    push str_558
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57617,7 +60607,7 @@ proc_assemblerarm_addproctab:
     add rax, 16
     jmp qword [rax]
 .blockend_2: ; if
-    push str_561
+    push str_559
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57695,7 +60685,7 @@ proc_assemblerarm_addproctab:
     mov qword [rax], .blockend_6
     jmp proc_writer_write
 .blockend_6: ; call
-    push str_562
+    push str_560
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57721,7 +60711,7 @@ proc_assemblerarm_addproctab:
     mov qword [rax], .blockend_8
     jmp proc_writer_write
 .blockend_8: ; call
-    push str_563
+    push str_561
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57909,7 +60899,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_2
     jmp proc_assemblerarm_updatestack
 .blockend_2: ; call
-    push str_564
+    push str_562
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -57935,7 +60925,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_4
     jmp proc_writer_write
 .blockend_4: ; call
-    push str_565
+    push str_563
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58030,7 +61020,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_7
     jmp proc_assemblerarm_updatestack
 .blockend_7: ; call
-    push str_566
+    push str_564
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58071,7 +61061,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_10
     jmp proc_writer_write
 .blockend_10: ; call
-    push str_567
+    push str_565
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58081,7 +61071,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_11
     jmp proc_writer_write
 .blockend_11: ; call
-    push str_568
+    push str_566
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58091,7 +61081,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_12
     jmp proc_writer_write
 .blockend_12: ; call
-    push str_569
+    push str_567
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58101,7 +61091,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_13
     jmp proc_writer_write
 .blockend_13: ; call
-    push str_570
+    push str_568
 .blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58111,7 +61101,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_14
     jmp proc_writer_write
 .blockend_14: ; call
-    push str_571
+    push str_569
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58121,7 +61111,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_15
     jmp proc_writer_write
 .blockend_15: ; call
-    push str_572
+    push str_570
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58131,7 +61121,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
-    push str_573
+    push str_571
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58141,7 +61131,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_17
     jmp proc_writer_write
 .blockend_17: ; call
-    push str_574
+    push str_572
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58151,7 +61141,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_18
     jmp proc_writer_write
 .blockend_18: ; call
-    push str_575
+    push str_573
 .blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58161,7 +61151,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_19
     jmp proc_writer_write
 .blockend_19: ; call
-    push str_576
+    push str_574
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58171,19 +61161,7 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_20
     jmp proc_writer_write
 .blockend_20: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
+    push str_575
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58191,8 +61169,9 @@ proc_assemblerarm_addwordproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_21
-    jmp proc_int_cstr
+    jmp proc_writer_write
 .blockend_21: ; call
+    push str_576
 .blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58202,72 +61181,6 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_22
     jmp proc_writer_write
 .blockend_22: ; call
-    push str_577
-.blockstart_23: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
-    jmp proc_writer_write
-.blockend_23: ; call
-    push str_578
-.blockstart_24: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
-    jmp proc_writer_write
-.blockend_24: ; call
-    push str_579
-.blockstart_25: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_25
-    jmp proc_writer_write
-.blockend_25: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 16
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_26: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
-    jmp proc_writer_write
-.blockend_26: ; call
-    push str_580
-.blockstart_27: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_27
-    jmp proc_writer_write
-.blockend_27: ; call
-    push str_581
-.blockstart_28: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_28
-    jmp proc_writer_write
-.blockend_28: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -58281,6 +61194,71 @@ proc_assemblerarm_addwordproc:
     add rax, rbx
     mov rbx, [rax]
     push rbx
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_int_cstr
+.blockend_23: ; call
+.blockstart_24: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_24
+    jmp proc_writer_write
+.blockend_24: ; call
+    push str_577
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_writer_write
+.blockend_25: ; call
+    push str_578
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_writer_write
+.blockend_26: ; call
+    push str_579
+.blockstart_27: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_27
+    jmp proc_writer_write
+.blockend_27: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 16
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_28: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_28
+    jmp proc_writer_write
+.blockend_28: ; call
+    push str_580
 .blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58288,8 +61266,9 @@ proc_assemblerarm_addwordproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_29
-    jmp proc_int_cstr
+    jmp proc_writer_write
 .blockend_29: ; call
+    push str_581
 .blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58299,7 +61278,19 @@ proc_assemblerarm_addwordproc:
     mov qword [rax], .blockend_30
     jmp proc_writer_write
 .blockend_30: ; call
-    push str_582
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -58307,8 +61298,27 @@ proc_assemblerarm_addwordproc:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_31
-    jmp proc_writer_write
+    jmp proc_int_cstr
 .blockend_31: ; call
+.blockstart_32: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_32
+    jmp proc_writer_write
+.blockend_32: ; call
+    push str_582
+.blockstart_33: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_33
+    jmp proc_writer_write
+.blockend_33: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -60059,6 +63069,7 @@ proc_assemblerarm_visitword:
     mov qword [rax], .blockend_31
     jmp proc_writer_write
 .blockend_31: ; call
+    push str_598
 .blockstart_32: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60066,7 +63077,7 @@ proc_assemblerarm_visitword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_32
-    jmp proc_int_cstr
+    jmp proc_writer_write
 .blockend_32: ; call
 .blockstart_33: ; call
     mov rax, [ret_stack_rsp]
@@ -60075,9 +63086,8 @@ proc_assemblerarm_visitword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_33
-    jmp proc_writer_write
+    jmp proc_int_cstr
 .blockend_33: ; call
-    push str_598
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60097,6 +63107,16 @@ proc_assemblerarm_visitword:
     mov qword [rax], .blockend_35
     jmp proc_writer_write
 .blockend_35: ; call
+    push str_600
+.blockstart_36: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_36
+    jmp proc_writer_write
+.blockend_36: ; call
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -60127,19 +63147,19 @@ proc_assemblerarm_visitword:
     push rbx
     push rax
     push rbx
-.blockstart_36: ; call
+.blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_36
+    mov qword [rax], .blockend_37
     jmp proc_map_in
-.blockend_36: ; call
+.blockend_37: ; call
     pop rbx
     test rbx, rbx
-.blockstart_37: ; if
-    jz .blockend_37
+.blockstart_38: ; if
+    jz .blockend_38
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -60163,15 +63183,15 @@ proc_assemblerarm_visitword:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_38: ; call
+.blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_38
+    mov qword [rax], .blockend_39
     jmp proc_assemblerarm_addwordproc
-.blockend_38: ; call
+.blockend_39: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -60180,7 +63200,7 @@ proc_assemblerarm_visitword:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_37: ; if
+.blockend_38: ; if
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -60208,16 +63228,6 @@ proc_assemblerarm_visitword:
     add rax, rbx
     push rax
     push qword 3
-.blockstart_39: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_39
-    jmp proc_str_new
-.blockend_39: ; call
-    push str_600
 .blockstart_40: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60225,8 +63235,18 @@ proc_assemblerarm_visitword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_40
-    jmp proc_str_catc
+    jmp proc_str_new
 .blockend_40: ; call
+    push str_601
+.blockstart_41: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_41
+    jmp proc_str_catc
+.blockend_41: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 40
@@ -60245,16 +63265,6 @@ proc_assemblerarm_visitword:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_41: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_41
-    jmp proc_str_catc
-.blockend_41: ; call
-    push str_601
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60264,11 +63274,7 @@ proc_assemblerarm_visitword:
     mov qword [rax], .blockend_42
     jmp proc_str_catc
 .blockend_42: ; call
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
+    push str_602
 .blockstart_43: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60276,8 +63282,13 @@ proc_assemblerarm_visitword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_43
-    jmp proc_error_new
+    jmp proc_str_catc
 .blockend_43: ; call
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
 .blockstart_44: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60285,8 +63296,17 @@ proc_assemblerarm_visitword:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_44
-    jmp proc_error_eval
+    jmp proc_error_new
 .blockend_44: ; call
+.blockstart_45: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_45
+    jmp proc_error_eval
+.blockend_45: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -60407,7 +63427,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_1
     jmp proc_assemblerarm_updatestack
 .blockend_1: ; call
-    push str_602
+    push str_603
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60444,7 +63464,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_3
     jmp proc_writer_write
 .blockend_3: ; call
-    push str_603
+    push str_604
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60504,7 +63524,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_6
     jmp proc_assemblerarm_updatestack
 .blockend_6: ; call
-    push str_604
+    push str_605
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60535,7 +63555,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_8
     jmp proc_writer_addstr
 .blockend_8: ; call
-    push str_605
+    push str_606
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60595,7 +63615,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_11
     jmp proc_assemblerarm_updatestack
 .blockend_11: ; call
-    push str_606
+    push str_607
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60645,7 +63665,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_15
     jmp proc_writer_write
 .blockend_15: ; call
-    push str_607
+    push str_608
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60655,7 +63675,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
-    push str_608
+    push str_609
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60665,7 +63685,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_17
     jmp proc_writer_write
 .blockend_17: ; call
-    push str_609
+    push str_610
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60696,7 +63716,7 @@ proc_assemblerarm_visitconst:
     mov qword [rax], .blockend_19
     jmp proc_writer_addstr
 .blockend_19: ; call
-    push str_610
+    push str_611
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -60789,7 +63809,7 @@ proc_assemblerarm_visitconst:
     add rax, rbx
     push rax
     push qword 3
-    push str_611
+    push str_612
 .blockstart_23: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61057,7 +64077,7 @@ proc_assemblerarm_visitdef:
     add rax, rbx
     push rax
     push qword 3
-    push str_612
+    push str_613
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61510,7 +64530,7 @@ proc_assemblerarm_visitprop:
     add rax, rbx
     push rax
     push qword 3
-    push str_613
+    push str_614
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61771,7 +64791,7 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-    push str_614
+    push str_615
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61781,7 +64801,7 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_5
     jmp proc_writer_write
 .blockend_5: ; call
-    push str_615
+    push str_616
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61791,11 +64811,7 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_6
     jmp proc_writer_write
 .blockend_6: ; call
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
+    push str_617
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61805,7 +64821,11 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_7
     jmp proc_writer_write
 .blockend_7: ; call
-    push str_616
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61815,7 +64835,7 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_8
     jmp proc_writer_write
 .blockend_8: ; call
-    push str_617
+    push str_618
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -61825,6 +64845,26 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_9
     jmp proc_writer_write
 .blockend_9: ; call
+    push str_619
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_writer_write
+.blockend_10: ; call
+    push str_620
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_writer_write
+.blockend_11: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -61868,15 +64908,15 @@ proc_assemblerarm_visitvar:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_10: ; call
+.blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_10
+    mov qword [rax], .blockend_12
     jmp proc_cstr_int
-.blockend_10: ; call
+.blockend_12: ; call
     pop rax
     pop rbx
     add rax, rbx
@@ -61908,23 +64948,23 @@ proc_assemblerarm_visitvar:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_11: ; if
-    jz .blockend_11
+.blockstart_13: ; if
+    jz .blockend_13
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 24
     push rax
     push qword 64
-.blockstart_12: ; call
+.blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
+    mov qword [rax], .blockend_14
     jmp proc_heap_zalloc
-.blockend_12: ; call
+.blockend_14: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -61955,15 +64995,15 @@ proc_assemblerarm_visitvar:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_13: ; call
+.blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_13
+    mov qword [rax], .blockend_15
     jmp proc_cstr_cpy
-.blockend_13: ; call
+.blockend_15: ; call
     add rsp, 8
     add rsp, 8
     mov rax, [ret_stack_rsp]
@@ -61998,15 +65038,15 @@ proc_assemblerarm_visitvar:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_14: ; call
+.blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_14
+    mov qword [rax], .blockend_16
     jmp proc_map_append
-.blockend_14: ; call
+.blockend_16: ; call
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -62035,30 +65075,6 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_15: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_15
-    jmp proc_assemblerarm_internalname
-.blockend_15: ; call
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-.blockstart_16: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
-    jmp proc_assemblerarm_getconst
-.blockend_16: ; call
-    push str_618
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62066,9 +65082,13 @@ proc_assemblerarm_visitvar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_17
-    jmp proc_writer_write
+    jmp proc_assemblerarm_internalname
 .blockend_17: ; call
-    push str_619
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62076,8 +65096,9 @@ proc_assemblerarm_visitvar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_18
-    jmp proc_writer_write
+    jmp proc_assemblerarm_getconst
 .blockend_18: ; call
+    push str_621
 .blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62085,8 +65106,9 @@ proc_assemblerarm_visitvar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_19
-    jmp proc_int_cstr
+    jmp proc_writer_write
 .blockend_19: ; call
+    push str_622
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62096,7 +65118,7 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_20
     jmp proc_writer_write
 .blockend_20: ; call
-    push str_620
+    push str_623
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62106,7 +65128,6 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_21
     jmp proc_writer_write
 .blockend_21: ; call
-    push str_621
 .blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62114,8 +65135,47 @@ proc_assemblerarm_visitvar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_22
-    jmp proc_writer_write
+    jmp proc_int_cstr
 .blockend_22: ; call
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_writer_write
+.blockend_23: ; call
+    push str_624
+.blockstart_24: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_24
+    jmp proc_writer_write
+.blockend_24: ; call
+    push str_625
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_writer_write
+.blockend_25: ; call
+    push str_626
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_writer_write
+.blockend_26: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -62168,29 +65228,29 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_23: ; call
+.blockstart_27: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
+    mov qword [rax], .blockend_27
     jmp proc_assemblerarm_internalname
-.blockend_23: ; call
+.blockend_27: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-.blockstart_24: ; call
+.blockstart_28: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
+    mov qword [rax], .blockend_28
     jmp proc_assemblerarm_getconst
-.blockend_24: ; call
+.blockend_28: ; call
     pop rax
     pop rbx
     add rax, rbx
@@ -62208,7 +65268,7 @@ proc_assemblerarm_visitvar:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_11: ; if
+.blockend_13: ; if
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -62235,25 +65295,25 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     push rax
     push qword 3
-    push str_622
-.blockstart_25: ; call
+    push str_627
+.blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_25
+    mov qword [rax], .blockend_29
     jmp proc_error_new
-.blockend_25: ; call
-.blockstart_26: ; call
+.blockend_29: ; call
+.blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
+    mov qword [rax], .blockend_30
     jmp proc_error_eval
-.blockend_26: ; call
+.blockend_30: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -62289,8 +65349,8 @@ proc_assemblerarm_visitvar:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_27: ; if
-    jz .blockend_27
+.blockstart_31: ; if
+    jz .blockend_31
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -62311,86 +65371,6 @@ proc_assemblerarm_visitvar:
     mov rbx, [rax]
     push rbx
     push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    push qword 16
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-.blockstart_28: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_28
-    jmp proc_assemblerarm_getfullname
-.blockend_28: ; call
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 0
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 136
-    pop rax
-    pop rbx
-    add rax, rbx
-    mov rbx, [rax]
-    push rbx
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 24
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-.blockstart_29: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_29
-    jmp proc_writer_mem
-.blockend_29: ; call
-.blockstart_30: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_30
-    jmp proc_map_append
-.blockend_30: ; call
-    add rsp, 8
-.blockstart_31: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_31
-    jmp proc_writer_mem
-.blockend_31: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push qword 24
     pop rax
     pop rbx
     add rax, rbx
@@ -62408,8 +65388,33 @@ proc_assemblerarm_visitvar:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_32
-    jmp proc_cstr_int
+    jmp proc_assemblerarm_getfullname
 .blockend_32: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 0
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 136
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 24
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
 .blockstart_33: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62419,6 +65424,61 @@ proc_assemblerarm_visitvar:
     mov qword [rax], .blockend_33
     jmp proc_writer_mem
 .blockend_33: ; call
+.blockstart_34: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_34
+    jmp proc_map_append
+.blockend_34: ; call
+    add rsp, 8
+.blockstart_35: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_35
+    jmp proc_writer_mem
+.blockend_35: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push qword 24
+    pop rax
+    pop rbx
+    add rax, rbx
+    mov rbx, [rax]
+    push rbx
+    push qword 16
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+.blockstart_36: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_36
+    jmp proc_cstr_int
+.blockend_36: ; call
+.blockstart_37: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_37
+    jmp proc_writer_mem
+.blockend_37: ; call
     pop rax
     mov rbx, [rax]
     push rbx
@@ -62439,7 +65499,7 @@ proc_assemblerarm_visitvar:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_27: ; if
+.blockend_31: ; if
     pop rax
     push rax
     push rax
@@ -62453,8 +65513,8 @@ proc_assemblerarm_visitvar:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_34: ; if
-    jz .blockend_34
+.blockstart_38: ; if
+    jz .blockend_38
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -62485,15 +65545,15 @@ proc_assemblerarm_visitvar:
     pop rbx
     add rax, rbx
     push rax
-.blockstart_35: ; call
+.blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_35
+    mov qword [rax], .blockend_39
     jmp proc_assemblerarm_getfullname
-.blockend_35: ; call
+.blockend_39: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -62519,34 +65579,34 @@ proc_assemblerarm_visitvar:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_36: ; call
+.blockstart_40: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_36
+    mov qword [rax], .blockend_40
     jmp proc_writer_mem
-.blockend_36: ; call
-.blockstart_37: ; call
+.blockend_40: ; call
+.blockstart_41: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_37
+    mov qword [rax], .blockend_41
     jmp proc_map_append
-.blockend_37: ; call
+.blockend_41: ; call
     add rsp, 8
-.blockstart_38: ; call
+.blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_38
+    mov qword [rax], .blockend_42
     jmp proc_writer_mem
-.blockend_38: ; call
+.blockend_42: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
     add rax, 0
@@ -62574,38 +65634,38 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     mov rbx, [rax]
     push rbx
-.blockstart_39: ; call
+.blockstart_43: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_39
+    mov qword [rax], .blockend_43
     jmp proc_assemblerarm_internalname
-.blockend_39: ; call
+.blockend_43: ; call
     push qword 16
     pop rax
     pop rbx
     add rax, rbx
     push rax
-.blockstart_40: ; call
+.blockstart_44: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_40
+    mov qword [rax], .blockend_44
     jmp proc_assemblerarm_getconst
-.blockend_40: ; call
-.blockstart_41: ; call
+.blockend_44: ; call
+.blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_41
+    mov qword [rax], .blockend_45
     jmp proc_writer_mem
-.blockend_41: ; call
+.blockend_45: ; call
     pop rax
     mov rbx, [rax]
     push rbx
@@ -62626,7 +65686,7 @@ proc_assemblerarm_visitvar:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_34: ; if
+.blockend_38: ; if
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -62653,25 +65713,25 @@ proc_assemblerarm_visitvar:
     add rax, rbx
     push rax
     push qword 3
-    push str_623
-.blockstart_42: ; call
+    push str_628
+.blockstart_46: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_42
+    mov qword [rax], .blockend_46
     jmp proc_error_new
-.blockend_42: ; call
-.blockstart_43: ; call
+.blockend_46: ; call
+.blockstart_47: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_43
+    mov qword [rax], .blockend_47
     jmp proc_error_eval
-.blockend_43: ; call
+.blockend_47: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -62797,7 +65857,7 @@ proc_assemblerarm_visitcall:
     test rbx, rbx
 .blockstart_1: ; if
     jz .blockend_1
-    push str_624
+    push str_629
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62838,7 +65898,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_4
     jmp proc_writer_write
 .blockend_4: ; call
-    push str_625
+    push str_630
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62848,7 +65908,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_5
     jmp proc_writer_write
 .blockend_5: ; call
-    push str_626
+    push str_631
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62858,7 +65918,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_6
     jmp proc_writer_write
 .blockend_6: ; call
-    push str_627
+    push str_632
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62868,7 +65928,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_7
     jmp proc_writer_write
 .blockend_7: ; call
-    push str_628
+    push str_633
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62878,7 +65938,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_8
     jmp proc_writer_write
 .blockend_8: ; call
-    push str_629
+    push str_634
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62888,7 +65948,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_9
     jmp proc_writer_write
 .blockend_9: ; call
-    push str_630
+    push str_635
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62898,7 +65958,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_10
     jmp proc_writer_write
 .blockend_10: ; call
-    push str_631
+    push str_636
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62908,7 +65968,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_11
     jmp proc_writer_write
 .blockend_11: ; call
-    push str_632
+    push str_637
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62949,7 +66009,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_14
     jmp proc_writer_write
 .blockend_14: ; call
-    push str_633
+    push str_638
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62959,7 +66019,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_15
     jmp proc_writer_write
 .blockend_15: ; call
-    push str_634
+    push str_639
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -62969,7 +66029,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
-    push str_635
+    push str_640
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63010,7 +66070,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_19
     jmp proc_writer_write
 .blockend_19: ; call
-    push str_636
+    push str_641
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63209,7 +66269,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_26
     jmp proc_str_new
 .blockend_26: ; call
-    push str_637
+    push str_642
 .blockstart_27: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63235,7 +66295,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_28
     jmp proc_str_catc
 .blockend_28: ; call
-    push str_638
+    push str_643
 .blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63374,7 +66434,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_34
     jmp proc_assemblerarm_updatestack
 .blockend_34: ; call
-    push str_639
+    push str_644
 .blockstart_35: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63400,7 +66460,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_36
     jmp proc_writer_write
 .blockend_36: ; call
-    push str_640
+    push str_645
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63500,7 +66560,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_40
     jmp proc_assemblerarm_updatestack
 .blockend_40: ; call
-    push str_641
+    push str_646
 .blockstart_41: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63541,7 +66601,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_43
     jmp proc_writer_write
 .blockend_43: ; call
-    push str_642
+    push str_647
 .blockstart_44: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63551,7 +66611,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_44
     jmp proc_writer_write
 .blockend_44: ; call
-    push str_643
+    push str_648
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63561,7 +66621,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_45
     jmp proc_writer_write
 .blockend_45: ; call
-    push str_644
+    push str_649
 .blockstart_46: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63571,7 +66631,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_46
     jmp proc_writer_write
 .blockend_46: ; call
-    push str_645
+    push str_650
 .blockstart_47: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63581,7 +66641,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_47
     jmp proc_writer_write
 .blockend_47: ; call
-    push str_646
+    push str_651
 .blockstart_48: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63591,7 +66651,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_48
     jmp proc_writer_write
 .blockend_48: ; call
-    push str_647
+    push str_652
 .blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63601,7 +66661,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_49
     jmp proc_writer_write
 .blockend_49: ; call
-    push str_648
+    push str_653
 .blockstart_50: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63642,7 +66702,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_52
     jmp proc_writer_write
 .blockend_52: ; call
-    push str_649
+    push str_654
 .blockstart_53: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63652,7 +66712,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_53
     jmp proc_writer_write
 .blockend_53: ; call
-    push str_650
+    push str_655
 .blockstart_54: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63678,7 +66738,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_55
     jmp proc_writer_write
 .blockend_55: ; call
-    push str_651
+    push str_656
 .blockstart_56: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63688,7 +66748,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_56
     jmp proc_writer_write
 .blockend_56: ; call
-    push str_652
+    push str_657
 .blockstart_57: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63729,7 +66789,7 @@ proc_assemblerarm_visitcall:
     mov qword [rax], .blockend_59
     jmp proc_writer_write
 .blockend_59: ; call
-    push str_653
+    push str_658
 .blockstart_60: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -63999,7 +67059,7 @@ proc_assemblerarm_visitintr:
     add rax, rbx
     push rax
     push qword 5
-    push str_654
+    push str_659
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64019,7 +67079,7 @@ proc_assemblerarm_visitintr:
     jmp proc_error_eval
 .blockend_3: ; call
 .blockend_1: ; if
-    push str_655
+    push str_660
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64029,7 +67089,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_4
     jmp proc_writer_write
 .blockend_4: ; call
-    push str_656
+    push str_661
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64039,7 +67099,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_5
     jmp proc_writer_write
 .blockend_5: ; call
-    push str_657
+    push str_662
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64049,7 +67109,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_6
     jmp proc_writer_write
 .blockend_6: ; call
-    push str_658
+    push str_663
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64059,7 +67119,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_7
     jmp proc_writer_write
 .blockend_7: ; call
-    push str_659
+    push str_664
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64069,7 +67129,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_8
     jmp proc_writer_write
 .blockend_8: ; call
-    push str_660
+    push str_665
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64079,7 +67139,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_9
     jmp proc_writer_write
 .blockend_9: ; call
-    push str_661
+    push str_666
 .blockstart_10: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64089,7 +67149,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_10
     jmp proc_writer_write
 .blockend_10: ; call
-    push str_662
+    push str_667
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64099,7 +67159,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_11
     jmp proc_writer_write
 .blockend_11: ; call
-    push str_663
+    push str_668
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64109,7 +67169,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_12
     jmp proc_writer_write
 .blockend_12: ; call
-    push str_664
+    push str_669
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64119,7 +67179,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_13
     jmp proc_writer_write
 .blockend_13: ; call
-    push str_665
+    push str_670
 .blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64129,6 +67189,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_14
     jmp proc_writer_write
 .blockend_14: ; call
+    push str_671
+.blockstart_15: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_15
+    jmp proc_writer_write
+.blockend_15: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64151,8 +67221,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_15: ; if
-    jz .blockend_15
+.blockstart_16: ; if
+    jz .blockend_16
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64170,16 +67240,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 2
-.blockstart_16: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_16
-    jmp proc_assemblerarm_updatestack
-.blockend_16: ; call
-    push str_666
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64187,9 +67247,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_17
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_17: ; call
-    push str_667
+    push str_672
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64199,7 +67259,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_18
     jmp proc_writer_write
 .blockend_18: ; call
-    push str_668
+    push str_673
 .blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64209,6 +67269,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_19
     jmp proc_writer_write
 .blockend_19: ; call
+    push str_674
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_writer_write
+.blockend_20: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64217,7 +67287,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_15: ; if
+.blockend_16: ; if
     pop rax
     push rax
     push rax
@@ -64231,8 +67301,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_20: ; if
-    jz .blockend_20
+.blockstart_21: ; if
+    jz .blockend_21
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64250,16 +67320,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 0
-.blockstart_21: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
-    jmp proc_assemblerarm_updatestack
-.blockend_21: ; call
-    push str_669
 .blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64267,8 +67327,18 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_22
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_22: ; call
+    push str_675
+.blockstart_23: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_23
+    jmp proc_writer_write
+.blockend_23: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64277,7 +67347,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_20: ; if
+.blockend_21: ; if
     pop rax
     push rax
     push rax
@@ -64291,8 +67361,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_23: ; if
-    jz .blockend_23
+.blockstart_24: ; if
+    jz .blockend_24
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64310,16 +67380,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_24: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
-    jmp proc_assemblerarm_updatestack
-.blockend_24: ; call
-    push str_670
 .blockstart_25: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64327,9 +67387,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_25
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_25: ; call
-    push str_671
+    push str_676
 .blockstart_26: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64339,7 +67399,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_26
     jmp proc_writer_write
 .blockend_26: ; call
-    push str_672
+    push str_677
 .blockstart_27: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64349,6 +67409,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_27
     jmp proc_writer_write
 .blockend_27: ; call
+    push str_678
+.blockstart_28: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_28
+    jmp proc_writer_write
+.blockend_28: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64357,7 +67427,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_23: ; if
+.blockend_24: ; if
     pop rax
     push rax
     push rax
@@ -64371,8 +67441,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_28: ; if
-    jz .blockend_28
+.blockstart_29: ; if
+    jz .blockend_29
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64390,16 +67460,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_29: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_29
-    jmp proc_assemblerarm_updatestack
-.blockend_29: ; call
-    push str_673
 .blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64407,9 +67467,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_30
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_30: ; call
-    push str_674
+    push str_679
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64419,7 +67479,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_31
     jmp proc_writer_write
 .blockend_31: ; call
-    push str_675
+    push str_680
 .blockstart_32: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64429,6 +67489,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_32
     jmp proc_writer_write
 .blockend_32: ; call
+    push str_681
+.blockstart_33: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_33
+    jmp proc_writer_write
+.blockend_33: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64437,7 +67507,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_28: ; if
+.blockend_29: ; if
     pop rax
     push rax
     push rax
@@ -64451,8 +67521,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_33: ; if
-    jz .blockend_33
+.blockstart_34: ; if
+    jz .blockend_34
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64470,16 +67540,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 0
     push qword 1
-.blockstart_34: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_34
-    jmp proc_assemblerarm_updatestack
-.blockend_34: ; call
-    push str_676
 .blockstart_35: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64487,9 +67547,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_35
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_35: ; call
-    push str_677
+    push str_682
 .blockstart_36: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64499,7 +67559,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_36
     jmp proc_writer_write
 .blockend_36: ; call
-    push str_678
+    push str_683
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64509,7 +67569,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_37
     jmp proc_writer_write
 .blockend_37: ; call
-    push str_679
+    push str_684
 .blockstart_38: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64519,7 +67579,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_38
     jmp proc_writer_write
 .blockend_38: ; call
-    push str_680
+    push str_685
 .blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64529,7 +67589,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_39
     jmp proc_writer_write
 .blockend_39: ; call
-    push str_681
+    push str_686
 .blockstart_40: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64539,7 +67599,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_40
     jmp proc_writer_write
 .blockend_40: ; call
-    push str_682
+    push str_687
 .blockstart_41: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64549,6 +67609,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_41
     jmp proc_writer_write
 .blockend_41: ; call
+    push str_688
+.blockstart_42: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_42
+    jmp proc_writer_write
+.blockend_42: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64557,7 +67627,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_33: ; if
+.blockend_34: ; if
     pop rax
     push rax
     push rax
@@ -64571,8 +67641,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_42: ; if
-    jz .blockend_42
+.blockstart_43: ; if
+    jz .blockend_43
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64608,16 +67678,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 0
-.blockstart_43: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_43
-    jmp proc_assemblerarm_updatestack
-.blockend_43: ; call
-    push str_683
 .blockstart_44: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64625,9 +67685,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_44
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_44: ; call
-    push str_684
+    push str_689
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64637,7 +67697,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_45
     jmp proc_writer_write
 .blockend_45: ; call
-    push str_685
+    push str_690
 .blockstart_46: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64647,6 +67707,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_46
     jmp proc_writer_write
 .blockend_46: ; call
+    push str_691
+.blockstart_47: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_47
+    jmp proc_writer_write
+.blockend_47: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64655,7 +67725,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_42: ; if
+.blockend_43: ; if
     pop rax
     push rax
     push rax
@@ -64669,8 +67739,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_47: ; if
-    jz .blockend_47
+.blockstart_48: ; if
+    jz .blockend_48
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64688,16 +67758,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 2
-.blockstart_48: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_48
-    jmp proc_assemblerarm_updatestack
-.blockend_48: ; call
-    push str_686
 .blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64705,9 +67765,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_49
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_49: ; call
-    push str_687
+    push str_692
 .blockstart_50: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64717,7 +67777,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_50
     jmp proc_writer_write
 .blockend_50: ; call
-    push str_688
+    push str_693
 .blockstart_51: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64727,7 +67787,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_51
     jmp proc_writer_write
 .blockend_51: ; call
-    push str_689
+    push str_694
 .blockstart_52: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64737,6 +67797,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_52
     jmp proc_writer_write
 .blockend_52: ; call
+    push str_695
+.blockstart_53: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_53
+    jmp proc_writer_write
+.blockend_53: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64745,7 +67815,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_47: ; if
+.blockend_48: ; if
     pop rax
     push rax
     push rax
@@ -64759,8 +67829,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_53: ; if
-    jz .blockend_53
+.blockstart_54: ; if
+    jz .blockend_54
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64778,16 +67848,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 3
-.blockstart_54: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_54
-    jmp proc_assemblerarm_updatestack
-.blockend_54: ; call
-    push str_690
 .blockstart_55: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64795,9 +67855,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_55
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_55: ; call
-    push str_691
+    push str_696
 .blockstart_56: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64807,7 +67867,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_56
     jmp proc_writer_write
 .blockend_56: ; call
-    push str_692
+    push str_697
 .blockstart_57: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64817,7 +67877,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_57
     jmp proc_writer_write
 .blockend_57: ; call
-    push str_693
+    push str_698
 .blockstart_58: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64827,7 +67887,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_58
     jmp proc_writer_write
 .blockend_58: ; call
-    push str_694
+    push str_699
 .blockstart_59: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64837,6 +67897,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_59
     jmp proc_writer_write
 .blockend_59: ; call
+    push str_700
+.blockstart_60: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_60
+    jmp proc_writer_write
+.blockend_60: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64845,7 +67915,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_53: ; if
+.blockend_54: ; if
     pop rax
     push rax
     push rax
@@ -64859,8 +67929,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_60: ; if
-    jz .blockend_60
+.blockstart_61: ; if
+    jz .blockend_61
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64878,16 +67948,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_61: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_61
-    jmp proc_assemblerarm_updatestack
-.blockend_61: ; call
-    push str_695
 .blockstart_62: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64895,9 +67955,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_62
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_62: ; call
-    push str_696
+    push str_701
 .blockstart_63: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64907,7 +67967,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_63
     jmp proc_writer_write
 .blockend_63: ; call
-    push str_697
+    push str_702
 .blockstart_64: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64917,6 +67977,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_64
     jmp proc_writer_write
 .blockend_64: ; call
+    push str_703
+.blockstart_65: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_65
+    jmp proc_writer_write
+.blockend_65: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -64925,7 +67995,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_60: ; if
+.blockend_61: ; if
     pop rax
     push rax
     push rax
@@ -64939,8 +68009,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_65: ; if
-    jz .blockend_65
+.blockstart_66: ; if
+    jz .blockend_66
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -64958,16 +68028,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_66: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_66
-    jmp proc_assemblerarm_updatestack
-.blockend_66: ; call
-    push str_698
 .blockstart_67: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64975,9 +68035,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_67
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_67: ; call
-    push str_699
+    push str_704
 .blockstart_68: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64987,7 +68047,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_68
     jmp proc_writer_write
 .blockend_68: ; call
-    push str_700
+    push str_705
 .blockstart_69: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -64997,7 +68057,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_69
     jmp proc_writer_write
 .blockend_69: ; call
-    push str_701
+    push str_706
 .blockstart_70: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65007,6 +68067,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_70
     jmp proc_writer_write
 .blockend_70: ; call
+    push str_707
+.blockstart_71: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_71
+    jmp proc_writer_write
+.blockend_71: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65015,7 +68085,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_65: ; if
+.blockend_66: ; if
     pop rax
     push rax
     push rax
@@ -65029,8 +68099,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_71: ; if
-    jz .blockend_71
+.blockstart_72: ; if
+    jz .blockend_72
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65048,16 +68118,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_72: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_72
-    jmp proc_assemblerarm_updatestack
-.blockend_72: ; call
-    push str_702
 .blockstart_73: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65065,9 +68125,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_73
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_73: ; call
-    push str_703
+    push str_708
 .blockstart_74: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65077,7 +68137,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_74
     jmp proc_writer_write
 .blockend_74: ; call
-    push str_704
+    push str_709
 .blockstart_75: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65087,7 +68147,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_75
     jmp proc_writer_write
 .blockend_75: ; call
-    push str_705
+    push str_710
 .blockstart_76: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65097,6 +68157,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_76
     jmp proc_writer_write
 .blockend_76: ; call
+    push str_711
+.blockstart_77: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_77
+    jmp proc_writer_write
+.blockend_77: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65105,7 +68175,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_71: ; if
+.blockend_72: ; if
     pop rax
     push rax
     push rax
@@ -65119,8 +68189,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_77: ; if
-    jz .blockend_77
+.blockstart_78: ; if
+    jz .blockend_78
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65138,16 +68208,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_78: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_78
-    jmp proc_assemblerarm_updatestack
-.blockend_78: ; call
-    push str_706
 .blockstart_79: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65155,9 +68215,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_79
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_79: ; call
-    push str_707
+    push str_712
 .blockstart_80: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65167,7 +68227,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_80
     jmp proc_writer_write
 .blockend_80: ; call
-    push str_708
+    push str_713
 .blockstart_81: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65177,7 +68237,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_81
     jmp proc_writer_write
 .blockend_81: ; call
-    push str_709
+    push str_714
 .blockstart_82: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65187,6 +68247,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_82
     jmp proc_writer_write
 .blockend_82: ; call
+    push str_715
+.blockstart_83: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_83
+    jmp proc_writer_write
+.blockend_83: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65195,7 +68265,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_77: ; if
+.blockend_78: ; if
     pop rax
     push rax
     push rax
@@ -65209,8 +68279,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_83: ; if
-    jz .blockend_83
+.blockstart_84: ; if
+    jz .blockend_84
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65228,16 +68298,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_84: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_84
-    jmp proc_assemblerarm_updatestack
-.blockend_84: ; call
-    push str_710
 .blockstart_85: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65245,9 +68305,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_85
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_85: ; call
-    push str_711
+    push str_716
 .blockstart_86: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65257,7 +68317,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_86
     jmp proc_writer_write
 .blockend_86: ; call
-    push str_712
+    push str_717
 .blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65267,7 +68327,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_87
     jmp proc_writer_write
 .blockend_87: ; call
-    push str_713
+    push str_718
 .blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65277,7 +68337,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_88
     jmp proc_writer_write
 .blockend_88: ; call
-    push str_714
+    push str_719
 .blockstart_89: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65287,7 +68347,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_89
     jmp proc_writer_write
 .blockend_89: ; call
-    push str_715
+    push str_720
 .blockstart_90: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65297,7 +68357,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_90
     jmp proc_writer_write
 .blockend_90: ; call
-    push str_716
+    push str_721
 .blockstart_91: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65307,6 +68367,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_91
     jmp proc_writer_write
 .blockend_91: ; call
+    push str_722
+.blockstart_92: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_92
+    jmp proc_writer_write
+.blockend_92: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65315,7 +68385,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_83: ; if
+.blockend_84: ; if
     pop rax
     push rax
     push rax
@@ -65329,8 +68399,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_92: ; if
-    jz .blockend_92
+.blockstart_93: ; if
+    jz .blockend_93
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65348,16 +68418,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_93: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_93
-    jmp proc_assemblerarm_updatestack
-.blockend_93: ; call
-    push str_717
 .blockstart_94: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65365,9 +68425,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_94
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_94: ; call
-    push str_718
+    push str_723
 .blockstart_95: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65377,7 +68437,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_95
     jmp proc_writer_write
 .blockend_95: ; call
-    push str_719
+    push str_724
 .blockstart_96: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65387,7 +68447,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_96
     jmp proc_writer_write
 .blockend_96: ; call
-    push str_720
+    push str_725
 .blockstart_97: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65397,7 +68457,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_97
     jmp proc_writer_write
 .blockend_97: ; call
-    push str_721
+    push str_726
 .blockstart_98: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65407,7 +68467,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_98
     jmp proc_writer_write
 .blockend_98: ; call
-    push str_722
+    push str_727
 .blockstart_99: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65417,7 +68477,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_99
     jmp proc_writer_write
 .blockend_99: ; call
-    push str_723
+    push str_728
 .blockstart_100: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65427,6 +68487,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_100
     jmp proc_writer_write
 .blockend_100: ; call
+    push str_729
+.blockstart_101: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_101
+    jmp proc_writer_write
+.blockend_101: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65435,7 +68505,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_92: ; if
+.blockend_93: ; if
     pop rax
     push rax
     push rax
@@ -65449,8 +68519,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_101: ; if
-    jz .blockend_101
+.blockstart_102: ; if
+    jz .blockend_102
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65468,16 +68538,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_102: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_102
-    jmp proc_assemblerarm_updatestack
-.blockend_102: ; call
-    push str_724
 .blockstart_103: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65485,9 +68545,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_103
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_103: ; call
-    push str_725
+    push str_730
 .blockstart_104: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65497,7 +68557,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_104
     jmp proc_writer_write
 .blockend_104: ; call
-    push str_726
+    push str_731
 .blockstart_105: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65507,7 +68567,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_105
     jmp proc_writer_write
 .blockend_105: ; call
-    push str_727
+    push str_732
 .blockstart_106: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65517,7 +68577,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_106
     jmp proc_writer_write
 .blockend_106: ; call
-    push str_728
+    push str_733
 .blockstart_107: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65527,7 +68587,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_107
     jmp proc_writer_write
 .blockend_107: ; call
-    push str_729
+    push str_734
 .blockstart_108: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65537,7 +68597,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_108
     jmp proc_writer_write
 .blockend_108: ; call
-    push str_730
+    push str_735
 .blockstart_109: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65547,6 +68607,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_109
     jmp proc_writer_write
 .blockend_109: ; call
+    push str_736
+.blockstart_110: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_110
+    jmp proc_writer_write
+.blockend_110: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65555,7 +68625,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_101: ; if
+.blockend_102: ; if
     pop rax
     push rax
     push rax
@@ -65569,8 +68639,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_110: ; if
-    jz .blockend_110
+.blockstart_111: ; if
+    jz .blockend_111
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65588,16 +68658,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_111: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_111
-    jmp proc_assemblerarm_updatestack
-.blockend_111: ; call
-    push str_731
 .blockstart_112: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65605,9 +68665,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_112
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_112: ; call
-    push str_732
+    push str_737
 .blockstart_113: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65617,7 +68677,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_113
     jmp proc_writer_write
 .blockend_113: ; call
-    push str_733
+    push str_738
 .blockstart_114: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65627,7 +68687,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_114
     jmp proc_writer_write
 .blockend_114: ; call
-    push str_734
+    push str_739
 .blockstart_115: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65637,7 +68697,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_115
     jmp proc_writer_write
 .blockend_115: ; call
-    push str_735
+    push str_740
 .blockstart_116: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65647,7 +68707,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_116
     jmp proc_writer_write
 .blockend_116: ; call
-    push str_736
+    push str_741
 .blockstart_117: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65657,7 +68717,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_117
     jmp proc_writer_write
 .blockend_117: ; call
-    push str_737
+    push str_742
 .blockstart_118: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65667,6 +68727,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_118
     jmp proc_writer_write
 .blockend_118: ; call
+    push str_743
+.blockstart_119: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_119
+    jmp proc_writer_write
+.blockend_119: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65675,7 +68745,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_110: ; if
+.blockend_111: ; if
     pop rax
     push rax
     push rax
@@ -65689,8 +68759,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_119: ; if
-    jz .blockend_119
+.blockstart_120: ; if
+    jz .blockend_120
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65708,16 +68778,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_120: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_120
-    jmp proc_assemblerarm_updatestack
-.blockend_120: ; call
-    push str_738
 .blockstart_121: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65725,9 +68785,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_121
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_121: ; call
-    push str_739
+    push str_744
 .blockstart_122: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65737,7 +68797,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_122
     jmp proc_writer_write
 .blockend_122: ; call
-    push str_740
+    push str_745
 .blockstart_123: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65747,6 +68807,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_123
     jmp proc_writer_write
 .blockend_123: ; call
+    push str_746
+.blockstart_124: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_124
+    jmp proc_writer_write
+.blockend_124: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65755,7 +68825,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_119: ; if
+.blockend_120: ; if
     pop rax
     push rax
     push rax
@@ -65769,8 +68839,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_124: ; if
-    jz .blockend_124
+.blockstart_125: ; if
+    jz .blockend_125
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65788,16 +68858,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_125: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_125
-    jmp proc_assemblerarm_updatestack
-.blockend_125: ; call
-    push str_741
 .blockstart_126: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65805,9 +68865,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_126
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_126: ; call
-    push str_742
+    push str_747
 .blockstart_127: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65817,7 +68877,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_127
     jmp proc_writer_write
 .blockend_127: ; call
-    push str_743
+    push str_748
 .blockstart_128: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65827,6 +68887,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_128
     jmp proc_writer_write
 .blockend_128: ; call
+    push str_749
+.blockstart_129: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_129
+    jmp proc_writer_write
+.blockend_129: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65835,7 +68905,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_124: ; if
+.blockend_125: ; if
     pop rax
     push rax
     push rax
@@ -65849,8 +68919,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_129: ; if
-    jz .blockend_129
+.blockstart_130: ; if
+    jz .blockend_130
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65868,16 +68938,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_130: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_130
-    jmp proc_assemblerarm_updatestack
-.blockend_130: ; call
-    push str_744
 .blockstart_131: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65885,9 +68945,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_131
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_131: ; call
-    push str_745
+    push str_750
 .blockstart_132: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65897,7 +68957,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_132
     jmp proc_writer_write
 .blockend_132: ; call
-    push str_746
+    push str_751
 .blockstart_133: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65907,7 +68967,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_133
     jmp proc_writer_write
 .blockend_133: ; call
-    push str_747
+    push str_752
 .blockstart_134: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65917,6 +68977,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_134
     jmp proc_writer_write
 .blockend_134: ; call
+    push str_753
+.blockstart_135: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_135
+    jmp proc_writer_write
+.blockend_135: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -65925,7 +68995,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_129: ; if
+.blockend_130: ; if
     pop rax
     push rax
     push rax
@@ -65939,8 +69009,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_135: ; if
-    jz .blockend_135
+.blockstart_136: ; if
+    jz .blockend_136
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -65958,16 +69028,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_136: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_136
-    jmp proc_assemblerarm_updatestack
-.blockend_136: ; call
-    push str_748
 .blockstart_137: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65975,9 +69035,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_137
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_137: ; call
-    push str_749
+    push str_754
 .blockstart_138: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65987,7 +69047,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_138
     jmp proc_writer_write
 .blockend_138: ; call
-    push str_750
+    push str_755
 .blockstart_139: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -65997,7 +69057,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_139
     jmp proc_writer_write
 .blockend_139: ; call
-    push str_751
+    push str_756
 .blockstart_140: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66007,6 +69067,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_140
     jmp proc_writer_write
 .blockend_140: ; call
+    push str_757
+.blockstart_141: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_141
+    jmp proc_writer_write
+.blockend_141: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66015,7 +69085,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_135: ; if
+.blockend_136: ; if
     pop rax
     push rax
     push rax
@@ -66029,8 +69099,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_141: ; if
-    jz .blockend_141
+.blockstart_142: ; if
+    jz .blockend_142
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66048,16 +69118,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_142: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_142
-    jmp proc_assemblerarm_updatestack
-.blockend_142: ; call
-    push str_752
 .blockstart_143: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66065,9 +69125,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_143
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_143: ; call
-    push str_753
+    push str_758
 .blockstart_144: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66077,7 +69137,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_144
     jmp proc_writer_write
 .blockend_144: ; call
-    push str_754
+    push str_759
 .blockstart_145: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66087,7 +69147,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_145
     jmp proc_writer_write
 .blockend_145: ; call
-    push str_755
+    push str_760
 .blockstart_146: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66097,6 +69157,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_146
     jmp proc_writer_write
 .blockend_146: ; call
+    push str_761
+.blockstart_147: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_147
+    jmp proc_writer_write
+.blockend_147: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66105,7 +69175,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_141: ; if
+.blockend_142: ; if
     pop rax
     push rax
     push rax
@@ -66119,8 +69189,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_147: ; if
-    jz .blockend_147
+.blockstart_148: ; if
+    jz .blockend_148
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66138,16 +69208,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_148: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_148
-    jmp proc_assemblerarm_updatestack
-.blockend_148: ; call
-    push str_756
 .blockstart_149: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66155,9 +69215,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_149
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_149: ; call
-    push str_757
+    push str_762
 .blockstart_150: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66167,7 +69227,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_150
     jmp proc_writer_write
 .blockend_150: ; call
-    push str_758
+    push str_763
 .blockstart_151: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66177,7 +69237,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_151
     jmp proc_writer_write
 .blockend_151: ; call
-    push str_759
+    push str_764
 .blockstart_152: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66187,7 +69247,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_152
     jmp proc_writer_write
 .blockend_152: ; call
-    push str_760
+    push str_765
 .blockstart_153: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66197,6 +69257,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_153
     jmp proc_writer_write
 .blockend_153: ; call
+    push str_766
+.blockstart_154: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_154
+    jmp proc_writer_write
+.blockend_154: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66205,7 +69275,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_147: ; if
+.blockend_148: ; if
     pop rax
     push rax
     push rax
@@ -66219,8 +69289,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_154: ; if
-    jz .blockend_154
+.blockstart_155: ; if
+    jz .blockend_155
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66238,16 +69308,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_155: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_155
-    jmp proc_assemblerarm_updatestack
-.blockend_155: ; call
-    push str_761
 .blockstart_156: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66255,9 +69315,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_156
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_156: ; call
-    push str_762
+    push str_767
 .blockstart_157: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66267,7 +69327,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_157
     jmp proc_writer_write
 .blockend_157: ; call
-    push str_763
+    push str_768
 .blockstart_158: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66277,7 +69337,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_158
     jmp proc_writer_write
 .blockend_158: ; call
-    push str_764
+    push str_769
 .blockstart_159: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66287,6 +69347,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_159
     jmp proc_writer_write
 .blockend_159: ; call
+    push str_770
+.blockstart_160: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_160
+    jmp proc_writer_write
+.blockend_160: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66295,7 +69365,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_154: ; if
+.blockend_155: ; if
     pop rax
     push rax
     push rax
@@ -66309,8 +69379,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_160: ; if
-    jz .blockend_160
+.blockstart_161: ; if
+    jz .blockend_161
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66328,16 +69398,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_161: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_161
-    jmp proc_assemblerarm_updatestack
-.blockend_161: ; call
-    push str_765
 .blockstart_162: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66345,9 +69405,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_162
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_162: ; call
-    push str_766
+    push str_771
 .blockstart_163: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66357,7 +69417,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_163
     jmp proc_writer_write
 .blockend_163: ; call
-    push str_767
+    push str_772
 .blockstart_164: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66367,7 +69427,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_164
     jmp proc_writer_write
 .blockend_164: ; call
-    push str_768
+    push str_773
 .blockstart_165: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66377,6 +69437,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_165
     jmp proc_writer_write
 .blockend_165: ; call
+    push str_774
+.blockstart_166: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_166
+    jmp proc_writer_write
+.blockend_166: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66385,7 +69455,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_160: ; if
+.blockend_161: ; if
     pop rax
     push rax
     push rax
@@ -66399,8 +69469,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_166: ; if
-    jz .blockend_166
+.blockstart_167: ; if
+    jz .blockend_167
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66418,16 +69488,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_167: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_167
-    jmp proc_assemblerarm_updatestack
-.blockend_167: ; call
-    push str_769
 .blockstart_168: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66435,9 +69495,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_168
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_168: ; call
-    push str_770
+    push str_775
 .blockstart_169: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66447,7 +69507,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_169
     jmp proc_writer_write
 .blockend_169: ; call
-    push str_771
+    push str_776
 .blockstart_170: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66457,7 +69517,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_170
     jmp proc_writer_write
 .blockend_170: ; call
-    push str_772
+    push str_777
 .blockstart_171: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66467,6 +69527,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_171
     jmp proc_writer_write
 .blockend_171: ; call
+    push str_778
+.blockstart_172: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_172
+    jmp proc_writer_write
+.blockend_172: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66475,7 +69545,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_166: ; if
+.blockend_167: ; if
     pop rax
     push rax
     push rax
@@ -66489,8 +69559,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_172: ; if
-    jz .blockend_172
+.blockstart_173: ; if
+    jz .blockend_173
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66508,16 +69578,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 2
-.blockstart_173: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_173
-    jmp proc_assemblerarm_updatestack
-.blockend_173: ; call
-    push str_773
 .blockstart_174: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66525,9 +69585,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_174
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_174: ; call
-    push str_774
+    push str_779
 .blockstart_175: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66537,7 +69597,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_175
     jmp proc_writer_write
 .blockend_175: ; call
-    push str_775
+    push str_780
 .blockstart_176: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66547,7 +69607,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_176
     jmp proc_writer_write
 .blockend_176: ; call
-    push str_776
+    push str_781
 .blockstart_177: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66557,7 +69617,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_177
     jmp proc_writer_write
 .blockend_177: ; call
-    push str_777
+    push str_782
 .blockstart_178: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66567,7 +69627,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_178
     jmp proc_writer_write
 .blockend_178: ; call
-    push str_778
+    push str_783
 .blockstart_179: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66577,6 +69637,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_179
     jmp proc_writer_write
 .blockend_179: ; call
+    push str_784
+.blockstart_180: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_180
+    jmp proc_writer_write
+.blockend_180: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66585,7 +69655,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_172: ; if
+.blockend_173: ; if
     pop rax
     push rax
     push rax
@@ -66599,8 +69669,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_180: ; if
-    jz .blockend_180
+.blockstart_181: ; if
+    jz .blockend_181
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66618,16 +69688,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 1
     push qword 1
-.blockstart_181: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_181
-    jmp proc_assemblerarm_updatestack
-.blockend_181: ; call
-    push str_779
 .blockstart_182: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66635,9 +69695,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_182
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_182: ; call
-    push str_780
+    push str_785
 .blockstart_183: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66647,7 +69707,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_183
     jmp proc_writer_write
 .blockend_183: ; call
-    push str_781
+    push str_786
 .blockstart_184: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66657,6 +69717,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_184
     jmp proc_writer_write
 .blockend_184: ; call
+    push str_787
+.blockstart_185: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_185
+    jmp proc_writer_write
+.blockend_185: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66665,7 +69735,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_180: ; if
+.blockend_181: ; if
     pop rax
     push rax
     push rax
@@ -66679,8 +69749,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_185: ; if
-    jz .blockend_185
+.blockstart_186: ; if
+    jz .blockend_186
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66698,16 +69768,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 2
     push qword 1
-.blockstart_186: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_186
-    jmp proc_assemblerarm_updatestack
-.blockend_186: ; call
-    push str_782
 .blockstart_187: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66715,9 +69775,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_187
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_187: ; call
-    push str_783
+    push str_788
 .blockstart_188: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66727,7 +69787,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_188
     jmp proc_writer_write
 .blockend_188: ; call
-    push str_784
+    push str_789
 .blockstart_189: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66737,7 +69797,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_189
     jmp proc_writer_write
 .blockend_189: ; call
-    push str_785
+    push str_790
 .blockstart_190: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66747,6 +69807,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_190
     jmp proc_writer_write
 .blockend_190: ; call
+    push str_791
+.blockstart_191: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_191
+    jmp proc_writer_write
+.blockend_191: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66755,7 +69825,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_185: ; if
+.blockend_186: ; if
     pop rax
     push rax
     push rax
@@ -66769,8 +69839,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_191: ; if
-    jz .blockend_191
+.blockstart_192: ; if
+    jz .blockend_192
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66788,16 +69858,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 3
     push qword 1
-.blockstart_192: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_192
-    jmp proc_assemblerarm_updatestack
-.blockend_192: ; call
-    push str_786
 .blockstart_193: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66805,9 +69865,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_193
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_193: ; call
-    push str_787
+    push str_792
 .blockstart_194: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66817,7 +69877,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_194
     jmp proc_writer_write
 .blockend_194: ; call
-    push str_788
+    push str_793
 .blockstart_195: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66827,7 +69887,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_195
     jmp proc_writer_write
 .blockend_195: ; call
-    push str_789
+    push str_794
 .blockstart_196: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66837,7 +69897,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_196
     jmp proc_writer_write
 .blockend_196: ; call
-    push str_790
+    push str_795
 .blockstart_197: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66847,6 +69907,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_197
     jmp proc_writer_write
 .blockend_197: ; call
+    push str_796
+.blockstart_198: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_198
+    jmp proc_writer_write
+.blockend_198: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66855,7 +69925,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_191: ; if
+.blockend_192: ; if
     pop rax
     push rax
     push rax
@@ -66869,8 +69939,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_198: ; if
-    jz .blockend_198
+.blockstart_199: ; if
+    jz .blockend_199
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66888,16 +69958,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 4
     push qword 1
-.blockstart_199: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_199
-    jmp proc_assemblerarm_updatestack
-.blockend_199: ; call
-    push str_791
 .blockstart_200: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66905,9 +69965,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_200
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_200: ; call
-    push str_792
+    push str_797
 .blockstart_201: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66917,7 +69977,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_201
     jmp proc_writer_write
 .blockend_201: ; call
-    push str_793
+    push str_798
 .blockstart_202: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66927,7 +69987,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_202
     jmp proc_writer_write
 .blockend_202: ; call
-    push str_794
+    push str_799
 .blockstart_203: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66937,7 +69997,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_203
     jmp proc_writer_write
 .blockend_203: ; call
-    push str_795
+    push str_800
 .blockstart_204: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66947,7 +70007,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_204
     jmp proc_writer_write
 .blockend_204: ; call
-    push str_796
+    push str_801
 .blockstart_205: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -66957,6 +70017,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_205
     jmp proc_writer_write
 .blockend_205: ; call
+    push str_802
+.blockstart_206: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_206
+    jmp proc_writer_write
+.blockend_206: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -66965,7 +70035,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_198: ; if
+.blockend_199: ; if
     pop rax
     push rax
     push rax
@@ -66979,8 +70049,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_206: ; if
-    jz .blockend_206
+.blockstart_207: ; if
+    jz .blockend_207
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -66998,16 +70068,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 5
     push qword 1
-.blockstart_207: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_207
-    jmp proc_assemblerarm_updatestack
-.blockend_207: ; call
-    push str_797
 .blockstart_208: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67015,9 +70075,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_208
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_208: ; call
-    push str_798
+    push str_803
 .blockstart_209: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67027,7 +70087,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_209
     jmp proc_writer_write
 .blockend_209: ; call
-    push str_799
+    push str_804
 .blockstart_210: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67037,7 +70097,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_210
     jmp proc_writer_write
 .blockend_210: ; call
-    push str_800
+    push str_805
 .blockstart_211: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67047,7 +70107,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_211
     jmp proc_writer_write
 .blockend_211: ; call
-    push str_801
+    push str_806
 .blockstart_212: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67057,7 +70117,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_212
     jmp proc_writer_write
 .blockend_212: ; call
-    push str_802
+    push str_807
 .blockstart_213: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67067,7 +70127,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_213
     jmp proc_writer_write
 .blockend_213: ; call
-    push str_803
+    push str_808
 .blockstart_214: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67077,6 +70137,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_214
     jmp proc_writer_write
 .blockend_214: ; call
+    push str_809
+.blockstart_215: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_215
+    jmp proc_writer_write
+.blockend_215: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -67085,7 +70155,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_206: ; if
+.blockend_207: ; if
     pop rax
     push rax
     push rax
@@ -67099,8 +70169,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_215: ; if
-    jz .blockend_215
+.blockstart_216: ; if
+    jz .blockend_216
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -67118,16 +70188,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 6
     push qword 1
-.blockstart_216: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_216
-    jmp proc_assemblerarm_updatestack
-.blockend_216: ; call
-    push str_804
 .blockstart_217: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67135,9 +70195,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_217
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_217: ; call
-    push str_805
+    push str_810
 .blockstart_218: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67147,7 +70207,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_218
     jmp proc_writer_write
 .blockend_218: ; call
-    push str_806
+    push str_811
 .blockstart_219: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67157,7 +70217,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_219
     jmp proc_writer_write
 .blockend_219: ; call
-    push str_807
+    push str_812
 .blockstart_220: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67167,7 +70227,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_220
     jmp proc_writer_write
 .blockend_220: ; call
-    push str_808
+    push str_813
 .blockstart_221: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67177,7 +70237,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_221
     jmp proc_writer_write
 .blockend_221: ; call
-    push str_809
+    push str_814
 .blockstart_222: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67187,7 +70247,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_222
     jmp proc_writer_write
 .blockend_222: ; call
-    push str_810
+    push str_815
 .blockstart_223: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67197,7 +70257,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_223
     jmp proc_writer_write
 .blockend_223: ; call
-    push str_811
+    push str_816
 .blockstart_224: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67207,6 +70267,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_224
     jmp proc_writer_write
 .blockend_224: ; call
+    push str_817
+.blockstart_225: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_225
+    jmp proc_writer_write
+.blockend_225: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -67215,7 +70285,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_215: ; if
+.blockend_216: ; if
     pop rax
     push rax
     push rax
@@ -67229,8 +70299,8 @@ proc_assemblerarm_visitintr:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_225: ; if
-    jz .blockend_225
+.blockstart_226: ; if
+    jz .blockend_226
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -67248,16 +70318,6 @@ proc_assemblerarm_visitintr:
     push rbx
     push qword 7
     push qword 1
-.blockstart_226: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_226
-    jmp proc_assemblerarm_updatestack
-.blockend_226: ; call
-    push str_812
 .blockstart_227: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67265,9 +70325,9 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_227
-    jmp proc_writer_write
+    jmp proc_assemblerarm_updatestack
 .blockend_227: ; call
-    push str_813
+    push str_818
 .blockstart_228: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67277,7 +70337,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_228
     jmp proc_writer_write
 .blockend_228: ; call
-    push str_814
+    push str_819
 .blockstart_229: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67287,7 +70347,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_229
     jmp proc_writer_write
 .blockend_229: ; call
-    push str_815
+    push str_820
 .blockstart_230: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67297,7 +70357,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_230
     jmp proc_writer_write
 .blockend_230: ; call
-    push str_816
+    push str_821
 .blockstart_231: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67307,7 +70367,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_231
     jmp proc_writer_write
 .blockend_231: ; call
-    push str_817
+    push str_822
 .blockstart_232: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67317,7 +70377,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_232
     jmp proc_writer_write
 .blockend_232: ; call
-    push str_818
+    push str_823
 .blockstart_233: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67327,7 +70387,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_233
     jmp proc_writer_write
 .blockend_233: ; call
-    push str_819
+    push str_824
 .blockstart_234: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67337,7 +70397,7 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_234
     jmp proc_writer_write
 .blockend_234: ; call
-    push str_820
+    push str_825
 .blockstart_235: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67347,6 +70407,16 @@ proc_assemblerarm_visitintr:
     mov qword [rax], .blockend_235
     jmp proc_writer_write
 .blockend_235: ; call
+    push str_826
+.blockstart_236: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_236
+    jmp proc_writer_write
+.blockend_236: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -67355,7 +70425,7 @@ proc_assemblerarm_visitintr:
     mov qword [ret_stack_rsp], rax
     add rax, 16
     jmp qword [rax]
-.blockend_225: ; if
+.blockend_226: ; if
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -67382,16 +70452,7 @@ proc_assemblerarm_visitintr:
     add rax, rbx
     push rax
     push qword 3
-    push str_821
-.blockstart_236: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_236
-    jmp proc_error_new
-.blockend_236: ; call
+    push str_827
 .blockstart_237: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67399,8 +70460,17 @@ proc_assemblerarm_visitintr:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_237
-    jmp proc_error_eval
+    jmp proc_error_new
 .blockend_237: ; call
+.blockstart_238: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_238
+    jmp proc_error_eval
+.blockend_238: ; call
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -67467,7 +70537,7 @@ proc_assemblerarm_visitasm:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_822
+    push str_828
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67504,7 +70574,7 @@ proc_assemblerarm_visitasm:
     mov qword [rax], .blockend_1
     jmp proc_writer_write
 .blockend_1: ; call
-    push str_823
+    push str_829
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67749,7 +70819,7 @@ proc_assemblerarm_visitinc:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_824
+    push str_830
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67946,7 +71016,7 @@ proc_assemblerarm_visitfile:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_825
+    push str_831
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -67978,7 +71048,7 @@ proc_assemblerarm_visitfile:
     mov qword [rax], .blockend_1
     jmp proc_str_print
 .blockend_1: ; call
-    push str_826
+    push str_832
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -68755,7 +71825,7 @@ proc_assemblerarm_visitblock:
     add rax, rbx
     push rax
     push qword 4
-    push str_827
+    push str_833
 .blockstart_4: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -68845,7 +71915,7 @@ proc_assemblerarm_visitblock:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_828
+    push str_834
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69038,7 +72108,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_14
     jmp proc_assemblerarm_updatestack
 .blockend_14: ; call
-    push str_829
+    push str_835
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69048,7 +72118,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_15
     jmp proc_writer_write
 .blockend_15: ; call
-    push str_830
+    push str_836
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69058,7 +72128,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_16
     jmp proc_writer_write
 .blockend_16: ; call
-    push str_831
+    push str_837
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69099,7 +72169,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_19
     jmp proc_writer_write
 .blockend_19: ; call
-    push str_832
+    push str_838
 .blockstart_20: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69109,7 +72179,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_20
     jmp proc_writer_write
 .blockend_20: ; call
-    push str_833
+    push str_839
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69150,7 +72220,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_23
     jmp proc_writer_write
 .blockend_23: ; call
-    push str_834
+    push str_840
 .blockstart_24: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69226,7 +72296,7 @@ proc_assemblerarm_visitblock:
     test rbx, rbx
 .blockstart_25: ; if
     jz .blockend_25
-    push str_835
+    push str_841
 .blockstart_26: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69267,7 +72337,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_28
     jmp proc_writer_write
 .blockend_28: ; call
-    push str_836
+    push str_842
 .blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69343,7 +72413,7 @@ proc_assemblerarm_visitblock:
     test rbx, rbx
 .blockstart_30: ; if
     jz .blockend_30
-    push str_837
+    push str_843
 .blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69384,7 +72454,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_33
     jmp proc_writer_write
 .blockend_33: ; call
-    push str_838
+    push str_844
 .blockstart_34: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69425,7 +72495,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_36
     jmp proc_writer_write
 .blockend_36: ; call
-    push str_839
+    push str_845
 .blockstart_37: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69501,7 +72571,7 @@ proc_assemblerarm_visitblock:
     test rbx, rbx
 .blockstart_38: ; if
     jz .blockend_38
-    push str_840
+    push str_846
 .blockstart_39: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69542,7 +72612,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_41
     jmp proc_writer_write
 .blockend_41: ; call
-    push str_841
+    push str_847
 .blockstart_42: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69583,7 +72653,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_44
     jmp proc_writer_write
 .blockend_44: ; call
-    push str_842
+    push str_848
 .blockstart_45: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69883,7 +72953,7 @@ proc_assemblerarm_visitblock:
     pop rax
     mov rbx, [rax]
     push rbx
-    push str_843
+    push str_849
 .blockstart_49: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -69966,7 +73036,7 @@ proc_assemblerarm_visitblock:
     test rbx, rbx
 .blockstart_51: ; if
     jz .blockend_51
-    push str_844
+    push str_850
 .blockstart_52: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70001,7 +73071,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_54
     jmp proc_writer_write
 .blockend_54: ; call
-    push str_845
+    push str_851
 .blockstart_55: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70115,7 +73185,7 @@ proc_assemblerarm_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_846
+    push str_852
 .blockstart_58: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70177,7 +73247,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_61
     jmp proc_assemblerarm_updatestack
 .blockend_61: ; call
-    push str_847
+    push str_853
 .blockstart_62: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70212,7 +73282,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_64
     jmp proc_writer_write
 .blockend_64: ; call
-    push str_848
+    push str_854
 .blockstart_65: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70222,7 +73292,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_65
     jmp proc_writer_write
 .blockend_65: ; call
-    push str_849
+    push str_855
 .blockstart_66: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70257,7 +73327,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_68
     jmp proc_writer_write
 .blockend_68: ; call
-    push str_850
+    push str_856
 .blockstart_69: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70332,7 +73402,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_71
     jmp proc_assemblerarm_updatestack
 .blockend_71: ; call
-    push str_851
+    push str_857
 .blockstart_72: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70367,7 +73437,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_74
     jmp proc_writer_write
 .blockend_74: ; call
-    push str_852
+    push str_858
 .blockstart_75: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70377,7 +73447,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_75
     jmp proc_writer_write
 .blockend_75: ; call
-    push str_853
+    push str_859
 .blockstart_76: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70412,7 +73482,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_78
     jmp proc_writer_write
 .blockend_78: ; call
-    push str_854
+    push str_860
 .blockstart_79: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70604,7 +73674,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_85
     jmp proc_assemblerarm_updatestack
 .blockend_85: ; call
-    push str_855
+    push str_861
 .blockstart_86: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70614,7 +73684,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_86
     jmp proc_writer_write
 .blockend_86: ; call
-    push str_856
+    push str_862
 .blockstart_87: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70624,7 +73694,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_87
     jmp proc_writer_write
 .blockend_87: ; call
-    push str_857
+    push str_863
 .blockstart_88: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70659,7 +73729,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_90
     jmp proc_writer_write
 .blockend_90: ; call
-    push str_858
+    push str_864
 .blockstart_91: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70669,7 +73739,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_91
     jmp proc_writer_write
 .blockend_91: ; call
-    push str_859
+    push str_865
 .blockstart_92: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70704,7 +73774,7 @@ proc_assemblerarm_visitblock:
     mov qword [rax], .blockend_94
     jmp proc_writer_write
 .blockend_94: ; call
-    push str_860
+    push str_866
 .blockstart_95: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70795,7 +73865,7 @@ proc_assemblerarm_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_861
+    push str_867
 .blockstart_97: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -70879,7 +73949,7 @@ proc_assemblerarm_visitblock:
     add rax, rbx
     push rax
     push qword 5
-    push str_862
+    push str_868
 .blockstart_101: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71429,7 +74499,7 @@ proc_assemblerarm_visitnode:
     add rax, 16
     jmp qword [rax]
 proc_VERSION:
-    push str_863
+    push str_869
     mov rax, [ret_stack_rsp]
     mov rax, [rax - 8]
     mov [loc_stack_rsp], rax
@@ -71454,7 +74524,7 @@ proc_help:
     test rbx, rbx
 .blockstart_0: ; if
     jz .blockend_0
-    push str_864
+    push str_870
 .blockstart_1: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71503,7 +74573,7 @@ proc_help:
     test rbx, rbx
 .blockstart_4: ; if
     jz .blockend_4
-    push str_865
+    push str_871
 .blockstart_5: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71529,7 +74599,7 @@ proc_help:
     test rbx, rbx
 .blockstart_6: ; if
     jz .blockend_6
-    push str_866
+    push str_872
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71541,7 +74611,7 @@ proc_help:
 .blockend_7: ; call
 .blockend_6: ; if
     add rsp, 8
-    push str_867
+    push str_873
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71569,7 +74639,7 @@ proc_help:
     mov qword [rax], .blockend_10
     jmp proc_cstr_print
 .blockend_10: ; call
-    push str_868
+    push str_874
 .blockstart_11: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71588,7 +74658,7 @@ proc_help:
     mov qword [rax], .blockend_12
     jmp proc_cstr_cr
 .blockend_12: ; call
-    push str_869
+    push str_875
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71607,7 +74677,7 @@ proc_help:
     mov qword [rax], .blockend_14
     jmp proc_cstr_cr
 .blockend_14: ; call
-    push str_870
+    push str_876
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71617,7 +74687,7 @@ proc_help:
     mov qword [rax], .blockend_15
     jmp proc_cstr_println
 .blockend_15: ; call
-    push str_871
+    push str_877
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71627,7 +74697,7 @@ proc_help:
     mov qword [rax], .blockend_16
     jmp proc_cstr_println
 .blockend_16: ; call
-    push str_872
+    push str_878
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71637,7 +74707,7 @@ proc_help:
     mov qword [rax], .blockend_17
     jmp proc_cstr_println
 .blockend_17: ; call
-    push str_873
+    push str_879
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71647,7 +74717,7 @@ proc_help:
     mov qword [rax], .blockend_18
     jmp proc_cstr_println
 .blockend_18: ; call
-    push str_874
+    push str_880
 .blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71670,7 +74740,7 @@ proc_help:
     add rax, 16
     jmp qword [rax]
 proc_setinput:
-    push mem+210; input
+    push mem+219; input
     pop rax
     pop rbx
     push rax
@@ -71744,7 +74814,7 @@ proc_setoutput:
     mov qword [rax], .blockend_2
     jmp proc_os_args
 .blockend_2: ; call
-    push mem+82; output
+    push mem+91; output
     pop rax
     pop rbx
     push rax
@@ -71769,7 +74839,7 @@ proc_setoutput:
     add rax, 16
     jmp qword [rax]
 proc_setmode:
-    push mem+338; mode
+    push mem+347; mode
     pop rax
     pop rbx
     push rax
@@ -71791,7 +74861,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_875
+    push str_881
 .blockstart_0: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71828,7 +74898,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_876
+    push str_882
 .blockstart_3: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71865,7 +74935,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_877
+    push str_883
 .blockstart_6: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71902,7 +74972,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_878
+    push str_884
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71943,7 +75013,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_879
+    push str_885
 .blockstart_12: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -71984,7 +75054,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_880
+    push str_886
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72021,7 +75091,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_881
+    push str_887
 .blockstart_18: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72058,7 +75128,7 @@ proc_applyarg:
     pop rax
     push rax
     push rax
-    push str_882
+    push str_888
 .blockstart_21: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72142,8 +75212,8 @@ proc_main:
     jmp proc_help
 .blockend_1: ; call
 .blockend_0: ; if
-    push mem+82; output
-    push str_883
+    push mem+91; output
+    push str_889
 .blockstart_2: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72154,6 +75224,13 @@ proc_main:
     jmp proc_cstr_cpy
 .blockend_2: ; call
     add rsp, 8
+    add rsp, 8
+    push mem+65; lexer_print
+    push qword 1
+    pop rbx
+    pop rax
+    mov byte [rax], bl
+    push rax
     add rsp, 8
     push qword 0
 .blockstart_3: ; do
@@ -72206,17 +75283,41 @@ proc_main:
     jnz .blockstart_3
 .blockend_3: ; do
     add rsp, 8
-    push mem+210; input
+    push mem+347; mode
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
+    push qword 2
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    push mem+219; input
+    pop rax
+    xor rbx, rbx
+    mov bl, [rax]
+    push rbx
     push qword 0
-.blockstart_6: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_6
-    jmp proc_lexer_new
-.blockend_6: ; call
+    xor rcx, rcx
+    mov rdx, 1
+    pop rax
+    pop rbx
+    cmp rax, rbx
+    cmove rcx, rdx
+    push rcx
+    pop rax
+    pop rbx
+    and rax, rbx
+    push rax
+    pop rbx
+    test rbx, rbx
+.blockstart_6: ; if
+    jz .blockend_6
+    push str_890
 .blockstart_7: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72224,8 +75325,15 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_7
-    jmp proc_lexer_run
+    jmp proc_cstr_println
 .blockend_7: ; call
+    push qword 0
+    mov rax, 60
+    pop rdi
+    syscall
+.blockend_6: ; if
+    push mem+219; input
+    push qword 0
 .blockstart_8: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72233,7 +75341,7 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_8
-    jmp proc_parser_new
+    jmp proc_lexer_new
 .blockend_8: ; call
 .blockstart_9: ; call
     mov rax, [ret_stack_rsp]
@@ -72242,8 +75350,26 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_9
-    jmp proc_parser_run
+    jmp proc_lexer_run
 .blockend_9: ; call
+.blockstart_10: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_10
+    jmp proc_parser_new
+.blockend_10: ; call
+.blockstart_11: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_11
+    jmp proc_parser_run
+.blockend_11: ; call
     pop rax
     push rax
     push rax
@@ -72260,7 +75386,7 @@ proc_main:
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push mem+338; mode
+    push mem+347; mode
     pop rax
     xor rbx, rbx
     mov bl, [rax]
@@ -72278,34 +75404,11 @@ proc_main:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_10: ; if
-    jz .blockend_10
+.blockstart_12: ; if
+    jz .blockend_12
     add rsp, 8
-    push mem+73; writer_current
-    push str_884
-.blockstart_11: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_11
-    jmp proc_writer_new
-.blockend_11: ; call
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-.blockstart_12: ; call
-    mov rax, [ret_stack_rsp]
-    add rax, 16
-    mov rbx, [loc_stack_rsp]
-    mov qword [rax - 8], rbx
-    mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_12
-    jmp proc_writer_writeheader
-.blockend_12: ; call
+    push mem+74; writer_current
+    push str_891
 .blockstart_13: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72313,12 +75416,13 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_13
-    jmp proc_assembler_new
+    jmp proc_writer_new
 .blockend_13: ; call
-    pop rax
     pop rbx
+    pop rax
+    mov qword [rax], rbx
     push rax
-    push rbx
+    add rsp, 8
 .blockstart_14: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72326,7 +75430,7 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_14
-    jmp proc_assembler_visitnode
+    jmp proc_writer_writeheader
 .blockend_14: ; call
 .blockstart_15: ; call
     mov rax, [ret_stack_rsp]
@@ -72335,13 +75439,12 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_15
-    jmp proc_writer_writefooter
+    jmp proc_assembler_new
 .blockend_15: ; call
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
+    pop rax
+    pop rbx
     push rax
-    push qword 256
+    push rbx
 .blockstart_16: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72349,103 +75452,8 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_16
-    jmp proc_heap_zalloc
+    jmp proc_assembler_visitnode
 .blockend_16: ; call
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
-    push str_885
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_886
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_887
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_888
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_889
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_890
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push str_891
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push qword 0
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    add rsp, 8
-    mov rax, [ret_stack_rsp]
-    mov rax, [rax-8]
-    add rax, 8
-    push rax
-    pop rax
-    mov rbx, [rax]
-    push rbx
 .blockstart_17: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
@@ -72453,8 +75461,26 @@ proc_main:
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
     mov qword [rax], .blockend_17
-    jmp proc_os_execcmdecho
+    jmp proc_writer_writefooter
 .blockend_17: ; call
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    push qword 256
+.blockstart_18: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_18
+    jmp proc_heap_zalloc
+.blockend_18: ; call
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
     add rsp, 8
     mov rax, [ret_stack_rsp]
     mov rax, [rax-8]
@@ -72494,16 +75520,6 @@ proc_main:
     add rax, rbx
     push rax
     push str_895
-    pop rbx
-    pop rax
-    mov qword [rax], rbx
-    push rax
-    push qword 8
-    pop rax
-    pop rbx
-    add rax, rbx
-    push rax
-    push mem+82; output
     pop rbx
     pop rax
     mov qword [rax], rbx
@@ -72556,21 +75572,131 @@ proc_main:
     pop rax
     mov rbx, [rax]
     push rbx
-.blockstart_18: ; call
+.blockstart_19: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_18
+    mov qword [rax], .blockend_19
     jmp proc_os_execcmdecho
-.blockend_18: ; call
+.blockend_19: ; call
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+    push str_899
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_900
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_901
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_902
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push mem+91; output
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_903
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_904
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push str_905
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    push qword 8
+    pop rax
+    pop rbx
+    add rax, rbx
+    push rax
+    push qword 0
+    pop rbx
+    pop rax
+    mov qword [rax], rbx
+    push rax
+    add rsp, 8
+    mov rax, [ret_stack_rsp]
+    mov rax, [rax-8]
+    add rax, 8
+    push rax
+    pop rax
+    mov rbx, [rax]
+    push rbx
+.blockstart_20: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_20
+    jmp proc_os_execcmdecho
+.blockend_20: ; call
     add rsp, 8
     push qword 0
     mov rax, 60
     pop rdi
     syscall
-.blockend_10: ; if
+.blockend_12: ; if
     pop rax
     push rax
     push rax
@@ -72584,32 +75710,75 @@ proc_main:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_19: ; if
-    jz .blockend_19
+.blockstart_21: ; if
+    jz .blockend_21
     add rsp, 8
-.blockstart_20: ; call
+.blockstart_22: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_20
+    mov qword [rax], .blockend_22
     jmp proc_simulator_new
-.blockend_20: ; call
-.blockstart_21: ; call
+.blockend_22: ; call
+    push str_906
+    push proc_cstr_println
+.blockstart_23: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_21
+    mov qword [rax], .blockend_23
+    jmp proc_simulator_bindproc
+.blockend_23: ; call
+    push str_907
+    push proc_heap_alloc
+.blockstart_24: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_24
+    jmp proc_simulator_bindproc
+.blockend_24: ; call
+    push str_908
+    push proc_heap_zalloc
+.blockstart_25: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_25
+    jmp proc_simulator_bindproc
+.blockend_25: ; call
+    push str_909
+    push proc_heap_free
+.blockstart_26: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_26
+    jmp proc_simulator_bindproc
+.blockend_26: ; call
+.blockstart_27: ; call
+    mov rax, [ret_stack_rsp]
+    add rax, 16
+    mov rbx, [loc_stack_rsp]
+    mov qword [rax - 8], rbx
+    mov qword [ret_stack_rsp], rax
+    mov qword [rax], .blockend_27
     jmp proc_simulator_run
-.blockend_21: ; call
-    push qword 0
+.blockend_27: ; call
     mov rax, 60
     pop rdi
     syscall
-.blockend_19: ; if
+.blockend_21: ; if
     pop rax
     push rax
     push rax
@@ -72623,62 +75792,62 @@ proc_main:
     push rcx
     pop rbx
     test rbx, rbx
-.blockstart_22: ; if
-    jz .blockend_22
+.blockstart_28: ; if
+    jz .blockend_28
     add rsp, 8
-    push mem+73; writer_current
-    push str_899
-.blockstart_23: ; call
+    push mem+74; writer_current
+    push str_910
+.blockstart_29: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_23
+    mov qword [rax], .blockend_29
     jmp proc_writer_new
-.blockend_23: ; call
+.blockend_29: ; call
     pop rbx
     pop rax
     mov qword [rax], rbx
     push rax
     add rsp, 8
-    push str_900
-.blockstart_24: ; call
+    push str_911
+.blockstart_30: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_24
+    mov qword [rax], .blockend_30
     jmp proc_writer_write
-.blockend_24: ; call
-.blockstart_25: ; call
+.blockend_30: ; call
+.blockstart_31: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_25
+    mov qword [rax], .blockend_31
     jmp proc_assemblerarm_new
-.blockend_25: ; call
+.blockend_31: ; call
     pop rax
     pop rbx
     push rax
     push rbx
-.blockstart_26: ; call
+.blockstart_32: ; call
     mov rax, [ret_stack_rsp]
     add rax, 16
     mov rbx, [loc_stack_rsp]
     mov qword [rax - 8], rbx
     mov qword [ret_stack_rsp], rax
-    mov qword [rax], .blockend_26
+    mov qword [rax], .blockend_32
     jmp proc_assemblerarm_visitnode
-.blockend_26: ; call
+.blockend_32: ; call
     push qword 0
     mov rax, 60
     pop rdi
     syscall
-.blockend_22: ; if
+.blockend_28: ; if
     push qword 1
     mov rax, 60
     pop rdi
@@ -72787,7 +75956,7 @@ section '.data'
     str_88: db 32, 0
     str_89: db 45, 0
     str_90: db 41, 0
-    str_91: db 91, 76, 69, 88, 93, 32, 0
+    str_91: db 91, 83, 76, 77, 93, 32, 0
     str_92: db 46, 47, 0
     str_93: db 72, 79, 77, 69, 0
     str_94: db 47, 46, 108, 111, 99, 97, 108, 47, 115, 108, 97, 109, 47, 108, 105, 98, 47, 0
@@ -72857,40 +76026,40 @@ section '.data'
     str_158: db 78, 111, 116, 32, 73, 109, 112, 108, 101, 108, 101, 109, 116, 101, 100, 32, 69, 114, 114, 111, 114, 0
     str_159: db 78, 111, 116, 32, 68, 101, 102, 105, 110, 101, 100, 32, 69, 114, 114, 111, 114, 0
     str_160: db 66, 97, 100, 32, 66, 108, 111, 99, 107, 32, 69, 114, 114, 111, 114, 0
-    str_161: db 58, 32, 0
-    str_162: db 76, 111, 99, 97, 116, 105, 111, 110, 32, 0
-    str_163: db 45, 0
-    str_164: db 60, 67, 65, 76, 76, 58, 32, 34, 0
-    str_165: db 34, 62, 0
-    str_166: db 60, 65, 83, 77, 58, 32, 34, 0
+    str_161: db 83, 105, 109, 117, 108, 97, 116, 111, 114, 32, 66, 105, 110, 100, 105, 110, 103, 32, 69, 114, 114, 111, 114, 0
+    str_162: db 78, 111, 32, 77, 101, 109, 111, 114, 121, 32, 69, 114, 114, 111, 114, 0
+    str_163: db 58, 32, 0
+    str_164: db 76, 111, 99, 97, 116, 105, 111, 110, 32, 0
+    str_165: db 45, 0
+    str_166: db 60, 67, 65, 76, 76, 58, 32, 34, 0
     str_167: db 34, 62, 0
-    str_168: db 60, 73, 78, 67, 58, 32, 34, 0
+    str_168: db 60, 65, 83, 77, 58, 32, 34, 0
     str_169: db 34, 62, 0
-    str_170: db 60, 79, 70, 58, 32, 34, 0
+    str_170: db 60, 73, 78, 67, 58, 32, 34, 0
     str_171: db 34, 62, 0
-    str_172: db 60, 67, 79, 77, 77, 69, 78, 84, 62, 0
-    str_173: db 60, 73, 78, 84, 82, 58, 32, 0
-    str_174: db 62, 0
-    str_175: db 60, 86, 65, 82, 58, 32, 34, 0
-    str_176: db 34, 44, 32, 115, 105, 122, 101, 0
-    str_177: db 62, 0
-    str_178: db 60, 68, 69, 70, 58, 32, 34, 0
-    str_179: db 34, 44, 32, 118, 97, 108, 117, 101, 58, 0
-    str_180: db 62, 0
-    str_181: db 60, 80, 82, 79, 80, 58, 32, 34, 0
-    str_182: db 34, 44, 32, 115, 105, 122, 101, 58, 0
-    str_183: db 62, 0
-    str_184: db 60, 67, 79, 78, 83, 84, 58, 32, 34, 0
-    str_185: db 34, 44, 32, 107, 105, 110, 100, 58, 0
-    str_186: db 62, 0
-    str_187: db 60, 70, 73, 76, 69, 58, 32, 0
+    str_172: db 60, 79, 70, 58, 32, 34, 0
+    str_173: db 34, 62, 0
+    str_174: db 60, 67, 79, 77, 77, 69, 78, 84, 62, 0
+    str_175: db 60, 73, 78, 84, 82, 58, 32, 0
+    str_176: db 62, 0
+    str_177: db 60, 86, 65, 82, 58, 32, 34, 0
+    str_178: db 34, 44, 32, 115, 105, 122, 101, 0
+    str_179: db 62, 0
+    str_180: db 60, 68, 69, 70, 58, 32, 34, 0
+    str_181: db 34, 44, 32, 118, 97, 108, 117, 101, 58, 0
+    str_182: db 62, 0
+    str_183: db 60, 80, 82, 79, 80, 58, 32, 34, 0
+    str_184: db 34, 44, 32, 115, 105, 122, 101, 58, 0
+    str_185: db 62, 0
+    str_186: db 60, 67, 79, 78, 83, 84, 58, 32, 34, 0
+    str_187: db 34, 44, 32, 107, 105, 110, 100, 58, 0
     str_188: db 62, 0
-    str_189: db 60, 66, 76, 79, 67, 75, 58, 32, 0
+    str_189: db 60, 70, 73, 76, 69, 58, 32, 0
     str_190: db 62, 0
-    str_191: db 32, 45, 32, 0
+    str_191: db 60, 66, 76, 79, 67, 75, 58, 32, 0
     str_192: db 62, 0
-    str_193: db 91, 80, 82, 83, 93, 32, 0
-    str_194: db 32, 116, 111, 107, 101, 110, 115, 0
+    str_193: db 32, 45, 32, 0
+    str_194: db 62, 0
     str_195: db 84, 79, 68, 79, 32, 112, 97, 114, 115, 101, 114, 46, 114, 117, 110, 105, 110, 115, 105, 100, 101, 0
     str_196: db 69, 120, 112, 101, 99, 116, 101, 100, 32, 102, 105, 108, 101, 32, 102, 111, 114, 32, 105, 110, 99, 108, 117, 100, 101, 0
     str_197: db 69, 120, 112, 101, 99, 116, 101, 100, 32, 115, 116, 114, 105, 110, 103, 32, 102, 111, 114, 32, 97, 115, 115, 101, 109, 98, 108, 121, 0
@@ -72944,12 +76113,12 @@ section '.data'
     str_245: db 48, 10, 0
     str_246: db 32, 0
     str_247: db 109, 97, 105, 110, 0
-    str_248: db 110, 111, 32, 109, 97, 105, 110, 32, 112, 114, 111, 99, 0
-    str_249: db 67, 97, 110, 110, 111, 116, 32, 109, 97, 112, 32, 109, 101, 109, 111, 114, 121, 0
-    str_250: db 91, 82, 85, 78, 93, 0
-    str_251: db 73, 110, 116, 114, 32, 110, 111, 116, 32, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 0
-    str_252: db 99, 97, 108, 108, 0
-    str_253: db 101, 99, 104, 111, 0
+    str_248: db 97, 108, 114, 101, 97, 100, 121, 32, 98, 111, 117, 110, 100, 0
+    str_249: db 110, 111, 32, 96, 0
+    str_250: db 96, 32, 112, 114, 111, 99, 0
+    str_251: db 67, 97, 110, 110, 111, 116, 32, 109, 97, 112, 32, 109, 101, 109, 111, 114, 121, 0
+    str_252: db 66, 108, 111, 99, 107, 32, 107, 105, 110, 100, 32, 110, 111, 116, 32, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 102, 111, 114, 32, 115, 105, 109, 117, 108, 97, 116, 111, 114, 0
+    str_253: db 73, 110, 116, 114, 32, 110, 111, 116, 32, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 0
     str_254: db 67, 111, 110, 115, 116, 32, 110, 111, 116, 32, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 0
     str_255: db 78, 111, 100, 101, 32, 107, 105, 110, 100, 32, 110, 111, 116, 32, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 0
     str_256: db 115, 108, 97, 115, 104, 0
@@ -72993,7 +76162,7 @@ section '.data'
     str_294: db 10, 0
     str_295: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 97, 120, 10, 0
     str_296: db 87, 111, 114, 100, 32, 39, 0
-    str_297: db 39, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
+    str_297: db 39, 32, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
     str_298: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 113, 119, 111, 114, 100, 32, 0
     str_299: db 10, 0
     str_300: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
@@ -73002,7 +76171,7 @@ section '.data'
     str_303: db 10, 0
     str_304: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
     str_305: db 10, 0
-    str_306: db 85, 110, 114, 101, 97, 99, 104, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 46, 118, 105, 115, 105, 116, 119, 111, 114, 100, 0
+    str_306: db 85, 110, 114, 101, 97, 99, 104, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 46, 118, 105, 115, 105, 116, 99, 111, 110, 115, 116, 0
     str_307: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 46, 118, 105, 115, 105, 116, 100, 101, 102, 0
     str_308: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 46, 118, 105, 115, 105, 116, 112, 114, 111, 112, 0
     str_309: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 97, 120, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
@@ -73213,394 +76382,405 @@ section '.data'
     str_514: db 32, 32, 32, 32, 0
     str_515: db 10, 0
     str_516: db 121, 0
-    str_517: db 91, 65, 83, 77, 93, 32, 0
-    str_518: db 10, 0
-    str_519: db 83, 105, 109, 117, 108, 97, 116, 111, 114, 32, 105, 115, 32, 117, 110, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 97, 115, 32, 111, 102, 32, 110, 111, 119, 0
-    str_520: db 83, 73, 90, 69, 0
-    str_521: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 98, 120, 10, 0
-    str_522: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 98, 120, 44, 32, 114, 98, 120, 10, 0
-    str_523: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_524: db 58, 32, 59, 32, 105, 102, 10, 0
-    str_525: db 32, 32, 32, 32, 106, 122, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_526: db 10, 0
-    str_527: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_528: db 58, 32, 59, 32, 100, 111, 10, 0
-    str_529: db 32, 32, 32, 32, 106, 109, 112, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_530: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_531: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
-    str_532: db 32, 32, 32, 32, 106, 109, 112, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_533: db 10, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_534: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
-    str_535: db 83, 73, 90, 69, 0
-    str_536: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_537: db 58, 32, 59, 32, 105, 102, 10, 0
-    str_538: db 73, 102, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
-    str_539: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_540: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
-    str_541: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_542: db 10, 0
-    str_543: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_544: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
-    str_545: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_546: db 10, 0
-    str_547: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 98, 120, 10, 0
-    str_548: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 98, 120, 44, 32, 114, 98, 120, 10, 0
-    str_549: db 32, 32, 32, 32, 106, 110, 122, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_550: db 10, 0
-    str_551: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_552: db 58, 32, 59, 32, 100, 111, 10, 0
-    str_553: db 68, 111, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
-    str_554: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 111, 114, 32, 113, 117, 105, 116, 0
-    str_555: db 115, 108, 97, 115, 104, 0
-    str_556: db 112, 101, 114, 99, 0
-    str_557: db 95, 0
-    str_558: db 67, 111, 110, 115, 116, 32, 39, 0
-    str_559: db 39, 32, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 46, 0
-    str_560: db 83, 116, 97, 99, 107, 32, 85, 110, 100, 101, 114, 102, 108, 111, 119, 0
-    str_561: db 112, 114, 111, 99, 95, 0
-    str_562: db 58, 10, 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 0
+    str_517: db 83, 105, 109, 117, 108, 97, 116, 111, 114, 32, 105, 115, 32, 117, 110, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 97, 115, 32, 111, 102, 32, 110, 111, 119, 0
+    str_518: db 83, 73, 90, 69, 0
+    str_519: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 98, 120, 10, 0
+    str_520: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 98, 120, 44, 32, 114, 98, 120, 10, 0
+    str_521: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_522: db 58, 32, 59, 32, 105, 102, 10, 0
+    str_523: db 32, 32, 32, 32, 106, 122, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_524: db 10, 0
+    str_525: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_526: db 58, 32, 59, 32, 100, 111, 10, 0
+    str_527: db 32, 32, 32, 32, 106, 109, 112, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_528: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_529: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
+    str_530: db 32, 32, 32, 32, 106, 109, 112, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_531: db 10, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_532: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
+    str_533: db 83, 73, 90, 69, 0
+    str_534: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_535: db 58, 32, 59, 32, 105, 102, 10, 0
+    str_536: db 73, 102, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
+    str_537: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_538: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
+    str_539: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_540: db 10, 0
+    str_541: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_542: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
+    str_543: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_544: db 10, 0
+    str_545: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 98, 120, 10, 0
+    str_546: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 98, 120, 44, 32, 114, 98, 120, 10, 0
+    str_547: db 32, 32, 32, 32, 106, 110, 122, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_548: db 10, 0
+    str_549: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_550: db 58, 32, 59, 32, 100, 111, 10, 0
+    str_551: db 68, 111, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
+    str_552: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 111, 114, 32, 113, 117, 105, 116, 44, 32, 97, 110, 100, 32, 105, 115, 32, 110, 111, 116, 32, 117, 110, 115, 97, 102, 101, 0
+    str_553: db 115, 108, 97, 115, 104, 0
+    str_554: db 112, 101, 114, 99, 0
+    str_555: db 95, 0
+    str_556: db 67, 111, 110, 115, 116, 32, 39, 0
+    str_557: db 39, 32, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 46, 0
+    str_558: db 83, 116, 97, 99, 107, 32, 85, 110, 100, 101, 114, 102, 108, 111, 119, 0
+    str_559: db 112, 114, 111, 99, 95, 0
+    str_560: db 58, 10, 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 0
+    str_561: db 10, 0
+    str_562: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 112, 114, 111, 99, 95, 0
     str_563: db 10, 0
-    str_564: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 112, 114, 111, 99, 95, 0
-    str_565: db 10, 0
-    str_566: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_567: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
-    str_568: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
-    str_569: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
-    str_570: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
-    str_571: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 35, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_572: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
-    str_573: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
-    str_574: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 35, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
+    str_564: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_565: db 58, 10, 0
+    str_566: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_567: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_568: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
+    str_569: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_570: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 91, 114, 50, 93, 10, 0
+    str_571: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
+    str_572: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
+    str_573: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_574: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
     str_575: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 56, 10, 0
-    str_576: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_576: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
     str_577: db 10, 0
     str_578: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
     str_579: db 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 0
     str_580: db 10, 0
     str_581: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_582: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
+    str_582: db 58, 10, 0
     str_583: db 112, 114, 111, 99, 95, 0
     str_584: db 95, 0
     str_585: db 59, 32, 104, 101, 97, 100, 0
     str_586: db 58, 10, 0
     str_587: db 95, 0
     str_588: db 73, 110, 104, 101, 114, 105, 116, 97, 110, 99, 101, 32, 105, 115, 32, 117, 110, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 97, 115, 32, 111, 102, 32, 110, 111, 119, 0
-    str_589: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 35, 0
+    str_589: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 35, 0
     str_590: db 10, 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
     str_591: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 109, 101, 109, 43, 0
     str_592: db 59, 32, 0
     str_593: db 10, 0
-    str_594: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_595: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
-    str_596: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 35, 91, 114, 49, 93, 10, 0
-    str_597: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 0
-    str_598: db 10, 0
-    str_599: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_600: db 87, 111, 114, 100, 32, 39, 0
-    str_601: db 39, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
-    str_602: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 35, 0
-    str_603: db 10, 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_604: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
-    str_605: db 10, 0
-    str_606: db 32, 32, 32, 32, 108, 100, 114, 32, 35, 0
-    str_607: db 10, 0
-    str_608: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_609: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
-    str_610: db 10, 0
-    str_611: db 85, 110, 114, 101, 97, 99, 104, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 119, 111, 114, 100, 0
-    str_612: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 100, 101, 102, 0
-    str_613: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 112, 114, 111, 112, 0
-    str_614: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_615: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 0
-    str_616: db 10, 0
-    str_617: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 114, 49, 10, 0
-    str_618: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_619: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 0
-    str_620: db 10, 0
-    str_621: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 114, 49, 10, 0
-    str_622: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 118, 97, 114, 32, 108, 111, 99, 97, 108, 0
-    str_623: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 118, 97, 114, 32, 103, 108, 111, 98, 97, 108, 0
-    str_624: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_625: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
-    str_626: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 51, 10, 0
-    str_627: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_628: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 49, 54, 10, 0
-    str_629: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_630: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 32, 45, 32, 56, 93, 44, 32, 114, 50, 10, 0
-    str_631: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 114, 49, 10, 0
-    str_632: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 93, 44, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_633: db 10, 0
-    str_634: db 32, 32, 32, 32, 98, 32, 114, 51, 10, 0
-    str_635: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_636: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
-    str_637: db 112, 114, 111, 99, 32, 39, 0
-    str_638: db 39, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
-    str_639: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 112, 114, 111, 99, 95, 0
-    str_640: db 10, 0
-    str_641: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_642: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
-    str_643: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_644: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 49, 54, 10, 0
-    str_645: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
-    str_646: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 32, 45, 32, 56, 93, 44, 32, 114, 50, 10, 0
-    str_647: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 91, 114, 49, 93, 10, 0
-    str_648: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 93, 44, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_649: db 10, 0
-    str_650: db 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 0
-    str_651: db 10, 0
-    str_652: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_653: db 58, 32, 59, 32, 99, 97, 108, 108, 10, 0
-    str_654: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 99, 111, 114, 114, 101, 99, 116, 32, 97, 109, 109, 111, 117, 110, 116, 0
-    str_655: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
-    str_656: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
-    str_657: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
-    str_658: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
-    str_659: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
+    str_594: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_595: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_596: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
+    str_597: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_598: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 0
+    str_599: db 10, 0
+    str_600: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_601: db 87, 111, 114, 100, 32, 39, 0
+    str_602: db 39, 105, 115, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
+    str_603: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 35, 0
+    str_604: db 10, 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_605: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
+    str_606: db 10, 0
+    str_607: db 32, 32, 32, 32, 108, 100, 114, 32, 35, 0
+    str_608: db 10, 0
+    str_609: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_610: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 115, 116, 114, 95, 0
+    str_611: db 10, 0
+    str_612: db 85, 110, 114, 101, 97, 99, 104, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 119, 111, 114, 100, 0
+    str_613: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 100, 101, 102, 0
+    str_614: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 112, 114, 111, 112, 0
+    str_615: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_616: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_617: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 0
+    str_618: db 10, 0
+    str_619: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_620: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
+    str_621: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_622: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_623: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 0
+    str_624: db 10, 0
+    str_625: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_626: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
+    str_627: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 118, 97, 114, 32, 108, 111, 99, 97, 108, 0
+    str_628: db 85, 110, 114, 101, 97, 99, 97, 98, 108, 101, 32, 97, 115, 115, 101, 109, 98, 108, 101, 114, 97, 114, 109, 46, 118, 105, 115, 105, 116, 118, 97, 114, 32, 103, 108, 111, 98, 97, 108, 0
+    str_629: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_630: db 58, 10, 0
+    str_631: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 51, 10, 0
+    str_632: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
+    str_633: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 49, 54, 10, 0
+    str_634: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
+    str_635: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 32, 45, 32, 56, 93, 44, 32, 114, 50, 10, 0
+    str_636: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 114, 49, 10, 0
+    str_637: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 93, 44, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_638: db 10, 0
+    str_639: db 32, 32, 32, 32, 98, 32, 114, 51, 10, 0
+    str_640: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_641: db 58, 10, 0
+    str_642: db 112, 114, 111, 99, 32, 39, 0
+    str_643: db 39, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
+    str_644: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 112, 114, 111, 99, 95, 0
+    str_645: db 10, 0
+    str_646: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_647: db 58, 10, 0
+    str_648: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
+    str_649: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 49, 54, 10, 0
+    str_650: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 10, 0
+    str_651: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 32, 45, 32, 56, 93, 44, 32, 114, 50, 10, 0
+    str_652: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 93, 44, 32, 91, 114, 49, 93, 10, 0
+    str_653: db 32, 32, 32, 32, 109, 111, 118, 32, 91, 114, 49, 93, 44, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_654: db 10, 0
+    str_655: db 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 0
+    str_656: db 10, 0
+    str_657: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_658: db 58, 10, 0
+    str_659: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 99, 111, 114, 114, 101, 99, 116, 32, 97, 109, 109, 111, 117, 110, 116, 0
     str_660: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
-    str_661: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
-    str_662: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
-    str_663: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
-    str_664: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
-    str_665: db 32, 32, 32, 32, 98, 32, 91, 114, 49, 93, 10, 0
-    str_666: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_667: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_668: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_669: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_670: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
-    str_671: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
-    str_672: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_673: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
-    str_674: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 56, 10, 0
-    str_675: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_661: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 56, 10, 0
+    str_662: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_663: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 108, 111, 99, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_664: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
+    str_665: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_666: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
+    str_667: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 61, 114, 101, 116, 95, 115, 116, 97, 99, 107, 95, 114, 115, 112, 10, 0
+    str_668: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 49, 44, 32, 91, 114, 50, 93, 10, 0
+    str_669: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 35, 49, 54, 10, 0
+    str_670: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_671: db 32, 32, 32, 32, 98, 120, 32, 114, 49, 10, 0
+    str_672: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_673: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_674: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_675: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
     str_676: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
     str_677: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
-    str_678: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 50, 10, 0
-    str_679: db 32, 32, 32, 32, 115, 104, 108, 32, 114, 49, 44, 32, 51, 10, 0
-    str_680: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
-    str_681: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 50, 44, 32, 114, 49, 10, 0
-    str_682: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_683: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 54, 48, 10, 0
-    str_684: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_685: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_686: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_687: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_688: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_689: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_690: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_691: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_692: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_693: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_694: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_695: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_696: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
-    str_697: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_698: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_699: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 50, 44, 32, 114, 50, 10, 0
-    str_700: db 32, 32, 32, 32, 109, 111, 118, 32, 98, 108, 44, 32, 91, 114, 49, 93, 10, 0
-    str_701: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_702: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_703: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_704: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
-    str_705: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_706: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_707: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_708: db 32, 32, 32, 32, 115, 116, 114, 98, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
-    str_709: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_710: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
-    str_711: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
-    str_712: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_713: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_714: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_715: db 32, 32, 32, 32, 99, 109, 111, 118, 101, 32, 114, 51, 44, 32, 114, 52, 10, 0
-    str_716: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
-    str_717: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
-    str_718: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
-    str_719: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_720: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_721: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_722: db 32, 32, 32, 32, 99, 109, 111, 118, 110, 101, 32, 114, 51, 44, 32, 114, 52, 10, 0
-    str_723: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
-    str_724: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
-    str_725: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
+    str_678: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_679: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
+    str_680: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 56, 10, 0
+    str_681: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_682: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
+    str_683: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 91, 114, 49, 93, 10, 0
+    str_684: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 50, 10, 0
+    str_685: db 32, 32, 32, 32, 115, 104, 108, 32, 114, 49, 44, 32, 51, 10, 0
+    str_686: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 97, 114, 103, 115, 95, 112, 116, 114, 93, 10, 0
+    str_687: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 50, 44, 32, 114, 49, 10, 0
+    str_688: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_689: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 49, 44, 32, 54, 48, 10, 0
+    str_690: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_691: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_692: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_693: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_694: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_695: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_696: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_697: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_698: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_699: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_700: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_701: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_702: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
+    str_703: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_704: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_705: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 50, 44, 32, 114, 50, 10, 0
+    str_706: db 32, 32, 32, 32, 109, 111, 118, 32, 98, 108, 44, 32, 91, 114, 49, 93, 10, 0
+    str_707: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_708: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_709: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_710: db 32, 32, 32, 32, 115, 116, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
+    str_711: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_712: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_713: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_714: db 32, 32, 32, 32, 115, 116, 114, 98, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
+    str_715: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_716: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
+    str_717: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
+    str_718: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_719: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_720: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_721: db 32, 32, 32, 32, 99, 109, 111, 118, 101, 32, 114, 51, 44, 32, 114, 52, 10, 0
+    str_722: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
+    str_723: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
+    str_724: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
+    str_725: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
     str_726: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_727: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_728: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_729: db 32, 32, 32, 32, 99, 109, 111, 118, 108, 32, 114, 51, 44, 32, 114, 52, 10, 0
-    str_730: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
-    str_731: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
-    str_732: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
-    str_733: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_734: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_735: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_736: db 32, 32, 32, 32, 99, 109, 111, 118, 103, 32, 114, 51, 44, 32, 114, 52, 10, 0
-    str_737: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
-    str_738: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_739: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 49, 44, 32, 49, 10, 0
-    str_740: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_741: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_742: db 32, 32, 32, 32, 110, 111, 116, 32, 114, 49, 10, 0
-    str_743: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_727: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_728: db 32, 32, 32, 32, 99, 109, 111, 118, 110, 101, 32, 114, 51, 44, 32, 114, 52, 10, 0
+    str_729: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
+    str_730: db 32, 32, 32, 32, 101, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
+    str_731: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
+    str_732: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_733: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_734: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_735: db 32, 32, 32, 32, 99, 109, 111, 118, 108, 32, 114, 51, 44, 32, 114, 52, 10, 0
+    str_736: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
+    str_737: db 32, 32, 32, 32, 101, 111, 114, 32, 114, 51, 44, 32, 114, 51, 10, 0
+    str_738: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 52, 44, 32, 49, 10, 0
+    str_739: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_740: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_741: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_742: db 32, 32, 32, 32, 99, 109, 111, 118, 103, 32, 114, 51, 44, 32, 114, 52, 10, 0
+    str_743: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 51, 10, 0
     str_744: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_745: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_746: db 32, 32, 32, 32, 97, 110, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_747: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_748: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_749: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_750: db 32, 32, 32, 32, 111, 114, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_751: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_752: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_753: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_754: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_755: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_756: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_757: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_758: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_759: db 32, 32, 32, 32, 109, 111, 118, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
-    str_760: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
-    str_761: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_762: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_763: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_764: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_765: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_766: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_767: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_768: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_769: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_770: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_771: db 32, 32, 32, 32, 109, 117, 108, 32, 114, 49, 44, 32, 114, 50, 10, 0
-    str_772: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_773: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 52, 44, 32, 114, 52, 10, 0
-    str_774: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_745: db 32, 32, 32, 32, 101, 111, 114, 32, 114, 49, 44, 32, 35, 49, 10, 0
+    str_746: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_747: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_748: db 32, 32, 32, 32, 110, 111, 116, 32, 114, 49, 10, 0
+    str_749: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_750: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_751: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_752: db 32, 32, 32, 32, 97, 110, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_753: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_754: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_755: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_756: db 32, 32, 32, 32, 111, 114, 114, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_757: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_758: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_759: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_760: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_761: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_762: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_763: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_764: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_765: db 32, 32, 32, 32, 108, 100, 114, 32, 114, 50, 44, 32, 91, 114, 49, 93, 10, 0
+    str_766: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 50, 125, 10, 0
+    str_767: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_768: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_769: db 32, 32, 32, 32, 97, 100, 100, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_770: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_771: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_772: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_773: db 32, 32, 32, 32, 115, 117, 98, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_774: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
     str_775: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_776: db 32, 32, 32, 32, 105, 100, 105, 118, 32, 114, 50, 10, 0
-    str_777: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_778: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 52, 10, 0
-    str_779: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_780: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_781: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_782: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_783: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_784: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_785: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_786: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_787: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_788: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
-    str_789: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_790: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_791: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_792: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_793: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
-    str_794: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
+    str_776: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_777: db 32, 32, 32, 32, 109, 117, 108, 32, 114, 49, 44, 32, 114, 50, 10, 0
+    str_778: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_779: db 32, 32, 32, 32, 120, 111, 114, 32, 114, 52, 44, 32, 114, 52, 10, 0
+    str_780: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_781: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_782: db 32, 32, 32, 32, 105, 100, 105, 118, 32, 114, 50, 10, 0
+    str_783: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_784: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 114, 52, 10, 0
+    str_785: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_786: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_787: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_788: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_789: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_790: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_791: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_792: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_793: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_794: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
     str_795: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
     str_796: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
     str_797: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
     str_798: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
     str_799: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
     str_800: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
-    str_801: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
-    str_802: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_803: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_804: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_805: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_806: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
-    str_807: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
-    str_808: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
-    str_809: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 56, 10, 0
-    str_810: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_811: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_812: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
-    str_813: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
-    str_814: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
-    str_815: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
-    str_816: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
-    str_817: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 56, 10, 0
-    str_818: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 57, 10, 0
-    str_819: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
-    str_820: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
-    str_821: db 73, 110, 116, 114, 105, 110, 115, 105, 99, 32, 97, 99, 116, 105, 111, 110, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
-    str_822: db 32, 32, 32, 32, 0
-    str_823: db 10, 0
-    str_824: db 121, 0
-    str_825: db 91, 65, 83, 77, 93, 32, 0
-    str_826: db 10, 0
-    str_827: db 83, 105, 109, 117, 108, 97, 116, 111, 114, 32, 105, 115, 32, 117, 110, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 97, 115, 32, 111, 102, 32, 110, 111, 119, 0
-    str_828: db 83, 73, 90, 69, 0
-    str_829: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_830: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 50, 44, 32, 114, 50, 10, 0
-    str_831: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_832: db 58, 32, 59, 32, 105, 102, 10, 0
-    str_833: db 32, 32, 32, 32, 106, 122, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_834: db 10, 0
-    str_835: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_836: db 58, 32, 59, 32, 100, 111, 10, 0
-    str_837: db 32, 32, 32, 32, 98, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_838: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_839: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
-    str_840: db 32, 32, 32, 32, 98, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_841: db 10, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_842: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
-    str_843: db 83, 73, 90, 69, 0
-    str_844: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_845: db 58, 32, 59, 32, 105, 102, 10, 0
-    str_846: db 73, 102, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
-    str_847: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_848: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
-    str_849: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_850: db 10, 0
-    str_851: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_852: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
-    str_853: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_854: db 10, 0
-    str_855: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
-    str_856: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 50, 44, 32, 114, 50, 10, 0
-    str_857: db 32, 32, 32, 32, 106, 110, 122, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
-    str_858: db 10, 0
-    str_859: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
-    str_860: db 58, 32, 59, 32, 100, 111, 10, 0
-    str_861: db 68, 111, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
-    str_862: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 111, 114, 32, 113, 117, 105, 116, 0
-    str_863: db 51, 46, 48, 46, 48, 0
-    str_864: db 115, 108, 97, 109, 32, 99, 111, 109, 112, 105, 108, 101, 114, 32, 118, 0
-    str_865: db 69, 82, 82, 79, 82, 58, 32, 89, 111, 117, 32, 109, 117, 115, 116, 32, 99, 111, 109, 112, 105, 108, 101, 32, 101, 120, 97, 99, 116, 108, 121, 32, 49, 32, 102, 105, 108, 101, 46, 0
-    str_866: db 69, 82, 82, 79, 82, 58, 32, 76, 97, 115, 116, 32, 97, 114, 103, 117, 109, 101, 110, 116, 32, 115, 117, 112, 112, 108, 105, 101, 100, 32, 114, 101, 113, 117, 105, 114, 101, 115, 32, 97, 32, 112, 97, 114, 97, 109, 101, 116, 101, 114, 0
-    str_867: db 115, 108, 97, 109, 32, 99, 111, 109, 112, 105, 108, 101, 114, 32, 118, 0
-    str_868: db 32, 117, 115, 97, 103, 101, 58, 0
-    str_869: db 115, 108, 97, 109, 32, 91, 45, 104, 118, 97, 115, 93, 32, 91, 45, 111, 32, 111, 117, 116, 112, 117, 116, 93, 32, 102, 105, 108, 101, 0
-    str_870: db 45, 118, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 115, 104, 111, 119, 115, 32, 116, 104, 101, 32, 118, 101, 114, 115, 105, 111, 110, 32, 97, 110, 100, 32, 101, 120, 105, 116, 115, 46, 0
-    str_871: db 45, 104, 44, 32, 45, 45, 104, 101, 108, 112, 32, 32, 32, 32, 115, 104, 111, 119, 115, 32, 116, 104, 105, 115, 32, 109, 101, 115, 115, 97, 103, 101, 32, 97, 110, 100, 32, 101, 120, 105, 116, 115, 46, 0
-    str_872: db 45, 111, 44, 32, 45, 45, 111, 117, 116, 112, 117, 116, 32, 32, 115, 101, 116, 115, 32, 116, 104, 101, 32, 111, 117, 116, 112, 117, 116, 32, 102, 105, 108, 101, 46, 0
-    str_873: db 45, 97, 44, 32, 45, 45, 97, 115, 109, 32, 32, 32, 32, 32, 107, 101, 101, 112, 115, 32, 116, 104, 101, 32, 97, 115, 109, 32, 102, 105, 108, 101, 46, 0
-    str_874: db 45, 115, 44, 32, 45, 45, 115, 105, 109, 32, 32, 32, 32, 32, 107, 101, 101, 112, 115, 32, 116, 104, 101, 32, 97, 115, 109, 32, 102, 105, 108, 101, 46, 0
-    str_875: db 45, 118, 0
-    str_876: db 45, 104, 0
-    str_877: db 45, 45, 104, 101, 108, 112, 0
-    str_878: db 45, 111, 0
-    str_879: db 45, 45, 111, 117, 116, 112, 117, 116, 0
-    str_880: db 45, 115, 0
-    str_881: db 45, 45, 115, 105, 109, 0
-    str_882: db 45, 45, 97, 114, 109, 0
-    str_883: db 97, 46, 111, 117, 116, 0
-    str_884: db 116, 101, 109, 112, 46, 97, 115, 109, 0
-    str_885: db 47, 117, 115, 114, 47, 98, 105, 110, 47, 102, 97, 115, 109, 0
-    str_886: db 45, 112, 0
-    str_887: db 50, 48, 0
-    str_888: db 45, 109, 0
-    str_889: db 53, 50, 52, 50, 56, 56, 0
-    str_890: db 116, 101, 109, 112, 46, 97, 115, 109, 0
-    str_891: db 116, 101, 109, 112, 46, 111, 0
-    str_892: db 47, 117, 115, 114, 47, 98, 105, 110, 47, 108, 100, 0
-    str_893: db 45, 100, 121, 110, 97, 109, 105, 99, 45, 108, 105, 110, 107, 101, 114, 0
-    str_894: db 47, 108, 105, 98, 54, 52, 47, 108, 100, 45, 108, 105, 110, 117, 120, 45, 120, 56, 54, 45, 54, 52, 46, 115, 111, 46, 50, 0
-    str_895: db 45, 111, 0
-    str_896: db 45, 108, 99, 0
-    str_897: db 45, 109, 101, 108, 102, 95, 120, 56, 54, 95, 54, 52, 0
+    str_801: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_802: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_803: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_804: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_805: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
+    str_806: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
+    str_807: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
+    str_808: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_809: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_810: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_811: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_812: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
+    str_813: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
+    str_814: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
+    str_815: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 56, 10, 0
+    str_816: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_817: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_818: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 10, 0
+    str_819: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 100, 105, 10, 0
+    str_820: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 115, 105, 10, 0
+    str_821: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 52, 10, 0
+    str_822: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 49, 125, 48, 10, 0
+    str_823: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 56, 10, 0
+    str_824: db 32, 32, 32, 32, 112, 111, 112, 32, 114, 57, 10, 0
+    str_825: db 32, 32, 32, 32, 115, 121, 115, 99, 97, 108, 108, 10, 0
+    str_826: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 123, 114, 49, 125, 10, 0
+    str_827: db 73, 110, 116, 114, 105, 110, 115, 105, 99, 32, 97, 99, 116, 105, 111, 110, 32, 110, 111, 116, 32, 100, 101, 102, 105, 110, 101, 100, 0
+    str_828: db 32, 32, 32, 32, 0
+    str_829: db 10, 0
+    str_830: db 121, 0
+    str_831: db 91, 65, 83, 77, 93, 32, 0
+    str_832: db 10, 0
+    str_833: db 83, 105, 109, 117, 108, 97, 116, 111, 114, 32, 105, 115, 32, 117, 110, 105, 109, 112, 108, 101, 109, 101, 110, 116, 101, 100, 32, 97, 115, 32, 111, 102, 32, 110, 111, 119, 0
+    str_834: db 83, 73, 90, 69, 0
+    str_835: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_836: db 32, 32, 32, 32, 116, 101, 115, 116, 32, 114, 50, 44, 32, 114, 50, 10, 0
+    str_837: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_838: db 58, 32, 59, 32, 105, 102, 10, 0
+    str_839: db 32, 32, 32, 32, 106, 122, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_840: db 10, 0
+    str_841: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_842: db 58, 10, 0
+    str_843: db 32, 32, 32, 32, 98, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_844: db 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_845: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
+    str_846: db 32, 32, 32, 32, 98, 32, 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_847: db 10, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_848: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
+    str_849: db 83, 73, 90, 69, 0
+    str_850: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_851: db 58, 32, 59, 32, 105, 102, 10, 0
+    str_852: db 73, 102, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
+    str_853: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_854: db 58, 32, 59, 32, 108, 97, 109, 98, 100, 97, 10, 0
+    str_855: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_856: db 10, 0
+    str_857: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_858: db 58, 32, 59, 32, 112, 108, 97, 109, 98, 100, 97, 10, 0
+    str_859: db 32, 32, 32, 32, 112, 117, 115, 104, 32, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_860: db 10, 0
+    str_861: db 32, 32, 32, 32, 112, 111, 112, 32, 123, 114, 50, 125, 10, 0
+    str_862: db 32, 32, 32, 32, 99, 109, 112, 32, 114, 50, 44, 32, 114, 50, 10, 0
+    str_863: db 32, 32, 32, 32, 106, 110, 122, 32, 61, 46, 98, 108, 111, 99, 107, 115, 116, 97, 114, 116, 95, 0
+    str_864: db 10, 0
+    str_865: db 46, 98, 108, 111, 99, 107, 101, 110, 100, 95, 0
+    str_866: db 58, 10, 0
+    str_867: db 68, 111, 32, 115, 116, 97, 116, 101, 109, 101, 110, 116, 32, 99, 104, 97, 110, 103, 101, 115, 32, 115, 116, 97, 99, 107, 32, 112, 111, 115, 105, 116, 105, 111, 110, 0
+    str_868: db 80, 114, 111, 99, 32, 100, 111, 115, 101, 110, 116, 32, 114, 101, 116, 117, 114, 110, 32, 111, 114, 32, 113, 117, 105, 116, 0
+    str_869: db 51, 46, 48, 46, 48, 0
+    str_870: db 115, 108, 97, 109, 32, 99, 111, 109, 112, 105, 108, 101, 114, 32, 118, 0
+    str_871: db 69, 82, 82, 79, 82, 58, 32, 89, 111, 117, 32, 109, 117, 115, 116, 32, 99, 111, 109, 112, 105, 108, 101, 32, 101, 120, 97, 99, 116, 108, 121, 32, 49, 32, 102, 105, 108, 101, 46, 0
+    str_872: db 69, 82, 82, 79, 82, 58, 32, 76, 97, 115, 116, 32, 97, 114, 103, 117, 109, 101, 110, 116, 32, 115, 117, 112, 112, 108, 105, 101, 100, 32, 114, 101, 113, 117, 105, 114, 101, 115, 32, 97, 32, 112, 97, 114, 97, 109, 101, 116, 101, 114, 0
+    str_873: db 115, 108, 97, 109, 32, 99, 111, 109, 112, 105, 108, 101, 114, 32, 118, 0
+    str_874: db 32, 117, 115, 97, 103, 101, 58, 0
+    str_875: db 115, 108, 97, 109, 32, 91, 45, 104, 118, 97, 115, 93, 32, 91, 45, 111, 32, 111, 117, 116, 112, 117, 116, 93, 32, 102, 105, 108, 101, 0
+    str_876: db 45, 118, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 115, 104, 111, 119, 115, 32, 116, 104, 101, 32, 118, 101, 114, 115, 105, 111, 110, 32, 97, 110, 100, 32, 101, 120, 105, 116, 115, 46, 0
+    str_877: db 45, 104, 44, 32, 45, 45, 104, 101, 108, 112, 32, 32, 32, 32, 115, 104, 111, 119, 115, 32, 116, 104, 105, 115, 32, 109, 101, 115, 115, 97, 103, 101, 32, 97, 110, 100, 32, 101, 120, 105, 116, 115, 46, 0
+    str_878: db 45, 111, 44, 32, 45, 45, 111, 117, 116, 112, 117, 116, 32, 32, 115, 101, 116, 115, 32, 116, 104, 101, 32, 111, 117, 116, 112, 117, 116, 32, 102, 105, 108, 101, 46, 0
+    str_879: db 45, 97, 44, 32, 45, 45, 97, 115, 109, 32, 32, 32, 32, 32, 107, 101, 101, 112, 115, 32, 116, 104, 101, 32, 97, 115, 109, 32, 102, 105, 108, 101, 46, 0
+    str_880: db 45, 115, 44, 32, 45, 45, 115, 105, 109, 32, 32, 32, 32, 32, 107, 101, 101, 112, 115, 32, 116, 104, 101, 32, 97, 115, 109, 32, 102, 105, 108, 101, 46, 0
+    str_881: db 45, 118, 0
+    str_882: db 45, 104, 0
+    str_883: db 45, 45, 104, 101, 108, 112, 0
+    str_884: db 45, 111, 0
+    str_885: db 45, 45, 111, 117, 116, 112, 117, 116, 0
+    str_886: db 45, 115, 0
+    str_887: db 45, 45, 115, 105, 109, 0
+    str_888: db 45, 45, 97, 114, 109, 0
+    str_889: db 97, 46, 111, 117, 116, 0
+    str_890: db 99, 111, 110, 115, 111, 108, 101, 0
+    str_891: db 116, 101, 109, 112, 46, 97, 115, 109, 0
+    str_892: db 47, 117, 115, 114, 47, 98, 105, 110, 47, 102, 97, 115, 109, 0
+    str_893: db 45, 112, 0
+    str_894: db 50, 48, 0
+    str_895: db 45, 109, 0
+    str_896: db 53, 50, 52, 50, 56, 56, 0
+    str_897: db 116, 101, 109, 112, 46, 97, 115, 109, 0
     str_898: db 116, 101, 109, 112, 46, 111, 0
-    str_899: db 116, 101, 109, 112, 46, 97, 115, 109, 0
-    str_900: db 32, 32, 32, 32, 98, 32, 109, 97, 105, 110, 10, 0
+    str_899: db 47, 117, 115, 114, 47, 98, 105, 110, 47, 108, 100, 0
+    str_900: db 45, 100, 121, 110, 97, 109, 105, 99, 45, 108, 105, 110, 107, 101, 114, 0
+    str_901: db 47, 108, 105, 98, 54, 52, 47, 108, 100, 45, 108, 105, 110, 117, 120, 45, 120, 56, 54, 45, 54, 52, 46, 115, 111, 46, 50, 0
+    str_902: db 45, 111, 0
+    str_903: db 45, 108, 99, 0
+    str_904: db 45, 109, 101, 108, 102, 95, 120, 56, 54, 95, 54, 52, 0
+    str_905: db 116, 101, 109, 112, 46, 111, 0
+    str_906: db 99, 115, 116, 114, 46, 112, 114, 105, 110, 116, 108, 110, 0
+    str_907: db 104, 101, 97, 112, 46, 97, 108, 108, 111, 99, 0
+    str_908: db 104, 101, 97, 112, 46, 122, 97, 108, 108, 111, 99, 0
+    str_909: db 104, 101, 97, 112, 46, 102, 114, 101, 101, 0
+    str_910: db 116, 101, 109, 112, 46, 97, 115, 109, 0
+    str_911: db 32, 32, 32, 32, 98, 32, 112, 114, 111, 99, 95, 109, 97, 105, 110, 10, 0
 section '.bss'
     args_ptr: rq 1
     ret_stack_rsp: rq 1
     ret_stack: rq 1024
     loc_stack_rsp: rq 1
     loc_stack: rq 512
-    mem: rb 339
+    mem: rb 348
