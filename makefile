@@ -26,9 +26,9 @@ clean:
 	rm -f sim
 	rm -f sim.asm
 
-tests/slam2/test: slam
+tests/test: slam
 	rm -f temp.asm
-	slam -o tests/test tests/test.slm > /dev/null
+	slam -o tests/test tests/test.slm
 
 test: tests/slam2/test
 	cd tests; ./test

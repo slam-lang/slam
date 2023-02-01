@@ -28,4 +28,6 @@ jobs:
           git clone http://github.com/slam-lang/slam
           cd slam
           export PATH=$PATH:$HOME/.local/slam/bin/
-          make test >> $GITHUB_STEP_SUMMARY
+          make tests/test
+          pushd tests
+          ./test >> $GITHUB_STEP_SUMMARY
