@@ -85,7 +85,7 @@ class asmdata
   end
 
   oper proc free 1 0
-    copy asmdata.base @ str.free
+    copy asmdata.raw @ str.free
     heap.free
 
     ret

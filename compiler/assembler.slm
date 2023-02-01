@@ -536,7 +536,7 @@ class assembler
     str.new
     "Word '" str.catc
     node read constdata.constvalue @ str.data . str.catc
-    "'is not defined" str.catc
+    "' is not defined" str.catc
     str.data .
 
     error.new
@@ -904,7 +904,7 @@ class assembler
 
     callee assembler.MAX_NAME_SIZE heap.zalloc put disc
 
-    node read calldata.callee @ str.size @
+    node read calldata.callee @ str.data . readc
     0 == if
       ".blockstart_" writer.write
       self read assembler.lastblock @ int.cstr writer.write
@@ -1680,7 +1680,6 @@ class assembler
 
     node read blockdata.blockkind @
     copy BNK_SIM == if
-
       nodep read slmnode.start .
       nodep read slmnode.stop .
       error.EK_UNIMP
@@ -1879,7 +1878,7 @@ class assembler
       nodep read slmnode.start .
       nodep read slmnode.stop .
       CNK_WORD
-      node read blockdata.blockname @ str.dup swap disc
+      node read blockdata.blockname @
       constdata.new
       slmnode.new
       put disc
